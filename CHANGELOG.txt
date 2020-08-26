@@ -1,0 +1,302 @@
+11/2018
+ -bug fix
+ -aggiornato motore templates
+ -migliorato supporto per autenticazioni esterne
+ -introdotto $_FN['return']
+4/2020
+ -spostato parametro datadir in file di configurazione statico
+ -inserito stile dei link in config.php (https://siteurl/folder/folder2/example.html,1=/folder/folder2/example.html)
+ -corretto bug fix in possibile corruzione del file di configurazione 
+3/2020
+ -migliorato modulo di ricerca
+ -implemenata personalizzazione modulo login
+ -aggiunto parametro di configurazione change_password_online
+ -aggiunto parametro di configurazione send_welwelcome_message
+ -migliorato tema bootstrap
+
+1/2020
+ -migliorato motore template
+ -supporto restrizione password
+ -aggiunto supporto temi bootstrap
+ -aggiunto supporto per metodi di autenticazione personalizzati
+
+11/2018
+ -bug fix
+ -aggiunte traduzioni in italiano
+
+7/2018
+ -fix xmldb mssql
+ -bug fix
+
+5/2018
+ -bug fix
+
+1/2018
+ -aggiornamenti su filamanager 
+ -bu g fix news con titolo vuoto
+ -vari fix su xmldb
+
+12/2017
+ -supporto https HTTP_X_FORWARDED_PROTO (es. Altervista)
+
+11/2017
+ -aggiornato ckeditor
+ -aggiornato filemanager
+ -vari fix
+
+11/2017
+ -bug fix
+ -aggiunto ckeditor 4.7
+
+8/2017
+ -implementati templates in modulo navigator
+ -uniti moduli news archive e news
+ -cambiato metodo predefinito di cifratura password
+ -implementati nuovi temi
+ -possibilità di cambiare le immagini di un tema dal pannello di controllo
+
+7/2017
+ -aggiornato fckeditor
+ -pannello di controllo bug fix su gestione blocchi e pagine
+ -xmldb corretto bugs perdita alcuni caratteri html
+ -spostata barra di amministrazione in basso
+ -corretto tema flatnux-orange
+ -creazione nuovo tema da pannello di controllo
+ -migliorata gestione tema del pannello di controllo
+
+6/2017
+ -ottimizzazione inclusioni non necessarie
+ -supporto vecchie versioni di files
+ -creato modulo html_template 
+ -implementazione cache
+
+5/2017
+ -bug fix
+ -migliorato supporto per i temi
+
+2/2017
+ -supporto temi nel pannello di controllo
+ -bug fix
+ -aggiornate sezioni del pannello di controllo
+ -aggiornate funzioni xmldb
+ -supporto chiavi primarie multiple su sqlserver
+
+12/2016
+ -aggiornate xmldb
+ -bug fix
+ -eliminati moduli obsoleti
+ -supporto per bootstrap
+ -implementati templates su tutti i moduli
+
+7/2016
+ -aggiornato modulo contatti
+ -compatibilità con php7
+
+5/2016
+ -Templetizzato modulo navigator
+ -Bug fix
+ -aggiunto modulo newsletter
+
+9/2015
+ -bug fix : sqlite3, control center 
+
+6/2015 
+ -aggiornato modulo news
+ -creata scrivibile la cartella misc/media/[GRUPPO UTENTE]/
+ -aggiunto plugin per inserimento codice all'interno dell'header
+ -bug fix
+
+3/2015
+ -aggiunte funzionalità nel template dei temi
+ -corretto driver mysql
+ -aggiunto supporto utenti del pannello di controllo
+ -migliorato modulo contatti
+ -vari bug fix
+
+1/2015
+ -supporto per la timezone
+
+7/2014
+ -vari bug-fix
+ -risctitto tema base
+ -reso tema di default e HC responsive
+ -migliorato installer
+ -aggiornato ckeditor
+
+6/2014
+ -vari bug-fix
+ -migliorata sezione news e aggiornato supporto facebook
+ -migliorato gestore dei temi
+ -riscritta generazione del file .htaccess
+
+Flatnux Next - 3/2014
+ -supporto per sqlite2 (sperimentale)
+ -migliorata configurazione delle news
+
+Flatnux Next - 2/2014
+ -supporto per sqlite3 (sperimentale)
+ -possibilità di avere db completamente su mysql,sqlite,csv,ecc.
+ -aggiunte configurazioni in include/config.vars.php
+
+Flatnux Next - 7/2013
+ -migliorata gestione utenti sul pannello di controllo
+ -vari bug fix
+
+Flatnux Next - 7/2013
+ -migliorato engine per i temi
+
+Flatnux Next - 6/2013
+ -bug fix su modulo news
+ -filemanager: eliminata navigazione su tutto il filesystem 
+ 
+Flatnux Next - 1/2013
+ -vari bug fix su xmldb
+
+Flatnux Next - 10/2012
+ -navigator aggiunta gestione filtri
+ -aggiunto indice filesystempath in $_FN
+ -controlcenter: Check mail
+ -controlcenter: filtro su utenti amministratori, attivi e non attivi
+
+Flatnux Next - 9/2012
+ -aggiunto optional tra le proprietà delle condizioni 
+ -corretti links nelle navbar
+ -migliorie su pannello di controllo->mappa sito
+
+Flatnux Next - 6/2012
+ -Corretto su modulo navigator messaggio inviato al commento del record
+ -gestione inserimento file il cui nome contiene slashes
+ -Gestione pagine di download multiple
+
+Flatnux Next - 6/2012
+ -Migliorate funzioni ajax
+ -Implementato mod_rewrite di tipo folders
+ -Bug fix su blocchi
+ -Implementato messaggio di conferma a registrazione avvenuta
+
+Flatnux Next - 4/2012
+ -Gestione mod-rewrite personalizzabile
+
+Flatnux Next - 3/2012
+ -abbozzata gestione amministrazione remota
+ -abilitazione della cache sulle sezioni statiche
+ -corretto multi upload in gallery
+ -migliorata ricerca includendo i titoli e le descrizioni delle pagine
+
+Flatnux Next - 2/2012
+ - migliorata interfaccia di amministrazione 
+ - corretti vari bugs
+
+Flatnux Next - 1/2012
+ -abilitato traduzione messaggi dal pannello di controllo 
+ -Gallery: corretto download della foto
+ -Aggiornato ckeditor
+ -Aggiunto supporto alle toolbars per ckeditor
+ -supporto aggiornamenti automatici
+ -migliorato editor blocchi
+ -migliorato editor sezioni
+ -controlcenter corretta sparizione sezioni figlie dopo rinomina della sezione padre
+
+Flatnux Next Beta - 12/2011
+ -Nuova cartella extra che autoinclude le personalizzazioni sempre
+ -Gallery: ridimensionamento delle immagini dopo averle caricate 
+ -Gestione sito in manutenzione
+ -Navigator: migliorato modulo, supporto storico modifiche
+ -Gallery: aggiornato file uploader, corretto bug su IE
+ -Personalizzazione crediti
+ -News corretta codifica RSS
+ -aggiunto rss su navigator
+
+Flatnux Next Beta - 11/2011
+-aggiunto supporto Google analytics
+-nuova configurazione menu sul tema di default
+-corretto bug su modulo contacts
+-corretto bug calendario su sezione archivio news
+-gestione blocchi da visualizzare o nascondere per pagina
+-corretto xmldb_frm su campi di tipo check
+-corretto js calendar
+-merge con modulo gallery di John D'Orazio
+
+
+Flatnux Next Beta - 10/2011
+-gestione permessi modifica di una sezione
+-migliorata la funzione loadconfig
+-creato blocco menu/sottomenu configurabile
+-migliorato il supporto blocchi senza titolo
+-editor dei blocchi
+-possibilità di poter caricare un modulo nei blocchi
+-supporto blocchi in alto e in basso nel dema default
+-vari fix su aggiornamento sezione
+-modulo sitemap configurabile
+-possibilita' di rinominare id sezione
+-migliorata compatibilita' con ie6
+-modulo welcome modificabile
+-aggiunto google +1 sulle news
+-corretto bugs su captcha multipli sulla stessa pagina
+-modificata selezione lingua da installer
+-varie implementazioni
+-supporto title.i18n.fn per dare la traduzione di default ad una cartella
+
+Flatnux Next Beta - 9/2011
+-corrette alcune validazioni xhtml strict sul cms e sezioni forum,gallery,news
+-supporto captcha
+-corretti alcuni errori di validazione
+-corretto bug inserimento news su una data diversa dalla corrente
+-ottimizzate prestazioni fn_getsectiontree
+-risistemato pannelòlo di controllo e menu
+
+Flatnux Next Beta - 8/2011
+-corretto bugs su update via ftp
+-aggiunta notifica sui commenti delle news
+-supporto generazione PDF
+-migliorato gestione tema delle news
+-corretti vari bugs
+-migliorato inserimento link al sito in fckeditor
+-corretto aggiornamento registrazione
+-ordinamento personalizzato dei campi utente
+-corretti alcuni errori di validazione
+-cambiato calendario
+-corretti alcuni bugs grafici
+-corrette alcuni messaggi
+-aggiornato ckeditor (CKEditor 3.6.1 (revision 7072))
+-aggiunta possibilità di personalizzzare i campi degli utenti
+-aggiunte condizioni per la registrazione e relativa configurazione nel pannello 
+ di controllo
+-corretti bugs modulo forum
+-corretti bugs sulla registrazione utente
+
+Flatnux Next Beta - 7/2011
+-cambiata codifica in UTF-8
+-porting tema Sugar
+-vari bug fix
+-aggiunta gestione plugins
+-creato plugin statistiche
+-gestione google sitemap
+-gestione "on site change"
+-aggiunta versione navigabile da cellulare
+-semplificate configurazioni relative il tipo di pagina
+
+
+Flatnux Next Beta - 6/2011
+-xmldbfrm:corrette codifiche caratteri in inserimento dati
+-aggiunte utility in update.php per cambiare i charsets delle tabelle xml
+-corretti alcuni errori di validazione
+
+
+Flatnux Next Beta - 6/2011
+
+-riscritto completamente core
+-nuovo pannello di controllo
+-nuovo installer
+-gestione lingua da files csv
+-mappa sito interamente su xmldb
+-gestione delle bozze
+-pubblicazione dei contenuti da una certa data ad un' altra 
+-importate le sezioni forum e gallery, trasformate in moduli 
+-possibilita' di creare piu' sezioni di tipo forum
+-possibilita' di creare piu' sezioni di tipo gallery
+-possibilita' di creare piu' sezioni di tipo news
+-gestione temi da templates html
+-diminuito drasticamente il tempo per creare un tema
+-modulo di ricerca con evidenziazione del testo
+-configurazione sito interamente su xmldb

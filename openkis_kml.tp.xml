@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+    <Folder>
+        <ExtendedData>
+            <Data name="source-url">
+                <value><![CDATA[{sourceurl}]]></value>
+            </Data>
+        </ExtendedData>
+        <name>{name}</name>
+        <open>1</open>
+        <!-- foreach {items} -->
+        <Placemark>
+            <name>{title}</name>
+            <description><![CDATA[{abstract}]]></description>
+            <Style>
+                <IconStyle>
+                    <scale>{size}</scale> 
+                    <Icon><href>{icon}</href></Icon>
+                </IconStyle>
+            </Style>
+            <Point>
+                <extrude>1</extrude>
+                <coordinates>{lon},{lat},{elevation}</coordinates>
+            </Point>
+        </Placemark>
+        <!-- end foreach {items} -->
+    </Folder>
+</kml>

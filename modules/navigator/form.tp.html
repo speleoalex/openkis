@@ -1,0 +1,17 @@
+<form enctype="multipart/form-data" action="{formaction}" method="post" name="insert" >
+
+    <!-- contents -->
+    <!-- group -->
+    <fieldset><legend>{groupname}</legend>
+        <!-- end_group -->
+        <!-- item -->
+        <div class="frm_title"><b>{title}:</b><br /></div>
+        {input}<!-- error --> <span style="color:red">{error}</span><!-- end_error --><br /><em class="frm_help">{help}</em>
+        <!-- end_item -->
+        <!-- endgroup -->
+    </fieldset>
+    <!-- end_endgroup -->
+    <!-- end_contents -->
+    <input name="xmldbsave" type="submit" value="{i18n:Save}" /> 
+    <input id="exitform" type="button" value="{i18n:Cancel}" onclick="window.location = '{urlcancel}'" /> 
+</form>

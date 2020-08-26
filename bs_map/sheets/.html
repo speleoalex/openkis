@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>GROTTA DELLA CALETTA DI PONENTE</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .itemtitle{
+                text-align: center;
+                display:block;
+                height:25px;
+                /*    overflow:hidden;*/
+                color:#ffffff;
+                font-size: 12px;
+                position:absolute;
+                width:100%;
+                text-shadow:2px 1px 1px #ffffff;
+                z-index:2
+
+            }
+            .itemimage{
+                text-align: center;
+                height:100px;
+                line-height: 100px;
+                width:100%;
+                overflow:hidden;
+                display:block;
+                margin:1px;
+                position:absolute;
+                top:20px;    
+                z-index:1;
+            }
+            .itemimage img{
+                vertical-align: middle;
+                max-height: 100%;
+                max-width: 100%; 
+            }
+
+            .searchresult4{
+                display: block;
+                height: 30px;
+                width:100%;
+                position:absolute;
+                bottom:28px;
+
+            }
+            .searchresultfooter{
+                bottom:0px;
+                position:absolute;
+                border-top: 1px solid;
+                height: 25px;
+                overflow: hidden;
+                width:100%
+            }
+
+            .pdf{
+                position:absolute;
+                right:0px;
+                top:0px;
+            }
+
+            .pageresults{
+                clear:both
+            }
+
+            /** ------   FORM  -----  **/
+            .frm_help{
+                background-color: #fefcb1
+            }
+            #frmedit{
+                background-color: #ffffff;
+            }
+
+
+            /**  ---- VIEW ------ **/
+            .xmldbtitle{
+                font-weight: bold;
+            }
+
+
+            /*******************************NAVIGATION BAR********************************/
+            .fnfilesuserbar{
+                text-align: left;
+                border:0px;
+                padding:0px;
+                margin: 5px;
+            }
+
+            .fnfilesnavigateButtons{
+                padding:5px;
+            }
+
+            .fnfilesnavigateButtons a{
+                white-space: nowrap;
+                border: 1px outset #000000;
+                padding:2px;
+                text-decoration: none;
+                margin: 0px;
+                margin-right: 4px;
+            }
+
+            .fnfilesnavigateButtons a:hover{
+                background-color: #dadada;
+                color:#000000;
+                text-decoration: none;
+            }
+
+            .fnfilesviewButtons a{
+                white-space: nowrap;
+                border: 1px outset #000000;
+                padding:2px;
+                text-decoration: none;
+                margin: 0px;
+                margin-right: 2px;
+                border-bottom:0px;
+                color:#000000;
+            }
+
+
+            .fnfilesviewButtons{
+                padding:5px;
+                padding-bottom: 0px;
+                border-bottom: 1px solid;
+            }
+            .fnfilesuserbar a.nv_selected{
+                background-color: #ffffff;
+                font-weight: bold;
+
+            }
+            .fnfilesranks{
+                clear: both
+            }
+
+            /*******************************FIELDS*****************************************/
+            .xmldbcontent {
+                display: block;
+            }
+
+            .viewrecordpage {
+                width: auto;
+                position: relative;
+                background-color: transparent;
+                text-align: justify;
+            }
+
+
+            .xmldbtitletypevarchar img {
+                vertical-align: middle;
+            }
+
+            .xmldbtitletypevarchar,.xmldbtitletypeselect,.xmldbtitletypedatetime,.xmldbtitletyperadio,.xmldbtitletypestringselect
+            {
+                color: #000000;
+                font-weight: bold;
+                display: inline-block;
+                display: -moz-inline-stack;
+                min-width: 200px;
+                _width: 200px;
+                border-bottom: 1px dotted;
+            }
+
+            .xmldbvaluegroups {
+                color: green;
+            }
+
+            .xmldbcontenttext {
+                display: block;
+
+            }
+
+            .xmldbtitletypetext h3,.xmldbcontenttext h4,.xmldbtitletypehtml h3,.xmldbcontenthtml h4
+            {
+                margin-top: 10px;
+            }
+
+            .xmldbtitletypetext {
+                display: block;
+                font-weight: bold;
+            }
+
+            .xmldbcontentfile {
+                clear: both;
+            }
+            .xmldbcontentos_lenght {
+                display: block;
+            }
+
+            .xmldbtitletypeos_lenght {
+                color: #000000;
+                font-weight: bold;
+                display: inline-block;
+                display: -moz-inline-stack;
+                min-width: 200px;
+                _width: 200px;
+                border-bottom: 1px dotted;
+            }
+
+            .xmldbcontentresque {
+                border: 3px red dotted;
+                padding: 5px;
+                margin: 5px;
+                background-color: yellow;
+                color: #000000;
+            }
+
+            .xmldbcontenttimeyear {
+                color: green;
+            }
+
+            .xmldbcontenttimeyear .xmldbtitletypevarchar {
+                border: 0px;
+                width: auto;
+            }
+
+            .xmldbcontenttraveltime {
+                color: green;
+            }
+
+            .xmldbcontenttraveltime .xmldbtitletypevarchar {
+                border: 0px;
+                width: auto;
+            }
+
+            .xmldbcontentshuttle {
+                color: green;
+            }
+
+            .xmldbcontentshuttle .xmldbtitletypevarchar {
+                border: 0px;
+                width: auto;
+            }
+
+            .xmldbcontentshuttle {
+                color: green;
+            }
+
+            .xmldbcontentshuttle .xmldbtitletypevarchar {
+                border: 0px;
+                width: auto;
+            }
+
+            .xmldbcontentshuttle .xmldbtitleoption {
+                border: 0px;
+                width: auto;
+            }
+
+
+            .xmldbcontentfile {
+                display: block;
+            }
+
+            .xmldbcontentswf {
+                display: inline;
+            }
+
+            .xmldbtitlefoto1 {
+                display: block;
+            }
+
+            .xmldbtitlelink,.xmldbtitlefile {
+                font-weight: bold;
+            }
+
+            .xmldbvaluelink {
+                font-weight: normal;
+                text-decoration: blink;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div>
+<div>
+
+<div class="xmldbgroupdata">
+
+<span class="xmldbcontent xmldbcontentvarchar xmldbcontentNUM ">
+<span class="xmldbtitle xmldbtitletypevarchar xmldbtitleNUM ">Numero</span>
+<span class="xmldbvaluetype xmldbvaluetypevarchar xmldbvalueNUM ">
+2030</span></span>
+
+</div>
+
+<span class="xmldbcontent xmldbcontentuppercase xmldbcontentNOME ">
+<span class="xmldbtitle xmldbtitletypeuppercase xmldbtitleNOME ">Nome</span>
+<span class="xmldbvaluetype xmldbvaluetypeuppercase xmldbvalueNOME ">
+GROTTA DELLA CALETTA DI PONENTE</span></span>
+
+<div class="xmldbgroupleft">
+
+<span class="xmldbcontent xmldbcontentuppercase xmldbcontentRILEVATORI ">
+<span class="xmldbtitle xmldbtitletypeuppercase xmldbtitleRILEVATORI ">Inserita a catasto da</span>
+<span class="xmldbvaluetype xmldbvaluetypeuppercase xmldbvalueRILEVATORI ">
+ALESSANDRO VERNASSA</span></span>
+
+<span class="xmldbcontent xmldbcontentvarchar xmldbcontentREGIONE ">
+<span class="xmldbtitle xmldbtitletypevarchar xmldbtitleREGIONE ">Regione</span>
+<span class="xmldbvaluetype xmldbvaluetypevarchar xmldbvalueREGIONE ">
+LI</span></span>
+
+<span class="xmldbcontent xmldbcontentvarchar xmldbcontentPROV ">
+<span class="xmldbtitle xmldbtitletypevarchar xmldbtitlePROV ">Provincia</span>
+<span class="xmldbvaluetype xmldbvaluetypevarchar xmldbvaluePROV ">
+SP</span></span>
+
+<span class="xmldbcontent xmldbcontentvarchar xmldbcontentCOMUNE ">
+<span class="xmldbtitle xmldbtitletypevarchar xmldbtitleCOMUNE ">Comune</span>
+<span class="xmldbvaluetype xmldbvaluetypevarchar xmldbvalueCOMUNE ">
+LERICI</span></span>
+
+<span class="xmldbcontent xmldbcontentuppercase xmldbcontentLOCAL ">
+<span class="xmldbtitle xmldbtitletypeuppercase xmldbtitleLOCAL ">Localit&agrave;</span>
+<span class="xmldbvaluetype xmldbvaluetypeuppercase xmldbvalueLOCAL ">
+LA CALETTA</span></span>
+
+<span class="xmldbcontent xmldbcontentmultiselect xmldbcontentACARCOD ">
+<span class="xmldbtitle xmldbtitletypemultiselect xmldbtitleACARCOD ">Area carsica</span>
+<span class="xmldbvaluetype xmldbvaluetypemultiselect xmldbvalueACARCOD ">
+SP37 MONTEMARCELLO</span></span>
+
+</div>
+
+<div class="xmldbgroupsviluppo">
+
+<span class="xmldbcontent xmldbcontentos_lenght xmldbcontentSVILRE ">
+<span class="xmldbtitle xmldbtitletypeos_lenght xmldbtitleSVILRE ">Sviluppo reale</span>
+<span class="xmldbvaluetype xmldbvaluetypeos_lenght xmldbvalueSVILRE ">
+20</span></span>
+
+<span class="xmldbcontent xmldbcontentos_lenght xmldbcontentDPOS ">
+<span class="xmldbtitle xmldbtitletypeos_lenght xmldbtitleDPOS ">Dislivello positivo</span>
+<span class="xmldbvaluetype xmldbvaluetypeos_lenght xmldbvalueDPOS ">
+15</span></span>
+
+<span class="xmldbcontent xmldbcontentos_lenght xmldbcontentDTOT ">
+<span class="xmldbtitle xmldbtitletypeos_lenght xmldbtitleDTOT ">Dislivello totale</span>
+<span class="xmldbvaluetype xmldbvaluetypeos_lenght xmldbvalueDTOT ">
+15</span></span>
+
+</div>
+
+<div class="xmldbgroupleft">
+
+<span class="xmldbcontent xmldbcontentlatlon xmldbcontentlatitude ">
+<span class="xmldbtitle xmldbtitletypelatlon xmldbtitlelatitude ">Latitudine</span>
+<span class="xmldbvaluetype xmldbvaluetypelatlon xmldbvaluelatitude ">
+44.070441 N</span></span>
+
+<span class="xmldbcontent xmldbcontentlatlon xmldbcontentlongitude ">
+<span class="xmldbtitle xmldbtitletypelatlon xmldbtitlelongitude ">Longitudine</span>
+<span class="xmldbvaluetype xmldbvaluetypelatlon xmldbvaluelongitude ">
+9.91469 E</span></span>
+
+<span class="xmldbcontent xmldbcontentvarchar xmldbcontentTC_01 ">
+<span class="xmldbtitle xmldbtitletypevarchar xmldbtitleTC_01 ">Tipo di coordinate</span>
+<span class="xmldbvaluetype xmldbvaluetypevarchar xmldbvalueTC_01 ">
+GPS Geografiche WGS84</span></span>
+
+<span class="xmldbcontent xmldbcontentos_lenght xmldbcontentQA_01 ">
+<span class="xmldbtitle xmldbtitletypeos_lenght xmldbtitleQA_01 ">Quota altimetrica</span>
+<span class="xmldbvaluetype xmldbvaluetypeos_lenght xmldbvalueQA_01 ">
+0</span></span>
+
+<span class="xmldbcontent xmldbcontentuppercase xmldbcontentANDAMENTO ">
+<span class="xmldbtitle xmldbtitletypeuppercase xmldbtitleANDAMENTO ">Andamento</span>
+<span class="xmldbvaluetype xmldbvaluetypeuppercase xmldbvalueANDAMENTO ">
+ORIZZONTALE</span></span>
+
+<span class="xmldbcontent xmldbcontentuppercase xmldbcontentPERCORRIBILITA ">
+<span class="xmldbtitle xmldbtitletypeuppercase xmldbtitlePERCORRIBILITA ">Percorribilit&agrave;</span>
+<span class="xmldbvaluetype xmldbvaluetypeuppercase xmldbvaluePERCORRIBILITA ">
+A NUOTO</span></span>
+
+</div>
+
+<span class="xmldbcontent xmldbcontenttext xmldbcontentDESCRIZIONE ">
+<span class="xmldbtitle xmldbtitletypetext xmldbtitleDESCRIZIONE ">DESCRIZIONE</span>
+<span class="xmldbvaluetype xmldbvaluetypetext xmldbvalueDESCRIZIONE ">
+L' ingresso sul mare immette ad un pozzo di circa 15 metri comunicante con l'esterno</span></span>
+
+<span class="xmldbcontent xmldbcontenttext xmldbcontentITINERARIO ">
+<span class="xmldbtitle xmldbtitletypetext xmldbtitleITINERARIO ">ITINERARIO</span>
+<span class="xmldbvaluetype xmldbvaluetypetext xmldbvalueITINERARIO ">
+Dal casello di Sarzana seguire le indicazioni per Lerici e quindi Tellaro. Appena oltrepassato il bivio per Maralunga sulla destra si vede sullo sfondo una cancellata verde con uno spiazzo che la precede da cui parte una scalinata poco visibile che porta alla spiaggia della caletta. L'ingresso è raggiungibile a nuoto sul lato destro dell'insenatura a circa 20 metri dalla spiaggia.</span></span>
+
+<div class="xmldbgroupcens">
+
+</div>
+
+<span class="xmldbcontent xmldbcontentvarchar xmldbcontentauthorDESCRIZIONE ">
+<span class="xmldbtitle xmldbtitletypevarchar xmldbtitleauthorDESCRIZIONE ">Autori testi descrizione</span>
+<span class="xmldbvaluetype xmldbvaluetypevarchar xmldbvalueauthorDESCRIZIONE ">
+Alessandro Vernassa</span></span>
+
+</div>
+</div>
+    </body>
+</html>

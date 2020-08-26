@@ -1,0 +1,26 @@
+<div class="FNDBVIEW_CategoryFilter" >
+<!-- filtercategory -->
+<div class="FNDBVIEW_CategoryFilterItem">
+    <b>{filtertitle}</b>
+    <!-- clearfilter -->
+    <a onclick="try{call_ajax(this.href, 'pageresults');return false;}catch(e){}" href="{urlremovefilter}">{i18n:remove filter}</a>
+    <!-- end clearfilter -->
+    <div class="FNDBVIEW_CategoryFilterItemContents">
+        <table>
+            <tbody>
+                <!-- filteritems -->
+                
+                <!-- filteritem -->
+                <tr>
+                    <td valign="top" style="color:#297ddd">{counteritem}</td>
+                    <td valign="top"><a onclick="try{call_ajax(this.href, 'pageresults');return false;}catch(e){}"
+                                        href="{urlfilteritem}"><span>{titleitem}</span></a></td>
+                </tr>
+                <!-- end filteritem -->
+                <!-- end filteritems -->
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- end filtercategory -->
+</div>

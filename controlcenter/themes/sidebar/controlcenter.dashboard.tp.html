@@ -1,0 +1,327 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="{lang}"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <!-- include FN_HtmlHeader -->
+        <title></title>
+        <!-- end include FN_HtmlHeader -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <style>
+            body,html{
+                height: 100%;
+
+            }
+
+            /* remove outer padding */
+            .main .row{
+                padding: 0px;
+                margin: 0px;
+            }
+
+            /*Remove rounded coners*/
+
+            nav.sidebar.navbar {
+                border-radius: 0px;
+            }
+
+            nav.sidebar, .main{
+                -webkit-transition: margin 200ms ease-out;
+                -moz-transition: margin 200ms ease-out;
+                -o-transition: margin 200ms ease-out;
+                transition: margin 200ms ease-out;
+            }
+
+            /* Add gap to nav and right windows.*/
+            .main{
+                padding: 10px 10px 0 10px;
+            }
+
+
+            nav.sidebar.navbar {
+                border-radius: 0px;
+            }
+
+            nav.sidebar, .main{
+                -webkit-transition: margin 200ms ease-out;
+                -moz-transition: margin 200ms ease-out;
+                -o-transition: margin 200ms ease-out;
+                transition: margin 200ms ease-out;
+            }
+
+            /* Add gap to nav and right windows.*/
+            .main{
+                padding: 10px 10px 0 10px;
+            }
+
+            /* .....NavBar: Icon only with coloring/layout.....*/
+
+            /*small/medium side display*/
+            @media (min-width: 768px) {
+
+                /*Allow main to be next to Nav*/
+                .main{
+                    position: absolute;
+                    width: calc(100% - 40px); /*keeps 100% minus nav size*/
+                    margin-left: 40px;
+                    float: right;
+                }
+
+                /*lets nav bar to be showed on mouseover*/
+                nav.sidebar:hover + .main{
+                    margin-left: 300px;
+                }
+
+                /*Center Brand*/
+                nav.sidebar.navbar.sidebar>.container .navbar-brand, .navbar>.container-fluid .navbar-brand {
+                    margin-left: 0px;
+                }
+                /*Center Brand*/
+                nav.sidebar .navbar-brand, nav.sidebar .navbar-header{
+                    text-align: center;
+                    width: 100%;
+                    margin-left: 0px;
+                }
+
+                /*Center Icons*/
+                nav.sidebar a{
+                    padding-right: 13px;
+                }
+
+                /*adds border top to first nav box */
+                nav.sidebar .navbar-nav > li:first-child{
+                    border-top: 1px #e5e5e5 solid;
+                }
+
+                /*adds border to bottom nav boxes*/
+                nav.sidebar .navbar-nav > li{
+                    border-bottom: 1px #e5e5e5 solid;
+                }
+
+                /* Colors/style dropdown box*/
+                nav.sidebar .navbar-nav .open .dropdown-menu {
+                    position: static;
+                    float: none;
+                    width: auto;
+                    margin-top: 0;
+                    background-color: transparent;
+                    border: 0;
+                    -webkit-box-shadow: none;
+                    box-shadow: none;
+                }
+
+                /*allows nav box to use 100% width*/
+                nav.sidebar .navbar-collapse, nav.sidebar .container-fluid{
+                    padding: 0 0px 0 0px;
+                }
+
+                /*colors dropdown box text */
+                .navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+                    color: #777;
+                }
+
+                /*gives sidebar width/height*/
+                nav.sidebar{
+                    width: 300px;
+                    height: 100%;
+                    margin-left: -260px;
+                    float: left;
+                    z-index: 8000;
+                    margin-bottom: 0px;
+                }
+
+                /*give sidebar 100% width;*/
+                nav.sidebar li {
+                    width: 100%;
+                }
+
+                /* Move nav to full on mouse over*/
+                nav.sidebar:hover{
+                    margin-left: 0px;
+                }
+                /*for hiden things when navbar hidden*/
+                .forAnimate{
+                    opacity: 0;
+                }
+            }
+
+            /* .....NavBar: Fully showing nav bar..... */
+
+            @media (min-width: 800px) {
+
+                /*Allow main to be next to Nav*/
+                .main{
+                    width: calc(100% - 300px); /*keeps 100% minus nav size*/
+                    margin-left: 300px;
+                }
+
+                /*Show all nav*/
+                nav.sidebar{
+                    margin-left: 0px;
+                    float: left;
+                }
+                /*Show hidden items on nav*/
+                nav.sidebar .forAnimate{
+                    opacity: 1;
+                }
+            }
+
+            nav.sidebar .navbar-nav .open .dropdown-menu>li>a:hover, nav.sidebar .navbar-nav .open .dropdown-menu>li>a:focus {
+                color: #000000;
+                background-color: transparent;
+            }
+
+            nav:hover .forAnimate{
+                opacity: 1;
+            }
+            section{
+                padding-left: 15px;
+            }
+
+
+            footer {
+                background-color: #555;
+                color: white;
+                padding: 15px;
+                bottom:0px;
+                width: 100%;
+                height:100px;
+            }
+            .form-control[type=checkbox]{
+                width:auto;
+            }
+            .form-control[type=radio]{
+                width:auto;
+            }
+            form legend{
+                background-color: #dddddd;
+            }
+            form .row{
+                border-bottom: 1px solid #dddddd;
+            }
+            h3{
+                background-color: #dddddd;
+
+            }
+
+
+        </style>
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    </head>
+    <body><nav class="navbar navbar-inverse sidebar" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-sidebar-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{siteurl}controlcenter.php">{i18n:Control center}</a>                    
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">  {user}<span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-user"></span></a>
+                            <ul class="dropdown-menu" role="menu" >
+                                <li>                        
+                                    <a href='{siteurl}controlcenter.php??pk___xdb_fn_users={user}&page___xdb_fn_users=1&desc_=0&order___xdb_fn_users=username&op___xdb_fn_users=insnew&opt=users_and_groups/users'>{i18n:Profile settings}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img style="height:16px" src="{siteurl}/images/user.png" /></span></a>                                    
+                                    <a href='{siteurl}controlcenter.php?fnlogin=logout'>{i18n:Logout}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img style="height:16px" src="{siteurl}/images/fn_close.png" /></span></a>
+                                </li>    
+                            </ul>
+                        </li>
+
+
+                        <li class="dropdown">
+                            <a href="#"  class="dropdown-toggle" data-toggle="dropdown" >
+                                {i18n:Language}<span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img src="{siteurl}/images/flags/{lang}.png" /></span></a>
+                            <ul class="dropdown-menu" role="menu" >
+                                <!-- include languages -->
+                                <!-- langitem -->
+                                <li>                        
+                                    <a href='controlcenter.php?lang={langname}'><img src="{siteurl}/images/flags/{langname}.png" /> {langtitle}</a>
+                                </li>    
+                                <!-- endlangitem -->
+
+                                <!-- end include languages -->          
+                            </ul>
+
+                        </li>            
+                        <!-- include ccmenu -->
+                        <!-- menuitems -->
+                        <!-- menuitemdropdown -->
+                        <li class="dropdown">
+
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{title} <span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-cog glyphicon-{opt}"></span></a>
+                            <!-- submenu -->
+                            <ul class="dropdown-menu" role="menu">
+                                <!-- submenuitems -->
+                                <!-- submenuitem -->
+                                <li><a href="#"> {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img height="16" src="{image}" /></span></a></li>
+                                <!-- endsubmenuitem -->
+                                <!-- endsubmenuitems -->
+                            </ul>
+                            <!-- endsubmenu --></li>
+                        <!-- endmenuitemdropdown -->
+                        <!-- menuitemdropdownactive -->
+                        <li class="dropdown active open">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{title}&nbsp;<span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-cog glyphicon-{opt}"></span></a><!-- submenu -->
+                            <ul class="dropdown-menu open" role="menu">
+                                <!-- submenuitems -->
+                                <!-- submenuitem -->
+                                <li><a href="#"> {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img height="16" src="{image}" /></span></a></li>
+                                <!-- endsubmenuitem -->
+                                <!-- submenuitemactive -->
+                                <li class="active open"><a href="#"> {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img height="16" src="{image}" /></span></a></li>
+                                <!-- endsubmenuitemactive -->
+
+                                <!-- endsubmenuitems -->
+                            </ul>
+                            <!-- endsubmenu --></li>
+                        <!-- endmenuitemdropdownactive -->
+                        <!-- menuitem -->
+                        <li><a  href="">{title}</a></li>
+                        <!-- endmenuitem -->
+                        <!-- menuitemactive -->
+                        <li class="active"><a href="#"><img height="16" src="{image}" />  {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+
+                        <!-- endmenuitemactive -->
+
+                        <!-- endmenuitems -->
+                        <!-- end include ccmenu -->
+
+
+
+
+                    </ul>
+
+                    <a class="navbar-brand" href="{siteurl}?theme=__default__">{i18n:Go to}: {site_title}</a>
+                </div>
+
+            </div>
+        </nav>
+
+        <div class="main">  
+            <!-- include dashboard -->
+            <div class="panel panel-default">
+                <div class="panel-heading">{dashboard_title}</div>
+                <div class="panel-body">{dashboard_contents}</div>
+            </div>            
+            <!-- end include dashboard -->          
+        </div> <!-- /container -->     
+
+
+
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>');</script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+    </body></html>

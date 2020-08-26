@@ -1,0 +1,38 @@
+<?php exit(0);?>
+<tables>
+	<field>
+		<name>rule</name>
+		<primarykey>1</primarykey>
+		<frm_show>0</frm_show>
+		<extra>autoincrement</extra>
+	</field>
+	<field>
+		<name>title</name>
+		<frm_i18n>rule title</frm_i18n>
+		<frm_multilanguages>auto</frm_multilanguages>
+		<frm_show>1</frm_show>
+	</field>	
+	<field>
+		<name>query</name>
+		<frm_i18n>query</frm_i18n>
+		<frm_type>text</frm_type>
+		<frm_cols>80</frm_cols>
+		<frm_rows>10</frm_rows>
+		<frm_show>1</frm_show>
+	</field>
+	<field>
+		<name>function</name>
+		<frm_i18n>function</frm_i18n>
+		<frm_show>1</frm_show>
+	</field>
+<field>
+		<name>title_it</name>
+		<type>varchar</type>
+		<frm_multilanguage>1</frm_multilanguage>
+	</field>
+<field>
+		<name>title_en</name>
+		<type>varchar</type>
+		<frm_multilanguage>1</frm_multilanguage>
+	</field>
+</tables>

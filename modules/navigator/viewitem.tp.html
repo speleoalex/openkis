@@ -1,0 +1,38 @@
+<div class="viewrecordpage">
+    {header}
+    <!-- navigation bar -->
+    <div class="fnfilesnavigateButtons">
+        <!-- pages -->
+        <!-- page -->
+        <a  href="{link}"><img border="0" style="vertical-align:middle" src="{image}" alt="">&nbsp;{title}</a>
+        <!-- endpage -->
+        <!-- endpages -->{txt_rsults}
+        <br /> 
+        <!-- options -->
+        <!-- option -->
+        <a  href="{link}"><img border="0" style="vertical-align:middle" src="{image}" alt="">&nbsp;{title}</a>
+        <!-- endoption -->
+        <!-- optionactive -->
+        <a  href="{link}"><img border="0" style="vertical-align:middle" src="{image}" alt="">&nbsp;<b>{title}</b></a>
+        <!-- endoptionactive -->
+        <!-- endoptions -->
+    </div>
+    <!-- end navigation bar -->
+    <!-- contents -->
+    <!-- group -->
+    <div class="xmldbgroup{groupname}">
+        <!-- end_group -->
+        <!-- item -->
+        <span class="xmldbcontent xmldbcontent{fieldtype} xmldbcontent{fieldname} ">
+            <span class="xmldbtitle xmldbtitletype{fieldtype} xmldbtitle{fieldname} ">{title}</span>
+            <span class="xmldbvaluetype xmldbvaluetype{fieldtype} xmldbvalue{fieldname} ">
+                {input}</span></span>
+        <!-- end_item -->
+        <!-- endgroup -->
+    </div>
+    <!-- end_endgroup -->
+    <!-- end_contents -->
+    {footer}
+    {innertables}
+    {htmlranks}
+</div>
