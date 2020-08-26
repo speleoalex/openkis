@@ -3,11 +3,11 @@
 <fndatabase>
 	<fn_users>
 		<username>admin</username>
-		<email>speleoalex@gmail.com</email>
+		<email>openspeleo@openspeleo.org</email>
 		<passwd>admin</passwd>
 		<emailhidden></emailhidden>
-		<name>Alessandro</name>
-		<surname>Vernassa</surname>
+		<name>Admin</name>
+		<surname>Admin</surname>
 		<link>http://</link>
 		<avatarimage></avatarimage>
 		<avatar></avatar>
