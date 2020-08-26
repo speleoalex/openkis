@@ -194,13 +194,14 @@ class xmldbfrm_field_datetime
         
         if ($idcalendar== 1)
         {
-            $html.="<script type=\"text/javascript\"  >
-var WeekDayName1 = [\"{$_FN['days'][0]}\", \"{$_FN['days'][1]}\", \"{$_FN['days'][2]}\", \"{$_FN['days'][3]}\", \"{$_FN['days'][4]}\", \"{$_FN['days'][5]}\", \"{$_FN['days'][6]}\"];
-var WeekDayName2 = [\"{$_FN['days'][1]}\", \"{$_FN['days'][2]}\", \"{$_FN['days'][3]}\", \"{$_FN['days'][4]}\", \"{$_FN['days'][5]}\", \"{$_FN['days'][6]}\", \"{$_FN['days'][0]}\"];
-</script>";
-            $html.="<script type=\"text/javascript\"  >
-MonthName = new Array
-(
+            $html.="
+<script type=\"text/javascript\">                
+function initCalendarLang()
+{
+    WeekDayName1 = [\"{$_FN['days'][0]}\", \"{$_FN['days'][1]}\", \"{$_FN['days'][2]}\", \"{$_FN['days'][3]}\", \"{$_FN['days'][4]}\", \"{$_FN['days'][5]}\", \"{$_FN['days'][6]}\"];
+    WeekDayName2 = [\"{$_FN['days'][1]}\", \"{$_FN['days'][2]}\", \"{$_FN['days'][3]}\", \"{$_FN['days'][4]}\", \"{$_FN['days'][5]}\", \"{$_FN['days'][6]}\", \"{$_FN['days'][0]}\"];
+    MonthName = new Array
+    (
 ";
             $v="";
             foreach($_FN['months'] as $g)
@@ -208,7 +209,18 @@ MonthName = new Array
                 $html.="\n$v\"$g\"";
                 $v=",";
             }
-            $html.=");
+            $html.="
+    );
+};
+if (window.addEventListener) {
+    window.addEventListener('load', function () {
+        initCalendarLang();
+    })
+    } else {
+        window.attachEvent('onload', function () {
+            initCalendarLang();
+        })    
+}
 </script>";
         }
         $toltips=($params['frm_help']!= "") ? "title=\"".$params['frm_help']."\"" : "";

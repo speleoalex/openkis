@@ -753,7 +753,7 @@ function FNREG_ManageRegister($actionform="")
         {
             $tplvalues['message'].="<br /><br />".FN_Translate("it has been sended one email to you to the address")." ".htmlentities($newvalues['email'])." ".FN_i18n("with the instructions to complete the registration")."<br />";
             $tplvalues['message'].=FN_Translate("check your inbox");
-            $tplvalues['message'].="<br /><br /><div ><a href=\"".FN_RewriteLink("index.php")."\" >".FN_Translate("next")." &gt;&gt;&gt;</a></div>";
+//            $tplvalues['message'].="<br /><br /><div ><a href=\"".FN_RewriteLink("index.php")."\" >".FN_Translate("next")." &gt;&gt;&gt;</a></div>";
         }
         echo FN_TPL_ApplyTplFile($tplfile,$tplvalues);
         return false;
