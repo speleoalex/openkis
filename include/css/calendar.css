@@ -1,0 +1,6 @@
+.blockcalendar_day{
+	border:1px solid transparent
+}
+.blockcalendar_currentday{
+	border:1px solid red
+}

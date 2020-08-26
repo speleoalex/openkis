@@ -1,0 +1,12 @@
+/**  ridefinire qui gli stili **/
+
+
+.xmldbcontenttitle{
+    text-align: center    
+}
+.xmldbtitletitle{
+    display:none;
+}
+.xmldbvaluetitle{
+    font-size: 22px;
+}

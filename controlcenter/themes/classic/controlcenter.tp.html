@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html class="no-js css-menubar" lang="en">
+    <head>
+        <!-- include FN_HtmlHeader -->
+        <title></title>
+        <!-- end include FN_HtmlHeader -->
+        <link rel="stylesheet" href="../../css/style.css">
+        <script  type="text/javascript">
+            var myThemeOfficeBase = "controlcenter/themes/classic/js/ThemeOffice/"
+        </script><script type="text/javascript" src="js/JSCookMenu.js"></script><script type="text/javascript" src="js/effect.js"></script><link rel="stylesheet" href="js/ThemeOffice/theme.css" type="text/css">
+        <script type="text/javascript" src="js/ThemeOffice/theme.js"></script><link rel="stylesheet" href="{siteurl}controlcenter/css/style.css" type="text/css">        
+        <style>
+            #fncc_menutop{height:25px;border:0px;}
+        </style>
+    </head>
+    <body>
+        <div id="fncc_top">
+            <a id="fncc_controlcenter" href="{controlcenter}"><img alt="home" src="../../../images/configure.png">&nbsp;{i18n:Control panel}</a><a id="fncc_logout" href="{siteurl}{controlcenter}?fnlogin=logout"><img alt="home" src="../../../images/user.png">&nbsp;{i18n:Exit}</a><a id="fncc_gohome" href="{siteurl}index.php?theme=__default__"><img alt="home" src="../../../images/home.png">&nbsp;{i18n:Go to} {sitename}</a><span id="fncc_languages"><!-- include languages --><!-- langitem --><a href="?lang={langname}"><img src="{langimg}" alt="{langname}" title="{langname}"></a>&nbsp;<!-- endlangitem --><!-- end include languages --></span></div>
+
+        <div id="fncc_menutop"><div id="myMenuID"></div></div>
+        <div id="fncc_leftmenu">
+            <!-- include ccmenu -->
+            <!-- menitems -->
+            <!-- menuitemdropdown -->
+            <div class="fncc_leftmenu">
+                <div class="fncc_leftmenutitle">{title}</div>
+                <!-- submenu -->
+                <!-- submenuitems -->
+                <!-- submenuitem -->
+                <a href="?opt=contents/blocks"  title="{description}">
+                    <img alt=""  src="{image}"><span>{title}</span></a>
+                <!-- endsubmenuitem -->
+                <!-- submenuitemactive -->
+                <a href="?opt=contents/blocks" class="current"  title="{description}">
+                    <img alt="" src="{image}"><span>{title}</span></a>
+                <!-- endsubmenuitemactive -->
+                <!-- endsubmenuitems -->
+                <!-- endsubmenu -->
+            </div>
+            <!-- endmenitems -->
+            <!-- endmenuitemdropdown -->
+
+            <!-- end include ccmenu -->
+        </div>
+
+
+        <div id="fncc_contents">
+<div class="fncc_sectiontitle" >{section_title}</div>
+            <!-- include ccsection -->
+            <h2>{sidebar_title}</h2>
+            <div>{sidebar_contents}</div>
+            <!-- end include ccsection -->
+        </div>
+
+        <script type="text/javascript"> var myMenu = [
+                //<!-- include ccmenu -->
+                //<!-- menitems -->
+                //<!-- menuitemdropdown -->
+                [' ', '{title}&nbsp;&nbsp;&nbsp;', '{link}', '', '',
+                            //<!-- submenu -->
+                                    //<!-- submenuitems -->
+                                            //<!-- submenuitem -->
+                                            ['<img height="16" src="{image}" />', '{title}', '{link}', '', ''],
+                                            //<!-- endsubmenuitem -->
+                                            //<!-- endsubmenuitems -->
+                                            //<!-- endsubmenu -->
+
+                                ],
+                                //<!-- endmenuitemdropdown -->
+                                //<!-- endmenitems -->
+                                //<!-- end include ccmenu -->
+
+                    ];
+            cmDraw('myMenuID', myMenu, 'hbr', cmThemeOffice);
+
+        </script>        
+    </body>
+</html>

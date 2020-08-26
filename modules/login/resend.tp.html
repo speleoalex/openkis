@@ -1,0 +1,7 @@
+<h3>{i18n:resend the verification code}</h3>
+<form enctype="multipart/form-data" action="{formaction}" method="post" name="login" >
+    <div>
+        <div><label>{txtusername}</label><br /><input type="text" size="15" name="username" /> <button type="submit" >{i18n:send}</button></div>
+        <!-- if {error} --><div style="background-color:yellow;color:red" >{error}</div><!-- end if {error} -->
+    </div>
+</form>

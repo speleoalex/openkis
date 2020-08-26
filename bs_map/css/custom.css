@@ -1,0 +1,72 @@
+#map{
+    height: 100%;
+    width: 100%;
+    border:0px solid red;
+    position: fixed;
+}
+
+button[title=Attributions]{
+    display:none
+}
+.navbar{
+    margin-bottom: 0px;
+   
+}
+.twitter-typeahead{
+    padding:0px;
+    
+}
+.mytoolbar{
+    padding:0px;
+    
+    padding-left:5px;
+    padding-top:5px;
+}
+.popover-content{
+    max-width: 300px;
+}
+.dropdown-menu{
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+}
+.my_layerswitcher {
+    text-align: left;
+    padding:20px;
+    padding-top:0px;
+    list-style-type:none;
+    white-space: nowrap;
+    background-color: #ffffff;
+
+}
+.my_layerswitcher *{
+    list-style-type:none;
+    margin:0px;
+    padding-left: 0px; 
+}
+.my_layerswitcher #ops_layertree ul,.my_layerswitcher #ops_layertree li{
+    padding-left:10px;				
+}
+.my_layerswitcher #ops_layertree button{
+    border-radius:5px; 
+    border:1px solid #dadada;
+    background-color: transparent;
+    margin:4px;
+    height:20px;
+    width:20px;
+    text-align: center
+}
+.popover{
+    width:auto;
+    max-width:500px;
+    min-width: 300px;
+}
+
+.popover em{
+    color: #00aadd
+        
+}
+.popover h3{
+    white-space: nowrap
+}

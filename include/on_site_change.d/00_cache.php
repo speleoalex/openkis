@@ -1,0 +1,5 @@
+<?php
+
+FN_ClearCache();
+?>
+

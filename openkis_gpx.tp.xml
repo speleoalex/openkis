@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.0" creator="{siteurl}" xmlns="http://www.topografix.com/GPX/1/0">
+    <time>{timegpx}</time>
+    <bounds minlat="{minlat}" minlon="{minlon}" maxlat="{maxlat}" maxlon="{maxlon}"/>
+    <!-- foreach {items} -->
+    <wpt lat="{lat}" lon="{lon}">
+        <ele>{elevation}</ele>
+        <name>{name}</name>
+        <desc>{abstract}</desc>
+        <url>{url}</url>
+        <urlname>{i18n:View}</urlname>
+    </wpt>
+    <!-- end foreach {items} -->
+</gpx>
+
