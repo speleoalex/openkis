@@ -641,7 +641,7 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
         $arrayvars['url_avatar']=FN_GetUserImage($_FN['user']);
     }
     else{
-        $arrayvars['url_avatar']="";
+        $arrayvars['url_avatar']="{$_FN['siteurl']}/images/user.png";
     }
     if ($use_cache)
     {
