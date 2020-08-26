@@ -1,5 +1,5 @@
-Main site:
-http://www.flatnux.org
+# openkis
+Opensource Karst Information System
 
 
 Installation instructions:
