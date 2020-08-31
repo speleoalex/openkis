@@ -373,6 +373,7 @@ $_FN['site_subtitle']=FN_i18n($_FN['site_subtitle']);
 $_FN['site_title']=FN_i18n($_FN['site_title']);
 $_FN['site_subtitle']=FN_i18n($_FN['site_subtitle']);
 $_FN['formlogin']=FN_HtmlLoginForm();
+$_FN['section_title']=$_FN['sectionvalues']['title'];
 
 if (!empty($_FN['include']))
 {
