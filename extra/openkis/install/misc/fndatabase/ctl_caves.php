@@ -301,6 +301,13 @@
         <frm_options_it>Si,No</frm_options_it>
     </field>
     <field>  
+        <name>tourist</name>
+        <frm_it>Grotta turistica</frm_it>
+        <type>radio</type>
+        <frm_options>X,</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>    
+    <field>  
         <name>closed</name>
         <frm_it>Cavit&agrave; chiusa</frm_it>
         <type>radio</type>

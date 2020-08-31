@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?php exit(0);?>
 <tables>
     <field>
         <name>id</name>
@@ -288,7 +286,7 @@
     </field>
     <field> 
         <name>lake</name>
-        <frm_it>Cavit&agrave; marina/lacustre</frm_it>
+        <frm_it>Cavit&agrave;lacustre</frm_it>
         <type>radio</type>
         <frm_options>S,N</frm_options>
         <frm_options_it>Si,No</frm_options_it>
@@ -300,6 +298,13 @@
         <frm_options>S,N</frm_options>
         <frm_options_it>Si,No</frm_options_it>
     </field>
+    <field>  
+        <name>tourist</name>
+        <frm_it>Grotta turistica</frm_it>
+        <type>radio</type>
+        <frm_options>X,</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>    
     <field>  
         <name>closed</name>
         <frm_it>Cavit&agrave; chiusa</frm_it>

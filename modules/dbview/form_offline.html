@@ -240,9 +240,9 @@
                                 <script>
                                     function createmail() {
                                         var email = "{log_email_address}";
-                                        document.title = "scheda catastale " + document.getElementsByName("NOME")[0].value;
+                                        document.title = "{i18n:filled document} " + document.getElementsByName("{titlefield}")[0].value;
                                         window.location = "mailto:" + email + "?Subject=" + "Inserimento grotta " + document.getElementsByName("name")[0].value + " sul catasto";
-                                        alert('Allega il file alla mail e inviala a {log_email_address} e allega alla mail eventuali rilievi o foto');
+                                        alert('{i18n:Attach the file to the email and send it to} {log_email_address}, {i18n:attach any images or documents to the email}');
                                         SaveAs();
                                     }
                                 </script>

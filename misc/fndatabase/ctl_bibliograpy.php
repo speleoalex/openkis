@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <?php exit(0);?>
 <tables>			
     <field>
@@ -18,7 +17,6 @@
     </field>
     <field>
         <name>magazine</name>
-        <name>Rivista</name>
         <type>string</type>
         <frm_showinlist>1</frm_showinlist>
         <frm_cols>80</frm_cols>
@@ -49,7 +47,7 @@
         <type>string</type>
         <frm_showinlist>1</frm_showinlist>
     </field>
-
+    
     <field>
         <name>city</name>
         <frm_it>Citta pubblicazione</frm_it>
@@ -109,7 +107,7 @@
         <frm_it>Rilievi</frm_it>
         <type>text</type>
         <frm_cols>80</frm_cols>
-        <frm_help_it>numero di rilievi</frm_help_it>
+        <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>
     </field>
 
     <field>
@@ -118,7 +116,7 @@
         <frm_it>Foto</frm_it>
         <type>string</type>
         <frm_cols>80</frm_cols>
-        <frm_help_it>numero di foto</frm_help_it>
+        <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>
     </field>
 
     <field>
@@ -127,7 +125,7 @@
         <frm_it>Disegni</frm_it>
         <type>text</type>
         <frm_cols>80</frm_cols>
-        <frm_help_it>numero di disegni</frm_help_it>
+        <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>
     </field>
     <field>
 
@@ -149,7 +147,7 @@
     <field>
         <name>modified_caves</name>
         <frm_i18n>modified caves</frm_i18n>
-
+        
         <type>text</type>
         <frm_cols>80</frm_cols>
         <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>

@@ -108,11 +108,16 @@ function openkis_GetItemPosition($row)
 
     $CONVERTER=new openkis_geoconverter($lat_ori,$lon_ori,$coordinatestypes,$proj);
     $coords_wgs84=$CONVERTER->getWGS84Geo();
+    $coords_utm=$CONVERTER->getWGS84UTM();
     //dprint_r($row,"splx","magenta");
     $wgs84_lat=$coords_wgs84['latitude'];
     $wgs84_lon=$coords_wgs84['longitude'];
     $ret['lat']=str_replace(",",".",round($wgs84_lat,7));
     $ret['lon']=str_replace(",",".",round($wgs84_lon,7));
+    $ret['y']=str_replace(",",".",round($coords_utm['northing'],7));
+    $ret['x']=str_replace(",",".",round($coords_utm['easting'],7));
+    $ret['zone']=$coords_utm['zone'];
+    
     $elevation=$row['elevation'];
     if (empty($elevation) && !empty($row['elevation_map']))
     {
