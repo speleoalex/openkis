@@ -614,7 +614,7 @@ var OPS_Map = {
         }
         if (isBaselayer)
         {
-            if (format != "image/jpeg")
+            if (format != "image/jpeg" )
                 format = "jpeg";
         }
         //console.log("name "+layername+" format "+format);

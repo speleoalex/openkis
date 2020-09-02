@@ -60,7 +60,7 @@ function DrawFile($file)
     $color[1]="#eaeaea";
     $color2[0]="#f3e49c";
     $color2[1]="#f3e4c8";
-    $icon=$_FN['siteurl']."pdf.png";
+    $icon=$_FN['siteurl']."images/mime/pdf.png";
     $tit=basename($file);
     $l2=$_FN['siteurl']."ops_getfile.php?f=$file";
     $ext=strtolower(FN_GetFileExtension($file));

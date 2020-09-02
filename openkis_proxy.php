@@ -11,6 +11,8 @@ if (!isset($url[1]))
     die();
 }
 $url=$url[1];
+
+
 if (strpos($url,"http://")!== false || strpos($url,"https://")!== false)
 {
     $contents=getWebPage($url);
@@ -55,7 +57,21 @@ function getWebPage($url)
         CURLOPT_TIMEOUT=>120,// timeout sulla risposta
         CURLOPT_MAXREDIRS=>10,// fermati dopo il decimo redirect
     );
-    $ch=curl_init($url);     // impostiamo l'url per il download
+
+    $port = explode(":",$url);
+    if (!empty($port[2]))
+    {
+        $p2=explode("/",$port[2]);
+        $url2=str_replace(":{$p2[0]}/","/",$url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_PORT, $p2[0]);
+        curl_setopt($ch, CURLOPT_URL,$url);
+    }
+    else
+    {
+        $ch=curl_init($url);     // impostiamo l'url per il download
+    }
+    
     curl_setopt_array($ch,$options);   //settiamo le opzioni
     $ret=curl_exec($ch);    //facciamo richiesta della pagina
     $sections=explode("\x0d\x0a\x0d\x0a",$ret,2);

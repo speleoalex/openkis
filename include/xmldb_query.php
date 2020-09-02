@@ -421,7 +421,7 @@ class XMLDatabase
                 try
                 {
                     //dprint_r("if ($where2) {".'$ok=true;'."} ");
-                    eval("if ($where2) {".'$ok=true;'."} ");
+                    @eval("if ($where2) {".'$ok=true;'."} ");
                 }catch(ParseError $e)
                 {
                     
