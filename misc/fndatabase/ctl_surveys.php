@@ -91,7 +91,12 @@
         <type>string</type>
         <frm_it>Precisione rilievo</frm_it>
     </field>
-
+    <field>
+        <name>priority</name>
+        <frm_i18n>display priority</frm_i18n>
+        <view_show>0</view_show>
+        <type>int</type>
+    </field>
     <field>
         <name>groupview</name>
         <frm_i18n>limits the display of the content in these groups</frm_i18n>

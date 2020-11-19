@@ -15,13 +15,13 @@ foreach($caves as $key=> $val)
         if (isset($r['name']))
         {
             $l=FN_RewriteLink("index.php?mod=caves&op=view&id={$r['id']}");
-            $html.="<br /><b>{$r['name']}</b>&nbsp;<em>{$r['synonyms']}</em> <a href=\"$l\">".FN_Translate("view")."</a>";
+            $html.="<br /><b>{$r['name']}</b>&nbsp;<em>{$r['synonyms']}</em> <a class=\"\" href=\"$l\">".FN_Translate("view")."</a>";
         }
     }
 }
 if ($html!= "")
 {
-    echo "<br /><br /><h4>Grotte a catasto presenti in questo articolo:</h4><div style=\"border:1px solid #fcac2b;padding:5px;margin-top:10px;background-color:#ffffda\">$html</div>";
+    echo "<br /><br /><h4>Grotte a catasto presenti in questa pubblicazione:</h4><div class=\"alert alert-info\">$html</div>";
 }
 
 //-------------------------biblio speleopaleo---------------------------------->
@@ -44,7 +44,7 @@ foreach($grotte as $key=> $val)
 }
 if ($html!= "")
 {
-    echo "<br /><br /><h4>Grotte a catasto presenti che parlano di fossili:</h4><div style=\"border:1px solid #fcac2b;padding:5px;margin-top:10px;background-color:#ffffda\">$html</div>";
+    echo "<br /><br /><h4>Grotte a catasto presenti che parlano di fossili:</h4><div class=\"alert alert-primary\" >$html</div>";
 }
 //-------------------------biblio speleopaleo----------------------------------<
 
@@ -64,15 +64,15 @@ foreach($fauna as $key=> $val)
 
         if (isset($r[0]['scientific_name']))
         {
-            $l=fn_rewritelink("index.php?mod=fauna_cavernicola&op=view&id={$r[0]['NUM']}");
+            $l=fn_rewritelink("index.php?mod=fauna&op=view&id={$r[0]['id']}");
             $fhtml.="<br /><b>{$r[0]['scientific_name']}</b>&nbsp;<em>{$r[0]['name']}</em> <a href=\"$l\">".FN_Translate("view")."</a>";
         }
     }
 }
 if ($fhtml!= "")
 {
-    echo "<br /><br /><h4>Schede della fauna presente in questo articolo:</h4>
-		<div style=\"border:1px solid #acfc2b;padding:5px;margin-top:10px;background-color:#daffda\">
+    echo "<br /><br /><h4>Schede della fauna presente in questa pubblicazione:</h4>
+		<div class=\"alert alert-primary\">
 		$fhtml</div>";
 }
 ?>

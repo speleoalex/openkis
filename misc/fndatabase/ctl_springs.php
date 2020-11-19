@@ -72,7 +72,15 @@
         <frm_it>Localit&agrave;</frm_it>
         <type>uppercase</type>
     </field>  
-
+    <field>
+        <name>areas</name>
+        <frm_it>Area carsica</frm_it>
+        <type>string</type>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_areas</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>name</fk_show_field>		
+    </field>
     <field>
         <name>latitude_txt</name>
         <view_group>location</view_group>

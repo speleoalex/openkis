@@ -22,6 +22,8 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
+	<link>index.php?mod=cavesystem</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
@@ -64,4 +66,5 @@
 	<enableranks>0</enableranks>
 	<default_view_mode>icon</default_view_mode>
 	<enable_rss>1</enable_rss>
+	<enable_offlineform>1</enable_offlineform>
 </fncf_dbview>

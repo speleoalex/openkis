@@ -22,13 +22,15 @@
 	<description_it>contiene l'elenco degli animali cavernicoli</description_it>
 	<title_en></title_en>
 	<description_en></description_en>
+	<link>index.php?mod=fauna</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert>fauna</groupinsert>
-	<groupadmin>fauna</groupadmin>
+	<groupinsert></groupinsert>
+	<groupadmin></groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
@@ -49,7 +51,7 @@
 	<image_size>100</image_size>
 	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>
-	<enable_permissions_each_records>1</enable_permissions_each_records>
+	<enable_permissions_each_records>0</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>1</enable_permissions_edit_each_records>
 	<permissions_records_groups>r_fauna,w_fauna</permissions_records_groups>
 	<permissions_records_edit_groups>w_fauna</permissions_records_edit_groups>
@@ -60,4 +62,5 @@
 	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>1</enable_offlineform>
 </fncf_dbview>

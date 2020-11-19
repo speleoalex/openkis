@@ -69,7 +69,7 @@ class FNDBVIEW
             FN_Write($str_table,$_FN['datadir']."/".$_FN['database']."/{$tablename}_versions.php");
         }
 //------------------- tabella delle statistiche -------------------------
-        if ($config['enable_statistics']== 1)
+        if ($config['enable_statistics'] == 1)
         {
             if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}"."_stat") || !file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}"."_stat.php"))
             {
@@ -119,7 +119,7 @@ class FNDBVIEW
         global $_FN;
         static $listok=false;
         //------------------------------load config-------------------------------->
-        if ($config== false)
+        if ($config == false)
         {
             $config=$this->config;
         }
@@ -137,7 +137,7 @@ class FNDBVIEW
 
         $groups=($config['navigate_groups']!= "") ? explode(",",$config['navigate_groups']) : array();
         //------------------------------load config--------------------------------<
-        if ($params=== false)
+        if ($params === false)
             $params=$_REQUEST;
         $q=FN_GetParam("q",$params);
 
@@ -162,10 +162,10 @@ class FNDBVIEW
                 $rulequery="{$rulevalues['query']}";
             }
         }
-        if ($order== "")
+        if ($order == "")
         {
             $order=$config['defaultorder'];
-            if ($desc== "")
+            if ($desc == "")
                 $desc=1;
         }
         $filters_items=array();
@@ -248,10 +248,10 @@ class FNDBVIEW
             $and=" AND ";
         }
 
-        if ($order== "")
+        if ($order == "")
         {
             $order=$t->xmltable->primarykey;
-            if ($desc== "")
+            if ($desc == "")
                 $desc=1;
         }
 
@@ -443,7 +443,7 @@ class FNDBVIEW
         }
         //searchpartfields----<
         //-----------------------record is visible only creator---------------->
-        if ($config['viewonlycreator']== 1)
+        if ($config['viewonlycreator'] == 1)
         {
             if (!$this->IsAdmin())
             {
@@ -487,7 +487,7 @@ class FNDBVIEW
         }
 
 
-        if ($wherequery== "")
+        if ($wherequery == "")
             $wherequery="1";
         $orderquery="";
         if ($order!= "")
@@ -649,9 +649,9 @@ class FNDBVIEW
             foreach($params as $key=> $value)
             {
                 $link[$key]="$key=".urlencode($params[$key]);
-                if ($params[$key]=== null)
+                if ($params[$key] === null)
                     unset($link[$key]);
-                elseif ($params[$key]=== "")
+                elseif ($params[$key] === "")
                     $link[$key]="$key=$blank";
             }
         }
@@ -678,7 +678,7 @@ class FNDBVIEW
     {
         $blacklist=explode(",",$blacklist);
         $ok=false;
-        while($ok== false)
+        while($ok == false)
         {
             $ok=true;
             foreach($blacklist as $itemtag)
@@ -712,7 +712,7 @@ class FNDBVIEW
             die(FN_Translate("you may not do that"));
         // se il file non esiste lo crea
 
-        if ($config['enablestats']== 1)
+        if ($config['enablestats'] == 1)
         {
             if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/$tablename"."_download_stat") || !file_exists("{$_FN['datadir']}/{$_FN['database']}/$tablename"."_stat.php"))
             {
@@ -727,7 +727,7 @@ class FNDBVIEW
             $stat=FN_XmlTable($tablename."_download_stat");
             $oldval=$stat->GetRecordByPrimaryKey($file);
             $r['filename']=$file;
-            if ($oldval== null)
+            if ($oldval == null)
             {
                 $r['numdownload']=1;
                 $stat->InsertRecord($r);
@@ -795,7 +795,7 @@ class FNDBVIEW
             $newvalues['username']=$_FN['user'];
             $newvalues['insert']=time();
             $err=$tablelinks->Verify($newvalues);
-            if (count($err)== 0)
+            if (count($err) == 0)
             {
                 $tablelinks->xmltable->InsertRecord($newvalues);
 //---------- send mail -------------------------------------------------------->
@@ -833,7 +833,7 @@ class FNDBVIEW
                             $userlang=$usercomment['lang'];
                         //dprint_r($uservalues);
                         //dprint_r($usercomment);
-                        if ($uservalues['email']== $usercomment['email']) //onwer
+                        if ($uservalues['email'] == $usercomment['email']) //onwer
                         {
                             $body=$_FN['user']." ".FN_Translate("added a comment to your content","aa");
                         }
@@ -939,7 +939,7 @@ class FNDBVIEW
 //--config--<
         $Table=FN_XmlForm($tablename);
         $username=$_FN['user'];
-        if ($username== "")
+        if ($username == "")
             die(FN_Translate("you may not do that"));
         $newvalues=$Table->getbypost();
         if (isset($_POST["_xmldbform_pk_".$Table->xmltable->primarykey]))
@@ -959,7 +959,7 @@ class FNDBVIEW
                     $toupdate=true;
                     break;
                 }
-                if (isset($newvalues[$k]) && $newvalues[$k]!= "" && $oldvalues[$k]== $newvalues[$k] && ($Table->xmltable->fields[$k]->type== "file" || $Table->xmltable->fields[$k]->type== "image"))
+                if (isset($newvalues[$k]) && $newvalues[$k]!= "" && $oldvalues[$k] == $newvalues[$k] && ($Table->xmltable->fields[$k]->type == "file" || $Table->xmltable->fields[$k]->type == "image"))
                 {
                     $filename=$Table->xmltable->getFilePath($oldvalues,$k);
                     if (filesize($filename)!= filesize($_FILES[$k]['tmp_name']))
@@ -975,11 +975,11 @@ class FNDBVIEW
         {
             if (isset($newvalues[$f['name']]) && isset($Table->formvals[$f['name']]['frm_uppercase']))
             {
-                if ($Table->formvals[$f['name']]['frm_uppercase']== "uppercase")
+                if ($Table->formvals[$f['name']]['frm_uppercase'] == "uppercase")
                 {
                     $_POST[$f['name']]=$newvalues[$f['name']]=strtoupper($newvalues[$f['name']]);
                 }
-                elseif ($Table->formvals[$f['name']]['frm_uppercase']== "lowercase")
+                elseif ($Table->formvals[$f['name']]['frm_uppercase'] == "lowercase")
                 {
                     $_POST[$f['name']]=$newvalues[$f['name']]=strtolower($newvalues[$f['name']]);
                 }
@@ -1004,11 +1004,11 @@ class FNDBVIEW
                 $errors[$Table->xmltable->primarykey]=array("title"=>$Table->formvals[$Table->xmltable->primarykey]['title'],"field"=>$Table->xmltable->primarykey,"error"=>FN_Translate("there is already an item with this value"));
             }
         }
-        if (count($errors)== 0)
+        if (count($errors) == 0)
         {
             if (FN_IsAdmin())
             {
-                if (!isset($_POST['userupdate']) || $_POST['userupdate']== "")
+                if (!isset($_POST['userupdate']) || $_POST['userupdate'] == "")
                 {
                     $_POST['userupdate']=$newvalues['userupdate']=$_FN['user'];
                 }
@@ -1027,7 +1027,7 @@ class FNDBVIEW
                     $tv=FN_XmlTable($tablename."_versions");
                     foreach($Table->xmltable->fields as $k=> $v)
                     {
-                        if (($v->type== "file" || $v->type== "image") && $oldvalues[$k]!= "")
+                        if (($v->type == "file" || $v->type == "image") && $oldvalues[$k]!= "")
                         {
                             $oldfile=$Table->xmltable->getFilePath($oldvalues,$k);
                             $_FILES[$k]['name']=$oldvalues[$k];
@@ -1082,11 +1082,11 @@ class FNDBVIEW
         {
             if (isset($newvalues[$f['name']]) && isset($Table->formvals[$f['name']]['frm_uppercase']))
             {
-                if ($Table->formvals[$f['name']]['frm_uppercase']== "uppercase")
+                if ($Table->formvals[$f['name']]['frm_uppercase'] == "uppercase")
                 {
                     $_POST[$f['name']]=$newvalues[$f['name']]=strtoupper($newvalues[$f['name']]);
                 }
-                elseif ($Table->formvals[$f['name']]['frm_uppercase']== "lowercase")
+                elseif ($Table->formvals[$f['name']]['frm_uppercase'] == "lowercase")
                 {
                     $_POST[$f['name']]=$newvalues[$f['name']]=strtolower($newvalues[$f['name']]);
                 }
@@ -1104,14 +1104,14 @@ class FNDBVIEW
         //die();
         $errors=$Table->VerifyInsert($newvalues);
 
-        if (count($errors)== 0)
+        if (count($errors) == 0)
         {
             $newvalues['recordupdate']=xmldb_now();
             $newvalues['recordinsert']=xmldb_now();
             $newvalues['userupdate']=$_FN['user'];
             $newvalues['username']=$_FN['user'];
 
-            if (!empty($config['enable_permissions_edit_each_records']) && $config['enable_permissions_edit_each_records']== 1)
+            if (!empty($config['enable_permissions_edit_each_records']) && $config['enable_permissions_edit_each_records'] == 1)
             {
                 if ($config['permissions_records_edit_groups']!= "")
                 {
@@ -1242,7 +1242,7 @@ class FNDBVIEW
         $ret=array();
         foreach($userPerm as $row_perm)
         {
-            if ($row[$t->primarykey]== $row_perm['table_unirecid'] && $tablename== $row_perm['tablename'])
+            if ($row[$t->primarykey] == $row_perm['table_unirecid'] && $tablename == $row_perm['tablename'])
             {
                 $ret[]=$row_perm;
             }
@@ -1267,11 +1267,11 @@ class FNDBVIEW
         if (FN_IsAdmin())
             return true;
         $user=$_FN['user'];
-        if ($_FN['user']== "")
+        if ($_FN['user'] == "")
             return false;
-        if (isset($row['username']) && $row['username']== $_FN['user'])
+        if (isset($row['username']) && $row['username'] == $_FN['user'])
             return true;
-        if (isset($row['user']) && $row['user']== $user)
+        if (isset($row['user']) && $row['user'] == $user)
             return true;
         if ($_FN['user']!= "" && $config['groupadmin']!= "" && FN_UserInGroup($_FN['user'],$config['groupadmin']))
         {
@@ -1280,7 +1280,7 @@ class FNDBVIEW
         //permessi per ogni record------------------------------------------------->
         if (empty($config['viewonlycreator']))
         {
-            if (!empty($config['enable_permissions_edit_each_records']) && $config['enable_permissions_edit_each_records']== 1)
+            if (!empty($config['enable_permissions_edit_each_records']) && $config['enable_permissions_edit_each_records'] == 1)
             {
                 $record=$row;
                 if (empty($record['groupinsert']))
@@ -1339,7 +1339,7 @@ class FNDBVIEW
             return true;
         if ($_FN['user']!= "" && $config['groupinsert']!= "" && FN_UserInGroup($_FN['user'],$config['groupinsert']))
             return true;
-        if ($_FN['user']!= "" && $config['groupinsert']== "")
+        if ($_FN['user']!= "" && $config['groupinsert'] == "")
             return true;
         return false;
     }
@@ -1362,7 +1362,7 @@ class FNDBVIEW
             return true;
         if ($_FN['user']!= "" && $config['groupinsert']!= "" && FN_UserInGroup($_FN['user'],$config['groupinsert']))
             return true;
-        if ($config['groupview']== "")
+        if ($config['groupview'] == "")
             return true;
         return false;
     }
@@ -1382,7 +1382,7 @@ class FNDBVIEW
         $tables=explode(",",$config['tables']);
         $tablename=$tables[0];
 //--config--<
-        if ($user== "")
+        if ($user == "")
             return false;
         $t=FN_XmlTable($tablename);
         $restr=array();
@@ -1396,7 +1396,7 @@ class FNDBVIEW
             foreach($list_field as $field)
             {
 
-                if ($field['username']== $user && $field['table_unirecid']== $row[$t->primarykey] && $field['tablename']== $tablename)
+                if ($field['username'] == $user && $field['table_unirecid'] == $row[$t->primarykey] && $field['tablename'] == $tablename)
                     return true;
             }
         return false;
@@ -1456,7 +1456,7 @@ class FNDBVIEW
         $tablename=$tables[0];
 //--config--<
         $html="";
-        if ($_FN['user']== "")
+        if ($_FN['user'] == "")
         {
             FN_JsRedirect(FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id=$id_record"));
             return "";
@@ -1534,7 +1534,7 @@ class FNDBVIEW
         global $_FN;
 //--config-->
         $config=$this->config;
-        if ($tablename== "")
+        if ($tablename == "")
         {
             $tables=explode(",",$config['tables']);
             $tablename=$tables[0];
@@ -1546,7 +1546,7 @@ class FNDBVIEW
         if (!is_array($res))
             $res=array();
         $n=count($res);
-        if ($n== 0)
+        if ($n == 0)
             return -1;
         foreach($res as $r)
         {
@@ -1587,10 +1587,10 @@ class FNDBVIEW
         {
             foreach($_FN['sections'] as $section)
             {
-                if ($section['type']== "navigator" || $section['type']== "dbview")
+                if ($section['type'] == "navigator" || $section['type'] == "dbview")
                 {
                     $configTmp=FN_LoadConfig("",$section['id']);
-                    if ($configTmp['tables']== $tablename)
+                    if ($configTmp['tables'] == $tablename)
                     {
                         $config=$configTmp;
                         if (!FN_UserCanViewSection($section['id']))
@@ -1632,10 +1632,10 @@ class FNDBVIEW
         {
             foreach($_FN['sections'] as $section)
             {
-                if ($section['type']== "navigator" || $section['type']== "dbview")
+                if ($section['type'] == "navigator" || $section['type'] == "dbview")
                 {
                     $configTmp=FN_LoadConfig("",$section['id']);
-                    if ($configTmp['tables']== $tablename)
+                    if ($configTmp['tables'] == $tablename)
                     {
                         $config=$configTmp;
                         if (!FN_UserCanViewSection($section['id']))
@@ -1653,11 +1653,11 @@ class FNDBVIEW
         //--------visualizzazione solo per il creatore----------------------------->
         if (!empty($config['viewonlycreator']))
         {
-            if ($_FN['user']== "" && $record['username']!= "")
+            if ($_FN['user'] == "" && $record['username']!= "")
             {
                 return false;
             }
-            elseif ($_FN['user']== $record['username'])
+            elseif ($_FN['user'] == $record['username'])
             {
                 return true;
             }
@@ -1670,7 +1670,7 @@ class FNDBVIEW
             if (is_array($list_field))
                 foreach($list_field as $field)
                 {
-                    if ($field['username']== $_FN['user'] && $field['table_unirecid']== $record[$table->primarykey] && $field['tablename']== $tablename)
+                    if ($field['username'] == $_FN['user'] && $field['table_unirecid'] == $record[$table->primarykey] && $field['tablename'] == $tablename)
                         return true;
                 }
         }
@@ -1679,7 +1679,7 @@ class FNDBVIEW
         //permessi per ogni record------------------------------------------------->
         else
         {
-            if (!empty($config['enable_permissions_each_records']) && $config['enable_permissions_each_records']== 1)
+            if (!empty($config['enable_permissions_each_records']) && $config['enable_permissions_each_records'] == 1)
             {
                 if (empty($record['groupview']))
                 {
@@ -1687,7 +1687,7 @@ class FNDBVIEW
                 }
                 else
                 {
-                    if ($_FN['user']== "")
+                    if ($_FN['user'] == "")
                         return false;
                     $uservalues=FN_GetUser($_FN['user']);
                     $usergroups=explode(",",$uservalues['group']);
@@ -1729,11 +1729,11 @@ class FNDBVIEW
         $tplvars['items']=array();
         $tplvars['pages']=array();
         $tplvars['url_offlineforminsert']=FN_RewriteLink("index.php?mod={$_FN['mod']}&op=offlineform");
-        $tplvars['querystring']= $this->MakeLink(array("page"=>null),"&",true,true);
+        $tplvars['querystring']=$this->MakeLink(array("page"=>null),"&",true,true);
         //--config--<
         $page=FN_GetParam("page",$_GET);
         $recordsperpage=FN_GetParam("rpp",$_GET);
-        if ($recordsperpage== "")
+        if ($recordsperpage == "")
             $recordsperpage=$config['recordsperpage'];
         //---template------>
         $tplfile=file_exists("sections/{$_FN['mod']}/list.tp.html") ? "sections/{$_FN['mod']}/list.tp.html" : FN_FromTheme("modules/dbview/list.tp.html",false);
@@ -1748,7 +1748,7 @@ class FNDBVIEW
             if (is_array($results) && ($c=count($results)) > 0)
             {
                 //---------------------calcolo paginazione -------------------->
-                if ($page== "")
+                if ($page == "")
                     $page=1;
                 $num_records=count($results);
                 $numPages=ceil($num_records / $recordsperpage);
@@ -1799,7 +1799,7 @@ class FNDBVIEW
                         break;
                     $linkpage=$this->MakeLink(array("page"=>$i,"addtocart"=>null),"&");
                     $hclass="";
-                    if ($page== $i)
+                    if ($page == $i)
                     {
                         $tpPage['active']=true;
                     }
@@ -1872,7 +1872,7 @@ class FNDBVIEW
         $html="";
 //--config--<
         $tables=explode(",",$config['tables']);
-        if ($_tablename== "")
+        if ($_tablename == "")
         {
             $tablename=$tables[0];
         }
@@ -1885,7 +1885,7 @@ class FNDBVIEW
         $Table_history=FN_XmlForm($tablename."_versions");
         //del history------->
         $action=FN_GetParam("action",$_GET,"flat");
-        if ($action== "delete")
+        if ($action == "delete")
         {
             $item=$t->xmltable->GetRecordByPrimarykey($id_record);
             if ($this->IsAdminRecord($item))
@@ -1899,7 +1899,7 @@ class FNDBVIEW
 
 
 
-        if ($shownavigatebar== true)
+        if ($shownavigatebar == true)
         {
             $tpvars['navigationbar']=$this->Toolbar($config,$t->xmltable->GetRecordByPrimarykey($id_record));
         }
@@ -1923,7 +1923,7 @@ class FNDBVIEW
                 $item_history['url_delete']=($this->IsAdminRecord($item)) ? "javascript:check('$link_deleteversion')\"" : "";
                 $item_history['version_user']=$item['userupdate'];
                 $item_history['htmlitem']="";
-                if ($version== $item['idversions'])
+                if ($version == $item['idversions'])
                 {
                     $item_history['title_inner']="";
                     $item_history['url_view']=$this->MakeLink(array("op"=>"history","id"=>$id_record),"&");
@@ -1957,7 +1957,7 @@ class FNDBVIEW
         $config=$this->config;
 //--config--<
 
-        if ($_tablename== "")
+        if ($_tablename == "")
         {
             $tablename=$this->config['tables'];
         }
@@ -1982,7 +1982,7 @@ class FNDBVIEW
         $forcelang=isset($_GET['forcelang']) ? $_GET['forcelang'] : $_FN['lang'];
         $row=$Table->xmltable->GetRecordByPrimaryKey($id_record);
 //-------statistiche---------------------->>
-        if ($config['enable_statistics']== 1)
+        if ($config['enable_statistics'] == 1)
         {
             if (isset($row['view']) && $row['view']!= $row[$Table->xmltable->primarykey])
             {
@@ -2005,14 +2005,14 @@ class FNDBVIEW
             $tbtmp=FN_XmlTable($tablename."_stat");
 
             $tmprow['unirecid']=$row[$t->xmltable->primarykey];
-            if (($oldview=$tbtmp->GetRecordByPrimaryKey($row[$t->xmltable->primarykey]))== false)
+            if (($oldview=$tbtmp->GetRecordByPrimaryKey($row[$t->xmltable->primarykey])) == false)
             {
                 $tmprow['view']=1;
                 $rowtmp=$tbtmp->InsertRecord($tmprow);
             }
             else
             {
-                $oldview['view'] ++;
+                $oldview['view']++;
                 $rowtmp=$tbtmp->UpdateRecord($oldview); //aggiunge vista
                 $Table2=FN_XmlTable($tablename);
                 $row=$Table2->GetRecordByPrimaryKey($id_record);
@@ -2042,7 +2042,7 @@ class FNDBVIEW
         //--- template item -----<
 //---------NAVIGATE BAR-------------------------------------------->
         $htmlNavigationbar="";
-        if ($shownavigatebar== true)
+        if ($shownavigatebar == true)
         {
             $tpvars['navigationbar']=$this->Toolbar($config,$row);
         }
@@ -2099,7 +2099,16 @@ class FNDBVIEW
                 if (isset($v["tablename"]) && isset($oldvalues[$Table->xmltable->primarykey]) && file_exists("{$_FN['datadir']}/{$_FN['database']}/{$v["tablename"]}.php"))
                 {
                     $tmptable=FN_XmlForm($v["tablename"],$params);
-                    $allview=$tmptable->xmltable->getRecords($params['restr']);
+                    $sort=false;
+                    $desc=false;
+                    if (!empty($tmptable->xmltable->fields['priority']))
+                    {
+
+                        $sort="priority";
+                        $desc=true;
+                        //dprint_r("priority");
+                    }
+                    $allview=$tmptable->xmltable->getRecords($params['restr'],false,false,$sort,$desc);
                     if (is_array($allview) && count($allview) > 0)
                     {
                         $params['title_inner']=$title;
@@ -2370,11 +2379,11 @@ select_allcke = function(el){
             foreach($results as $k=> $item)
             {
                 $id=$item[$t->xmltable->primarykey];
-                if ($id== $id_record)
+                if ($id == $id_record)
                 {
                     $prev=isset($results[$k - 1]) ? $results[$k - 1][$t->xmltable->primarykey] : $results[count($results) - 1][$t->xmltable->primarykey];
                     $next=isset($results[$k + 1]) ? $results[$k + 1][$t->xmltable->primarykey] : $results[0][$t->xmltable->primarykey];
-                    
+
                     break;
                 }
             }
@@ -2427,7 +2436,7 @@ select_allcke = function(el){
         $vars['title']=FN_Translate("view");
         $vars['image']=FN_FromTheme("images/mime/doc.png");
         $vars['link']=$linkview;
-        $vars['active']=($op== "view");
+        $vars['active']=($op == "view");
         $user_options['view']=$vars;
         //history button
         if ($config['enable_history'])
@@ -2435,7 +2444,7 @@ select_allcke = function(el){
             $vars['title']=FN_Translate("version history");
             $vars['image']=FN_FromTheme("images/read.png");
             $vars['link']=$linkhistory;
-            $vars['active']=($op== "history");
+            $vars['active']=($op == "history");
             $user_options['history']=$vars;
         }
         if ($this->IsAdminRecord($row))
@@ -2445,14 +2454,14 @@ select_allcke = function(el){
             $vars['title']=FN_Translate("modify");
             $vars['image']=FN_FromTheme("images/modify.png");
             $vars['link']=$linkmodify;
-            $vars['active']=($op== "edit");
+            $vars['active']=($op == "edit");
             $user_options['edit']=$vars;
 
             //users button
             $vars['title']=FN_Translate("edit qualified users to modify");
             $vars['image']=FN_FromTheme("images/users.png");
             $vars['link']=$linkusermodify;
-            $vars['active']=($op== "users");
+            $vars['active']=($op == "users");
             $user_options['users']=$vars;
         }
         /*
@@ -2485,7 +2494,7 @@ select_allcke = function(el){
         $html="";
         $Table=FN_XmlTable($tablename);
         $row=$Table->GetRecordByPrimaryKey($id_record);
-        if (empty($config['enable_delete']) || $row== null)
+        if (empty($config['enable_delete']) || $row == null)
             die(FN_Translate("you may not do that"));
 
         if (!$this->IsAdminRecord($row))
@@ -2636,13 +2645,13 @@ set_changed();
             {
                 if (isset($_GET['inner']))
                 {
-                    if (isset($_GET["op___xdb_{$v['tablename']}"]) && $_GET["op___xdb_{$v['tablename']}"]== "del")
+                    if (isset($_GET["op___xdb_{$v['tablename']}"]) && $_GET["op___xdb_{$v['tablename']}"] == "del")
                         $delinner=true;
                 }
             }
         }
 
-        if (!isset($_GET['inner']) || $delinner== true)
+        if (!isset($_GET['inner']) || $delinner == true)
         {
             $forcelang=isset($_GET['forcelang']) ? $_GET['forcelang'] : $_FN['lang'];
             if ($reloadDataFromDb)
@@ -2704,7 +2713,7 @@ set_changed();
                 $params['path']=$Table->path;
                 $params['enableedit']=true;
                 $params['maxrows']=$innertablemaxrows;
-                $params['enablenew']=(!isset($v["enablenew"]) || $v["enablenew"]== 1);
+                $params['enablenew']=(!isset($v["enablenew"]) || $v["enablenew"] == 1);
                 $params['enabledelete']=(!empty($v["enabledelete"]));
                 $tplfile=file_exists("sections/{$_FN['mod']}/forminner.tp.html") ? "sections/{$_FN['mod']}/forminner.tp.html" : FN_FromTheme("modules/dbview/forminner.tp.html",false);
                 $templateInner=file_get_contents($tplfile);
@@ -2863,7 +2872,7 @@ set_changed();
         }
         if ($usertoadd!= "")
         {
-            if (FN_GetUser($usertoadd)== null)
+            if (FN_GetUser($usertoadd) == null)
             {
                 $html.=FN_Translate("this user not exists");
             }
@@ -2964,10 +2973,10 @@ set_changed();
 
         $order=FN_GetParam("order",$_REQUEST);
         $desc=FN_GetParam("desc",$_REQUEST);
-        if ($order== "")
+        if ($order == "")
         {
             $order=$config['defaultorder'];
-            if ($desc== "")
+            if ($desc == "")
                 $desc=1;
         }
         //-------------------------rules------------------------------------------->
@@ -3010,7 +3019,7 @@ set_changed();
             $rules=$tablerules->xmltable->GetRecords();
             foreach($rules as $k=> $rule)
             {
-                $rules[$k]['selected']=(!empty($_REQUEST['rule']) && $_REQUEST['rule']== $rule['rule']) ? "selected=\"selected\"" : "";
+                $rules[$k]['selected']=(!empty($_REQUEST['rule']) && $_REQUEST['rule'] == $rule['rule']) ? "selected=\"selected\"" : "";
                 $rules[$k]['value']=$rules[$k]['rule'];
             }
             $data['table_rules']=array();
@@ -3133,7 +3142,7 @@ set_changed();
                 }
                 else
                     $no=$_table_form->xmltable->fields[$o]->title;
-                if ($order== $o)
+                if ($order == $o)
                     $s="selected=\"selected\"";
                 else
                     $s="";
@@ -3143,7 +3152,7 @@ set_changed();
                 $orderby_item['selected']=$s;
                 $orderby[]=$orderby_item;
             }
-            $ck=($desc== "") ? "" : "checked=\"checked\"";
+            $ck=($desc == "") ? "" : "checked=\"checked\"";
             $data['checked_desc']=$ck;
         }
         $data['order_by']=$orderby;
@@ -3171,10 +3180,10 @@ set_changed();
         $config['search_partfields']=explode(",",$config['search_partfields']);
         $config['search_options']=explode(",",$config['search_options']);
         //--config--<
-        if ($order== "")
+        if ($order == "")
         {
             $order=$config['defaultorder'];
-            if ($desc== "")
+            if ($desc == "")
                 $desc=1;
         }
         $_table_form=FN_XmlForm($tablename);
@@ -3233,7 +3242,7 @@ set_changed();
         $search_min=$config['search_min']!= "" ? explode(",",$config['search_min']) : array();
         //--config--<
         $recordsperpage=FN_GetParam("rpp",$_GET);
-        if ($recordsperpage== "")
+        if ($recordsperpage == "")
             $recordsperpage=$config['recordsperpage'];
         if (file_exists("sections/{$_FN['mod']}/top.php"))
         {
@@ -3395,7 +3404,7 @@ set_changed();
             {
                 $groupcontentsnums=$group['total'];
                 $groupcontentsname=$group['name'];
-                if ($groupcontentsname== "")
+                if ($groupcontentsname == "")
                     $groupcontentstitle=FN_Translate("---");
                 else
                 {
@@ -3416,7 +3425,7 @@ set_changed();
                                 $sep=" &bull; ";
                             }
                         }
-                        if ($groupcontentstitle== "")
+                        if ($groupcontentstitle == "")
                             $groupcontentstitle=$group['name'];
                     }
                     else

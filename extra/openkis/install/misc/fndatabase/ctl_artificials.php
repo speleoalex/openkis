@@ -118,10 +118,10 @@
     <field>
         <name>typology</name>
         <type>string</type>
-        <frm_it>Tipologis</frm_it>
-        <foreignkey>ctl_ART_TIPOLOGIE</foreignkey>
-        <fk_link_field>CODICE</fk_link_field>
-        <fk_show_field>NOME</fk_show_field>
+        <frm_it>Tipologie</frm_it>
+        <foreignkey>ctl_art_types</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>name</fk_show_field>
     </field>
     <field>
         <name>category</name>

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>40</position>
+	<position>30</position>
 	<title>Grotte</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,6 +22,8 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
+	<link>index.php?mod=caves</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
@@ -51,8 +53,8 @@
 	<image_size>100</image_size>
 	<table_rules>ctl_caves_rules</table_rules>
 	<default_view_mode>icon</default_view_mode>
-	<enable_permissions_each_records>0</enable_permissions_each_records>
-	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
+	<enable_permissions_each_records>1</enable_permissions_each_records>
+	<enable_permissions_edit_each_records>1</enable_permissions_edit_each_records>
 	<permissions_records_groups>r_caves,w_caves</permissions_records_groups>
 	<permissions_records_edit_groups>r_caves,w_caves</permissions_records_edit_groups>
 	<enable_history>1</enable_history>
@@ -64,4 +66,5 @@
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<image_size_h>300</image_size_h>
+	<enable_offlineform>1</enable_offlineform>
 </fncf_dbview>

@@ -22,6 +22,8 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
+	<link>index.php?mod=fauna_surveys</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
@@ -60,4 +62,5 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>1</enable_offlineform>
 </fncf_dbview>

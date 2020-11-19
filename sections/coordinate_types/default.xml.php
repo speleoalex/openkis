@@ -22,4 +22,6 @@
 	<description_it></description_it>
 	<title_en>Types of coordinates</title_en>
 	<description_en></description_en>
+	<link>index.php?mod=coordinate_types</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>

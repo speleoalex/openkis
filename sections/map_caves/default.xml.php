@@ -4,7 +4,7 @@
 	<type></type>
 	<parent>menu_natural</parent>
 	<position>80</position>
-	<title>Mappa cavit&agrave; naturali</title>
+	<title>Mappa cavit&amp;agrave; naturali</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -18,8 +18,10 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Mappa cavit&agrave; naturali</title_it>
+	<title_it>Mappa cavit&amp;agrave; naturali</title_it>
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
+	<link>index.php?mod=map_caves</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
