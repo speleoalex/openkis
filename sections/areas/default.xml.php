@@ -22,6 +22,8 @@
 	<description_it></description_it>
 	<title_en>Areas</title_en>
 	<description_en></description_en>
+	<link>index.php?mod=areas</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
@@ -60,8 +62,5 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<enablecomments>0</enablecomments>
-	<enableranks>0</enableranks>
-	<default_view_mode>icon</default_view_mode>
-	<enable_rss>1</enable_rss>
+	<enable_offlineform>1</enable_offlineform>
 </fncf_dbview>

@@ -99,6 +99,12 @@
         <frm_rows>auto</frm_rows>
         <frm_cols>40</frm_cols>
     </field>
+        <field>
+        <name>priority</name>
+        <frm_i18n>display priority</frm_i18n>
+        <view_show>0</view_show>
+        <type>int</type>
+    </field>
     <field>
         <name>accuracy</name>
         <type>string</type>

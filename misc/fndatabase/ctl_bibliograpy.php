@@ -171,21 +171,21 @@
         <frm_group>Allegati</frm_group>
         <frm_it>ESTRATTO ARTICOLO</frm_it>
         <type>file</type>
-        <frm_type>filecatasto</frm_type>
+        <frm_type>file</frm_type>
         <view_tag>fieldset</view_tag>
     </field>	
     <field>
         <name>file2</name>
         <frm_it>ESTRATTO ARTICOLO 2</frm_it>
         <type>file</type>
-        <frm_type>filecatasto</frm_type>
+        <frm_type>file</frm_type>
         <view_tag>fieldset</view_tag>
     </field>	
     <field>
         <name>file3</name>
         <frm_it>ESTRATTO ARTICOLO 3</frm_it>
         <type>file</type>
-        <frm_type>filecatasto</frm_type>
+        <frm_type>file</frm_type>
         <view_tag>fieldset</view_tag>
         <frm_endgroup></frm_endgroup>
     </field>	

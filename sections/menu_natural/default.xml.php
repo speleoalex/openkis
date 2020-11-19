@@ -22,6 +22,8 @@
 	<description_it></description_it>
 	<title_en>Natural Cave</title_en>
 	<description_en></description_en>
+	<link>index.php?mod=menu_natural</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_block_menu>

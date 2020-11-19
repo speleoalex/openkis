@@ -48,11 +48,14 @@
         <!-- item_name -->
         <h2 class="text-center text-primary">{input}</h2>
         <!-- end_item_name -->
+        <!-- item_title -->
+        <h2 class="text-center text-primary">{input}</h2>
+        <!-- end_item_title -->        
         <!-- item_import_rawdata -->
         <div class="row">
             <div class="col-md-3 col-xs-12 text-info text-lg-right dropdown-toggle" data-toggle="collapse" data-target="#rawdata">{title}</div>
             <div class="col-md-9 col-xs-12">
-               
+
                 <div id="rawdata" class="collapse">
                     {input}
                 </div>
@@ -64,6 +67,14 @@
         <!-- item_type_image -->
         <div class="text-center">{input}{title}</div>
         <!-- end_item_type_image -->
+
+        <!-- item_type_file -->
+        <div class="row">
+            <div class="col-md-3 col-xs-12 text-info text-lg-right">{title}</div>
+            <div class="col-md-9 col-xs-12">
+            <!-- inputattributes:class="btn btn-primary"  -->{input}</div>
+        </div>
+        <!-- end_item_type_file -->       
         <!-- endgroup -->
     </div>
     <!-- end_endgroup -->
@@ -77,4 +88,4 @@
 <br />
 <a class="btn btn-primary" href="{url_offlineform}">{i18n:Download update form} </a>
 <!-- end if {url_offlineform} -->
-                
+

@@ -22,6 +22,8 @@
 	<description_it></description_it>
 	<title_en>Artificial caves</title_en>
 	<description_en></description_en>
+	<link>index.php?mod=menu_artificials</link>
+	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_block_menu>

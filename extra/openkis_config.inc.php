@@ -5,7 +5,8 @@ $xmldb_mysqldatabase="openkis_example";
 $xmldb_mysqlusername="root";
 $xmldb_mysqlpassword="";
 
-$_FN['openkis_custom']="";
+
+$_FN['openkis_custom']="default"; //region identifier, used to load custom functions in extra/openkis/custom
 
 if (file_exists("extra/openkis_config.local.php"))
 {
