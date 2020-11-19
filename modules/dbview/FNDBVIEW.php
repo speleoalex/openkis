@@ -39,7 +39,7 @@ class FNDBVIEW
         $tablename=$config['tables'];
 
 //--------------- creazione tabelle ------------------------------->
-        if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}") || !file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}.php"))
+        if ( !file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}.php"))
         {
             $str_table=file_get_contents("modules/dbview/install/fn_files.php");
             $str_table=str_replace("fn_files",$tablename,$str_table);
