@@ -517,7 +517,8 @@ function FN_InitSections()
                 $defaultxmlfile=file_exists("modules/$sectiontype/default.xml.php") ? "modules/$sectiontype/default.xml.php" : "modules/$sectiontype/default.xml";
                 if (file_exists("$defaultxmlfile"))
                 {
-                    $default=xmldb_xml2array(file_get_contents("$defaultxmlfile"),"fn_sectionstype");
+                    $default=xmldb_xml2array(file_get_contents("$defaultxmlfile"),"fncf_$sectiontype");
+                    //$default=xmldb_xml2array(file_get_contents("$defaultxmlfile"),"fn_sectionstype");
                     if (isset($default[0]) && is_array($default[0]))
                     {
                         $tmp=$default[0];
