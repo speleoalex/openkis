@@ -68,8 +68,7 @@
         <name>regione</name>
         <type>select</type>
         <frm_type>regione</frm_type>
-        <frm_it>Regione</frm_it>
-        <frm_default>PIEMONTE</frm_default>                
+        <frm_it>Regione</frm_it>          
     </field>
     <field>
         <name>provincia</name>
