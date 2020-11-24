@@ -157,7 +157,7 @@ else
                 $shownavigatebar=true;
                 if (isset($_GET['embed']))
                     $shownavigatebar=false;
-                if (isset($_GET['inner']))
+                if (!empty($_GET['inner']))
                     $shownavigatebar=false;
                 $html.=$dbview->ViewRecordPage($id,false,$shownavigatebar); // visualizza la pagina col record
                 break;

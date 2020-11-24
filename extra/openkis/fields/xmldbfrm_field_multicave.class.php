@@ -6,10 +6,27 @@
 class xmldbfrm_field_multicave
 {
 
+    function encode_preg($str)
+    {
+        $str=str_replace('\\','\\\\',$str);
+        $str=str_replace('(','\\(',$str);
+        $str=str_replace(')','\\)',$str);
+        $str=str_replace('^','\\^',$str);
+        $str=str_replace('$','\\$',$str);
+        $str=str_replace('*','\\*',$str);
+        $str=str_replace('+','\\+',$str);
+        $str=str_replace('?','\\?',$str);
+        $str=str_replace('[','\\[',$str);
+        $str=str_replace(']','\\]',$str);
+        $str=str_replace('|','\\|',$str);
+        return $str;
+    }
+
     function show($params)
     {
         static $inputid_prefix=1;
         $inputid_prefix++;
+        $separator=!empty($params['frm_separator']) ? $params['frm_separator'] : ",";
         $html="
 <script type=\"text/javascript\" >
 var synccheck{$inputid_prefix}_{$params['name']} = function (id)
@@ -25,12 +42,12 @@ var synccheck{$inputid_prefix}_{$params['name']} = function (id)
             if (items[i].checked == true )
             {
                 str = str+ sep + items[i].value
-                sep=',';
+                sep='$separator';
             }
         }
     }
     document.getElementById('xmldbvalue{$inputid_prefix}_{$params['name']}').value=str;
-    document.getElementById('xmldbvalue{$inputid_prefix}_{$params['name']}_txt').innerHTML=str;
+   // document.getElementById('xmldbvalue{$inputid_prefix}_{$params['name']}_txt').innerHTML=str;
         
 }
 
@@ -97,15 +114,15 @@ var dofilter{$inputid_prefix}_{$params['name']} = function(id,text){
             id=\"btn{$inputid_prefix}_{$params['name']}\" 
             type=\"button\" 
             onclick=\"$('#xmldbck{$inputid_prefix}_{$params['name']}').toggle();return false;\" >".FN_Translate("add")."</button>";
-        
+
         $html.="</div>";
         $html.="<input class=\"form-control\"
             onclick=\"$('#xmldbck{$inputid_prefix}_{$params['name']}').toggle();return false;\" 
                 type=\"text\" id=\"xmldbvalue{$inputid_prefix}_{$params['name']}\" 
                     name=\"$name\" 
-                        value=\"$value\" />";        
+                        value=\"$value\" />";
         //$html.="<div><span onclick=\"$('#xmldbck{$inputid_prefix}_{$params['name']}').toggle();\" id=\"xmldbvalue{$inputid_prefix}_{$params['name']}_txt\"></span>&nbsp;</div>";
-        $html.="<div id=\"xmldbck{$inputid_prefix}_{$params['name']}\" style=\"z-index:1;display:none;position:absolute;background-color:#ffffff;color:#000000;border:1px inset;height:150px;width:500px;overflow:auto;\">";        
+        $html.="<div id=\"xmldbck{$inputid_prefix}_{$params['name']}\" style=\"z-index:1;display:none;position:absolute;background-color:#ffffff;color:#000000;border:1px inset;height:150px;width:500px;overflow:auto;\">";
         foreach($options as $k=> $option)
         {
             $jsonclick="onclick=\"$jexecute\" onchange=\"$jexecute\" ";
@@ -113,7 +130,14 @@ var dofilter{$inputid_prefix}_{$params['name']} = function(id,text){
             $toption=$option;
             if (isset($optionslang[$i]) && $optionslang[$i]!= "")
                 $toption=$optionslang[$i];
-            if (FN_erg("^$k\$",$value) || FN_erg(",$k,",$value) || FN_erg("^$k,",$value) || FN_erg(",$k\$",$value))
+            $separator_enc=$this->encode_preg($separator);
+
+
+            $k_enc=$this->encode_preg($k);
+
+
+            $value=trim(ltrim($value));
+            if (FN_erg("^$k_enc\$",$value) || FN_erg("{$separator_enc}$k_enc{$separator_enc}",$value) || FN_erg("^$k_enc{$separator_enc}",$value) || FN_erg("{$separator_enc}$k_enc\$",$value))
                 $sel="checked=\"checked\"";
             $html.="<div style=\"white-space:nowrap\" ><input id=\"xmldbck{$inputid_prefix}_{$params['name']}$k\" $sel $jsonclick type=\"checkbox\" value=\"$k\" /><label for=\"xmldbck{$inputid_prefix}_{$params['name']}$k\">$toption</label></div> ";
             $i++;
@@ -133,24 +157,28 @@ var dofilter{$inputid_prefix}_{$params['name']} = function(id,text){
     function view($params)
     {
         require_once "modules/dbview/FNDBVIEW.php";
+        $separator=!empty($params['frm_separator']) ? $params['frm_separator'] : ",";
         $mod=str_replace("ctl_","",$params['foreignkey']);
         //$config=FN_LoadConfig("modules/dbview/config.php",$mod);
-       // $dbview=new FNDBVIEW($config);
+        // $dbview=new FNDBVIEW($config);
         $table=FN_XmlTable($params['foreignkey']);
         $bykey=array();
-        foreach ($params['options'] as $k=>$v)
+
+        foreach($params['options'] as $k=> $v)
         {
-            $bykey[$v['value']]=$v['title'];
+            $valueEnc=str_replace(".","__DOT__",$v['value']);
+            $bykey["{$valueEnc}"]=$v['title'];
         }
         $htmlout=false;
         $htmlout_s=array();
-        $caves=explode(",",$params['values'][$params['name']]);
+        $caves=explode("$separator",$params['values'][$params['name']]);
         foreach($caves as $cave)
         {
             if (isset($bykey[$cave]))
-            {   
-                $item=$table->GetRecord(array($params['fk_link_field']=> $cave));
-                $link=FN_RewriteLink("index.php?mod=$mod&amp;op=view&amp;id={$item['id']}");
+            {
+                $item=$table->GetRecord(array($params['fk_link_field']=>$cave));
+                $primarykey=$table->primarykey;
+                $link=FN_RewriteLink("index.php?mod=$mod&amp;op=view&amp;id={$item[$primarykey]}");
                 $htmlout_s[]="\n<li><a href=\"$link\" >{$bykey[$cave]}</a></li> ";
             }
         }

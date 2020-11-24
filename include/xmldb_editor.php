@@ -886,9 +886,10 @@ set_changed();
                         $cp=1;
                         if ($id_page > 1)
                         {
+                            
                             $s=array("{pagelink}","{pagetitle}");
                             $r=array();
-                            $link_=XMLDB_editor_mergelink("","$tlink&amp;page_{$postgetkey}=1&amp;order_{$postgetkey}=$order");
+                            $link_=XMLDB_editor_mergelink("","$flink_listmode&amp;page_{$postgetkey}=1&amp;order_{$postgetkey}=$order");
                             $r['pagelink']="$link_";
                             $r['pagetitle']="&lt;&lt;";
                             $htmlpages.=str_replace($s,$r,$template_page);
@@ -897,7 +898,7 @@ set_changed();
                         {
                             $s=array("{pagelink}","{pagetitle}");
                             $r=array();
-                            $link_=XMLDB_editor_mergelink("","$tlink&amp;page_{$postgetkey}=".($page - 1)."&amp;order_{$postgetkey}=$order");
+                            $link_=XMLDB_editor_mergelink("","$flink_listmode&amp;page_{$postgetkey}=".($page - 1)."&amp;order_{$postgetkey}=$order");
                             $r['pagelink']="$link_";
                             $r['pagetitle']="&lt;";
                             $htmlpages.=str_replace($s,$r,$template_page);
@@ -906,7 +907,7 @@ set_changed();
                         {
                             $s=array("{pagelink}","{pagetitle}");
                             $r=array();
-                            $link_=XMLDB_editor_mergelink("","$tlink&amp;page_{$postgetkey}=$i&amp;order_{$postgetkey}=$order");
+                            $link_=XMLDB_editor_mergelink("","$flink_listmode&amp;page_{$postgetkey}=$i&amp;order_{$postgetkey}=$order");
                             $r['pagelink']="$link_";
                             $r['pagetitle']=$i;
                             if ($page== $i)
@@ -925,7 +926,7 @@ set_changed();
                         $s=array("{pagelink}","{pagetitle}");
                         $r=array();
 
-                        $r['pagelink']="?$tlink&amp;page_{$postgetkey}=".($page + 1)."&amp;order_{$postgetkey}=$order";
+                        $r['pagelink']="?$flink_listmode&amp;page_{$postgetkey}=".($page + 1)."&amp;order_{$postgetkey}=$order";
                         $r['pagetitle']="&gt;";
                         $htmlpages.=str_replace($s,$r,$template_page);
                     }
@@ -933,7 +934,7 @@ set_changed();
                     {
                         $s=array("{pagelink}","{pagetitle}");
                         $r=array();
-                        $link_=XMLDB_editor_mergelink("","$tlink&amp;page_{$postgetkey}=$numPages&amp;order_{$postgetkey}=$order");
+                        $link_=XMLDB_editor_mergelink("","$flink_listmode&amp;page_{$postgetkey}=$numPages&amp;order_{$postgetkey}=$order");
                         $r['pagelink']="$link_";
                         $r['pagetitle']="&gt;&gt;";
                         $htmlpages.=str_replace($s,$r,$template_page);
