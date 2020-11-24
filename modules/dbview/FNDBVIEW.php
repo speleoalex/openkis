@@ -2643,7 +2643,7 @@ set_changed();
         {
             foreach($Table->innertables as $k=> $v)
             {
-                if (isset($_GET['inner']))
+                if (!empty($_GET['inner']))
                 {
                     if (isset($_GET["op___xdb_{$v['tablename']}"]) && $_GET["op___xdb_{$v['tablename']}"] == "del")
                         $delinner=true;
@@ -2651,7 +2651,7 @@ set_changed();
             }
         }
 
-        if (!isset($_GET['inner']) || $delinner == true)
+        if (empty($_GET['inner']) || $delinner == true)
         {
             $forcelang=isset($_GET['forcelang']) ? $_GET['forcelang'] : $_FN['lang'];
             if ($reloadDataFromDb)
@@ -2667,7 +2667,7 @@ set_changed();
         {
             foreach($Table->innertables as $k=> $v)
             {
-                if (isset($_GET['inner']) && !$delinner)
+                if (!empty($_GET['inner']) && !$delinner)
                 {
                     if (!isset($_GET["op___xdb_".$v['tablename']]))
                     {
@@ -2695,7 +2695,7 @@ set_changed();
                 $html.="<div class=\"FNDBVIEW_innerform\">";
                 $innertile=$title;
 
-                if (isset($_GET['inner']) && !$delinner)
+                if (!empty($_GET['inner']) && !$delinner)
                 {
                     $innertile="{$_FN['sections'][$_FN['mod']]['title']} -&gt; {$title}";
                     $tmptitle=explode(",",$config['titlefield']);
@@ -2718,7 +2718,7 @@ set_changed();
                 $tplfile=file_exists("sections/{$_FN['mod']}/forminner.tp.html") ? "sections/{$_FN['mod']}/forminner.tp.html" : FN_FromTheme("modules/dbview/forminner.tp.html",false);
                 $templateInner=file_get_contents($tplfile);
                 $params['layout_template']=$templateInner;
-                $link=$this->MakeLink(array("op"=>"edit","id"=>$id_record,"inner"=>"1"),"&",false);
+                $link=$this->MakeLink(array("op"=>"edit","id"=>$id_record,"inner"=>1),"&",false);
                 $params['link']=$link;
                 $link=$this->MakeLink(array("op"=>"edit","id"=>$id_record,"inner"=>null),"&",false);
                 $params['link_listmode']=$link;
