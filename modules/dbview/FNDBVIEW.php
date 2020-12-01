@@ -39,7 +39,7 @@ class FNDBVIEW
         $tablename=$config['tables'];
 
 //--------------- creazione tabelle ------------------------------->
-        if ( !file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}.php"))
+        if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}.php"))
         {
             $str_table=file_get_contents("modules/dbview/install/fn_files.php");
             $str_table=str_replace("fn_files",$tablename,$str_table);
@@ -2636,7 +2636,12 @@ set_changed();
 
         $tpvars['formaction']=$this->MakeLink(array("op"=>"updaterecord","id"=>$id_record),"&amp;"); //index.php?mod={$_FN['mod']}&amp;op=updaterecord&amp;id=$id_record
         $tpvars['urlcancel']=$this->MakeLink(array("op"=>null,"id"=>null),"&");
+ 
+        
+        //$esc =uniqid("_");
+        //$template =str_replace("if {",$esc,$template);
         $template=FN_TPL_ApplyTplString($template,$tpvars);
+        //$template =str_replace($esc,"if {",$template); 
         $Table->SetlayoutTemplate($template);    //----template---------<    
         $delinner=false;
         if ($Table->innertables)
@@ -2790,7 +2795,10 @@ set_changed();
         $tpvars=array();
         $tpvars['formaction']=$this->MakeLink(array("op"=>"new"),"&amp;");
         $tpvars['urlcancel']=$this->MakeLink(array("op"=>null,"id"=>null),"&");
+        //$esc =uniqid("_");
+        //$template =str_replace("if {",$esc,$template);
         $template=FN_TPL_ApplyTplString($template,$tpvars);
+        //$template =str_replace($esc,"if {",$template);
         $Table->SetlayoutTemplate($template);
         $html="";
         //----template---------<

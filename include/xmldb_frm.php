@@ -172,7 +172,6 @@ class FieldFrm
      */
     function SetlayoutTemplateView($str="",$fieldname="",$suffix="")
     {
-
         $tmp=(object)array();
         $tmp->templateview="$str";
         if ($fieldname == "")
@@ -310,7 +309,6 @@ class FieldFrm
 </div>
 ";
                 $this->SetlayoutTemplateView($template);
-
                 break;
             case "table" :
                 $template="
@@ -873,9 +871,10 @@ $frm_endgroupfooter
 
             if (!isset($fieldform_values['name']))
             {
+
+                //dprint_r("$fieldform_valuesk is incomplete:");
+                //dprint_r($fieldform_values);
                 continue;
-                dprint_r("$fieldform_valuesk is incomplete:");
-                dprint_r($fieldform_values);
             }
             $fieldform_values['title']=$fieldform_values['title_insert'];
             if (isset($this->templateobjects[$fieldform_valuesk]))
@@ -966,6 +965,7 @@ $frm_endgroupfooter
             if (isset($fieldform_values['frm_show']) && ($fieldform_values['frm_show'] === "0" || $fieldform_values['frm_show'] === 0))
                 $showfield=false;
             $html="";
+            $tplvars=array();
             //if exist custom function ----->
             if (isset($fieldform_values['frm_functionform']) && $fieldform_values['frm_functionform']!= "" && function_exists($fieldform_values['frm_functionform']))
             {
@@ -1065,22 +1065,25 @@ $frm_endgroupfooter
                         $html=$this->HtmlField($tpobject,$fieldform_valuesk,$fieldform_values,$htmlitem);
                     }
                 }
-                $tplvars=array("title"=>$fieldform_values['title']);
+                $tplvars['title']=$fieldform_values['title'];
+                $tplvars['help']=isset($fieldform_values['frm_help']) ? $fieldform_values['frm_help'] : "";
+                $tplvars['fieldname']=$fieldform_values['name'];
+                $tplvars['fieldtype']=$fieldform_values['frm_type'];
                 if (isset($errors[$fieldform_valuesk]['error']))
                     $tplvars['error']=$errors[$fieldform_valuesk]['error'];
                 $htmlitem=$this->ApplyTplString($htmlitem,$tplvars);
             }
 
-            $tplvars=array();
+
             $tplvars['input']=$this->EncodeValue($html.$strhiddenfield);
             $tplvars['fieldname']=$fieldform_values['name'];
             $tplvars['fieldtype']=$fieldform_values['frm_type'];
+            $tplvars['help']=$fieldform_values['frm_help'];
             $strhiddenfield="";
             if (isset($fieldform_values['frm_endgroup']))
             {
                 $htmlitem.=$tpobject->templateEndGroup;
             }
-            $tplvars['help']=$fieldform_values['frm_help'];
             $htmlitems.=$this->ApplyTplString($htmlitem,$tplvars);
             //----retype---->
             if (isset($fieldform_values['frm_retype']) && $fieldform_values['frm_retype'] == 1)
@@ -1109,7 +1112,16 @@ $frm_endgroupfooter
     function ApplyTplString($str,$vars)
     {
         if (function_exists("FN_TPL_ApplyTplString"))
+        {
+            foreach($vars as $k=> $v)
+            {
+                if (is_object($v))
+                {
+                    unset($vars[$k]);
+                }
+            }
             return FN_TPL_ApplyTplString($str,$vars);
+        }
         foreach($vars as $key=> $value)
         {
             if (is_string($value) || is_numeric($value))
@@ -1304,12 +1316,41 @@ $frm_endgroupfooter
 
                     if ($showfield && $fieldform_valuesk!= "")
                     {
+                        //attributes--->
+                        if (strpos($tpobject->templateviewItemError,"inputattributes:")!== false)
+                        {
+
+                            $t=preg_match("/<!-- inputattributes:([^>]*)-->/is",$tpobject->templateviewItemError,$matches);
+                            if (!empty($matches[1]))
+                            {
+                                $fieldform_values['htmlattributes']=$matches[1];
+                            }
+                        }
+                        if (strpos($tpobject->templateviewItemError,"inputattributes {$fieldform_values['frm_type']}:")!== false)
+                        {
+                            $t=preg_match("/<!-- inputattributes {$fieldform_values['frm_type']}:([^>]*)-->/is",$tpobject->templateviewItemError,$matches);
+                            if (!empty($matches[1]))
+                            {
+                                $fieldform_values['htmlattributes']=$matches[1];
+                            }
+                        }
+                        if (!empty($fieldform_values['htmlattributes']))
+                        {
+                            $fieldform_values['htmlattributes']=$this->ApplyTplString($fieldform_values['htmlattributes'],$fieldform_values);
+                            $fieldform_values['htmlattributes']=str_replace("{fieldname}","{$fieldform_values['name']}",$fieldform_values['htmlattributes']);
+                        }
+
+                        //attributes---<                           
                         if ($oldval!= "")
                         {
                             //dprint_r ("xmldb_frm_view_".$fieldform_values['frm_type']);
                             $fname="xmldb_frm_view_".$fieldform_values['frm_type'];
                             if (function_exists($fname))
                             {
+
+
+
+
                                 $html=$fname($fieldform_values);
                             }
                             elseif (method_exists($this->formclass[$fieldform_valuesk],"view"))
@@ -1330,33 +1371,7 @@ $frm_endgroupfooter
                     else
                         $htmlitem=str_replace("{title}",$fieldform_values['title'],$tpobject->templateviewItem);
 
-
-//attributes--->
-                    if (strpos($htmlitem,"inputattributes:")!== false)
-                    {
-
-
-                        $t=preg_match("/<!-- inputattributes:([^>]*)-->/is",$htmlitem,$matches);
-                        if (!empty($matches[1]))
-                        {
-                            $fieldform_values['htmlattributes']=$matches[1];
-                        }
-                    }
-                    if (strpos($htmlitem,"inputattributes {$fieldform_values['frm_type']}:")!== false)
-                    {
-                        $t=preg_match("/<!-- inputattributes {$fieldform_values['frm_type']}:([^>]*)-->/is",$htmlitem,$matches);
-                        if (!empty($matches[1]))
-                        {
-                            $fieldform_values['htmlattributes']=$matches[1];
-                        }
-                    }
-                    if (!empty($fieldform_values['htmlattributes']))
-                    {
-                        $fieldform_values['htmlattributes']=$this->ApplyTplString($fieldform_values['htmlattributes'],$fieldform_values);
-                        $fieldform_values['htmlattributes']=str_replace("{fieldname}","{$fieldform_values['name']}",$fieldform_values['htmlattributes']);
-                    }
-
-                    //attributes---<                    
+                 
 
                     $htmlitem=str_replace("{fieldname}",$fieldform_values['name'],$htmlitem);
                     $htmlitem=str_replace("{fieldtype}",$fieldform_values['frm_type'],$htmlitem);
@@ -2298,6 +2313,7 @@ class xmldbfrm_field_file
         $oldval=$params['value'];
         $primarykey=$params['oldvalues_primarikey'];
         $attributes=isset($params["htmlattributes"]) ? $params["htmlattributes"] : "";
+        //die($attributes);
         $required="";
         if ($oldval == "")
         {

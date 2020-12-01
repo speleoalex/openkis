@@ -169,6 +169,7 @@ class XMLTable_mysql
                         $field['type']="varchar";
                     $query.="`".$field['name']."`";
                     $field['size']=isset($field['size']) ? $field['size'] : "";
+                    $default ="";
                     switch($field['type'])
                     {
                         case "innertable" :
@@ -179,6 +180,7 @@ class XMLTable_mysql
                             break;
                         case "int" :
                             $query.=" INT";
+                            $default=0;
                             break;
                         default : //forzo tutto a varchar
                             $query.=" VARCHAR";
@@ -199,7 +201,7 @@ class XMLTable_mysql
                     {
                         $query.="  PRIMARY KEY ";
                     }
-                    $query.=" DEFAULT '' NOT NULL ";
+                    $query.=" DEFAULT '$default' NOT NULL ";
                     if ($n-- > 1)
                         $query.=",";
                 }
