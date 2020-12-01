@@ -35,7 +35,7 @@
 	<mailalert>speleoalex@gmail.com</mailalert>
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>1</generate_googlesitemap>
-	<tables>ctl_bibliograpy</tables>
+	<tables>ctl_bibliography</tables>
 	<search_orders>recordupdate,year,province,title</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>

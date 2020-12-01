@@ -84,15 +84,17 @@ function xmldb_frm_view_file($params)
     $path=$params['fieldform']->path;
     $value=$params['value'];
     $values=$params['values'];
+    $attributes=isset($params["htmlattributes"]) ? $params["htmlattributes"] : "";
     $tablepath=$params['fieldform']->xmltable->FindFolderTable($values);
     $table=FN_XmlTable($tablename);
     $htmlout="";
     $fileimage=isset($values[$table->primarykey]) ? "$path/$databasename/$tablepath/".$values[$table->primarykey]."/".$params['name']."/".$values[$params['name']] : "";
     $fileimage2=isset($values[$table->primarykey]) ? "".$values[$table->primarykey]."/".$params['name']."/".$values[$params['name']] : "";
     $link=FN_GetParam("QUERY_STRING",$_SERVER);
-    $htmlout.="\n<a title=\"Download $value\" href=\"?$link&xmldb_ddfile_{$params['name']}={$values[$params['name']]}\"  >$value</a>";
+    $htmlout.="\n<a $attributes title=\"Download $value\" href=\"?$link&xmldb_ddfile_{$params['name']}={$values[$params['name']]}\"  >$value</a>";
     $downloadfile=FN_GetParam("xmldb_ddfile_{$params['name']}",$_GET);
-    if ($downloadfile!= "" && $downloadfile== $values[$params['name']])
+
+    if ($downloadfile!= "" && $downloadfile == $values[$params['name']])
     {
         $downloadfile=$values[$table->primarykey]."/{$params['name']}/$downloadfile";
         xmldb_go_download($downloadfile,$databasename,$tablename,$path,$tablepath);
@@ -191,8 +193,8 @@ class xmldbfrm_field_datetime
         $idcalendar++;
         $html="";
         $attributes=isset($params["htmlattributes"]) ? $params["htmlattributes"] : "";
-        
-        if ($idcalendar== 1)
+
+        if ($idcalendar == 1)
         {
             $html.="
 <script type=\"text/javascript\">                
@@ -300,7 +302,7 @@ if (window.addEventListener) {
      */
     function formtovalue($str,$params)
     {
-        if ($str== "")
+        if ($str == "")
             return "";
         $dateformat="y-mm-dd 00:00:00";
         if (isset($params['frm_dateformat']) && $params['frm_dateformat']!= "")
@@ -357,7 +359,7 @@ if (window.addEventListener) {
      */
     function valuetoform($strdate,$dateformat)
     {
-        if ($strdate== "" || $strdate== "0000-00-00 00:00:00")
+        if ($strdate == "" || $strdate == "0000-00-00 00:00:00")
             return "";
 //        $time=strtotime($strdate);
         $dateformat=str_replace("y","Y",$dateformat);
@@ -365,7 +367,7 @@ if (window.addEventListener) {
         $dateformat=str_replace("00:00","H:i",$dateformat);
         $dateformat=str_replace("00","H",$dateformat);
         $dateformat=str_replace("mm","m",$dateformat);
-        $dateformat=str_replace("dd","d",$dateformat);      
+        $dateformat=str_replace("dd","d",$dateformat);
         $dateObj=$date=DateTime::createFromFormat($dateformat,$strdate);
         if ($dateObj)
         {
@@ -378,7 +380,7 @@ if (window.addEventListener) {
             $strformdate=date($dateformat,$time);
 //            $strformdate=$strdate;
         }
-       // dprint_r("valuetoform $strdate-> $time -> $dateformat -> $strformdate");
+        // dprint_r("valuetoform $strdate-> $time -> $dateformat -> $strformdate");
         return $strformdate;
     }
 
@@ -449,12 +451,12 @@ class xmldbfrm_field_bbcode
         $tooltip=$params['frm_help'];
         $onkeyup="";
         $style="";
-        if ($cols== "auto")
+        if ($cols == "auto")
         {
             $cols="80";
             $style="width:90%;";
         }
-        if ($rows== "auto")
+        if ($rows == "auto")
         {
             $onkeyup="onkeyup=\"if (this.scrollHeight >= this.offsetHeight){ this.style.height = 10 + this.scrollHeight+'px';}\" ";
             $onkeyup.="onfocus=\"if (this.scrollHeight >= this.offsetHeight){ this.style.height = 10 + this.scrollHeight+'px';}\" ";
@@ -600,7 +602,7 @@ class xmldbfrm_field_stringselect
         $options=false;
         $html="<div onmouseover=\"selectover{$id_field}=true\" onmouseout=\"selectover{$id_field}=false\" >";
 
-        if ($options== false)
+        if ($options == false)
         {
             $options=array();
             $options_tmp=isset($params['options']) ? $params['options'] : array();
@@ -681,11 +683,11 @@ xmldb_field_stringselect=function (idselect,value)
         onclick=\"xdb_show_menu('xmldb_{$id_field}_s');\" 
         id=\"xmldb_{$id_field}\" $l title=\"{$params['frm_help']}\" size=\"".$size."\" 
         name=\"{$params['name']}\"  ";
-        if (!empty($params['frm_uppercase']) && $params['frm_uppercase']== "uppercase")
+        if (!empty($params['frm_uppercase']) && $params['frm_uppercase'] == "uppercase")
         {
             $html.="onchange=\"this.value=this.value.toUpperCase();\"";
         }
-        elseif (!empty($params['frm_uppercase']) && $params['frm_uppercase']== "lowercase")
+        elseif (!empty($params['frm_uppercase']) && $params['frm_uppercase'] == "lowercase")
         {
             $html.="onchange=\"this.value=this.value.toLowerCase();\"";
         }

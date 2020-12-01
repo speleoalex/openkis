@@ -138,7 +138,11 @@ foreach($results as $item)
         {
             if ($item['photo1'])
             {
-                $img=$_FN['siteurl'].$table->getThumbPath($item,"photo1");
+                $img=$table->getThumbPath($item,"photo1");
+                if (file_exists($img))
+                {
+                    $img=$_FN['siteurl'].$img;
+                }
                 $description.="<img style=\"height:100px;\" src=\"$img\" /><br />";
             }
             $description.="$elevation_txt $lenght_total_txt $depth_total_txt<br />";

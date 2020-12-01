@@ -226,7 +226,7 @@ if (!function_exists("FN_HtmlSectionMenu"))
     {
         $menu=array();
         $menu=FN_GetSections($sectionroot);
-        if (count($menu)== 0)
+        if (count($menu) == 0)
             return "";
         $ret="<ul>\n";
         foreach($menu as $item)
@@ -276,7 +276,7 @@ function FN_HtmlMenuTree($parent="",$recursive=true)
     $ret=array();
     $current=$_FN['mod'];
     $sections=FN_GetSections($parent);
-    if (empty($sections) || count($sections)== 0)
+    if (empty($sections) || count($sections) == 0)
         return "";
     foreach($sections as $section)
     {
@@ -290,7 +290,7 @@ function FN_HtmlMenuTree($parent="",$recursive=true)
         if ($accesskey!= "")
             $accesskey=" accesskey=\"$accesskey\"";
         $title=(empty($section['description'])) ? "" : "title=\"{$section['description']}\"";
-        if ($current== $section['id'])
+        if ($current == $section['id'])
         {
             $html.="<a $title $accesskey href=\"".fn_rewritelink("index.php?mod={$section['id']}")."\">".$section['title']."</a>";
         }
@@ -326,7 +326,7 @@ if (!function_exists("FN_HtmlMenuTreeUl"))
         $ret=array();
         $current=$_FN['mod'];
         $sections=FN_GetSections($parent);
-        if (empty($sections) || count($sections)== 0)
+        if (empty($sections) || count($sections) == 0)
             return "";
         $html.="<ul>\n";
         foreach($sections as $section)
@@ -336,7 +336,7 @@ if (!function_exists("FN_HtmlMenuTreeUl"))
             if ($accesskey!= "")
                 $accesskey=" accesskey=\"$accesskey\"";
             $title=(empty($section['description'])) ? "" : "title=\"{$section['description']}\"";
-            if ($current== $section['id'])
+            if ($current == $section['id'])
             {
                 $html.="<a $title $accesskey href=\"".fn_rewritelink("index.php?mod={$section['id']}")."\">".$section['title']."</a>";
             }
@@ -447,6 +447,7 @@ function FN_TPL_html_MakeThemeFromTemplate($templatefile)
 }
 
 global $tpl_skeep;
+
 /**
  * 
  * @global string $tpl_skeep
@@ -461,6 +462,7 @@ function FN_TPL_encode($str)
     $str=str_replace("{",$tpl_skeep,$str);
     return $str;
 }
+
 /**
  * 
  * @global string $tpl_skeep
@@ -486,11 +488,11 @@ function FN_TPL_tp_create_section()
     $htmlsection=FN_TPL_encode(FN_HtmlSection());
     if (isset($config['show_page_title']))
     {
-        if ($config['show_page_title']== 0)
+        if ($config['show_page_title'] == 0)
         {
             $page_title=false;
         }
-        if (!empty($config['hide_title_in_main_page']) && $_FN['mod']== $_FN['home_section'])
+        if (!empty($config['hide_title_in_main_page']) && $_FN['mod'] == $_FN['home_section'])
         {
             $page_title=false;
         }
@@ -573,7 +575,7 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
 
     global $_FN;
     static $recursion=0;
-    $use_cache = $_FN['use_cache'];
+    $use_cache=$_FN['use_cache'];
     //$use_cache=false;
     $recursion++;
     if ($recursion > 5)
@@ -589,12 +591,15 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
         {
 //            $arrayvars[$tplvar]=null;
             $tplvar=str_replace("_&","",$tplvar);
-            $arrayvars[$tplvar]=null;
+            //if (isset($vars[$tplvar]))
+            {
+                $arrayvars[$tplvar]=null;
+            }
         }
     }
     $section=FN_GetSectionValues($_FN['mod']);
     $uservalues=FN_GetUser($_FN['user']);
-    if ($recursion== 1)
+    if ($recursion == 1)
     {
         foreach($arrayvars as $k=> $v)
         {
@@ -640,7 +645,8 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
     {
         $arrayvars['url_avatar']=FN_GetUserImage($_FN['user']);
     }
-    else{
+    else
+    {
         $arrayvars['url_avatar']="{$_FN['siteurl']}/images/user.png";
     }
     if ($use_cache)
@@ -673,9 +679,9 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
             $siteurl="http://____replace____/";
         if ($basepath)
         {
-            if ($_FN['enable_mod_rewrite'] > 0 && $_FN['links_mode']== "html")
+            if ($_FN['enable_mod_rewrite'] > 0 && $_FN['links_mode'] == "html")
             {
-                if ($_FN['lang']== $_FN['lang_default'])
+                if ($_FN['lang'] == $_FN['lang_default'])
                 {
                     $str=preg_replace("/(href=\"index.php\?mod=)([A-Z0-9_]+)\"/is","href=\"{$siteurl}\$2.html\"",$str);
                     $str=preg_replace("/(href='index.php\?mod=)([A-Z0-9_]+)'/is","href=\"{$siteurl}\$2.html\"",$str);
@@ -750,8 +756,8 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
                         //$value[$key]=$value;
                         $html_template_if=preg_replace("/^<!-- if {_&".$key."} -->/","",$html_template_if);
                         $html_template_if=preg_replace("/<!-- end if {_&".$key."} -->\$/","",$html_template_if);
-                        /* dprint_xml($html_template_if,"","orange");
-                          dprint_r($value,"","orange"); */
+                        //dprint_xml($html_template_if,"","orange");
+                        //dprint_r($value,"","orange"); 
                         $html_array=FN_TPL_ApplyTplString($html_template_if,$value,$basepath);
                     }
                     else
@@ -811,7 +817,7 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
         }
     }
 
-    if ($recursion== 1)
+    if ($recursion == 1)
     {
         if (!empty($_FN['use_urlserverpath']))
             $strout=str_replace($siteurl,$_FN['sitepath'],$strout);
@@ -819,7 +825,7 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
 
     foreach($arrayvars as $ks=> $kv)
     {
-        if ($recursion== 1)
+        if ($recursion == 1)
         {
 
             $strout=str_replace("<!-- if {_&".$ks."} -->","",$strout);
@@ -1016,9 +1022,9 @@ function FN_TPL_html_menu($str="",$part,$parent=false)
     global $_FN;
     static $sections=false;
     $config=FN_LoadConfig("themes/{$_FN['theme']}/config.php");
-    if (isset($config['show_'.$part.'_menu']) && $config['show_'.$part.'_menu']== 0)
+    if (isset($config['show_'.$part.'_menu']) && $config['show_'.$part.'_menu'] == 0)
         return "";
-    if ($str== "")
+    if ($str == "")
         return "";
     $tp_menuitem['default']=FN_TPL_GetHtmlPart("menuitem",$str,"<a href=\"link\">title</a><br />");
     $tp_menuitem['active']=FN_TPL_GetHtmlPart("menuitemactive",$str,$tp_menuitem['default']);
@@ -1035,16 +1041,16 @@ function FN_TPL_html_menu($str="",$part,$parent=false)
         $tp_menuitem[$k]=preg_replace("/ferh=\"javascript:/im","href=\"javascript:",$tp_menuitem[$k]);
         $tp_menuitem[$k]=preg_replace("/ferh='javascript:/im","href='javascript:",$tp_menuitem[$k]);
 
-        if (strpos($tp_menuitem[$k],'{title}')=== false)
+        if (strpos($tp_menuitem[$k],'{title}') === false)
         {
             $tp_menuitem[$k]=preg_replace("/(<a.*>)(.*)(<\/a)/im","\\1{title}\\3",$tp_menuitem[$k]);
         }
-        if (false== strpos($tp_menuitem[$k],"title="))
+        if (false == strpos($tp_menuitem[$k],"title="))
         {
             $tp_menuitem[$k]=str_replace("<a","<a title=\"{description}\" ",$tp_menuitem[$k]);
         }
         //add accesskey
-        if (false== strpos($tp_menuitem[$k],"{accesskey"))
+        if (false == strpos($tp_menuitem[$k],"{accesskey"))
         {
             $tp_menuitem[$k]=str_replace("<a","<a accesskey=\"{accesskey}\" ",$tp_menuitem[$k]);
         }
@@ -1054,7 +1060,7 @@ function FN_TPL_html_menu($str="",$part,$parent=false)
     $sectionradix="";
     if (!empty($config[$part.'_menu_parent']))
     {
-        if ($config[$part.'_menu_parent']== "__submenu__")
+        if ($config[$part.'_menu_parent'] == "__submenu__")
             $sectionradix=$_FN['mod'];
         else
             $sectionradix=$config[$part.'_menu_parent'];
@@ -1071,7 +1077,7 @@ function FN_TPL_html_menu($str="",$part,$parent=false)
     foreach($sections[$sectionradix] as $sectionvalues)
     {
         $sectionvalues['accesskey']=FN_GetAccessKey($sectionvalues['title'],"index.php?mod={$sectionvalues['id']}");
-        if ($tp_menuitem['dropdownactive']!= "" && FN_GetSections($sectionvalues['id']) && (FN_SectionIsInsideThis($sectionvalues['id']) || $_FN['mod']== $sectionvalues['id'] )) //if have childs and active
+        if ($tp_menuitem['dropdownactive']!= "" && FN_GetSections($sectionvalues['id']) && (FN_SectionIsInsideThis($sectionvalues['id']) || $_FN['mod'] == $sectionvalues['id'] )) //if have childs and active
         {
             $htmlmenuitem=FN_TPL_ApplyTplString($tp_menuitem['dropdownactive'],$sectionvalues,false);
             $tp_submenuitem_ori_template=FN_TPL_GetHtmlPart("submenu",$tp_menuitem['dropdownactive']);
@@ -1081,7 +1087,7 @@ function FN_TPL_html_menu($str="",$part,$parent=false)
             $htmlmenuitem=FN_TPL_ApplyTplString($tp_menuitem['dropdown'],$sectionvalues,false);
             $tp_submenuitem_ori_template=FN_TPL_GetHtmlPart("submenu",$tp_menuitem['dropdown']);
         }
-        elseif ($_FN['mod']== $sectionvalues['id'] || FN_SectionIsInsideThis($sectionvalues['id']))
+        elseif ($_FN['mod'] == $sectionvalues['id'] || FN_SectionIsInsideThis($sectionvalues['id']))
         {
             $htmlmenuitem=FN_TPL_ApplyTplString($tp_menuitem['active'],$sectionvalues,false);
             $tp_submenuitem_ori_template=FN_TPL_GetHtmlPart("submenu",$tp_menuitem['active']);
@@ -1096,14 +1102,14 @@ function FN_TPL_html_menu($str="",$part,$parent=false)
         $print_submenu=false;
         if (isset($config['make_'.$part.'_menu_recursive']))
         {
-            if ($config['make_'.$part.'_menu_recursive']== 1)
+            if ($config['make_'.$part.'_menu_recursive'] == 1)
             {
                 $print_submenu=true;
             }
             else
-            if ($config['make_'.$part.'_menu_recursive']== 2)
+            if ($config['make_'.$part.'_menu_recursive'] == 2)
             {
-                if ($_FN['mod']== $sectionvalues['id'] || FN_SectionIsInsideThis($sectionvalues['id'],$_FN['mod']))
+                if ($_FN['mod'] == $sectionvalues['id'] || FN_SectionIsInsideThis($sectionvalues['id'],$_FN['mod']))
                     $print_submenu=true;
             }
         }
@@ -1144,7 +1150,7 @@ function FN_TPL_tp_create_submenu_($str,$idsection)
     //$cache_tp_menuitem_old=array();
     $idcache=md5($str);
 
-    if ($str== "" || $idsection== "")
+    if ($str == "" || $idsection == "")
         return "";
     $sections=FN_GetSections($idsection);
     if (!$sections)
@@ -1162,7 +1168,7 @@ function FN_TPL_tp_create_submenu_($str,$idsection)
         {
             $tp_menuitem[$k]=preg_replace("/<a([^>]+)(href)=(\")([^\"]*)(\")/im","<a\\1\\2=\\3{link}\\3",$tp_menuitem[$k]);
             $tp_menuitem[$k]=preg_replace("/<a([^>]+)(href)=(\')([^\']*)(\')/im","<a\\1\\2=\\3{link}\\3",$tp_menuitem[$k]);
-            if (strpos($tp_menuitem[$k],'{title}')=== false)
+            if (strpos($tp_menuitem[$k],'{title}') === false)
             {
                 $tp_menuitem[$k]=preg_replace("/(<a.*>)(.*)(<\/a)/im","\\1{title}\\3",$tp_menuitem[$k]);
             }
@@ -1171,11 +1177,11 @@ function FN_TPL_tp_create_submenu_($str,$idsection)
         $cache_tp_menuitem_old["$idcache"]=$tp_menuitem_old;
         foreach($tp_menuitem as $k=> $tp_menu)
         {
-            if (false== strpos($tp_menuitem[$k],"title="))
+            if (false == strpos($tp_menuitem[$k],"title="))
             {
                 $tp_menuitem[$k]=str_replace("<a","a<a title=\"{section_description}\" ",$tp_menuitem[$k]);
             }
-            if (false== strpos($tp_menuitem[$k],"{accesskey"))
+            if (false == strpos($tp_menuitem[$k],"{accesskey"))
             {
                 $tp_menuitem[$k]=str_replace("<a","<a accesskey=\"{accesskey}\" ",$tp_menuitem[$k]);
             }
@@ -1190,7 +1196,7 @@ function FN_TPL_tp_create_submenu_($str,$idsection)
     foreach($sections as $sectionvalues)
     {
         $sectionvalues['accesskey']=FN_GetAccessKey($sectionvalues['title'],"index.php?mod={$sectionvalues['id']}");
-        if ($tp_menuitem['dropdownactive']!= "" && FN_GetSections($sectionvalues['id']) && (FN_SectionIsInsideThis($sectionvalues['id']) || $_FN['mod']== $sectionvalues['id'] ))
+        if ($tp_menuitem['dropdownactive']!= "" && FN_GetSections($sectionvalues['id']) && (FN_SectionIsInsideThis($sectionvalues['id']) || $_FN['mod'] == $sectionvalues['id'] ))
         {
             $htmlout.=FN_TPL_ApplyTplString($tp_menuitem['dropdownactive'],$sectionvalues,false);
         }
@@ -1198,7 +1204,7 @@ function FN_TPL_tp_create_submenu_($str,$idsection)
         {
             $htmlout.=FN_TPL_ApplyTplString($tp_menuitem['dropdown'],$sectionvalues,false);
         }
-        elseif ($_FN['mod']== $sectionvalues['id'])
+        elseif ($_FN['mod'] == $sectionvalues['id'])
             $htmlout.=FN_TPL_ApplyTplString($tp_menuitem['active'],$sectionvalues,false);
         else
             $htmlout.=FN_TPL_ApplyTplString($tp_menuitem['default'],$sectionvalues,false);
@@ -1293,7 +1299,7 @@ if (!function_exists("FN_HtmlNavbar"))
      */
     function FN_HtmlNavbar($sections="")
     {
-        if ($sections== "")
+        if ($sections == "")
             $sections=FN_GetSectionsTree();
         if (!is_array($sections))
             return "";
@@ -1529,11 +1535,11 @@ if (!function_exists("FN_HtmlModalWindow"))
         global $_FN;
         static $html="";
         static $id=0;
-        if ($html== "" && file_exists("themes/{$_FN['theme']}/modal.tp.html"))
+        if ($html == "" && file_exists("themes/{$_FN['theme']}/modal.tp.html"))
         {
             $html=file_get_contents("themes/{$_FN['theme']}/modal.tp.html");
         }
-        if ($html== "")
+        if ($html == "")
         {
             $html="\n<script language=\"javascript\">";
             $html.="\n setTimeout(function(){alert(\"".str_replace("\n","\\n",addslashes($body))."\",0)});";

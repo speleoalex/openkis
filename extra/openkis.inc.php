@@ -100,6 +100,7 @@ function openkis_GetItemPosition($row)
 
         dprint_r("$lat_ori,$lon_ori, coordinatestypes vuoto per {$row['code']} - force $coordinatestypes ","","red");
     }
+    
     $items_ct=$table_coordinatestypes->GetRecord(array("coordinates_type"=>$coordinatestypes));
 
     $proj=(!empty($items_ct['proj4'])) ? $items_ct['proj4'] : "";

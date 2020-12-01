@@ -14,6 +14,7 @@ $_FN['default_latitude']=$config['default_latitude'];
 $_FN['default_longitude']=$config['default_longitude'];
 $_FN['default_zoom']=$config['default_zoom'];
 
+
 /**
  * 
  * @param string $values
@@ -125,12 +126,52 @@ function InizializzaDB()
     $TableFRM=FN_XmlForm("ctl_caves");
     $TableFRM->formvals['country']['frm_default']="ITALIA";
     $TableFRM->formvals['regione']['frm_default']="LOMBARDIA";
+    $TableFRM->formvals['provincia']['frm_validator']="cglombardia_checkprovincia";
     $TableFRM1=FN_XmlForm("ctl_artificials");
     $TableFRM1->formvals['country']['frm_default']="ITALIA";
     $TableFRM1->formvals['regione']['frm_default']="LOMBARDIA";
     $TableFRM2=FN_XmlForm("ctl_springs");
     $TableFRM2->formvals['country']['frm_default']="ITALIA";
     $TableFRM2->formvals['regione']['frm_default']="LOMBARDIA";
+    //<frm_validator>cglombardia_checkprovincia</frm_validator>
+    
+}
+
+
+
+function cglombardia_checkprovincia($prov)
+{
+    global $_FN;
+    if (FN_IsAdmin())
+    {
+        return true;
+    }
+
+
+    $group = "RW_CO_LC_SO_MI_PV";
+    if (false !== strpos($_FN['uservalues']['group'],"RW_$prov"))
+    {
+        return true;
+    }
+    if (false !== strpos("CO_LC_SO_MI_PV","$prov") && FN_UserInGroup($_FN['user'],"RW_CO_LC_SO_MI_PV"))
+    {
+        return true;
+    }
+    
+    $table =FN_XmlTable("ctl_caves");
+    $id=FN_GetParam("id",$_GET);
+    if ($id)
+    {
+        $oldvalues = $table->GetRecordByPk($id);
+        //dprint_r($oldvalues);
+        if (FNNAV_UserCanEditField($_FN['user'],$oldvalues))
+        {
+            return true;
+        }
+    }
+    
+    
+    return "Non puoi inserire dati nella provincia di $prov";
 }
 
 InizializzaDB();

@@ -467,12 +467,13 @@ var OPS_Map = {
             {
                 OPS_Map.layergroups[layergroup] = new ol.layer.Group({
                     layers: [],
-                    name: layergroup
+                    name: layergroup,
+                    visible: visible
                 });
             }
             var layer = new ol.layer.Vector({
                 name: title,
-                visible: visible,
+                //visible: visible,
                 source: new ol.source.Vector({
                     crossOrigin: "Anonymous",
                     url: path,

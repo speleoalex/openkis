@@ -30,10 +30,15 @@ header('Access-Control-Allow-Origin: *');
 header('Content-type: application/javascript');
 $kml=array();
 $visible="false";
+
 if (isset($_GET['mod']) && $_GET['mod'] == "caves" && $tablename == "ctl_surveys")
     $visible="true";
 if (isset($_GET['mod']) && $_GET['mod'] == "artificials" && $tablename == "ctl_surveys_artificials")
     $visible="true";
+
+
+$visible="false";
+
 
 if (is_array($rilievi))
 {
@@ -43,6 +48,7 @@ if (is_array($rilievi))
         if ($rilievo['filekml']!= "")
         {
             $km=$Tablerilievi->xmltable->get_file($rilievo,'filekml');
+            //(title, path, isBaselayer, visible, showPointNames, searchable, layergroup)
             echo "\nOPS_Map.addKmlLayer(\"ril_{$i}_{$rilievo[$table_link]}\", \"$km\", false, $visible,false,false,'".$title."');";
         }
         $i++;
