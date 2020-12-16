@@ -14,7 +14,6 @@ $_FN['default_latitude']=$config['default_latitude'];
 $_FN['default_longitude']=$config['default_longitude'];
 $_FN['default_zoom']=$config['default_zoom'];
 
-
 /**
  * 
  * @param string $values
@@ -101,8 +100,8 @@ function GeneraNumero($values)
     }
     $max++;
 
-        $regione="LO";
-    
+    $regione="LO";
+
 //cerca il primo numero libero
     ksort($grotte_by_code);
     for($i=1;
@@ -134,11 +133,34 @@ function InizializzaDB()
     $TableFRM2->formvals['country']['frm_default']="ITALIA";
     $TableFRM2->formvals['regione']['frm_default']="LOMBARDIA";
     //<frm_validator>cglombardia_checkprovincia</frm_validator>
+
+    $field=array();
+    $field['name']='code_fslo';
+    $field['frm_it']='Codice FSLo';
+    $field['type']='string';
+    $field['frm_size']='8';
+    $field['frm_help_it']='Codice univoco della federazione Speleologica Lombarda. È composto LO+CODICE PROVINCIA+NUMERO+NUMERO INGRESSO AGGIUNTIVO';
+    $field['frm_show']='0';
+    $field['view_show']='1';
+    addxmltablefield("fndatabase","ctl_caves",$field,"misc");
+    
+    $field=array();
+    $field['name']='provincia';
+    $field['type']='string';
+    $field['frm_it']='Provincia';
+    $field['frm_type']='provincia';
+    $field['frm_validator']='cglombardia_checkprovincia';
+    $field['frm_required']='1';
+    addxmltablefield("fndatabase","ctl_caves",$field,"misc",false);
+   
     
 }
-
-
-
+/**
+ * 
+ * @global array $_FN
+ * @param type $prov
+ * @return boolean
+ */
 function cglombardia_checkprovincia($prov)
 {
     global $_FN;
@@ -146,31 +168,29 @@ function cglombardia_checkprovincia($prov)
     {
         return true;
     }
-
-
-    $group = "RW_CO_LC_SO_MI_PV";
-    if (false !== strpos($_FN['uservalues']['group'],"RW_$prov"))
+    $group="RW_CO_LC_SO_MI_PV";
+    if (false!== stripos($_FN['uservalues']['group'],"RW_$prov"))
     {
         return true;
     }
-    if (false !== strpos("CO_LC_SO_MI_PV","$prov") && FN_UserInGroup($_FN['user'],"RW_CO_LC_SO_MI_PV"))
+    if (false!== stripos("CO_LC_SO_MI_PV","$prov") && FN_UserInGroup($_FN['user'],"RW_CO_LC_SO_MI_PV"))
     {
         return true;
     }
-    
-    $table =FN_XmlTable("ctl_caves");
+
+    $table=FN_XmlTable("ctl_caves");
     $id=FN_GetParam("id",$_GET);
     if ($id)
     {
-        $oldvalues = $table->GetRecordByPk($id);
+        $oldvalues=$table->GetRecordByPk($id);
         //dprint_r($oldvalues);
         if (FNNAV_UserCanEditField($_FN['user'],$oldvalues))
         {
             return true;
         }
     }
-    
-    
+
+
     return "Non puoi inserire dati nella provincia di $prov";
 }
 
