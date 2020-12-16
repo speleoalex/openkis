@@ -143,7 +143,7 @@ function InizializzaDB()
     $field['frm_show']='0';
     $field['view_show']='1';
     addxmltablefield("fndatabase","ctl_caves",$field,"misc");
-    
+
     $field=array();
     $field['name']='provincia';
     $field['type']='string';
@@ -152,9 +152,8 @@ function InizializzaDB()
     $field['frm_validator']='cglombardia_checkprovincia';
     $field['frm_required']='1';
     addxmltablefield("fndatabase","ctl_caves",$field,"misc",false);
-   
-    
 }
+
 /**
  * 
  * @global array $_FN
@@ -193,5 +192,47 @@ function cglombardia_checkprovincia($prov)
 
     return "Non puoi inserire dati nella provincia di $prov";
 }
+
+
+/**
+ * funzione che genera i codici FSLO, legge tutte le grotte e aggiorna il campo "code_fslo"
+ * 
+ * @global array $_FN
+ */
+function GeneraCodiciFSLO($silent=false)
+{
+    global $_FN;
+    $table =FN_XmlTable("ctl_caves");
+    $all=$table->GetRecords();
+    if (FN_IsAdmin())
+    {
+        echo "Aggiornamento codici FSLO:<br />";
+        foreach($all as $item)
+        {
+            $newitem=array();
+            $newitem['id']=$item['id'];
+            $codice="LO{$item['provincia']}{$item['code']}";
+            if ($item['code']!= $codice)
+            {
+                $newitem['code_fslo']=$codice;
+                $table->UpdateRecord($newitem);
+                if (!$silent)
+                    echo "<span style=\"color:red\">Aggiorno $codice</span><br />";
+            }
+            else
+            {
+                if (!$silent)
+                    echo "OK $codice<br />";
+            }
+        }
+    }
+    else
+    {
+        if (!$silent)
+            echo "funzione riservata agli amministratori";
+    }
+}
+
+
 
 InizializzaDB();
