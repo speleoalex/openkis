@@ -1187,7 +1187,7 @@ class XMLTable
             $recordvalues=$this->GetRecord($recordvalues);
         $value=$recordvalues[$recordkey];
         $tablepath=$this->FindFolderTable($recordvalues);
-        if ($value!= "" && file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/$value"))
+        if ($value!= "" /*&& file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/$value")*/)
         {
             //die($this->path ."/$databasename/$tablepath/$unirecid/$recordkey/$value");
             return $this->path."/$databasename/$tablepath/$unirecid/$recordkey/".$value;
