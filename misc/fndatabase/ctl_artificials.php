@@ -46,9 +46,23 @@
         <name>caveslinks</name>
         <type>string</type>
         <frm_it>Cavità collegate</frm_it>
+        <frm_fr>Cavités reliés</frm_fr>
+        <frm_en>Connected cavities</frm_en>
         <frm_help_it>Inserire i numeri di catasto separati da virgola degli ingressi e delle grotte collegate</frm_help_it>
         <frm_type>multicave</frm_type>
         <foreignkey>ctl_artificials</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>provincia,code,name</fk_show_field>
+    </field>
+    <field>
+        <name>caveslinks1</name>
+        <type>string</type>
+        <frm_it>Grotte collegate</frm_it>
+        <frm_fr>Grottes reliés</frm_fr>
+        <frm_en>Connected caves</frm_en>
+        <frm_help_it>Inserire i numeri di catasto separati da virgola delle grotte collegate o intercettate</frm_help_it>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_caves</foreignkey>
         <fk_link_field>code</fk_link_field>
         <fk_show_field>provincia,code,name</fk_show_field>
     </field>
@@ -105,6 +119,8 @@
     </field>
     <field>
         <name>year</name>
+        <frm_group>features</frm_group>
+        <frm_group_i18n>features</frm_group_i18n>
         <frm_it>Anno di costruzione</frm_it>
         <type>string</type>
     </field>
@@ -177,6 +193,14 @@
         <frm_size>8</frm_size>
     </field>
     <field>
+        <name>volume</name>
+        <type>string</type>
+        <frm_type>os_volume</frm_type>
+        <frm_it>Volume</frm_it>		
+        <frm_suffix> mc</frm_suffix>
+        <frm_size>8</frm_size>
+    </field>
+    <field>
         <name>depth_positive</name>
         <type>string</type>
         <frm_type>os_lenght</frm_type>
@@ -237,6 +261,7 @@
     </field>
     <field>
         <name>original_coordinates_type</name>
+        <frm_i18n>original coordinates type</frm_i18n>
     </field>
     <field>
         <name>elevation</name>
@@ -286,57 +311,6 @@
         <view_endgroup>entrance location</view_endgroup>
     </field>
     <field>
-        <name>archeological</name>
-        <view_group>Riferimenti a censimenti speciali</view_group>
-        <frm_group>Riferimenti a censimenti speciali</frm_group>
-        <frm_it>Cavit&agrave; archeologica</frm_it>
-        <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
-    </field>
-    <field> 
-        <name>marine</name>
-        <frm_it>Cavit&agrave; marina</frm_it>
-        <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
-    </field>
-    <field> 
-        <name>lake</name>
-        <frm_it>Cavit&agrave; marina/lacustre</frm_it>
-        <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
-    </field>    
-    <field>  
-        <name>environmentalrisk</name>
-        <frm_it>Rischio ambientale</frm_it>
-        <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
-    </field>
-    <field>  
-        <name>closed</name>
-        <frm_it>Cavit&agrave; chiusa</frm_it>
-        <type>radio</type>
-        <frm_options>X,</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
-    </field>
-    <field>  
-        <name>closed_notes</name>
-        <frm_it>Note accesso alla grotta</frm_it>
-        <type>text</type>
-    </field>
-    <field>  
-        <name>destroyed</name>
-        <frm_it>Cavit&agrave; distrutta</frm_it>
-        <type>radio</type>
-        <frm_options>X,,P</frm_options>
-        <frm_options_it>Si,No,Parzialmente</frm_options_it>
-        <frm_endgroup></frm_endgroup>
-        <view_endgroup>cens</view_endgroup>
-    </field>        
-    <field>
         <name>check</name>
         <frm_it>Posizione verificata sul campo da curatore</frm_it>
         <frm_help>Attenzione !! Il campo deve essere compilato dopo che la grotta è stata ritrovata successivamente la messa a catasto</frm_help>
@@ -353,12 +327,75 @@
         <view_dateformat>dd/mm/y 00:00:00</view_dateformat>
     </field>
     <field>
+        <name>archeological</name>
+        <view_group>Riferimenti a censimenti speciali</view_group>
+        <frm_group>Riferimenti a censimenti speciali</frm_group>
+        <frm_group_i18n>references to special censuses</frm_group_i18n>
+        <frm_it>Cavit&agrave; archeologica</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>
+    <field> 
+        <name>marine</name>
+        <frm_it>Cavit&agrave; marina</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+        <frm_options_fr>Oui,Non</frm_options_fr>
+        <frm_options_en>Yes,No</frm_options_en>
+    </field>
+    <field> 
+        <name>lake</name>
+        <frm_it>Cavit&agrave; marina/lacustre</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+        <frm_options_fr>Oui,Non</frm_options_fr>
+        <frm_options_en>Yes,No</frm_options_en>
+    </field>    
+    <field>  
+        <name>environmentalrisk</name>
+        <frm_it>Rischio ambientale</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+        <frm_options_fr>Oui,Non</frm_options_fr>
+        <frm_options_en>Yes,No</frm_options_en>
+    </field>
+    <field>  
+        <name>closed</name>
+        <frm_it>Cavit&agrave; chiusa</frm_it>
+        <type>radio</type>
+        <frm_options>X,</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+        <frm_options_fr>Oui,Non</frm_options_fr>
+        <frm_options_en>Yes,No</frm_options_en>
+    </field>
+    <field>  
+        <name>closed_notes</name>
+        <frm_it>Note accesso alla grotta</frm_it>
+        <frm_i18n>closed notes</frm_i18n>
+        <type>text</type>
+    </field>
+    <field>  
+        <name>destroyed</name>
+        <frm_it>Cavit&agrave; distrutta</frm_it>
+        <type>radio</type>
+        <frm_options>X,,P</frm_options>
+        <frm_options_it>Si,No,Parzialmente</frm_options_it>
+        <frm_options_fr>Oui,Non,Partiellement</frm_options_fr>
+        <frm_options_en>Yes,No,Partially</frm_options_en>
+        <frm_endgroup></frm_endgroup>
+        <view_endgroup>cens</view_endgroup>
+    </field>        
+    <field>
         <name>hydrology</name>
         <frm_it>Idrologia</frm_it>		
         <type>string</type>
         <frm_type>multicheck</frm_type>
-        <frm_options>temporary flooding,absorbent,emitting,perennial absorbent,permanent absorbent,temporary absorbent,perennial issuing,permanent issuing,temporary issuing,lakes,perennial lakes,permanent lakes,temporary lakes,slight flows,dry,siphons,permanent siphons,temporary siphons,only dripping,torrents,internal torrents,permanent torrents,temporary torrents,temporary ice,perennial ice,snow wells</frm_options>
-        <frm_options_it>allagamenti temporanei,assorbente,emittente,assorbente perenne,assorbente permanente,assorbente temporanea,emittente perenne,emittente permanente,emittente temporanea,laghi,laghi perenni,laghi permanenti,laghi temporanei,lievi scorrimenti,secca,sifoni,sifoni permanenti,sifoni temporanei,solo stillicidio,torrenti,torrenti interni,torrenti permanenti,torrenti temporanei,ghiaccio temporaneo,ghiaccio permanente,pozzi a neve</frm_options_it>
+        <frm_options>water,emitting,absorbing,streams,lakes/ponds,submerged cavity,submerged continuations,flooded cavity</frm_options>
+        <frm_options_it>Acqua,Emittente,Assorbente,Corsi d'acqua,Laghi/Pozze,Cavit&agrave sommersa,Prosecuzioni sommerse,Cavità allagata</frm_options_it>
     </field>
     <field>
         <name>trend</name>
@@ -443,24 +480,22 @@
         <frm_show>1</frm_show>
     </field>
     <field>
-        <frm_group>Protezione dei dati</frm_group>        
+        <frm_group>Protezione dei dati</frm_group>   
+        <frm_group_it>Protezione dei dati</frm_group_it>   
+        <frm_group_fr>Protection des données</frm_group_fr>
+        <frm_group_en>Data protection</frm_group_en>
         <name>hidden</name>
         <frm_it>Livello di visibilit&agrave; dei dati</frm_it>
+        <frm_fr>Niveau de visualisation des données</frm_fr>
+        <frm_en>Data visualisation level</frm_en>
         <type>radio</type>
         <frm_options>0,1</frm_options>
         <frm_options_it>Dati visibili,Dati non visibili</frm_options_it>
+        <frm_options_fr>Données visible,Données non visible</frm_options_fr>
+        <frm_options_en>Data visible,Data not visible</frm_options_en>
         <frm_endgroup>Protezione dei dati</frm_endgroup>
     </field>   
-
-    <field>
-        <frm_group>Protezione dei dati</frm_group>
-        <name>hidden</name>
-        <frm_it>Livello di visibilit&agrave; dei dati</frm_it>
-        <type>radio</type>
-        <frm_options>0,1</frm_options>
-        <frm_options_it>Dati visibili,Dati non visibili</frm_options_it>
-        <frm_endgroup></frm_endgroup>
-    </field>
+    
     <field>
         <name>recordinsert</name>
         <type>datetime</type>
@@ -501,12 +536,14 @@
     <innertable>
         <tablename>ctl_attachments_artificials</tablename>
         <frm_it>Allegati</frm_it>
+        <frm_i18n>attachments</frm_i18n>
         <linkfield>code,codeartificial</linkfield>
         <innertablefields>id,name</innertablefields>
     </innertable>
     <innertable>
         <tablename>ctl_photos_artificials</tablename>
         <frm_it>Foto della cavit&agrave;</frm_it>
+        <frm_i18n>photos</frm_i18n>
         <linkfield>code,codeartificial</linkfield>
         <innertablefields>id,name,photo</innertablefields>
         <view></view>
@@ -528,6 +565,8 @@
     <field>
         <name>photo1</name>
         <frm_it>Immagine ingresso</frm_it>
+        <frm_fr>Image de l'entrée</frm_fr>
+        <frm_en>Entrance image</frm_en>
         <view_hiddentitle>1</view_hiddentitle>
         <type>image</type>
         <thumbsize>250</thumbsize>
@@ -535,7 +574,17 @@
     <field>
         <name>authorphoto1</name>
         <frm_it>Autori immagine ingresso</frm_it>
+        <frm_fr>Auteur de l'image de l'entrée</frm_fr>
+        <frm_en>Entrance image author</frm_en>
         <view_hiddentitle>1</view_hiddentitle>
+    </field>
+    <field>
+        <name>license</name>
+        <frm_it>Licenza immagine ingresso</frm_it>
+        <foreignkey>ctl_licenses</foreignkey>
+        <fk_link_field>name</fk_link_field>
+        <fk_show_field>name</fk_show_field>		
+        <frm_showinlist>1</frm_showinlist>
     </field>
 
     <field>
