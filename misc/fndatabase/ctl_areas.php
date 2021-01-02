@@ -20,6 +20,7 @@
     </field>  
     <field>
         <frm_group>localizzazione</frm_group>
+        <frm_group_i18n>location</frm_group_i18n>
         <name>regione</name>
         <type>string</type>
         <frm_it>Provincia</frm_it>
