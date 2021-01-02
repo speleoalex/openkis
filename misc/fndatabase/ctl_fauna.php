@@ -17,7 +17,7 @@
     <field>
         <name>name</name>
         <frm_it>Nome comune</frm_it>
-        <frm_i18n>name</frm_i18n>
+        <frm_i18n>common name</frm_i18n>
         <type>string</type>
         <frm_type>uppercase</frm_type>
         <frm_uppercase>uppercase</frm_uppercase>		
@@ -27,27 +27,10 @@
     <field>
         <name>sinon</name>
         <frm_it>Sinonimi</frm_it>
-        <frm_i18n>name</frm_i18n>
+        <frm_i18n>synonyms</frm_i18n>
         <type>string</type>
         <frm_type>uppercase</frm_type>
         <frm_uppercase>uppercase</frm_uppercase>		
-        <view_hiddentitle>1</view_hiddentitle>
-        <frm_showinlist>1</frm_showinlist>
-    </field>
-    <field>
-        <name>type</name>
-        <frm_it>Categoria</frm_it>
-        <frm_i18n>type</frm_i18n>
-        <type>string</type>
-        <frm_type>radio</frm_type>
-        <frm_options>TROGLOSSENO,TROGLOFILO,SUBTROGLOFILO,EUTROGLOFILO,TROGLOBIO,STIGOBIO,STIGOFILO,EUSTIGOFOLO,STIGOSSENO</frm_options>
-        <frm_help_it>Troglosseni: specie che si trovano in ambiente ipogeo solo accidentalmente, come quelli che cadono all’interno dei pozzi verticali o fluitati dalle acque.
-            Troglofili: specie che sono presenti con maggiore regolarità nell’ambiente ipogeo. Questa categoria comprende due distinti gruppi di animali.
-            Subtroglofili: quelli che si trovano in grotta o in ambienti artificiali solo in alcuni periodi della loro vita e non presentano adattamenti all’ambiente sotterraneo.
-            Eutroglofili: quegli animali che, pur manifestando una spiccata preferenza per l’ambiente ipogeo e possiedono inoltre alcuni particolari adattamenti morfologici e fisiologici, possono vivere e in alcuni casi riprodursi anche nell’ambiente epigeo.
-            Troglobi: organismi considerati “cavernicoli obbligati” cioè perfettamente adattati alla vita ipogea e non più capaci di svincolarsene. I troglobi svolgono l’intero ciclo vitale all’interno delle grotte o più precisamente del reticolo sotterraneo e presentano in maniera evidente vistose modificazioni morfologiche e fisiologiche rispetto alle specie epigee.
-            Gli organismi esclusivi delle acque sotterranee prendono invece il nome di stigobi (e, per analogia con i troglobi, vengono usati i termini stigofili – ed anche eustigofili – e stigosseni).
-        </frm_help_it>
         <view_hiddentitle>1</view_hiddentitle>
         <frm_showinlist>1</frm_showinlist>
     </field>
@@ -101,6 +84,23 @@
         <frm_it>Genere</frm_it>
         <frm_i18n>genere</frm_i18n>
         <frm_endgroup>tassonomia</frm_endgroup>		
+    </field>
+        <field>
+        <name>type</name>
+        <frm_it>Categoria</frm_it>
+        <frm_i18n>category</frm_i18n>
+        <type>string</type>
+        <frm_type>radio</frm_type>
+        <frm_options>TROGLOSSENO,TROGLOFILO,SUBTROGLOFILO,EUTROGLOFILO,TROGLOBIO,STIGOBIO,STIGOFILO,EUSTIGOFOLO,STIGOSSENO</frm_options>
+        <frm_help_it>Troglosseni: specie che si trovano in ambiente ipogeo solo accidentalmente, come quelli che cadono all’interno dei pozzi verticali o fluitati dalle acque.
+            Troglofili: specie che sono presenti con maggiore regolarità nell’ambiente ipogeo. Questa categoria comprende due distinti gruppi di animali.
+            Subtroglofili: quelli che si trovano in grotta o in ambienti artificiali solo in alcuni periodi della loro vita e non presentano adattamenti all’ambiente sotterraneo.
+            Eutroglofili: quegli animali che, pur manifestando una spiccata preferenza per l’ambiente ipogeo e possiedono inoltre alcuni particolari adattamenti morfologici e fisiologici, possono vivere e in alcuni casi riprodursi anche nell’ambiente epigeo.
+            Troglobi: organismi considerati “cavernicoli obbligati” cioè perfettamente adattati alla vita ipogea e non più capaci di svincolarsene. I troglobi svolgono l’intero ciclo vitale all’interno delle grotte o più precisamente del reticolo sotterraneo e presentano in maniera evidente vistose modificazioni morfologiche e fisiologiche rispetto alle specie epigee.
+            Gli organismi esclusivi delle acque sotterranee prendono invece il nome di stigobi (e, per analogia con i troglobi, vengono usati i termini stigofili – ed anche eustigofili – e stigosseni).
+        </frm_help_it>
+        <view_hiddentitle>1</view_hiddentitle>
+        <frm_showinlist>1</frm_showinlist>
     </field>
     <field>
         <name>description</name>
