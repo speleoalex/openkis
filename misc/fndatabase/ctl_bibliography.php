@@ -86,6 +86,12 @@
     <field>
         <name>codecaves</name>
         <frm_it>Grotte</frm_it>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <view_show>0</view_show>
+        <view_hiddentitle>1</view_hiddentitle> 
+        <fk_show_field>provincia,code,name</fk_show_field>
         <type>text</type>
     </field>
     <field>
@@ -93,6 +99,11 @@
         <frm_it>Cavità artificiali</frm_it>
         <type>text</type>
         <frm_cols>80</frm_cols>
+        <frm_type>multicave</frm_type>
+        <view_show>0</view_show>
+        <foreignkey>ctl_artificials</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>provincia,code,name</fk_show_field>
     </field>
 
     <field>
