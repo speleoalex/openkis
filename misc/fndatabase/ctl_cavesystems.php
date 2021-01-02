@@ -22,7 +22,7 @@
         <name>areas</name>
         <frm_it>Area carsica</frm_it>
         <type>string</type>
-        <frm_type>multiselect</frm_type>
+        <frm_type>multicave</frm_type>
         <foreignkey>ctl_areas</foreignkey>
         <fk_link_field>code</fk_link_field>
         <fk_show_field>code,name</fk_show_field>		
