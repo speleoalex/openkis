@@ -51,10 +51,6 @@
         <googlemap>1</googlemap>
     </field>	
     <field>
-        <name>name</name>
-        <frm_it>Nome rilievo</frm_it>
-    </field>
-    <field>
         <name>date</name>
         <frm_it>Data rilievo</frm_it>
         <type>datetime</type>
