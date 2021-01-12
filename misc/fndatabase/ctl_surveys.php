@@ -29,9 +29,11 @@
     <field>
         <name>file</name>
         <frm_it>File sorgente</frm_it>
+        <frm_i18n>source file</frm_i18n>
         <type>file</type>
         <view_tag>center</view_tag>
         <view_hiddentitle>1</view_hiddentitle>
+        <frm_help_it>Caricare il file sorgente (csx, th, dat...). Per caricare più files creare una cartella compressa (zip)</frm_help_it>
         <googlemap>1</googlemap>
     </field>
     <field>
@@ -50,10 +52,6 @@
         <view_hiddentitle>1</view_hiddentitle>
         <googlemap>1</googlemap>
     </field>	
-    <field>
-        <name>name</name>
-        <frm_it>Nome rilievo</frm_it>
-    </field>
     <field>
         <name>date</name>
         <frm_it>Data rilievo</frm_it>
