@@ -321,6 +321,32 @@ class XMLTable_sqlite
         {
             $query .= " ORDER BY  $order";
         }
+        else
+        {
+            if ($order!== false && $order!== "" )
+            {
+                $query.=" ORDER BY ";
+                $sepOrder="";
+                $order=explode(",",$order);
+                foreach($order as $v)
+                {
+                    $newmode="ASC";
+                    $newmodes=explode(":",$v);
+                    if (!empty($newmodes[1]))
+                        $newmode=$newmodes[1];
+                    $orders[$newmodes[0]]=$newmode;
+                }
+                foreach($orders as $order=> $mode)
+                {
+                    if (isset($this->fields[$order]))
+                    {
+                        $query.="$sepOrder `$order`";
+                        $sepOrder=",";
+                        $query.=" $mode";
+                    }
+                }
+            }
+        }
         if ($reverse)
             $query .= " DESC";
         if ($min !== false)

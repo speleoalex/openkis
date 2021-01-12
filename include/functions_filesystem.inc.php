@@ -30,7 +30,7 @@ function FN_CopyDir($fromDir,$toDir,$verbose=false)
     }
     if (!is_writable($toDir))
         return false;
-    if ($to_create== false && is_dir($fromDir) && is_dir($toDir))
+    if ($to_create == false && is_dir($fromDir) && is_dir($toDir))
     {
         if (!is_writable($toDir))
             return false;
@@ -95,18 +95,18 @@ function FN_ListDir($path="sections",$showhidden=false,$recursive=false,$reset=t
     {
         $path=str_replace('//','/',$path);
     }
-    if ($basepath== null || $reset== true)
+    if ($basepath == null || $reset == true)
         $basepath=$path;
     if (!file_exists($path) || !is_dir($path))
         return array();
     $handle=opendir($path);
-    if ($recursive== false || $path== "$basepath") //se e' la prima chiamata o non e' ricorsiva resetto la lista
+    if ($recursive == false || $path == "$basepath") //se e' la prima chiamata o non e' ricorsiva resetto la lista
         $modlist=array();
     while(false!= ($file=readdir($handle)))
     {
         if ($file!= "." && $file!= ".." && is_dir("$path/$file"))
         {
-            if ((!preg_match("/^\./si",$file) && !preg_match("/^none_/si",$file)) || $showhidden== true)
+            if ((!preg_match("/^\./si",$file) && !preg_match("/^none_/si",$file)) || $showhidden == true)
             {
                 if ($recursive!= false)
                 {
@@ -137,6 +137,10 @@ function FN_ListDir($path="sections",$showhidden=false,$recursive=false,$reset=t
 function FN_Copy($s,$d)
 {
     global $_FN;
+    if (!file_exists($s) || is_dir($s))
+    {
+        return false;
+    }
     $contents=file_get_contents($s);
     if (is_dir($d))
     {
@@ -144,7 +148,7 @@ function FN_Copy($s,$d)
     }
     //dprint_r($s." ".$d);
     $h=fopen($d,"wb");
-    if ($h=== false)
+    if ($h === false)
         return false;
     fwrite($h,$contents);
     fclose($h);
@@ -259,7 +263,7 @@ function FN_BackupFile($file)
         global $_FN;
         $time=time();
         $user=$_FN['user'];
-        if ($user== "")
+        if ($user == "")
             $user="_@CMS@_";
         $dateFile=filemtime($file);
         while(file_exists("$file.$dateFile.".date("YmdHis",$time).".{$_FN['user']}.bak~"))
@@ -288,15 +292,15 @@ function FN_AbsolutePath($path)
     $out=array();
     foreach(explode('/',$path) as $i=> $fold)
     {
-        if ($fold== '' || $fold== '.')
+        if ($fold == '' || $fold == '.')
             continue;
-        if ($fold== '..' && $i > 0 && end($out)!= '..')
+        if ($fold == '..' && $i > 0 && end($out)!= '..')
             array_pop($out);
         else
             $out[]=$fold;
     }
     if (isset($path{0}))
-        $path=($path{0}== '/' ? '/' : '').join('/',$out);
+        $path=($path{0} == '/' ? '/' : '').join('/',$out);
     return $path;
 }
 

@@ -762,7 +762,7 @@ function FN_TPL_ApplyTplString($str,$vars,$basepath=false)
                     }
                     else
                     {
-                        $html_array=FN_TPL_ApplyTplString($html_template_if,array("$key"=>$value),$basepath);
+                        $html_array=FN_TPL_ApplyTplString($html_template_if,$arrayvars /*array("$key"=>$value)*/,$basepath);
                     }
                 }
                 $strout=FN_TPL_ReplaceHtmlPart("if {_&".$key."}",$html_array,$strout);

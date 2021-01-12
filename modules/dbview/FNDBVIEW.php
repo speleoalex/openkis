@@ -613,6 +613,7 @@ class FNDBVIEW
     {
 
         global $_FN;
+        
         $blank="____k_____";
         $register=array("mod","op","q","page","order","desc","nav","rule","viewmode");
         $search_min="";
@@ -664,7 +665,10 @@ class FNDBVIEW
             return $_FN['siteurl'].str_replace($blank,"",$link);
 
         $link=str_replace($blank,"",$link);
+       // dprint_r($params);
+       // dprint_r($link);
         $link=FN_RewriteLink($link,$sep,true);
+      //  dprint_r($link);
         return $link;
     }
 
@@ -2101,14 +2105,17 @@ class FNDBVIEW
                     $tmptable=FN_XmlForm($v["tablename"],$params);
                     $sort=false;
                     $desc=false;
+                    $allview=$tmptable->xmltable->getRecords($params['restr'],false,false,$sort,$desc);
+                    if (!empty($tmptable->xmltable->fields['date']))
+                    {
+                        $allview =xmldb_array_natsort_by_key($allview,"date",true);
+                    }
                     if (!empty($tmptable->xmltable->fields['priority']))
                     {
-
-                        $sort="priority";
-                        $desc=true;
-                        //dprint_r("priority");
+                        $allview =xmldb_array_natsort_by_key($allview,'priority',true);
                     }
-                    $allview=$tmptable->xmltable->getRecords($params['restr'],false,false,$sort,$desc);
+                    
+                    
                     if (is_array($allview) && count($allview) > 0)
                     {
                         $params['title_inner']=$title;
@@ -2726,6 +2733,7 @@ set_changed();
                 $link=$this->MakeLink(array("op"=>"edit","id"=>$id_record,"inner"=>1),"&",false);
                 $params['link']=$link;
                 $link=$this->MakeLink(array("op"=>"edit","id"=>$id_record,"inner"=>null),"&",false);
+
                 $params['link_listmode']=$link;
                 $params['textviewlist']="";
                 if (isset($v['innertablefields']) && $v['innertablefields']!= "")
@@ -2740,7 +2748,11 @@ set_changed();
                     $params['restr']=array($t[1]=>$row[$t[0]]);
                 $params['restr']=isset($params['restr']) ? $params['restr'] : false;
                 $params['forcenewvalues']=$params['forceupdatevalues']=$params['restr'];
-                //dprint_r($params);
+                
+                $params['link_cancel']=$this->MakeLink(array("op"=>"edit","id"=>$id_record,"inner"=>null),"&",false);
+                
+                //dprint_r($params,"","red");
+                //ob_end_flush();
                 if (isset($v["tablename"]) && isset($row[$Table->xmltable->primarykey]))
                 {
                     ob_start();

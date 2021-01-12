@@ -75,7 +75,7 @@ function FN_HtmlHtmlArea($name,$cols,$rows,$text="",$defaultdir="",$editor_param
     {
         $h.="px";
     }
-    if (strpos("%",($w))=== false && strpos("px",($w))=== false)
+    if (strpos("%","$w")=== false && strpos("px","$w")=== false)
     {
         $w.="px";
     }

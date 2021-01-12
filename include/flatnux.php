@@ -245,6 +245,11 @@ if (empty($_FN['sitepath']))
 //--------------------------languages------------------------------------------>
 $_FN['listlanguages']=explode(",",$_FN['languages']);
 $_FN['lang']=$_FN['listlanguages'][0];
+$_FN['multilanguage']=false;
+if (count($_FN['listlanguages'])>1)
+{
+    $_FN['multilanguage']=true;
+}
 if (empty($_FN['sitelanguages']))
 {
     $_FN['sitelanguages']=array();
