@@ -126,26 +126,30 @@ class FieldFrm
 
     function LoadFieldsClasses()
     {
+
         foreach($this->formvals as $field)
         {
-            if (!isset($field['frm_type']) || $field['frm_type'] == "varchar")
-                if (!empty($field['foreignkey']))
-                {
-                    $field['frm_type']="select";
-                }
-            if (class_exists('xmldbfrm_field_'.$field['frm_type']))
-                $classname='xmldbfrm_field_'.$field['frm_type'];
-            else
+            if (!empty($field['name']))
             {
-                if (isset($field['type']) && $field['type'] == "text")
-                    $classname='xmldbfrm_field_text';
-                elseif (isset($field['type']) && $field['type'] == "file")
-                    $classname='xmldbfrm_field_file';
+                if (!isset($field['frm_type']) || $field['frm_type'] == "varchar")
+                    if (!empty($field['foreignkey']))
+                    {
+                        $field['frm_type']="select";
+                    }
+                if (!empty($field['frm_type']) && class_exists('xmldbfrm_field_'.$field['frm_type']))
+                    $classname='xmldbfrm_field_'.$field['frm_type'];
                 else
-                    $classname='xmldbfrm_field_varchar';
+                {
+                    if (!empty($field['frm_type']) && isset($field['type']) && $field['type'] == "text")
+                        $classname='xmldbfrm_field_text';
+                    elseif (!empty($field['frm_type']) && isset($field['type']) && $field['type'] == "file")
+                        $classname='xmldbfrm_field_file';
+                    else
+                        $classname='xmldbfrm_field_varchar';
+                }
+                $param['fieldvalues']=$field;
+                $this->formclass[$field['name']]=new $classname($param);
             }
-            $param['fieldvalues']=$field;
-            $this->formclass[$field['name']]=new $classname($param);
         }
     }
 
@@ -1371,7 +1375,7 @@ $frm_endgroupfooter
                     else
                         $htmlitem=str_replace("{title}",$fieldform_values['title'],$tpobject->templateviewItem);
 
-                 
+
 
                     $htmlitem=str_replace("{fieldname}",$fieldform_values['name'],$htmlitem);
                     $htmlitem=str_replace("{fieldtype}",$fieldform_values['frm_type'],$htmlitem);

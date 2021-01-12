@@ -67,7 +67,7 @@ class XMLTable_sqlite3
         $this->sqltable=$sqltable;
         // se sono impostate connessioni a livello globale nypasso le impostazioni della tabella
         global $xmldb_sqlitedatabase,$xmldb_sqlitefilename;
-        if ($xmldb_sqlitedatabase != "")
+        if ($xmldb_sqlitedatabase!= "")
         {
             $sqlite['database']=$xmldb_sqlitedatabase;
             $sqlite['filename']=$xmldb_sqlitefilename;
@@ -83,7 +83,7 @@ class XMLTable_sqlite3
             $sqlite['database']=$this->databasename;
         $this->sqlitedatabasename=$sqlite['database'];
 
-        if ($sqlite['filename'] != "")
+        if ($sqlite['filename']!= "")
         {
             $xmltable->connection=$sqlite;
             $this->connection=& $xmltable->connection;
@@ -124,7 +124,7 @@ class XMLTable_sqlite3
                     $field=get_object_vars($field);
                     if (!isset($field['type']) || $field['type'] == "string")
                         $field['type']="varchar";
-                    $query .= "'".$field['name']."' ";
+                    $query.="'".$field['name']."' ";
                     $field['size']=isset($field['size']) ? $field['size'] : "";
                     switch($field['type'])
                     {
@@ -132,35 +132,35 @@ class XMLTable_sqlite3
                             break;
                         case "text" :
                         case "html" :
-                            $query .= " TEXT";
+                            $query.=" TEXT";
                             break;
                         case "int" :
-                            $query .= " INT";
+                            $query.=" INT";
                             break;
                         default : //forzo tutto a varchar
-                            $query .= " VARCHAR";
+                            $query.=" VARCHAR";
                             $field['size']="255";
                             break;
                     }
-                    if ($field['size'] != "")
-                        $query .= "(".$field['size'].")";
-                    $query .= " ";
+                    if ($field['size']!= "")
+                        $query.="(".$field['size'].")";
+                    $query.=" ";
                     if (isset($field['extra']) && $field['extra'] == "autoincrement")
                     {
                         if ($field['type'] == "int")
                         {
-                            $query .= " AUTO_INCREMENT ";
+                            $query.=" AUTO_INCREMENT ";
                         }
                     }
                     if (isset($field['primarykey']) && $field['primarykey'] == "1")
                     {
-                        $query .= "  PRIMARY KEY ";
+                        $query.="  PRIMARY KEY ";
                     }
                     //$query .= "  NOT NULL ";
                     if ($n-- > 1)
-                        $query .= ",";
+                        $query.=",";
                 }
-                $query .= ")";
+                $query.=")";
                 //dprint_r($query);
                 if (!$this->dbQuery($query))
                 {
@@ -202,7 +202,7 @@ class XMLTable_sqlite3
 
             foreach($xmlfield as $fieldname=> $fieldvalues)
             {
-                if (!isset($sqlite_fields[$fieldname]) && $fieldvalues->type != "innertable")
+                if (!isset($sqlite_fields[$fieldname]) && $fieldvalues->type!= "innertable")
                 {
                     $field=get_object_vars($fieldvalues);
                     echo "add field $fieldname";
@@ -212,25 +212,25 @@ class XMLTable_sqlite3
                     {
                         case "text" :
                         case "html" :
-                            $query .= " TEXT";
+                            $query.=" TEXT";
                             break;
                         case "int" :
-                            $query .= " INT";
+                            $query.=" INT";
                             break;
                         default : //forzo tutto a varchar
-                            $query .= " VARCHAR";
+                            $query.=" VARCHAR";
                             $field['size']="255";
                             break;
                     }
-                    if ($field['size'] != "")
-                        $query .= "(".$field['size'].")";
+                    if ($field['size']!= "")
+                        $query.="(".$field['size'].")";
                     //if ($field['type'] != "int")
                     //	$query .= " CHARACTER SET utf8 COLLATE utf8_general_ci";
-                    $query .= " ";
+                    $query.=" ";
                     if (isset($field['extra']) && $field['extra'] == "autoincrement")
                     {
                         if ($field['type'] == "int")
-                            $query .= " AUTO_INCREMENT ";
+                            $query.=" AUTO_INCREMENT ";
                     }
                     //$query .= " NOT NULL";
                     //dprint_r($query);
@@ -284,11 +284,11 @@ class XMLTable_sqlite3
         $query="SELECT $fields FROM {$this->sqltable}";
         if (is_array($restr) && count($restr > 0))
         {
-            $query .= " WHERE ";
+            $query.=" WHERE ";
             $and="";
             foreach($restr as $h=> $v)
             {
-                $query .= " $and [$h] LIKE '".SQLite3::escapeString($v)."' ";
+                $query.=" $and [$h] LIKE '".SQLite3::escapeString($v)."' ";
                 $and="AND";
             }
         }
@@ -297,20 +297,49 @@ class XMLTable_sqlite3
             $query.=" WHERE $restr";
         }
 
-        if ($order !== false && $order !== "" && isset($this->fields[$order]))
+        if ($order!== false && $order!== "" && isset($this->fields[$order]))
         {
-            $query .= " ORDER BY  $order";
+            $query.=" ORDER BY  $order";
         }
+        else
+        {
+            if ($order!== false && $order!== "" )
+            {
+                $query.=" ORDER BY ";
+                $sepOrder="";
+                $order=explode(",",$order);
+                foreach($order as $v)
+                {
+                    $newmode="ASC";
+                    $newmodes=explode(":",$v);
+                    if (!empty($newmodes[1]))
+                        $newmode=$newmodes[1];
+                    $orders[$newmodes[0]]=$newmode;
+                }
+                foreach($orders as $order=> $mode)
+                {
+                    if (isset($this->fields[$order]))
+                    {
+                        $query.="$sepOrder `$order`";
+                        $sepOrder=",";
+                        $query.=" $mode";
+                    }
+                }
+            }
+        }
+
+
+
         if ($reverse)
         {
-            $query .= " DESC";
+            $query.=" DESC";
         }
-        if ($min !== false)
+        if ($min!== false)
         {
-            $query .= " LIMIT $min";
-            if ($length !== false)
+            $query.=" LIMIT $min";
+            if ($length!== false)
             {
-                $query .= ",$length";
+                $query.=",$length";
             }
         }
         return $this->dbQuery($query);
@@ -365,7 +394,7 @@ class XMLTable_sqlite3
             if (preg_match("/^ALTER /is",$query))
                 return true;
 
-            while(false !== ($tmp=@$results->fetchArray(SQLITE3_ASSOC)))
+            while(false!== ($tmp=@$results->fetchArray(SQLITE3_ASSOC)))
             {
                 if (!is_array($tmp))
                 {
@@ -470,7 +499,7 @@ class XMLTable_sqlite3
                 echo $this->sqlite_error;
                 return false;
             }
-            if (!strpos($pkvalue,"..") !== false && file_exists("$path/$databasename/$tablename/$pkvalue/") && is_dir("$path/$databasename/$tablename/$pkvalue/"))
+            if (!strpos($pkvalue,"..")!== false && file_exists("$path/$databasename/$tablename/$pkvalue/") && is_dir("$path/$databasename/$tablename/$pkvalue/"))
                 xmldb_remove_dir_rec("$path/$databasename/$tablename/$pkvalue");
             return true;
         }
@@ -520,7 +549,7 @@ class XMLTable_sqlite3
                         //------autoincrement--->
                         if (isset($this->fields[$k]->extra) && $this->fields[$k]->extra == "autoincrement")
                         {
-                            if (!isset($this->fields[$k]->nativeautoincrement) || $this->fields[$k]->nativeautoincrement != 1)
+                            if (!isset($this->fields[$k]->nativeautoincrement) || $this->fields[$k]->nativeautoincrement!= 1)
                             {
                                 if (!isset($values[$k]) || $values[$k] == "")
                                 {
@@ -535,14 +564,14 @@ class XMLTable_sqlite3
                         $tf[]="'$k'";
                     }
                 }
-                $query .= implode(",",$tf);
-                $query .= ") VALUES (";
+                $query.=implode(",",$tf);
+                $query.=") VALUES (";
                 $tf=array();
                 foreach($values as $k=> $v)
                 {
                     if (isset($this->fields[$k])) // 'IF' ADDED BY DANIELE FRANZA 28/03/2009
                     {
-                        if (isset($this->sqlitefields[$k]['notnull']) && $this->sqlitefields[$k]['notnull'] != "0" && $v == "")
+                        if (isset($this->sqlitefields[$k]['notnull']) && $this->sqlitefields[$k]['notnull']!= "0" && $v == "")
                         {
                             $tf[]="NULL";
                         }
@@ -558,8 +587,8 @@ class XMLTable_sqlite3
                         }
                     }
                 }
-                $query .= implode(",",$tf);
-                $query .= ");";
+                $query.=implode(",",$tf);
+                $query.=");";
             }
 
             $ret=$this->dbQuery($query);
@@ -615,31 +644,31 @@ class XMLTable_sqlite3
                 {
                     if (isset($this->fields[$k]))
                     {
-                        $query .= "[$k]=";
+                        $query.="[$k]=";
                         //dprint_r($this->sqlitefields);
-                        if ($this->sqlitefields[$k]['notnull'] != "0" && $value == "")
+                        if ($this->sqlitefields[$k]['notnull']!= "0" && $value == "")
                         {
-                            $query .= "NULL";
+                            $query.="NULL";
                         }
                         else
                         {
                             if ($this->fields[$k]->type == "int")
-                                $query .= SQLite3::escapeString($value);
+                                $query.=SQLite3::escapeString($value);
                             else
-                                $query .= "'".SQLite3::escapeString($value)."'";
+                                $query.="'".SQLite3::escapeString($value)."'";
                         }
                         if ($n-- > 1)
-                            $query .= ",";
+                            $query.=",";
                     }
                 }
-                $query .= " WHERE $pkey=";
+                $query.=" WHERE $pkey=";
                 if ($this->fields[$pkey]->type == "int")
                 {
-                    $query .= "$pvalue ";
+                    $query.="$pvalue ";
                 }
                 else
                 {
-                    $query .= "'$pvalue' ";
+                    $query.="'$pvalue' ";
                 }
                 $ret=$this->dbQuery($query);
                 $this->gestfiles($values,$oldvalues);
@@ -670,11 +699,11 @@ class XMLTable_sqlite3
         $query="SELECT COUNT(*) AS C FROM ".$this->sqltable;
         if (is_array($restr) && count($restr > 0))
         {
-            $query .= " WHERE ";
+            $query.=" WHERE ";
             $and="";
             foreach($restr as $h=> $v)
             {
-                $query .= " $and $h LIKE '$v' ";
+                $query.=" $and $h LIKE '$v' ";
                 $and="AND";
             }
         }
@@ -727,7 +756,7 @@ class XMLTable_sqlite3
             if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")
                 $protocol="https://";
             $siteurl="$protocol".$_SERVER['HTTP_HOST'].$dirname;
-            if (substr($siteurl,strlen($siteurl) - 1,1) != "/")
+            if (substr($siteurl,strlen($siteurl) - 1,1)!= "/")
             {
                 $siteurl=$siteurl."/";
             }

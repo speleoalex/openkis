@@ -1076,4 +1076,21 @@ function FNCC_HtmlEditConfFile($file,$formaction="",$exit="",$allow=false,$write
     return FN_HtmlEditConfFile($file,$formaction,$exit,$allow,$write_to_file,$mod,$block,$tableHtmlattibutes);
 }
 
+
+
+/**
+ * return file path from theme
+ * 
+ * @param string file
+ * @param bool absolute path
+ * @return string path file
+ */
+function FNCC_FromTheme($file,$absolute=true)
+{
+    global $_FN;
+    if ($absolute)
+        return file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/".$file) ? "{$_FN['siteurl']}controlcenter/themes/{$_FN['controlcenter_theme']}/".$file : $_FN['siteurl'].$file;
+    else
+        return file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/".$file) ? "controlcenter/themes/{$_FN['controlcenter_theme']}/".$file : $file;
+}
 ?>

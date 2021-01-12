@@ -71,7 +71,7 @@ class XMLTable_sqlserver
         else
         {
             $element=get_xml_single_element("database",$this->xmldescriptor);
-            if ($element== "")
+            if ($element == "")
             {
                 $this->sqldatabasename=$this->databasename;
             }
@@ -88,7 +88,7 @@ class XMLTable_sqlserver
         else
         {
             $element=get_xml_single_element("host",$this->xmldescriptor);
-            if ($element== "")
+            if ($element == "")
             {
                 $this->sqlhost="localhost";
             }
@@ -105,7 +105,7 @@ class XMLTable_sqlserver
         else
         {
             $element=get_xml_single_element("port",$this->xmldescriptor);
-            if ($element== "")
+            if ($element == "")
             {
                 $this->sqlport=1433;
             }
@@ -123,7 +123,7 @@ class XMLTable_sqlserver
         else
         {
             $element=get_xml_single_element("user",$this->xmldescriptor);
-            if ($element== "")
+            if ($element == "")
             {
                 $this->sqlusername="sa";
             }
@@ -206,7 +206,7 @@ class XMLTable_sqlserver
             foreach($fields as $field)
             {
                 $field=get_object_vars($field);
-                if (!isset($field['type']) || $field['type']== "string")
+                if (!isset($field['type']) || $field['type'] == "string")
                     $field['type']="varchar";
                 $query.="[".$field['name']."]";
                 $field['size']=isset($field['size']) ? $field['size'] : "";
@@ -229,13 +229,13 @@ class XMLTable_sqlserver
                 if ($field['size']!= "")
                     $query.="(".$field['size'].")";
                 $query.=" ";
-                if (isset($field['primarykey']) && $field['primarykey']== "1")
+                if (isset($field['primarykey']) && $field['primarykey'] == "1")
                 {
                     $query.="  PRIMARY KEY ";
                 }
-                if (isset($field['extra']) && $field['extra']== "autoincrement")
+                if (isset($field['extra']) && $field['extra'] == "autoincrement")
                 {
-                    if ($field['type']== "int")
+                    if ($field['type'] == "int")
                     {
                         $query.=" IDENTITY(1,1) ";
                     }
@@ -322,9 +322,9 @@ class XMLTable_sqlserver
                 if ($field['type']!= "int")
                     $query.=" ";
                 $query.=" ";
-                if (isset($field['extra']) && $field['extra']== "autoincrement")
+                if (isset($field['extra']) && $field['extra'] == "autoincrement")
                 {
-                    if ($field['type']== "int")
+                    if ($field['type'] == "int")
                         $query.=" AUTO_INCREMENT ";
                 }
                 $query.=" NOT NULL";
@@ -383,7 +383,7 @@ class XMLTable_sqlserver
                 /* Connect using Windows Authentication. */
 
                 $conn=sqlsrv_connect($serverName,$connectionInfo);
-                if ($conn=== false)
+                if ($conn === false)
                 {
                     echo "Unable to connect {$db['server']}.</br>";
                     die(print_r(sqlsrv_errors(),true));
@@ -396,13 +396,13 @@ class XMLTable_sqlserver
               database. */
             $tsql=$query;
             $result=sqlsrv_query($this->conn,$tsql);
-            if (defined("DEBUG_TIME") && DEBUG_TIME== true)
+            if (defined("DEBUG_TIME") && DEBUG_TIME == true)
             {
                 dprint_r($tsql,"","magenta");
                 dprint_r(FN_GetPartialTimer());
             }
             $error=sqlsrv_errors();
-            if ($result=== false && $error!= "")
+            if ($result === false && $error!= "")
             {
                 echo "Error in executing query.\n$query\n";
                 echo "Error:";
@@ -437,7 +437,7 @@ class XMLTable_sqlserver
             // solo su select,update,delete
             mssql_select_db($db['dbname'],$this->conn);
             $result=mssql_query($query);
-            if (defined("DEBUG_TIME") && DEBUG_TIME== true)
+            if (defined("DEBUG_TIME") && DEBUG_TIME == true)
             {
                 dprint_r($query,"","magenta");
                 dprint_r(FN_GetPartialTimer());
@@ -516,6 +516,32 @@ class XMLTable_sqlserver
         {
             $query.=" ORDER BY  [$order]";
         }
+        else
+        {
+            if ($order!== false && $order!== "")
+            {
+                $query.=" ORDER BY ";
+                $sepOrder="";
+                $order=explode(",",$order);
+                foreach($order as $v)
+                {
+                    $newmode="ASC";
+                    $newmodes=explode(":",$v);
+                    if (!empty($newmodes[1]))
+                        $newmode=$newmodes[1];
+                    $orders[$newmodes[0]]=$newmode;
+                }
+                foreach($orders as $order=> $mode)
+                {
+                    if (isset($this->fields[$order]))
+                    {
+                        $query.="$sepOrder `$order`";
+                        $sepOrder=",";
+                        $query.=" $mode";
+                    }
+                }
+            }
+        }
         if ($reverse)
             $query.=" DESC";
 
@@ -592,7 +618,7 @@ class XMLTable_sqlserver
                   else
                   $query .= " '$pvalue' "; */
                 $query.=" $sep [$k] LIKE ";
-                if ($this->fields[$k]->type== "int")
+                if ($this->fields[$k]->type == "int")
                     $query.=" $p ";
                 else
                     $query.=" '$p' ";
@@ -603,7 +629,7 @@ class XMLTable_sqlserver
         {
             $pkey=$this->primarykey;
             $query="[$pkey] LIKE ";
-            if ($this->fields[$pkey]->type== "int")
+            if ($this->fields[$pkey]->type == "int")
                 $query.=" $pvalue ";
             else
                 $query.=" '$pvalue' ";
@@ -644,7 +670,7 @@ class XMLTable_sqlserver
         {
             foreach($res as $k=> $v)
             {
-                if ($res[$k]=== NULL)
+                if ($res[$k] === NULL)
                     $res[$k]="";
             }
         }
@@ -724,11 +750,11 @@ class XMLTable_sqlserver
                 if (isset($this->fields[$k]))
                 {
                     //------autoincrement--->
-                    if (empty($this->fields[$k]->autoincrement_db_side) && isset($this->fields[$k]->extra) && $this->fields[$k]->extra== "autoincrement")
+                    if (empty($this->fields[$k]->autoincrement_db_side) && isset($this->fields[$k]->extra) && $this->fields[$k]->extra == "autoincrement")
                     {
                         if (!isset($this->fields[$k]->nativeautoincrement) || $this->fields[$k]->nativeautoincrement!= 1)
                         {
-                            if (!isset($values[$k]) || $values[$k]== "")
+                            if (!isset($values[$k]) || $values[$k] == "")
                             {
                                 $newid=$this->GetAutoincrement($k);
                                 $values[$k]=$newid;
@@ -753,13 +779,13 @@ class XMLTable_sqlserver
             {
                 if (isset($this->fields[$k])) // 'IF' ADDED BY DANIELE FRANZA 28/03/2009
                 {
-                    if (isset($this->sqlfields[$k]['IS_NULLABLE']) && $this->sqlfields[$k]['IS_NULLABLE']== "YES" && $v== "")
+                    if (isset($this->sqlfields[$k]['IS_NULLABLE']) && $this->sqlfields[$k]['IS_NULLABLE'] == "YES" && $v == "")
                     {
                         $tf[]="NULL";
                     }
                     else
                     {
-                        if ($this->fields[$k]->type== "int" && $v!== '' && $v!== NULL)
+                        if ($this->fields[$k]->type == "int" && $v!== '' && $v!== NULL)
                             $tf[]=$v;
                         else
                         {
@@ -781,7 +807,7 @@ class XMLTable_sqlserver
             return false;
         }
 
-        if (!is_array($this->primarykey) && (!isset($values[$this->primarykey]) || $values[$this->primarykey]== ""))
+        if (!is_array($this->primarykey) && (!isset($values[$this->primarykey]) || $values[$this->primarykey] == ""))
         {
             $lastid=$this->dbQuery("SELECT IDENT_CURRENT('{$this->sqltablename}') AS i;"); //IDENT_CURRENT('MyTable')
             if (isset($lastid[0]['i']))
@@ -821,7 +847,7 @@ class XMLTable_sqlserver
         if ($this->conn)
         {
             $existsvalues=$this->GetRecordByPk($pvalue);
-            if (!$existsvalues || !is_array($existsvalues) || count($existsvalues)== 0)
+            if (!$existsvalues || !is_array($existsvalues) || count($existsvalues) == 0)
                 return false;
             // $oldvalues = ($values[$pkey] != $pvalue ) ? $existsvalues : null;
             $oldvalues=$existsvalues;
@@ -839,7 +865,7 @@ class XMLTable_sqlserver
                 }
             }
             $n=count($values2);
-            if ($n== 0) //se non c'e' nulla da aggiornare
+            if ($n == 0) //se non c'e' nulla da aggiornare
             {
                 return $existsvalues;
             }
@@ -848,13 +874,13 @@ class XMLTable_sqlserver
                 if (isset($this->fields[$k]))
                 {
                     $query.="[$k]=";
-                    if ($this->sqlfields[$k]['IS_NULLABLE']== "YES" && $value== "")
+                    if ($this->sqlfields[$k]['IS_NULLABLE'] == "YES" && $value == "")
                     {
                         $query.="NULL";
                     }
                     else
                     {
-                        if ($this->fields[$k]->type== "int")
+                        if ($this->fields[$k]->type == "int")
                             $query.=$this->encode($value);
                         else
                             $query.="'".$this->encode($value)."'";
@@ -940,12 +966,12 @@ class XMLTable_sqlserver
         {
             $php_self=isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : "";
             $dirname=dirname($php_self);
-            if ($dirname== "/" || $dirname== "\\")
+            if ($dirname == "/" || $dirname == "\\")
             {
                 $dirname="";
             }
             $protocol="http://";
-            if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']== "on")
+            if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")
                 $protocol="https://";
             $siteurl="$protocol".$_SERVER['HTTP_HOST'].$dirname;
             if (substr($siteurl,strlen($siteurl) - 1,1)!= "/")
@@ -1000,7 +1026,7 @@ class XMLTable_sqlserver
 function xmldb_sqlserver_CreateTableIfNotExistsFromDb($tablename,$path="misc/fndatabase",$xmltablename="")
 {
     global $xmldb_mssqldatabase,$xmldb_mssqlusername,$xmldb_mssqlpassword,$xmldb_mssqlhost,$xmldb_mssqlport;
-    if ($xmltablename== "")
+    if ($xmltablename == "")
         $xmltablename=$tablename;
     $query="SELECT * FROM information_schema.tables  WHERE TABLE_TYPE='BASE TABLE'  AND TABLE_NAME='$tablename'";
 
@@ -1115,7 +1141,7 @@ function xmldb_sqlserver_dbQuery($query,$assoc_numeric=false)
     {
         if (!function_exists("sqlsrv_connect"))
             die("sqlsrv_connect not exists");
-        if ($conn=== false)
+        if ($conn === false)
         {
             $db['server']=$dbserver;
             $serverName=$db['server'];
@@ -1125,7 +1151,7 @@ function xmldb_sqlserver_dbQuery($query,$assoc_numeric=false)
                 "ReturnDatesAsStrings"=>true);
             /* Connect using Windows Authentication. */
             $conn=sqlsrv_connect($serverName,$connectionInfo);
-            if ($conn=== false)
+            if ($conn === false)
             {
                 echo "Unable to connect {$db['server']}.</br>";
                 DB_JsRedirect("index.php");
@@ -1135,15 +1161,15 @@ function xmldb_sqlserver_dbQuery($query,$assoc_numeric=false)
 //        sqlsrv_configure("WarningsReturnAsErrors",0);
 //        sqlsrv_configure("LogSubsystems",0);
 //        sqlsrv_configure("LogSeverity",0);
-        if ($query=== 'begin transaction')
+        if ($query === 'begin transaction')
         {
             sqlsrv_begin_transaction($conn);
         }
-        else if ($query=== 'commit')
+        else if ($query === 'commit')
         {
             sqlsrv_commit($conn);
         }
-        else if ($query=== 'rollback')
+        else if ($query === 'rollback')
         {
             sqlsrv_rollback($conn);
         }
@@ -1158,7 +1184,7 @@ function xmldb_sqlserver_dbQuery($query,$assoc_numeric=false)
             //        $result=sqlsrv_execute($conn,$tsql);
 
             $error=sqlsrv_errors();
-            if ($result=== false && $error!= "")
+            if ($result === false && $error!= "")
             {
                 echo "Error in executing query.\n$query\n";
                 echo "Error:";
@@ -1191,7 +1217,7 @@ function xmldb_sqlserver_dbQuery($query,$assoc_numeric=false)
     else
     {
         //versione con le funzioni php native
-        if ($conn=== false)
+        if ($conn === false)
         {
             $conn=mssql_connect($db['server'],$db['user'],$db['password']);
         }

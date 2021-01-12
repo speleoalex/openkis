@@ -18,7 +18,7 @@
 #fn_adminonoff a{background-color:#ffffff;color:#000000;border:1px solid #cccccc;height:18px;display:inline-block;padding:1px;margin:1px;font-size:12px;text-decoration:none}
 #fn_adminonoff a{display:inline}
 #fn_adminonoff>a{display:inline-block}
-#fn_adminonoff img{vertical-align:middle}
+#fn_adminonoff img{vertical-align:middle;border:0px;display:inline;width:16px;}
 #fn_adminonoff a:hover{border:1px solid #3169C6;text-decoration:none;background-color:#C6D3EF;}
 #fn_adminonoff .fn_admin_on{border:1px solid #3169C6;text-decoration:none;background-color:#94cd9d;}
 #fn_adminonoff select{vertical-align:middle;border:1px solid #3169C6;color:#000000;border:1px solid #cccccc;background-color:#ffffff;margin:0px;margin-top:1px;margin-left:5px;margin-right:5px;font-size:12px;height:21px;}
@@ -27,7 +27,7 @@
 #fn_adminoptions input{vertical-align:middle;background-color:#ffffff;color:#000000;}
 #fn_adminoptions a{background-color:#ffffff;color:#000000;border:1px solid #cccccc;height:18px;line-height:18px;display:inline-block;padding:1px;text-decoration:none;}
 #fn_adminoptions a{display:inline}
-#fn_adminoptions img{vertical-align:middle;border:0px;}
+#fn_adminoptions img{vertical-align:middle;border:0px;display:inline;width:16px;}
 #fn_adminoptions a:hover{border:1px solid #3169C6;text-decoration:none;background-color:#C6D3EF;}
 #fn_adminoptions fieldset{border:1px solid #cccccc;}
 .fn_admin_toggle{border:1px solid #cccccc;padding:1px;background-color:#ffffff;line-height:20px;margin:2px;text-align:right}
