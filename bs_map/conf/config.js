@@ -34,4 +34,5 @@ OPS_Map.defaultLon = 8.9;
 OPS_Map.defaultZoom = 10;
 OPS_Map.basepath = "bs_map/";
 OPS_Map.lang = lang;
-
+OPS_Map.defaultProj ='EPSG:4326'; 
+OPS_Map.defaultProj ='EPSG:4326'; 

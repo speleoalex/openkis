@@ -6,9 +6,13 @@
 }
 
 button[title=Attributions]{
-    display:none
+
+}
+.ol-attribution{
+    bottom:50px !important;
 }
 .navbar{
+    
     margin-bottom: 0px;
    
 }

@@ -604,10 +604,16 @@ var OPS_Map = {
      * @param {type} format
      * @returns {undefined}
      */
-    addWMSLayer: function (title, url, layername, isBaselayer, visible, format, projecton) {
+    addWMSLayer: function (title, url, layername, isBaselayer, visible, format, projecton, attributions) {
 
         format = (typeof format !== 'undefined') ? format : "png";
+        attributions = (typeof attributions !== 'undefined') ? attributions : "";
+
         projecton = (typeof projecton !== 'undefined') ? projecton : this.viewMapProjectonEPSG;
+        if (!projecton)
+        {
+            projecton = this.viewMapProjectonEPSG;
+        }
         //console.log(projecton);
         if (format != "jpeg" && format != "png" && format != "image/jpeg" && format != "image/png")
         {
@@ -615,7 +621,7 @@ var OPS_Map = {
         }
         if (isBaselayer)
         {
-            if (format != "image/jpeg" )
+            if (format != "image/jpeg")
                 format = "jpeg";
         }
         //console.log("name "+layername+" format "+format);
@@ -626,6 +632,7 @@ var OPS_Map = {
                 crossOrigin: "Anonymous",
                 url: url,
                 projection: projecton,
+                attributions: attributions,
                 params: {'LAYERS': layername, 'FORMAT': format, "PROJECTION": this.viewMapProjectonEPSG, "srs": this.viewMapProjectonEPSG},
                 // params: {'layers': layername, 'format': format, "projecton": projecton},
                 serverType: 'geoserver'

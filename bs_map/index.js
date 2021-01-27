@@ -129,11 +129,11 @@ window.setTimeout(function () {
     });
 
     OPS_Map.map.addControl(scaleLine);
-    var mouse_position = new ol.control.MousePosition({
+    OPS_Map.mouse_position = new ol.control.MousePosition({
         coordinateFormat: ol.coordinate.createStringXY(4),
-        projection: 'EPSG:4326'
+        projection: OPS_Map.defaultProj
     });
-    OPS_Map.map.addControl(mouse_position);
+    OPS_Map.map.addControl(OPS_Map.mouse_position);
 
     /*
      var mousePositionControl = new MousePosition({

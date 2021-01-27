@@ -299,8 +299,8 @@ function FN_AbsolutePath($path)
         else
             $out[]=$fold;
     }
-    if (isset($path{0}))
-        $path=($path{0} == '/' ? '/' : '').join('/',$out);
+    if (isset($path[0]))
+        $path=($path[0] == '/' ? '/' : '').(join("/",$out));
     return $path;
 }
 

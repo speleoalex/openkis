@@ -2703,6 +2703,7 @@ function XMLDB_IsUtf8($str)
     $c=0;
     $b=0;
     $bits=0;
+    $str = "$str";
     $len=strlen($str);
     for($i=0; $i < $len; $i++)
     {

@@ -445,7 +445,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     {
         $siteurl=$params['siteurl'];
     }
-    $table->charset_page=$param['charset_page'];
+    $table->charset_page=isset($param['charset_page'])?$param['charset_page']:"";
     if (isset($params['layout']))
     {
         $table->SetLayout($params['layout']);
@@ -1073,11 +1073,11 @@ set_changed();
                                 {
                                     $tf=explode("]",$ofield);
                                     $__ofield=$tf[1];
-                                    $orderfield[$ofield]=isset($table->formvals[$__ofield]) ? $table->formvals[$__ofield] : "";
+                                    $orderfield[$__ofield]=array();
+                                    $orderfield[$__ofield]=isset($table->formvals[$__ofield]) ? $table->formvals[$__ofield] : "";
                                     $tf=$tf[0];
                                     $tf=str_replace("[","",$tf);
-                                    $orderfield[$ofield]=array();
-                                    $orderfield[$ofield]['title']=$tf;
+                                    $orderfield[$__ofield]['title']=$tf;
                                 }
                                 else
                                     $orderfield[$ofield]="";
@@ -1086,11 +1086,10 @@ set_changed();
                     }
                     else
                         $orderfield=$table->formvals;
-                    // dprint_r($orderfield);
                     $numcols=0;
                     foreach($orderfield as $key=> $value)
                     {
-                        if ($fields && !in_array($key,$fields))
+                        if ($fields && !isset($orderfield[$key]))
                         {
                             continue;
                         }
@@ -1212,8 +1211,9 @@ set_changed();
                                     $kfunction=$kfunction[1];
                                 }
 
-                                if ($fields && !in_array($key,$fields))
+                                if ($fields && !isset($orderfield[$key]))
                                     continue;
+                                
                                 $vimage="";
                                 if ($show_translations == true || !isset($table->formvals[$key]['frm_multilanguage']) || $table->formvals[$key]['frm_multilanguage']!= "1")
                                 {
