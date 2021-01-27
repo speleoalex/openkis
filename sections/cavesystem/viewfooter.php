@@ -10,6 +10,7 @@ $params['fields']="code,latitude,longitude,elevation,name,synonyms,depth_total,d
 $dbview=new FNDBVIEW($config);
 $items_tmp=$dbview->GetResults($config,$params);
 $codecaves=explode(",",$row['caves']);
+
 foreach($items_tmp as $item)
 {
     if (in_array($item['code'],$codecaves))
@@ -161,8 +162,10 @@ foreach($items as $item)
         $html.="<br /><b>{$item['code']}</b> <a target = \"_blank\" href=\"".FN_Rewritelink("index.php?mod=Navigator&op=view&id={$item['code']}")."\">{$item['name']}</a>  <em>SV.R.{$item['lenght_total']}  P.{$item['depth_total']}</em> $latlon Q.$quota";
     }
 }
-
-
+if ($row['lenght_total'])
+{
+    $lenght_total = $row['lenght_total'];
+}
 //----------quote e dislivelli ----->
 
 $htmlquote="";
@@ -213,7 +216,7 @@ $dislivelloTotDaIngressoPiuAlto=$cave_max_quota['elevation'] - $min_quota_gr;
 $sviluppo=round($sviluppo);
 $dislivelloTot=round($dislivelloTot);
 
-if ($row['lenght_total']!= $sviluppo || $row['depth_total']!= $dislivelloTot)
+if ($row['lenght_total'] == 0 )
 {
     $id=FN_GetParam("id",$_GET,"html");
     $TableSystem=FN_XmlTable($tablename);
