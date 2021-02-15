@@ -1873,7 +1873,7 @@ $frm_endgroupfooter
                                 $value.=$sep.$tvalue["{$showfield}_{$this->lang}"];
                             elseif (isset($tvalue["{$showfield}_en"]) && $tvalue["{$showfield}_en"]!= "")
                                 $value.=$sep.$tvalue[$showfield."_en"];
-                            else
+                            elseif(isset($tvalue[$showfield]))
                                 $value.=$sep.$tvalue[$showfield];
                             $sep="-";
                         }
