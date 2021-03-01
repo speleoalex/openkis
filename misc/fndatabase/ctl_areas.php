@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?php exit(0);?>
+<?php exit(0); ?>
 <tables>
 
     <field>
@@ -226,9 +226,16 @@
         <frm_i18n>geological framework</frm_i18n>
         <type>text</type>
     </field>
-    
-    
-    
+
+    <field>
+        <name>filekml</name>
+        <frm_it>File kml</frm_it>
+        <type>file</type>
+        <view_tag>center</view_tag>
+        <view_hiddentitle>1</view_hiddentitle>
+        <googlemap>1</googlemap>
+    </field>
+
     <field>
         <name>userupdate</name>
         <type>string</type>
