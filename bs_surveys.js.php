@@ -18,6 +18,14 @@ if (!empty($_GET['t']) && $_GET['t'] == "artificials")
     $title=$title." art";
     $table_link="codeartificial";
 }
+if (!empty($_GET['t']) && $_GET['t'] == "areas")
+{
+    $tablename="ctl_areas";
+    $mod_survey="areas";
+    $title=$title." aree";
+    $table_link="code";
+}
+
 $Tablerilievi=FN_XmlForm($tablename);
 $config=FN_LoadConfig("modules/dbview/config.php","$mod_survey");
 $dbview=new FNDBVIEW($config);
@@ -34,6 +42,8 @@ $visible="false";
 if (isset($_GET['mod']) && $_GET['mod'] == "caves" && $tablename == "ctl_surveys")
     $visible="true";
 if (isset($_GET['mod']) && $_GET['mod'] == "artificials" && $tablename == "ctl_surveys_artificials")
+    $visible="true";
+if (isset($_GET['mod']) && $_GET['mod'] == "areas" && $tablename == "ctl_areas")
     $visible="true";
 
 
@@ -54,6 +64,7 @@ if (is_array($rilievi))
         $i++;
     }
 }
+
 ?>
 OPS_Map.addLayerSwitcher();
 <?php
