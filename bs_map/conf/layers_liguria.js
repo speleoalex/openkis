@@ -46,6 +46,8 @@ OPS_Map.MyAddLayers = function ()
     
     
     //    OPS_Map.addJsLayer("openkis_markers.js.php?mod=caves", false);
+    splx.include("bs_surveys.js.php?t=areas&mod=" + mod);
     splx.include("bs_surveys.js.php?mod=" + mod);
     splx.include("bs_surveys.js.php?t=artificials&mod=" + mod);
+    
 };
