@@ -132,7 +132,7 @@ else
     }
     if ($editType!==null)
         $block['type']=$editType;
-    if (file_exists("blocks/{$block['id']}")&&!empty($block['type'])&&file_exists("modules/{$block['type']}/config.php"))
+    if (isset($block['id']) && file_exists("blocks/{$block['id']}")&&!empty($block['type'])&&file_exists("modules/{$block['type']}/config.php"))
     {
         //echo "<br /><div><a href=\"?edit=modules/block_calendar/config.php&opt=$opt&block=$pk___xdb_fn_blocks\">" . FN_Translate("configure module") . " {$block['type']}</a></div>";
         //---------------block settings---------------------------------------->
