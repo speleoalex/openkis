@@ -1,22 +1,11 @@
 <?php
-define("FN_AUTH_COST",10);
-//Password Hashing, see: http://php.net/manual/en/password.constants.php
-define("FN_AUTH_METHOD",PASSWORD_DEFAULT);
-//display error, http://php.net/manual/it/errorfunc.configuration.php#ini.display-errors
-$_FN_display_errors = "on";
-//max upload file size http://php.net/manual/en/ini.core.php
-$_FN_upload_max_filesize = "20M"; 
-//xmlphp,sqlite3,sqlite,csv,serialize,mysql,mssql
-$_FN_default_database_driver = "mysql";
-//authentication method (include/auth/)
-$_FN_default_auth_method = "local";
-//specific options for the mysql driver:
-$xmldb_mysqlhost = "localhost";
-$xmldb_mysqldatabase = "flatnux_test";
-$xmldb_mysqlusername = "root";
-$xmldb_mysqlpassword = "";
+$_FN_default_database_driver = "mssql";
 
-
+$xmldb_mssqlhost = "localhost";
+$xmldb_mssqldatabase = "flatnux_test";
+$xmldb_mssqlusername = "root";
+$xmldb_mssqlpassword = "";
+//$xmldb_mssqlport="";
 
 
 ?>

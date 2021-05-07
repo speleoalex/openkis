@@ -86,10 +86,10 @@ if (!function_exists("FNCALENDAR_calendar"))
                 {
                     $class="blockcalendar_currentday";
                 }
-                $link_day=FN_RewriteLink("?mode=archive&amp;mod={$_FN['mod']}&amp;mm=$month&amp;dd=$day_&amp;yy=$year");
+                $link_day=FN_RewriteLink("?mode=archive&amp;mod={$_FN['mod']}&amp;mm=$month&amp;dd=$day_&amp;yy=$year","&amp;",true);
                 if ($config['page_target']!= "" && file_exists("sections/{$config['page_target']}"))
                 {
-                    $link_day=FN_RewriteLink("index.php?mode=archive&amp;mod={$config['page_target']}&amp;mm=$month&amp;dd=$day_&amp;yy=$year");
+                    $link_day=FN_RewriteLink("index.php?mode=archive&amp;mod={$config['page_target']}&amp;mm=$month&amp;dd=$day_&amp;yy=$year","&amp;",true);
                 }
                 echo "\n\t\t<td class=\"$class\"><div  ><a href=\"$link_day\">".$day_."</a></div></td>";
             }

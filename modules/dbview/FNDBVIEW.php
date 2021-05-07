@@ -1919,6 +1919,7 @@ class FNDBVIEW
             foreach($res as $item)
             {
                 $item_history=array();
+                $item_history['title_inner']="";
                 $item_history['is_admin']=$this->IsAdminRecord($item);
                 $link_deleteversion=$this->MakeLink(array("action"=>"delete","op"=>"history","id"=>$id_record,"version"=>$item['idversions']),"&");
                 $link_version=$this->MakeLink(array("op"=>"history","id"=>$id_record,"version"=>$item['idversions']),"&");
@@ -2090,6 +2091,8 @@ class FNDBVIEW
                     $title=$v["frm_{$_FN['lang']}"];
                 $params=array();
                 $params['echo']=false;
+                $tpvars['title_inner']="";
+                $params['title_inner']="";
                 $params['path']=$Table->path;
                 $params['enableedit']=true;
                 $params['enablenew']=false;
@@ -2118,6 +2121,7 @@ class FNDBVIEW
                     
                     if (is_array($allview) && count($allview) > 0)
                     {
+                        $tpvars['title_inner']=$title;
                         $params['title_inner']=$title;
                         foreach($allview as $view)
                         {
@@ -2125,13 +2129,15 @@ class FNDBVIEW
                             {
                                 echo $this->ViewRecordPage($view[$tmptable->xmltable->primarykey],$v["tablename"],false,$params);
                             }
-                            $params['title_inner']="";
+                            $params['title_inner']=$tpvars['title_inner']="";
+                            
                         }
                     }
                 }
             }
         }
         $innerTables=ob_get_clean();
+        
         $tpvars['innertables']=$innerTables;
 //------------------------------ INNER TABLES----------------------------------<
         //xdprint_r($tpvars);

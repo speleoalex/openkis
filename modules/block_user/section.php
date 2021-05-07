@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Flatnux_module_login
  * @author Alessandro Vernassa <speleoalex@gmail.com>
@@ -10,15 +11,29 @@ require_once("modules/login/functions_login.php");
 global $_FN;
 if ($_FN['user'] == "")
 {
-    FN_LoginForm();
+    $template = file_exists("themes/{$_FN['theme']}/modules/block_user/login.tp.html") ? "themes/{$_FN['theme']}/modules/block_user/login.tp.html" : "";
+    FN_LoginForm($template);
 }
 else
 {
-    echo "<div  class=\"fnlogin\" style=\"text-align:center\">";
-    echo "<a href=\"" . FN_RewriteLink("index.php?mod=login&amp;op=editreg") . "\">{$_FN['user']}</a><br />";
-    echo FN_HtmlUserImage($_FN['user']);
-    echo "<br /><br />";
-    FN_LogoutForm();
-    echo "</div>";
+    $block = basename(__DIR__);
+    $template = file_exists("themes/{$_FN['theme']}/modules/{$block}/profile.tp.html") ? file_get_contents("themes/{$_FN['theme']}/modules/{$block}/profile.tp.html") : "";
+    if ($template)
+    {
+        $vars = $_FN;
+        $vars['username']=$_FN['user'];
+        $vars['urlimage']=FN_GetUserImage($_FN['user']);
+        
+        echo FN_TPL_ApplyTplString($template, $vars, "themes/{$_FN['theme']}/modules/{$_FN['block']}/");
+    }
+    else
+    {
+        echo "<div  class=\"fnlogin\" style=\"text-align:center\">";
+        echo "<a href=\"" . FN_RewriteLink("index.php?mod=login&amp;op=editreg") . "\">{$_FN['user']}</a><br />";
+        echo FN_HtmlUserImage($_FN['user']);
+        echo "<br /><br />";
+        FN_LogoutForm();
+        echo "</div>";
+    }
 }
 ?>

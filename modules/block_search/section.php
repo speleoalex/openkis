@@ -20,6 +20,7 @@ $contares=0;
 //----------------------------print search form-------------------------------->
 $htmlTpl=file_get_contents(FN_FromTheme("modules/block_search/search.tp.html",false));
 $params=array();
+$params['form_action'] = FN_RewriteLink("index.php?mod=search&amp;op=$op");
 $params['formaction'] = FN_RewriteLink("index.php?mod=search&amp;op=$op");
 $params['form_inputs'] = "<input type=\"hidden\" name=\"where\" value = \"$where\" /><input type=\"hidden\" name=\"op\" value = \"$op\" />";
 $basepath= dirname(FN_FromTheme("modules/block_search/search.tp.html",false));

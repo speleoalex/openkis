@@ -1,0 +1,21 @@
+<h3>{title}</h3>
+<!-- if {table} -->
+<table class="table table-hover table-condensed">
+    <thead>
+        <tr>
+            <!-- foreach {headers} -->
+            <th style="max-width: 40px;overflow: hidden">{text}</th>
+            <!-- end foreach {headers} -->
+        </tr>
+    </thead>
+    <tbody>
+        <!-- foreach {rows} -->
+        <tr>
+            <!-- foreach {cols} -->
+            <td>{text}</td>
+            <!-- end foreach {cols} -->
+        </tr>
+        <!-- end foreach {rows} -->
+    </tbody>
+</table>
+<!-- end if {table} -->

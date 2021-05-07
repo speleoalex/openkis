@@ -144,6 +144,10 @@ function FN_XmltableEditor($tablename,$params=false,$params2=false)
     $params['charset_page']=$_FN['charset_page'];
     $params['languages']=$_FN['languages'];
     $params['siteurl']=$_FN['siteurl'];
+    $params['enable_mod_rewrite']=$_FN['enable_mod_rewrite'];
+    $params['links_mode']=$_FN['links_mode'];
+    
+    
 
     if (!isset($params['link']))
     {
@@ -164,21 +168,30 @@ function FN_XmltableEditor($tablename,$params=false,$params2=false)
     $params['textrequired']=isset($params['textrequired']) ? $params['textrequired'] : "*";
     $params['textfields']=isset($params['textfields']) ? $params['textfields'] : FN_Translate("required fields");
     $params['textcancel']=isset($params['textcancel']) ? $params['textcancel'] : FN_Translate("cancel");
-    $params['textnew']=isset($params['textnew']) ? $params['textnew'] : "<img style=\"vertical-align:middle;border:0px;\" alt=\"\"  src=\"".FN_FromTheme("images/add.png")."\" /> ".FN_Translate("new")."";
+    $params['textnew']=isset($params['textnew']) ? $params['textnew'] : "".FN_Translate("new")."";
     $params['textexitwithoutsaving']=isset($params['textexitwithoutsaving']) ? $params['textexitwithoutsaving'] : FN_Translate("want to exit without saving?");
     //messages---<
     if (empty($params['layout_template']) && file_exists("themes/{$_FN['theme']}/form.tp.html"))
     {
         $params['layout_template']=file_get_contents("themes/{$_FN['theme']}/form.tp.html");
+        $params['template_path'] = "themes/{$_FN['theme']}/";
     }
     if (empty($params['html_template_grid']) && file_exists("themes/{$_FN['theme']}/grid.tp.html"))
     {
         $params['html_template_grid']=file_get_contents("themes/{$_FN['theme']}/grid.tp.html");
+        $params['template_path'] = "themes/{$_FN['theme']}/";
     }
     if (empty($params['html_template_view']) && file_exists("themes/{$_FN['theme']}/view.tp.html"))
     {
         $params['html_template_view']=file_get_contents("themes/{$_FN['theme']}/view.tp.html");
+        $params['template_path'] = "themes/{$_FN['theme']}/";
     }
+    $params['lang_default'] = isset($params['lang_default']) ? $params['lang_default'] : $_FN['lang_default'];
+    $params['siteurl'] = isset($params['siteurl']) ? $params['siteurl'] : $_FN['siteurl'];
+    $params['lang'] = isset($params['lang']) ? $params['lang'] : $_FN['lang'];
+    $params['enable_mod_rewrite'] = isset($params['enable_mod_rewrite']) ? $params['enable_mod_rewrite'] : $_FN['enable_mod_rewrite'];
+    $params['use_urlserverpath'] = isset($params['use_urlserverpath']) ? $params['use_urlserverpath'] : $_FN['use_urlserverpath'];
+    $params['sitepath'] = isset($params['sitepath']) ? $params['sitepath'] : $_FN['sitepath'];    
     XMLDB_editor($tablename,$xmldatabase,$params);
 }
 
@@ -361,7 +374,6 @@ if (window.addEventListener) {
     {
         if ($strdate == "" || $strdate == "0000-00-00 00:00:00")
             return "";
-//        $time=strtotime($strdate);
         $dateformat=str_replace("y","Y",$dateformat);
         $dateformat=str_replace("00:00:00","H:i:s",$dateformat);
         $dateformat=str_replace("00:00","H:i",$dateformat);
@@ -378,9 +390,7 @@ if (window.addEventListener) {
         {
             $time=strtotime($strdate);
             $strformdate=date($dateformat,$time);
-//            $strformdate=$strdate;
         }
-        // dprint_r("valuetoform $strdate-> $time -> $dateformat -> $strformdate");
         return $strformdate;
     }
 
@@ -605,7 +615,7 @@ class xmldbfrm_field_stringselect
         if ($options == false)
         {
             $options=array();
-            $options_tmp=isset($params['options']) ? $params['options'] : array();
+            $options_tmp=is_array($params['options']) ? $params['options'] : array();
             /*
               $all = $params['fieldform']->xmltable->GetRecords(false,false,false,false,false,"{$params['name']}");
               // GetRecords($restr = false,$min = false,$length = false,$order = false,$reverse = false,$fields = false)

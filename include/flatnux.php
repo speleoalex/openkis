@@ -59,6 +59,8 @@ $_FN['datadir']=$_FN_datadir;
 $_FN['charset_lang']="UTF-8";  //default
 $_FN['charset_page']="UTF-8";
 $_FN['database']="fndatabase";
+
+
 $_FN['use_urlserverpath']=false; //use url path in link to generate the html 
 //false:href="http://example/include/css/style.css"
 //true:href="/include/css/style.css"
@@ -259,7 +261,7 @@ if (empty($_FN['sitelanguages']))
         $params['langname']=$l;
         $params['langtitle']=FN_Translate("_LANGUAGE","",$l);
         $params['langimg']=$_FN['siteurl']."/images/flags/$l.png";
-        $_FN['sitelanguages'][]=$params;
+        $_FN['sitelanguages'][$l]=$params;
     }
 }
 $_FN['lang_default']=$_FN['lang'];
@@ -378,7 +380,7 @@ $_FN['site_subtitle']=FN_i18n($_FN['site_subtitle']);
 $_FN['site_title']=FN_i18n($_FN['site_title']);
 $_FN['site_subtitle']=FN_i18n($_FN['site_subtitle']);
 $_FN['formlogin']=FN_HtmlLoginForm();
-$_FN['section_title']=$_FN['sectionvalues']['title'];
+$_FN['section_title']=isset($_FN['sectionvalues']['title'])?$_FN['sectionvalues']['title']:"";
 
 if (!empty($_FN['include']))
 {

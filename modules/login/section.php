@@ -9,11 +9,11 @@
 defined('_FNEXEC') or die('Restricted access');
 require_once("modules/login/functions_login.php");
 global $_FN;
-$op=FN_GetParam("op",$_GET);
-$username=FN_GetParam("user",$_GET);
+$op = FN_GetParam("op", $_GET);
+$username = FN_GetParam("user", $_GET);
 if (!FN_IsAdmin())
-    $username=$_FN['user'];
-switch($op)
+    $username = $_FN['user'];
+switch ($op)
 {
     case "register":
     case "end_reg":
@@ -38,32 +38,63 @@ switch($op)
         {
             echo FN_HtmlContent("sections/{$_FN['mod']}");
         }
-        if ($_FN['user']== "")
+        if ($_FN['user'] == "")
         {
-            $templateForm=false;
-            $tppath=FN_FromTheme("modules/login/login.tp.html",false);
+            $templateForm = false;
+            $tppath = FN_FromTheme("modules/login/login.tp.html", false);
             if (file_exists($tppath))
             {
-                $templateForm=file_get_contents(FN_FromTheme("modules/login/login.tp.html",false));
-                
+                $templateForm = file_get_contents(FN_FromTheme("modules/login/login.tp.html", false));
             }
             FN_LoginForm($templateForm);
-        }
-        else
+        } else
         {
-            $templateStr=file_get_contents(FN_FromTheme("modules/login/profile.tp.html",false));
-            $tplbasepath=dirname(FN_FromTheme("modules/login/profile.tp.html",false))."/";
-            $tplvars=FN_GetUser($_FN['user']);
-            $tplvars['urleditprofile']=FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;op=editreg");
-            $tplvars['username']=$_FN['user'];
-            $tplvars['urlimage']=FN_GetUserImage($_FN['user']);
-            $tplvars['urllogout']=FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;fnlogin=logout");
-            foreach($tplvars as $k=> $var)
+            $templateStr = file_get_contents(FN_FromTheme("modules/login/profile.tp.html", false));
+            $tplbasepath = dirname(FN_FromTheme("modules/login/profile.tp.html", false)) . "/";
+            $tplvars = FN_GetUser($_FN['user']);
+            $tplvars['urleditprofile'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;op=editreg");
+            $tplvars['username'] = $_FN['user'];
+            $tplvars['urlimage'] = FN_GetUserImage($_FN['user']);
+            $tplvars['urllogout'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;fnlogin=logout");
+            $uservalues = FN_GetUser($_FN['user']);
+            $todisplay = array();
+            $form = FN_GetUserForm();
+            foreach ($uservalues as $k => $v)
             {
-                if ($k!="password")
-                    $_FN['return'][$k]=$var;
+                //dprint_r($form->formvals[$k]);
+                if (isset($form->formvals[$k]['frm_show']) && $form->formvals[$k]['frm_show'] == false)
+                {
+                    continue;
+                }
+                if (isset($form->formvals[$k]['view_show']) && $form->formvals[$k]['view_show'] == false)
+                {
+                    continue;
+                }
+                if (isset($form->formvals[$k]['showinprofile']) && $form->formvals[$k]['showinprofile'] == false)
+                {
+                    continue;
+                }
+                if (isset($form->formvals[$k]['frm_allowupdate']) && $form->formvals[$k]['frm_allowupdate'] != true)
+                {
+                    continue;
+                }
+                if ($form->formvals[$k]['frm_type'] == "password" || strstr($form->formvals[$k]['frm_type'],"passwd")!==false)
+                {
+                    continue;
+                }
+                $todisplay_item = array();
+                $todisplay_item['title'] = $form->formvals[$k]['title'];
+                $todisplay_item['name'] = $k;
+                $todisplay_item['value'] = "$v";
+                $todisplay[] = $todisplay_item;
             }
-            echo FN_TPL_ApplyTplString($templateStr,$tplvars,$tplbasepath);
+            $tplvars['uservalues'] = $todisplay;
+            foreach ($tplvars as $k => $var)
+            {
+                if ($k != "password")
+                    $_FN['return'][$k] = $var;
+            }
+            echo FN_TPL_ApplyTplString($templateStr, $tplvars, $tplbasepath);
         }
         break;
 }

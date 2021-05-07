@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="favicon.ico">
+
+        <title>MAP</title>
+        <!---------------------------  map ---------------------------------------->
+        <link href="bs_map/css/ol.css" rel="stylesheet">
+        <link rel="stylesheet" href="bs_map/fonts/glyphicon.css" type="text/css">
+        <link rel="stylesheet" href="bs_map/css/layerswitcher.css" type="text/css">
+        <!-- Bootstrap core CSS -->
+        <link href="bs_map/css/bootstrap.css" rel="stylesheet">
+        <link href="bs_map/css/bootstrap-theme.css" rel="stylesheet">
+        <link href="bs_map/css/custom.css?q" rel="stylesheet">
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <link href="bs_map/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+          <script src="bs_map/js/html5shiv.min.js"></script>
+          <script src="bs_map/js/respond.min.js"></script>
+        <![endif]-->
+        <style>.tt-query {
+                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+                -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            }
+
+            .tt-hint {
+                color: #999
+            }
+
+            .tt-menu {    /* used to be tt-dropdown-menu in older versions */
+                width: 422px;
+                margin-top: 4px;
+                padding: 4px 0;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                border: 1px solid rgba(0, 0, 0, 0.2);
+                -webkit-border-radius: 4px;
+                -moz-border-radius: 4px;
+                border-radius: 4px;
+                -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+                -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+                box-shadow: 0 5px 10px rgba(0,0,0,.2);
+            }
+
+            .tt-suggestion {
+                padding: 3px 20px;
+                line-height: 24px;
+            }
+
+            .tt-suggestion.tt-cursor,.tt-suggestion:hover {
+                color: #fff;
+                background-color: #0097cf;
+
+            }
+
+            .tt-suggestion p {
+                margin: 0;
+            }
+
+            .popover-title{
+                font-size: 11px;
+                padding: 5px;
+            }
+            .popover-content{
+                font-size: 11px;
+                padding: 5px;
+
+            }
+            .popover{
+                min-width: 150px;
+            }
+            .bsactive{
+                color: greenyellow !important;
+            }
+
+
+            .popover-content .glyphicon{
+
+            }
+            .popover-content .glyphicon div a b{
+                display:none
+            }
+
+        </style>
+    </head>
+    <body><nav id="navbar" class="navbar navbar-inverse dropdown" role="navigation">
+            <form onsubmit="return false;" class="mytoolbar navbar-left " role="search">
+                <div class="form-group ">
+                    <div class="btn-group " role="group" >
+                        <button class="btn dropdown-toggle " type="button" data-toggle="dropdown">
+                            <span class="caret"></span></button>
+                        <ul id="layersmenu" class="dropdown-menu">
+                            <li>
+                                <div class="row">
+                                    <div class="bottom text-center"  id ="ops_layerswitcher" onsubmit="return false;" >
+                                        <div class="my_layerswitcher">
+                                            <div class="bottom text-left" id ="ops_baselayers"></div>
+                                            <div class="bottom text-left" id ="ops_layertree"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+
+                    <div class="btn-group" role="group" >
+                        <!-- <button id="stopfollow" onclick="OPS_Map.stopFollowing(); OPS_Map.mode = 'navigation';" type="button" class="btn btn-secondary"><span class="glyphicon glyphicon-move" ></span></button> -->
+                        <button id="startfollow" onclick="OPS_Map.startFollowing();OPS_Map.centerToMyPosition()" type="button" title="Centra su posizione" class="btn btn-secondary"><span class="glyphicon glyphicon-record" ></span></button>
+
+                    </div>
+                    <div class="btn-group" role="group" >
+                        <input data-i18n='Aa' class="form-control typeahead" type="text" placeholder="Search" id="searchText" name="q"  value="" />
+                    </div>
+                </div>
+            </form>
+        </nav>  
+
+        <div style="top:130px;left:7px;z-index:6" class="ol-control"><button id="mode_info" onclick="OPS_Map.SwitchMode('info');" type="button" title="Info">
+                <i class="glyphicon glyphicon-info-sign"> </i></button></div>
+        <div style="bottom:20px;right:20px;z-index:6" class="ol-control"><button id="mode_fullscreen" onclick="OPS_Map.openFullscreen();" type="button" title="Fullscreen">
+                <i class="glyphicon glyphicon-fullscreen"> </i></button></div>      
+        <div style="bottom:20px;right:70px;z-index:6" class="ol-control"><button id="export-png"  type="button" title="Export">
+                <i class="glyphicon glyphicon-save"> </i></button></div>      
+
+        <input type="hidden" name="mainlayer" id="mainlayer" value=""  onchange="UpdateLayer()"/>
+        <a id="image-download" download="map.png"></a>
+        <div class="fill-space seamless" id="map">
+        </div>
+        <div id="LayerLegend"></div>
+        <div style="position:absolute;left:10px;bottom:10px;" id="mouse-position"></div>
+        <div style="position:absolute;left:10px;bottom:10px;width:auto" id="scaleline"></div>
+        <div style="display:none;position:absolute;bottom:10px;">
+            <p>Accuratezza posizione:<span  class="gpsaccuracy"></span>m</p>
+            <p>Velocità:<span  class="gpsspeed"></span>km/h</p>            
+        </div>
+
+        <script src="bs_map/js/splx_utility.js"></script>
+        <script src="bs_map/js/jquery.min.js"></script>
+        <script src="bs_map/js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="bs_map/js/ie10-viewport-bug-workaround.js"></script>
+        <script src="bs_map/js/ol.js"></script>
+        <script charset="utf-8" src="bs_map/js/OPS_Map.js?s"></script>
+        <script charset="utf-8" src="bs_map/js/OPS_Map_draw.js?s"></script>
+        <script charset="utf-8" src="bs_map/js/typeahead.bundle.js"></script>
+        <script charset="utf-8" src="bs_map/conf/config.js"></script>
+        <script charset="utf-8" src="bs_map/conf/layers_piemonte.js"></script>
+
+
+        <script>
+            OPS_Map.Custom = function ()
+            {
+
+            };
+
+        </script>
+        <script defer="defer" src="bs_map/index.js"></script>
+        <script>
+            document.UpdateLayer=function ()
+            {
+                //console.log("UPDATE LAYERS")
+                var mod = getParameterByName("mod");
+                var zoom = OPS_Map.map.getView().getZoom();
+                var showPointNames = (zoom > 16) ? true : false;
+                for (var i in OPS_Map.kmllayers)
+                {
+                    if (OPS_Map.kmllayers[i].path.toString().indexOf("openkis_kml.php?mod="+mod) == 0)
+                    {
+                        var val = $('#mainlayer').val();
+                        
+                        if (val.indexOf("openkis_kml.php?mod="+mod) == 0)
+                        {
+                            //console.log("set source");
+                            //console.log(val);
+                            var zoom = OPS_Map.map.getView().getZoom();
+                            var showPointNames = (zoom > 16) ? true : false;
+                            OPS_Map.kmllayers[i].setSource(new ol.source.Vector({
+                                crossOrigin: "Anonymous",
+                                url:$('#mainlayer').val(),
+                                projection: OPS_Map.view.getProjection(),
+                                format: new ol.format.KML(
+                                        {
+                                            writeStyles: true,
+                                            showPointNames: showPointNames
+                                        })
+                            }));
+                            
+                        }
+                    }
+
+                }
+            }
+        </script>
+    </body>
+</html>

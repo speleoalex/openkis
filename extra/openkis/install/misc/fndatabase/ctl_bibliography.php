@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?php exit(0);?>
+<?php exit(0); ?>
 <tables>			
     <field>
         <name>id</name>
@@ -18,7 +17,6 @@
     </field>
     <field>
         <name>magazine</name>
-        <name>Rivista</name>
         <type>string</type>
         <frm_showinlist>1</frm_showinlist>
         <frm_cols>80</frm_cols>
@@ -86,18 +84,6 @@
         <type>string</type>
     </field>
     <field>
-        <name>codecaves</name>
-        <frm_it>Grotte</frm_it>
-        <type>text</type>
-    </field>
-    <field>
-        <name>codeartificials</name>
-        <frm_it>Cavità artificiali</frm_it>
-        <type>text</type>
-        <frm_cols>80</frm_cols>
-    </field>
-
-    <field>
         <name>abstract</name>
         <frm_it>Riassunto</frm_it>
         <type>text</type>
@@ -105,32 +91,71 @@
         <frm_cols>50</frm_cols>
     </field>
     <field>
+        <name>codeartificials</name>
+        <frm_it>Cavità artificiali</frm_it>
+        <type>text</type>
+        <frm_cols>80</frm_cols>
+    </field>
+    <field>
+        <name>codecaves</name>
+        <frm_it>Grotte</frm_it>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>provincia,code,name</fk_show_field>
+        <frm_help_it> per esempio:LI928,LI930,LI975,LI976,LI1619,</frm_help_it>
+        <frm_cols>80</frm_cols>
+    </field>
+
+
+    <field>
         <name>surveys</name>
         <frm_it>Rilievi</frm_it>
         <type>text</type>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>provincia,code,name</fk_show_field>
+        <frm_help_it> per esempio:LI928,LI930,LI975,LI976,LI1619,</frm_help_it>
         <frm_cols>80</frm_cols>
-        <frm_help_it>numero di rilievi</frm_help_it>
     </field>
-
+    <field>
+        <name>modified_caves</name>
+        <frm_i18n>modified caves</frm_i18n>
+        <type>text</type>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>provincia,code,name</fk_show_field>
+        <frm_help_it> per esempio:LI928,LI930,LI975,LI976,LI1619,</frm_help_it>
+        <frm_cols>80</frm_cols>
+    </field>
+    <field>
+        <name>modified_surveys</name>
+        <frm_it>Rilievi_modificati</frm_it>
+        <type>text</type>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>provincia,code,name</fk_show_field>
+        <frm_help_it> per esempio:LI928,LI930,LI975,LI976,LI1619,</frm_help_it>
+        <frm_cols>80</frm_cols>
+    </field>
     <field>
         <name>photos</name>
         <frm_i18n>photos</frm_i18n>
         <frm_it>Foto</frm_it>
         <type>string</type>
         <frm_cols>80</frm_cols>
-        <frm_help_it>numero di foto</frm_help_it>
+        <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>
     </field>
-
     <field>
-
         <name>drawings</name>
         <frm_it>Disegni</frm_it>
         <type>text</type>
         <frm_cols>80</frm_cols>
-        <frm_help_it>numero di disegni</frm_help_it>
     </field>
     <field>
-
         <name>fossils</name>
         <frm_it>Fossili</frm_it>
         <frm_it>Numeri grotte che fanno riferimento a fossili (Speleopaleo)</frm_it>
@@ -138,21 +163,11 @@
         <frm_cols>80</frm_cols>
         <frm_help_it>Le grotte inserite qui compariranno nel DB speleopaleo es.928,930,975,976,1619</frm_help_it>
     </field>
-
     <field>
         <name>topic</name>
         <frm_it>Argomento</frm_it>
         <type>string</type>
         <frm_showinlist>1</frm_showinlist>
-    </field>
-
-    <field>
-        <name>modified_caves</name>
-        <frm_i18n>modified caves</frm_i18n>
-
-        <type>text</type>
-        <frm_cols>80</frm_cols>
-        <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>
     </field>
     <field>
         <name>fauna</name>
@@ -167,38 +182,31 @@
         <frm_help_it> per esempio:Plecotus auritus|Rhinolophus ferrumequinum|</frm_help_it>
     </field>
     <field>
-        <name>modified_surveys</name>
-        <frm_it>Rilievi_modificati</frm_it>
-        <type>string</type>
-        <frm_help_it> per esempio:928,930,975,976,1619,</frm_help_it>
-        <frm_cols>80</frm_cols>
-    </field>
-    <field>
         <name>file1</name>
         <frm_group>Allegati</frm_group>
         <frm_it>ESTRATTO ARTICOLO</frm_it>
         <type>file</type>
-        <frm_type>filecatasto</frm_type>
+        <frm_type>file</frm_type>
         <view_tag>fieldset</view_tag>
     </field>	
     <field>
         <name>file2</name>
         <frm_it>ESTRATTO ARTICOLO 2</frm_it>
         <type>file</type>
-        <frm_type>filecatasto</frm_type>
+        <frm_type>file</frm_type>
         <view_tag>fieldset</view_tag>
     </field>	
     <field>
         <name>file3</name>
         <frm_it>ESTRATTO ARTICOLO 3</frm_it>
         <type>file</type>
-        <frm_type>filecatasto</frm_type>
+        <frm_type>file</frm_type>
         <view_tag>fieldset</view_tag>
         <frm_endgroup></frm_endgroup>
     </field>	
     <field>
         <name>license</name>
-        <frm_it>Licenza pubblicazione</frm_it>
+        <frm_i18n>license</frm_i18n>
         <foreignkey>ctl_licenses</foreignkey>
         <fk_link_field>name</fk_link_field>
         <fk_show_field>name</fk_show_field>		

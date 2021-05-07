@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>block_menu</type>
 	<parent></parent>
-	<position>150</position>
+	<position>160</position>
 	<title>Fauna</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,8 +22,6 @@
 	<description_it></description_it>
 	<title_en>Fauna</title_en>
 	<description_en></description_en>
-	<link>index.php?mod=menu_fauna</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_block_menu>

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type></type>
 	<parent>menu_settings</parent>
-	<position>190</position>
+	<position>200</position>
 	<title>Formazioni geologiche</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,6 +22,4 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=geological_formations</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>

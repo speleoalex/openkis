@@ -3,9 +3,9 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_artificials</parent>
-	<position>160</position>
+	<position>150</position>
 	<title>Rilievi</title>
-	<description>Rilievi delle cavit&amp;agrave; artificiali</description>
+	<description>Rilievi delle cavita artificiali</description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
@@ -22,8 +22,6 @@
 	<description_it>Rilievi delle cavit&amp;agrave; artificiali</description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=survey_artificials</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>

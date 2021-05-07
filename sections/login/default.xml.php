@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>login</type>
 	<parent></parent>
-	<position>220</position>
+	<position>240</position>
 	<title>Accesso</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,8 +22,6 @@
 	<description_it></description_it>
 	<title_en>Login</title_en>
 	<description_en></description_en>
-	<link>index.php?mod=login</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_login>

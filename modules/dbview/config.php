@@ -89,7 +89,8 @@ $config['enable_statistics'] = 0;
 $config['search_query_native_mysql'] = 0;
 #[i18n]enable offline form {1=yes,0=no}
 $config['enable_offlineform'] = 1;
-
+#[i18n]folder containing documents
+$config['documents_folder']="";
 
 
 ?>
