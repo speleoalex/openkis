@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?php exit(0); ?>
+<tables>
+    <field>
+        <name>id</name>
+        <type>int</type>
+        <primarykey>1</primarykey>
+        <extra>autoincrement</extra>
+    </field>
+    <field>
+        <name>context</name>
+        <type>varchar</type>
+    </field>
+    <field>
+        <name>text</name>
+        <type>text</type>
+    </field>
+    <field>
+        <name>link</name>
+    </field>  
+    <field>
+        <name>username</name>
+        <type>varchar</type>
+    </field>
+    <field>
+        <name>displayed</name>
+        <type>bool</type>
+        <default>0</default>
+    </field>
+    <field>
+        <name>date</name>
+        <type>datetime</type>
+    </field>
+</tables>

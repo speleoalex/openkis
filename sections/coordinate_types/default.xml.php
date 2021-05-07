@@ -3,7 +3,7 @@
 <fn_sections>
 	<type></type>
 	<parent>menu_settings</parent>
-	<position>200</position>
+	<position>210</position>
 	<title>Tipi di coordinate</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,6 +22,4 @@
 	<description_it></description_it>
 	<title_en>Types of coordinates</title_en>
 	<description_en></description_en>
-	<link>index.php?mod=coordinate_types</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>

@@ -1,4 +1,11 @@
-11/2018
+5/2021
+ -bug fix
+ -aggiornato motore di template
+ -miglioramenti grafici
+ -nuovo tema pannello di controllo
+ -aggiornamento xmldb, maggiore personalizzazione dei form
+
+11/2020
  -bug fix
  -aggiornato motore templates
  -migliorato supporto per autenticazioni esterne

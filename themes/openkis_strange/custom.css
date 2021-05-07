@@ -1,0 +1,36 @@
+/* put your own styles to customize and override the theme */
+.bg-dark{
+    background-color:#d772cb !important;
+}
+
+.app-header-dark {
+    background-color: #d67e36;
+    color: hsla(0,0%,100%,.8);
+}
+
+.btn-primary {
+    background-color: #f200d5 !important;
+    border-color: #950083;
+}
+.text-info {
+    color: #950083 !important;
+}
+.text-primary {
+    color: #950083 !important;
+}
+a {
+    text-decoration: none;
+    background-color: transparent;
+
+        
+}
+
+img{
+    max-width: 100% !important
+}
+
+body{
+    background-image: url('bk.jpg');   
+    background-repeat: repeat-x;
+    background-size: 500px;
+}

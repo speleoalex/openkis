@@ -19,6 +19,11 @@ OPS_Map.MyAddLayers = function ()
     var mod = getUrlVar("mod", "");
     var nv_areas = getUrlVar("nv_areas", "");
     var filter_code = getUrlVar("filter_code", "");
+    
+    splx.include("bs_surveys.js.php?t=areas&mod=" + mod);
+    splx.include("bs_surveys.js.php?mod=" + mod);
+    splx.include("bs_surveys.js.php?t=artificials&mod=" + mod);
+    
     if (filter_code !== "")
     {
         OPS_Map.addKmlLayer("Cavita selezionate", "openkis_kml.php?mod=caves&filter_code=" + filter_code, false, mod === "caves");
@@ -37,6 +42,7 @@ OPS_Map.MyAddLayers = function ()
         OPS_Map.addKmlLayer("Storico coordinate", "openkis_kml_history.php?mod=caves&history=" + history, false, false, true);
     }
 
+    
     OPS_Map.addKmlLayer("Sorgenti carsiche", "openkis_kml.php?mod=springs", false, mod === "springs");
     OPS_Map.addKmlLayer("Cavita artificiali", "openkis_kml.php?mod=artificials", false, mod === "artificials");
     OPS_Map.addKmlLayer("Catasto grotte Piemonte", "openkis_proxy.php/http://catastogrotte-piemonte.net/openkis_kml.php?mod=caves", false, false);
@@ -46,8 +52,5 @@ OPS_Map.MyAddLayers = function ()
     
     
     //    OPS_Map.addJsLayer("openkis_markers.js.php?mod=caves", false);
-    splx.include("bs_surveys.js.php?t=areas&mod=" + mod);
-    splx.include("bs_surveys.js.php?mod=" + mod);
-    splx.include("bs_surveys.js.php?t=artificials&mod=" + mod);
     
 };

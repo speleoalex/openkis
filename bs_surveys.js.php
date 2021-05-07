@@ -49,7 +49,6 @@ if (isset($_GET['mod']) && $_GET['mod'] == "areas" && $tablename == "ctl_areas")
 
 $visible="false";
 
-
 if (is_array($rilievi))
 {
     $i=1;

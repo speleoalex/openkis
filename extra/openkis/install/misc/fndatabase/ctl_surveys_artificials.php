@@ -56,6 +56,13 @@
         <googlemap>1</googlemap>
     </field>	
     <field>
+        <name>filelox</name>
+        <frm_it>File lox</frm_it>
+        <type>file</type>
+        <view_tag>center</view_tag>
+        <view_hiddentitle>1</view_hiddentitle>
+    </field>     
+    <field>
         <name>pdf</name>
         <frm_it>File pdf</frm_it>
         <type>file</type>

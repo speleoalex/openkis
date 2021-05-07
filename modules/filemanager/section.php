@@ -1206,7 +1206,8 @@ function fm_absolutepath($path)
             array_pop($out);
         else
             $out[]=$fold;
-    } $path=($path{0}== '/' ? '/' : '').join('/',$out);
+    } 
+    $path=($path[0]== '/' ? '/' : '').join('/',$out);
     // dprint_r($path);
     return $path;
 }

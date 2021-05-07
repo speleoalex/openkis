@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_fauna</parent>
-	<position>160</position>
+	<position>170</position>
 	<title>Fauna cavernicola</title>
 	<description>contiene l'elenco degli animali cavernicoli</description>
 	<startdate></startdate>
@@ -22,8 +22,6 @@
 	<description_it>contiene l'elenco degli animali cavernicoli</description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=fauna</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>

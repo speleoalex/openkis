@@ -6,7 +6,7 @@
  * this file contains only the default values
  */
 #[i18n]site name
-$_FN['sitename']="Flatnux-NEXT";
+$_FN['sitename']="Flatnux";
 #[i18n]site title
 $_FN['site_title']="Flatnux CMS";
 #[i18n]site subtitle
