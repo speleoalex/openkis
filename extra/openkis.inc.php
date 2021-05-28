@@ -253,7 +253,7 @@ function openkis_GetIcon($itemvalues,$mod)
     {
         $iconparams['closed']="closed";
     }
-    $name=implode($iconparams,"_");
+    $name=implode("_",$iconparams);
     $image="{$_FN['datadir']}/openkis_icons/{$name}.png";
     //dprint_r($image);
     if (!file_exists($image))

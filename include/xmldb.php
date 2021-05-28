@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @author Alessandro Vernassa <speleoalex@gmail.com>
  * @copyright Copyright (c) 2003-2009
@@ -15,15 +14,6 @@ define("_MAXTENTATIVIDIACCESSO", "1000");
 define("_MAX_FILES_PER_FOLDER", "10000");
 define("_MAX_LOCK_TIME", "30"); // seconds
 //define("XMLDB_DEBUG_FILE_LOG","/tmp/xmldb.log"); // seconds
-
-
-/*
-  $files=glob(dirname(__FILE__)."/xmldb_*.php");
-  foreach($files as $file)
-  {
-  require_once $file;
-  }
- */
 
 /**
  *
@@ -1376,17 +1366,12 @@ class XMLTable
             }
         }
         $this->SetLastUpdateTime();
-
-//        @fclose(@fopen("{$this->path}/{$this->databasename}/{$this->tablename}/updated",'a'));
         return $this->driverclass ? $this->driverclass->InsertRecord($values) : null;
     }
 
     function SetLastUpdateTime()
     {
         @touch("{$this->path}/{$this->databasename}/{$this->tablename}/updated");
-        //fclose(fopen("{$this->path}/{$this->databasename}/{$this->tablename}/updated",'a'));
-        //echo $this->GetLastUpdateTime();
-        //die("{$this->path}/{$this->databasename}/{$this->tablename}/updated");
     }
 
     /**
