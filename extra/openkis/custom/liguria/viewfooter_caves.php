@@ -26,7 +26,7 @@ if (!empty($row['latitude']))
     $osmanLink = "https://www.openstreetmap.org/directions?engine=graphhopper_foot&route={$row['latitude']}%2C{$row['longitude']}%3B{$row['latitude']}%2C{$row['longitude']}";
     echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"$osmanLink\">OpenStreetmap</a>";
     $forcename = openkis_TextToAscii($row['name']);
-    echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"{$_FN['siteurl']}openkis_kml.php?mod={$_FN['mod']}&big_icons=1&filter_code=" . urlencode($row['code']) . "&filename=$forcename\">Scarica kml</a>";
+    echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"{$_FN['siteurl']}openkis_kml.php?mod={$_FN['mod']}&big_icons=1&filter_code=" . urlencode($row['code']) . "&filename=$forcename&absolute=1\">Scarica kml</a>";
     echo "</div><br />";
 
 

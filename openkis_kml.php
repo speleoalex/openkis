@@ -174,9 +174,11 @@ foreach($results as $item)
         {
             $title=htmlspecialchars($item['code']."-".$item['name']);
         }
-        
-        $siteurl=str_replace("https://","//",$_FN['siteurl']);
-        $siteurl=str_replace("http://","//",$siteurl);
+        if (empty($_GET['absolute']))
+        {
+            $siteurl=str_replace("https://","//",$_FN['siteurl']);
+            $siteurl=str_replace("http://","//",$siteurl);
+        }
         //$siteurl=$_FN['siteurl'];
         $icon=$siteurl.openkis_GetIcon($item,$mod);
 //        $icon=$_FN['siteurl'].openkis_GetIcon($item,$mod);
