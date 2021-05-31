@@ -1,4 +1,4 @@
 title,script
-KML,openkis_kml.php
+KML,openkis_kml.php?absolute=1
 GPX,openkis_gpx.php
 SHAPEFILE,openkis_shapefile.php
