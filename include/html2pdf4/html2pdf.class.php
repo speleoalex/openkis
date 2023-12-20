@@ -1527,10 +1527,10 @@ if (!defined('__CLASS_HTML2PDF__')) {
                 $inBL[1]-= $border['b']['width'];
             }
 
-            if ($inTL[0]<=0 || $inTL[1]<=0) $inTL = null;
-            if ($inTR[0]<=0 || $inTR[1]<=0) $inTR = null;
-            if ($inBR[0]<=0 || $inBR[1]<=0) $inBR = null;
-            if ($inBL[0]<=0 || $inBL[1]<=0) $inBL = null;
+            if (!isset($inTL[0]) || $inTL[0]<=0 || $inTL[1]<=0) $inTL = null;
+            if (!isset($inTR[0]) || $inTR[0]<=0 || $inTR[1]<=0) $inTR = null;
+            if (!isset($inBR[0]) || $inBR[0]<=0 || $inBR[1]<=0) $inBR = null;
+            if (!isset($inBL[0]) || $inBL[0]<=0 || $inBL[1]<=0) $inBL = null;
 
             // prepare the background color
             $pdfStyle = '';

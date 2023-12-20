@@ -5,9 +5,9 @@
  * @copyright Copyright (c) 1011
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License
  */
-#[i18n]page{=view all,./sections}
+//[i18n]page{=view all,./sections}
 $config['parent']="";
-#[i18n]method{=default,ul=ul}
+//[i18n]method{=default,ul=ul}
 $config['method']="";
 
 ?>

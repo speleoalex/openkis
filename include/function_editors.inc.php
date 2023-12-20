@@ -12,11 +12,11 @@ defined('_FNEXEC') or die('Restricted access');
  * Edit config file
  *
  * Sample:
- * #[it]Titolo in italiano {opzione1=1,opzione2=2}
- * #[en]Title 2 in english
+ * //[it]Titolo in italiano {opzione1=1,opzione2=2}
+ * //[en]Title 2 in english
  * $nomevariabile // {string}
- * #[it]Titolo 2 in italiano
- * #[en]Title 2 in english
+ * //[it]Titolo 2 in italiano
+ * //[en]Title 2 in english
  * $nomevariabile2 // {color}
  *
  *
@@ -35,11 +35,11 @@ function FN_EditConfFile($file, $formaction = "", $exit = "", $allow = false, $w
  * Edit config file
  *
  * Sample:
- * #[it]Titolo in italiano {opzione1=1,opzione2=2}
- * #[en]Title 2 in english
+ * //[it]Titolo in italiano {opzione1=1,opzione2=2}
+ * //[en]Title 2 in english
  * $nomevariabile // {string}
- * #[it]Titolo 2 in italiano
- * #[en]Title 2 in english
+ * //[it]Titolo 2 in italiano
+ * //[en]Title 2 in english
  * $nomevariabile2 // {color}
  *
  *
@@ -351,11 +351,11 @@ var movedown = function (node)
             $find = 1;
             $exists = false;
             $i18n_find = false;
-            while (preg_match('/^#./s', $fg[$i - $find]) && !($exists = preg_match('/^#\[' . $lang . '\]./s', $fg[$i - $find])))
+            while (preg_match('/^\/\/./s', $fg[$i - $find]) && !($exists = preg_match('/^\/\/\[' . $lang . '\]./s', $fg[$i - $find])))
             {
-                if (preg_match('/^#\[i18n\]./s', $fg[$i - $find]))
+                if (preg_match('/^\/\/\[i18n\]./s', $fg[$i - $find]))
                 {
-                    $i18n_find = preg_match('/^#\[i18n\]./s', $fg[$i - $find]);
+                    $i18n_find = preg_match('/^\/\/\[i18n\]./s', $fg[$i - $find]);
                 }
                 $find++;
             }
@@ -374,11 +374,11 @@ var movedown = function (node)
 
             //check options---------------------------------------------------->
 
-            if (preg_match('/^#./s', $fg[$i - $find]))
+            if (preg_match('/^\/\/./s', $fg[$i - $find]))
             {
 
                 $item_field['options_vars'] = array();
-                $title = preg_replace('/^#/s', "", $fg[$i - $find]);
+                $title = preg_replace('/^\/\//s', "", $fg[$i - $find]);
                 $item_field['title'] = $title;
                 $t = "";
                 preg_match('/[\{].+[\}]/i', $title, $t);

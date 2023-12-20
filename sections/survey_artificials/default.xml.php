@@ -5,7 +5,7 @@
 	<parent>menu_artificials</parent>
 	<position>150</position>
 	<title>Rilievi</title>
-	<description>Rilievi delle cavita artificiali</description>
+	<description>Rilievi delle cavit&agrave; artificiali</description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
@@ -13,13 +13,13 @@
 	<accesskey></accesskey>
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
-	<level>0</level>
-	<group_view>w_artificials,r_artificials</group_view>
+	<level></level>
+	<group_view></group_view>
 	<group_edit>w_artificials</group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
 	<title_it>Rilievi</title_it>
-	<description_it>Rilievi delle cavit&amp;agrave; artificiali</description_it>
+	<description_it>Rilievi delle cavit&agrave; artificiali</description_it>
 	<title_en></title_en>
 	<description_en></description_en>
 </fn_sections>
@@ -61,4 +61,5 @@
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>0</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

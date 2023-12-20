@@ -130,4 +130,3 @@ function InizializzaDBPiemonte()
     $TableFRM2->formvals['regione']['frm_default']="PIEMONTE";
 }
 
-InizializzaDBPiemonte();

@@ -1,14 +1,17 @@
 <?php
-
 ob_start();
 global $_FN;
 require_once "include/flatnux.php";
 require_once "modules/dbview/FNDBVIEW.php";
 FN_LoadMessagesFolder("extra/openkis");
- 
+$_FN['enable_compress_gzip']=1;
+
 $exclude=FN_GetParam("exclude",$_GET,"flat");
 $minimal=FN_GetParam("minimal",$_GET,"flat");
 $codes=FN_GetParam("filter_code",$_GET,"flat");
+$zoom=FN_GetParam("zoom",$_GET,"flat");
+$nocache=FN_GetParam("nocache",$_GET,"flat");
+
 $big_icons=!empty($_GET['big_icons']);
 $mod=$_FN['mod'];
 if ($mod== "")
@@ -27,7 +30,7 @@ $config=FN_LoadConfig("modules/dbview/config.php",$mod);
 $dbview=new FNDBVIEW($config);
 $tablename=$config['tables'];
 $table=FN_XmlTable($tablename);
-$fields_to_read=explode(",","code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total,meteorology,fauna,hydrology,closed,photo1");
+$fields_to_read=explode(",","code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total,meteorology,fauna,hydrology,closed,photo1,xxx");
 foreach($fields_to_read as $field)
 {
     if (isset($table->fields[$field]))
@@ -72,7 +75,7 @@ if ($_FN['enable_compress_gzip'])
 }
 $maxtime=max(filectime(__FILE__),$table->GetLastUpdateTime());
 $cache=FN_GetGlobalVarValue("$idcache",$maxtime);
-if (!empty($cache))
+if (!empty($cache) && empty($nocache))
 {
     PrintKml($cache,$filename);
 }
@@ -174,13 +177,18 @@ foreach($results as $item)
         {
             $title=htmlspecialchars($item['code']."-".$item['name']);
         }
-        if (empty($_GET['absolute']))
+        if (empty($_GET['absolute'])) 
         {
             $siteurl=str_replace("https://","//",$_FN['siteurl']);
             $siteurl=str_replace("http://","//",$siteurl);
         }
         //$siteurl=$_FN['siteurl'];
+        
         $icon=$siteurl.openkis_GetIcon($item,$mod);
+        
+       // dprint_r($icon);
+        
+//        die();
 //        $icon=$_FN['siteurl'].openkis_GetIcon($item,$mod);
         /* 88x128 */
         if ($elevation== "")

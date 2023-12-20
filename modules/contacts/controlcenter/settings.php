@@ -7,6 +7,7 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License
  *
  */
+FN_LoadMessagesFolder("modules/contacts/");
 $csv=FN_GetParam("csv",$_GET,"html");
 $opt=FN_GetParam("opt",$_GET,"html");
 $type=FN_GetParam("type",$_GET,"html");

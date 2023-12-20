@@ -129,28 +129,50 @@ var OPS_Map = {
 //--------------------------- export PNG --------------------------------------<
 //--------------------------- ZOOM HIDE LABELS--------------------------------->
         OPS_Map.map.on('moveend', function () {
+            //console.log("on moveend")
             var zoom = OPS_Map.map.getView().getZoom();
             var showPointNames = (zoom > 16) ? true : false;
+            var showPoints = (zoom > 10) ? true : false;
             for (var i in OPS_Map.kmllayers)
             {
-                if (OPS_Map.kmllayers[i].getVisible() && OPS_Map.kmllayers[i].values_.source.format_.showPointNames_ != showPointNames)
+                //OPS_Map.kmllayers[i].showLabels = true;
+//                if (OPS_Map.kmllayers[i].getVisible() && OPS_Map.kmllayers[i].values_.source.format_.showPointNames_ != showPointNames)
+                if (OPS_Map.kmllayers[i].isVisible == "auto")
                 {
-                    console.log("change showPointNames in " + showPointNames);
-                    OPS_Map.kmllayers[i].setSource(new ol.source.Vector({
-                        crossOrigin: "Anonymous",
-                        url: OPS_Map.kmllayers[i].path,
-                        projection: OPS_Map.view.getProjection(),
-                        format: new ol.format.KML(
-                                {
-                                    writeStyles: true,
-                                    showPointNames: showPointNames
-                                })
-                    }));
-                    /*OPS_Map.kmllayers[i].getSource().forEachFeature(function (feature) {
-                     console.log(feature.get("text"));
-                     });*/
+                    OPS_Map.kmllayers[i].setVisible(showPoints);
                 }
+                if (OPS_Map.kmllayers[i].isVisible == "!auto")
+                {
+                    OPS_Map.kmllayers[i].setVisible(!showPoints);
+                }
+
+                if (OPS_Map.kmllayers[i].getVisible() && OPS_Map.kmllayers[i].showPointNames != showPointNames)
+                {
+
+                    if (OPS_Map.kmllayers[i].showLabels === "auto")
+                    {
+                        console.log("change showPointNames in " + showPointNames);
+                        OPS_Map.kmllayers[i].setSource(new ol.source.Vector({
+                            crossOrigin: "Anonymous",
+                            url: OPS_Map.kmllayers[i].path,
+                            projection: OPS_Map.view.getProjection(),
+                            format: new ol.format.KML(
+                                    {
+                                        writeStyles: true,
+                                        showPointNames: showPointNames
+                                    })
+                        }));
+                        //OPS_Map.kmllayers[i].values_.source.format_.showPointNames_ = showPointNames;
+                        // console.log(OPS_Map.kmllayers[i].getSource().setProperties({showPointNames: showPointNames}));//.setProperties({showPointNames: true});
+                        //OPS_Map.kmllayers[i].setProperties({showPointNames: true});
+
+                        OPS_Map.kmllayers[i].showPointNames = showPointNames;
+                    }
+
+                }
+
             }
+            OPS_Map.UpdateOverlays();
         });
 //--------------------------- ZOOM HIDE LABELS---------------------------------<        
     },
@@ -439,14 +461,34 @@ var OPS_Map = {
      * @param {type} path
      * @param {type} isBaselayer
      * @param {type} visible
+     * @param {type} showPointNames
+     * @param {type} searchable
+     * @param {type} layergroup
      * @returns {undefined}
      */
     addKmlLayer: function (title, path, isBaselayer, visible, showPointNames, searchable, layergroup)
     {
+        var isVisible = visible;
+        var _showPointNames;
+        if (typeof visible === 'string' || visible instanceof String)
+        {
+            visible = true;
+        }
         if (showPointNames === undefined)
         {
             showPointNames = false;
+            _showPointNames = true;
         }
+        if (showPointNames === "auto")
+        {
+            showPointNames = false;
+            _showPointNames = "auto";
+        }
+        else
+        {
+            _showPointNames = showPointNames;
+        }
+        
         if (searchable === undefined)
         {
             searchable = true;
@@ -481,12 +523,16 @@ var OPS_Map = {
                     format: new ol.format.KML(
                             {
                                 writeStyles: true,
-                                showPointNames: false
+                                showPointNames: showPointNames
                             })
                 })
             });
+
+
             //var zindex=OPS_Map.kmllayerid+1
             layer.setZIndex(10);
+            layer.showLabels = _showPointNames;
+            layer.visible = visible;
             OPS_Map.layergroups[layergroup].getLayers().array_.push(layer);
 // this.map.get("markerGroup").getLayers() should return the same array
             OPS_Map.map.removeLayer(OPS_Map.layergroups[layergroup]);
@@ -511,9 +557,12 @@ var OPS_Map = {
             });
             //var zindex=OPS_Map.kmllayerid+1
             layer.setZIndex(10);
+            layer.showLabels = _showPointNames;
+            layer.isVisible = isVisible;
             this.kmllayers[OPS_Map.kmllayerid] = layer;
             this.kmllayers[OPS_Map.kmllayerid].path = path;
             this.kmllayers[OPS_Map.kmllayerid].searchable = searchable;
+            this.kmllayers[OPS_Map.kmllayerid].showPointNames = showPointNames;
             OPS_Map.kmllayerid++;
             this.addLayer(layer, isBaselayer);
             OPS_Map.getKmlPoints();
@@ -651,7 +700,7 @@ var OPS_Map = {
         for (var i in this.kmllayers)
         {
 
-            var Layeritems = this.kmllayers[i].values_.source['uidIndex_'];
+            // var Layeritems = this.kmllayers[i].values_.source['uidIndex_'];
             //console.log(this.kmllayers[i].getSource());
             if (this.kmllayers[i].searchable)
             {
@@ -1394,7 +1443,10 @@ var OPS_Map = {
         var elem = document.getElementsByTagName("body")[0];
 
         if (!window.screenTop && !window.screenY) {
-            this.closeFullscreen();
+            try {
+                this.closeFullscreen();
+            } catch (e) {
+            }
         }
 
         if (elem.requestFullscreen) {
@@ -1411,7 +1463,11 @@ var OPS_Map = {
     closeFullscreen: function () {
         var elem = document.getElementsByTagName("body")[0];
         if (document.exitFullscreen) {
-            document.exitFullscreen();
+            try {
+                document.exitFullscreen();
+            } catch (e) {
+            }
+
         } else if (document.mozCancelFullScreen) { /* Firefox */
             document.mozCancelFullScreen();
         } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */

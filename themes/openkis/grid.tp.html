@@ -1,3 +1,50 @@
+<!-- if {filters} -->
+<form method="{method}">
+    <div class="form-row">
+        <!-- foreach {filters} -->
+        <!-- if not {options} -->
+        <div class="form-group col-md-3">
+            <input  class="form-control" type="text" placeholder="{title}" name="{name}" value="{value}" />
+        </div>
+        <!-- end if not {options} -->
+        <!-- if {options} -->
+        <div class="form-group col-md-3">
+            <select  class="form-control" name="{name}"  data-value="{value}" id="select_{name}" >
+                <option value="">{title}</option>
+                <!-- foreach {options} -->
+                <option  value="{value}">{title}</option>
+                <!-- end foreach {options} -->
+            </select>
+            <script>
+                var options = document.getElementById('select_{name}').options;
+                var value = document.getElementsByName('{name}')[0].getAttribute("data-value");
+                var i = 0;
+                var n = 0;
+                for (n = options.length; i < n; i++) {
+                    if (options[i].value === value) {
+                        options[i].selected = true;
+                        break;
+                    }
+                }
+            </script>
+        </div>
+        <!-- end if {options} -->
+        <!-- end foreach {filters} -->
+        <div class="form-group col-md-3">
+            <button class="btn btn-info" type="submit">{i18n:Search}</button>
+        </div>
+
+    </div>        
+    <div class="form-row">
+
+
+        <div class="form-group col-md-3">
+            <button class="btn btn-info" type="button" onclick="window.location = '{urlreset}'">{i18n:Elimina filtri}</button>
+        </div>
+
+    </div>
+</form>
+<!-- end if {filters} -->
 <script type="text/javascript">
     trh = function (over, elem) {
         var old;
@@ -9,38 +56,69 @@
         }
     }
 </script>            
-    <!-- start grid --><ul class="pagination"><!-- start pages -->
-    <!-- start page --><li class="page-item"><a class="page-link" href="{pagelink}">{pagetitle}</a></li> <!-- end page -->
-    <!-- start currentpage --><li class="page-item active" ><a class="page-link" href="{pagelink}">{pagetitle}</a></li> <!-- end currentpage --> 
-    <!-- end pages --></ul>
-    <!-- start table -->
-<div class="table-responsive">
-    <table id="keywords" class="table table-striped table-hover table-responsive text-left">
-        <thead>
-            <!-- start gridheader -->
-            <!-- start gridrow -->
-            <tr>
-                <!-- start gridfields -->
-                <!-- start gridfield --><th>{fieldvalue}</th><!-- end gridfield -->
-                <!-- end gridfields -->
-                <th colspan="{numactions}"> </th>
-            </tr><!-- end gridrow -->
-            <!-- end gridheader -->
-        </thead>
-        <tbody>
-            <!-- start gridbody -->
-            <!-- start gridrow -->
-            <tr>
-                <!-- start gridfields -->
-                <!-- start gridfield --><td>{fieldvalue}</td><!-- end gridfield -->
-                <!-- end gridfields -->
-            </tr>
-            <!-- end gridrow --> 
-            <!-- end gridbody -->
-        </tbody>           
-    </table>
+
+
+
+<div class="no-more-tables" >
+
+    <nav aria-label="">
+        <ul class="pagination">
+            <!-- if {nav_page_prev} -->
+            <li class="page-item"><a class="page-link"  href="{link}">{title}</a></li>
+            <!-- end if {nav_page_prev} -->
+            <!-- foreach {nav_pages} -->
+            <!-- if {current} -->
+            <li class="page-item active"><a class="page-link"  href="{link}">{title}</a></li> 
+            <!-- end if {current} -->
+            <!-- if not {current} -->
+            <li class="page-item"><a class="page-link"  href="{link}">{title}</a></li> 
+            <!-- end if not {current} -->
+            <!-- end foreach {nav_pages} -->
+            <!-- if {nav_page_next} -->
+            <li class="page-item"><a class="page-link"  href="{link}">{title}</a></li>
+            <!-- end if {nav_page_next} -->
+        </ul>
+    </nav>
+    <div class="no-more-tables" >
+        <table id="keywords"  class="table col-sm-12 table-bordered table-striped table-hover table-condensed">
+            <thead class="bg-primary">
+                <tr>
+                    <!-- foreach {headers} -->
+                    <td><a class="text-light" href="{link}">{title}{arrow}</a></td>
+                    <!-- end foreach {headers} -->
+                    <td colspan="{numactions}"></td>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- foreach {rows} -->
+                <tr>
+                    <!-- foreach {cols} -->
+                    <td data-title="{fieldtitle}">{fieldvalue}</td>
+                    <!-- end foreach {cols} -->
+                    <!-- if {action_view} -->
+                    <td ><a class="btn btn-primary" href="{link}" style="white-space: nowrap;">{i18n:Details}</a></td>
+                    <!-- end if {action_view} -->
+                    <!-- if {action_edit} -->
+                    <td><a class="btn btn-primary" href="{link}">{i18n:Edit}</a></td>
+                    <!-- end if {action_edit} -->
+                    <!-- if {action_delete} -->
+                    <td><a class="btn btn-primary" href="#" onclick="if (confirm('{i18n:are you sure you want to delete this content?}')) {
+                                window.location = '{link}'
+                            }">{i18n:Delete}</a></td>
+                    <!-- end if {action_delete} -->
+                </tr>
+                <!-- end foreach {rows} -->
+            </tbody>           
+        </table>
+    </div>  
 </div>
-<br />
-<!-- end table --><!-- end grid --><!-- start insertnew -->
-<p><button  class="btn btn-primary" type="button" onclick="window.location = '{urlnewrecord}'">{textnew}</button></p>
-<!-- end insertnew -->
+
+<!-- if {enablenew} -->
+<p> <button type="button" onclick="window.location = '{urlnewrecord}'" class="btn btn-info">{textnew}</button></p>
+<!-- end if {enablenew} -->
+<!-- if {enableexport} -->
+<button type="button" onclick="window.location = '{urlexport}'" class="btn btn-primary">
+    <span class="glyphicon glyphicon-download" aria-hidden="true"></span> {textexport}</button>
+<!-- end if {enableexport} -->
+
+

@@ -9,7 +9,13 @@
  */
 defined('_FNEXEC') or die('Restricted access');
 global $_FN;
+FN_LoadMessagesFolder("modules/contacts/");
 FN_LoadMessagesFolder("sections/{$_FN['mod']}/");
+
+if (file_exists("sections/{$_FN['mod']}/INS_functions.php"))
+{
+    include("sections/{$_FN['mod']}/INS_functions.php");
+}
 $config=FN_LoadConfig("modules/contacts/config.php");
 $tablename=empty($config['tablename']) ? "contact_message" : $config['tablename'];
 //session_start();
@@ -29,7 +35,7 @@ INS_GestInsert("$tablename");
 function INS_GestInsert($tablename,$params=array())
 {
     global $_FN,$_FNMESSAGE;
-    FN_LoadMessagesFolder("sections/{$_FN['mod']}/");
+    
 
     $captcha=FN_GetParam("captcha",$_POST,"flat");
     $config=FN_LoadConfig("modules/contacts/config.php");
@@ -52,7 +58,7 @@ function INS_GestInsert($tablename,$params=array())
     {
         $newvalues=$Table->GetByPost();
         $newvalues['username']=$_FN['user'];
-        $newvalues['subject']=isset($newvalues['subject']) ? $newvalues['subject'] : $_FN['mod']." ".FN_FormatDate(time());
+        $newvalues['subject']=isset($newvalues['subject']) ? $newvalues['subject'] : $_FN['sectionvalues']['title']." ".FN_FormatDate(time());
         $errors=$Table->Verify($newvalues);
         // checking the value of anti-spam code inserted
         if ($config['enable_captcha']!= 0)
@@ -78,15 +84,27 @@ function INS_GestInsert($tablename,$params=array())
                 $Table->SetLayoutView("table");
                 $mailbody.=$Table->HtmlShowView($newvalues,1);
                 $mailbody.="<br />".FN_Translate("view all messages").":";
-                $mailbody.="<br /><br /><a href=\"{$_FN['siteurl']}/controlcenter.php?mod=contacts&opt=fnc_ccnf_section_contacts\">{$_FN['siteurl']}/controlcenter.php?mod=contacts&opt=fnc_ccnf_section_contacts</a>";
+                
+                //controlcenter.php?opt=fnc_ccnf_section_home
+                $mailbody.="<br /><br /><a href=\"{$_FN['siteurl']}/controlcenter.php?opt=fnc_ccnf_section_{$_FN['mod']}\">{$_FN['siteurl']}/controlcenter.php?opt=fnc_ccnf_section_{$_FN['mod']}</a>";
                 $mailbody.="</pre>";
-                FN_SendMail($usermail,$newvalues['subject'],$mailbody,true);
+                
+                $mails = explode(",",$usermail);
+                foreach($mails as $usermail)
+                {
+                    FN_SendMail($usermail,$newvalues['subject'],$mailbody,true);
+                }
                 $template_path=file_exists("themes/{$_FN['theme']}/modules/contacts/contacts_form_success.tp.html") ? "themes/{$_FN['theme']}/modules/contacts/contacts_form_success.tp.html" : "modules/contacts/contacts_form_success.tp.html";
                 $basepath=dirname($template_path)."/";
                 $templateForm=file_get_contents($template_path);
                 $templateForm=FN_TPL_ApplyTplString($templateForm,array(),$basepath);
                 echo $templateForm;
-                echo "<div />";
+                if (function_exists("INS_OnMessage"))
+                {
+                    INS_OnMessage($newvalues);
+                }
+                
+                //echo "<div />";
                 FN_SetSessionValue("captcha",array("security_code"=>""));
             }
             else

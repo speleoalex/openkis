@@ -140,9 +140,9 @@ function XMLDB_editor_cleanLink($link)
  * @param $params
  * @return unknown_type
  */
-function XMLDB_editor($tablename, $dbname, $params = false)
+function XMLDB_editor($tablename, $params = array())
 {
-
+    $dbname = isset($params['xmldatabase']) ? $params['xmldatabase'] : "xmldatabase";
     //--parametri ---->
     $bgcolorover = isset($params['bgcolorover']) ? $params['bgcolorover'] : "#ffff00";
     $defaultsParams = array(
@@ -279,9 +279,6 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
 
     $urlexport = isset($params['urlexport']) ? $params['urlexport'] : "";
 
-
-
-
     $html = "";
     $tname = $tablename;
     if (is_array($tablename))
@@ -327,6 +324,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     $flink = isset($params['link']) ? $params['link'] : "";
     $flink_listmode = isset($params['link_listmode']) ? $params['link_listmode'] : $params['link'];
     $flink_linkcancel = isset($params['link_cancel']) ? $params['link_cancel'] : "";
+    $flink_linkanchor = isset($params['linkanchor']) ? $params['linkanchor'] : "";
 
     $enableview = isset($params['enableview']) ? $params['enableview'] : false;
     $enabledelete = isset($params['enabledelete']) ? $params['enabledelete'] : true;
@@ -351,6 +349,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     $function_on_delete = isset($params['function_on_delete']) ? $params['function_on_delete'] : "";
 
     $htmlgrid = isset($params['htmlgrid']) ? $params['htmlgrid'] : "";
+
     //force values
     $forcevalues = isset($params['forcevalues']) ? $params['forcevalues'] : false;
     $forcevalues = !empty($params['forcefieldvalues']) ? $params['forcefieldvalues'] : $forcevalues;
@@ -394,7 +393,6 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
 
     $params['maxrows'] = isset($params['maxrows']) ? $params['maxrows'] : false;
 
-
     //--parametri ----<
     //-----variabili da get --------->
     $opmod = isset($_GET["op_$postgetkey"]) ? htmlspecialchars($_GET["op_$postgetkey"]) : "";
@@ -404,6 +402,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
         $page = 1;
 
     $order = isset($_GET["order_$postgetkey"]) ? htmlspecialchars($_GET["order_$postgetkey"]) : "";
+
     if ($order != "")
     {
         $reverse = isset($_GET["desc_$postgetkey"]) ? htmlspecialchars($_GET["desc_$postgetkey"]) : "";
@@ -569,10 +568,15 @@ set_changed();
     {
         $fields_filters_names[$k] = str_replace("%", "", $fields_filter);
     }
+    $filters_post_exists = false;
     foreach ($table->formvals as $k => $v)
     {
         if (in_array($k, $fields_filters_names))
         {
+            if (isset($_POST["search{$postgetkey}_" . $k]))
+            {
+                $filters_post_exists = true;
+            }
             if (!empty($_POST["search{$postgetkey}_" . $k]))
             {
                 $filters_by_post[$k] = FN_GetParam("search{$postgetkey}_" . $k, $_POST, "html");
@@ -580,7 +584,8 @@ set_changed();
         }
     }
     $filters_by_get = json_decode(FN_GetParam("filter{$postgetkey}", $_GET, "flat"), JSON_OBJECT_AS_ARRAY);
-    if (is_array($filters_by_get))
+
+    if (is_array($filters_by_get) && $filters_post_exists == false)
     {
         $array_filters = array_merge($filters_by_get, $filters_by_post);
     }
@@ -606,16 +611,13 @@ set_changed();
                 $tplvars['text_on_insert_fail'] = "";
                 $tplvars['text_on_insert_ok'] = "";
 
-
-
                 $layout_template = $scriptOnExit . $layout_template;
 
                 $endloop = true;
 
                 $html .= "" . $scriptOnExit;
                 $newvalues = $table->getbypost();
-                
-                
+
                 if (is_array($forcevalues))
                 {
                     foreach ($forcevalues as $k => $v)
@@ -644,8 +646,8 @@ set_changed();
                         $newvalues[$k] = $v;
                     }
                 }
-                
-                
+
+
                 if ($toupdate && !$enableedit)
                     break;
                 if (!$toupdate && !$enablenew)
@@ -670,15 +672,14 @@ set_changed();
                     elseif (isset($_POST[$table->xmltable->primarykey]) && $pk)
                     {
                         if ($oldvalues_verify = $table->xmltable->GetRecordByPk($_POST[$table->xmltable->primarykey]))
-                        {                            
+                        {
                             $toupdate = true;
                         }
                     }
                     if ($toupdate && isset($oldvalues_verify) && is_array($oldvalues_verify))
                     {
-                        $newvalues_verify = array_merge($oldvalues_verify,$newvalues);
+                        $newvalues_verify = array_merge($oldvalues_verify, $newvalues);
                         $errors = $table->Verify($newvalues_verify, true);
-                        
                     }
                     else
                     {
@@ -694,6 +695,8 @@ set_changed();
                             }
                             else
                                 $newvalues = $table->UpdateRecord($newvalues, $pk);
+
+
                             if (is_array($table->xmltable->primarykey))
                             {
                                 $pk = array();
@@ -744,6 +747,7 @@ set_changed();
                             {
                                 $newvalues = $table->InsertRecord($newvalues);
                             }
+
                             if (is_array($newvalues) && count($newvalues) > 0)
                             {
                                 $oldvalues = $newvalues;
@@ -766,6 +770,10 @@ set_changed();
                                 $html = XMLDBEDITOR_HtmlAlert($textinsertok) . $html;
                                 $tplvars['text_on_insert_ok'] = $textinsertok;
                                 $toupdate = true;
+                                if (!$enableedit)
+                                {
+                                    $list_oninsert = true;
+                                }
                             }
                             else
                             {
@@ -820,13 +828,11 @@ set_changed();
                  */
                 $urlquery = (http_build_query($httpqueryparams));
 
-
-
                 //---------- $httpqueryparams ins new--<             
                 $link_ = XMLDB_editor_mergelink($tlink, "$urlquery&amp;op_$postgetkey=insnew");
                 $tplvars['action'] = $link_;
                 $tplvars['form_onchange'] = "set_changed()";
-
+//
                 $html .= "<form onchange=\"set_changed()\" enctype=\"multipart/form-data\" action=\"$link_\" method=\"post\"><div>\n";
                 if ($toupdate)
                 {
@@ -859,6 +865,7 @@ set_changed();
                     $html .= $htmlform;
                     $tplvars['htmlform'] = $htmlform;
                 }
+                $tplvars['html_on_insert'] = "";
                 if ($functioninsert != "" && function_exists($functioninsert))
                 {
                     ob_start();
@@ -871,6 +878,21 @@ set_changed();
                 $html .= "<br />$hiddenfield<button  type=\"submit\"   >" . $textsave . "</button>";
                 //dprint_r($tplvars);
                 $tplvars['text_cancel'] = $textcancel;
+                $link_modify = "";
+                $link_view = "";
+
+                if ($enableedit)
+                {
+                    $link_modify = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                }
+                if ($enableview)
+                {
+                    $link_view = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                }
+
+                $tplvars['link_modify'] = $link_modify;
+                $tplvars['link_view'] = $link_view;
+
                 if ($textcancel != "")
                 {
                     $link_ = XMLDB_editor_mergelink("", $mlink);
@@ -878,21 +900,17 @@ set_changed();
                     {
                         $link_ = XMLDB_editor_mergelink("", $flink_linkcancel);
                     }
+                    $link_ .= $flink_linkanchor;
                     $tplvars['url_cancel'] = $link_;
-
 
                     $html .= "&nbsp;<button id='exit_$postgetkey' type=\"button\" onclick=\"window.location='" . str_replace("&amp;", "&", $link_) . "'\" >" . $textcancel . "</button>";
                 }
                 $html .= "\n</div></form>";
 
-
-
-
-
                 if ($textviewlist)
                 {
                     $link_textviewlist = XMLDB_editor_mergelink($flink_listmode, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
-                    $html .= "<br /><a  href=\"$link_textviewlist\">$textviewlist</a> ";
+                    $html .= "<br /><a  href=\"$link_textviewlist$flink_linkanchor\">$textviewlist</a> ";
                 }
 
                 if (false !== strstr($layout_template, "<form"))
@@ -900,6 +918,7 @@ set_changed();
                     $layout_template = TPL_ReplaceHtmlPart("contents", "{htmlform}$hiddenfield", $layout_template);
                     $html = TPL_ApplyTplString($layout_template, $tplvars, "", $params);
                 }
+                $return = $params;
                 break;
             //-------inserimento/aggiornamento record  ---------<
             case "view" :
@@ -920,8 +939,28 @@ set_changed();
                 }
                 $html .= $table->HtmlShowView($table->GetRecordTranslatedByPrimarykey($pk));
                 $linkviewlist = XMLDB_editor_mergelink($flink_listmode, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
-                $tplvars["link_view_list"] = $linkviewlist;
-                $html .= "<br /><br /><a style=\"color:$linkcolor\" href=\"$linkviewlist\">$textviewlist</a><br /><br />";
+                $tplvars["link_view_list"] = $linkviewlist . $flink_linkanchor;
+                $html .= "<br /><br /><a style=\"color:$linkcolor\" href=\"$linkviewlist$flink_linkanchor\">$textviewlist</a><br /><br />";
+
+                $link_modify = "";
+                $link_view = "";
+                $httpqueryparams = array();
+                $httpqueryparams["pk_{$postgetkey}"] = $pk;
+                $httpqueryparams["page_$postgetkey"] = $page;
+                $httpqueryparams["op_$postgetkey"] = $page;
+                $httpqueryparams["desc_"] = $reverse;
+                $httpqueryparams["order_$postgetkey"] = $order;
+                $urlquery = (http_build_query($httpqueryparams));
+                if ($enableedit)
+                {
+                    $link_modify = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                }
+                if ($enableview)
+                {
+                    $link_view = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                }
+                $tplvars['link_modify'] = $link_modify;
+                $tplvars['link_view'] = $link_view;
 
                 if (isset($params['html_template_view']) && false !== strstr($params['html_template_view'], "<!-- if "))
                 {
@@ -933,6 +972,8 @@ set_changed();
                     }
                     $html = TPL_ApplyTplString($layout_template_view, $tplvars, "$basepath_template_dir", $params);
                 }
+                $return = $params;
+
                 break;
             default :
                 $tplvars = array();
@@ -953,7 +994,6 @@ set_changed();
                             $params['template_path'] = dirname($params['html_template_grid']);
                         $params['html_template_grid'] = file_get_contents($params['html_template_grid']);
                     }
-                    
                 }
 
                 $tplvars['filters'] = array();
@@ -1093,7 +1133,7 @@ set_changed();
                     $html .= $htmlgrid;
                 else
                 {
-                    $fieldstoread = $__fieldstoread = false;
+                    $fieldstoread = $__fieldstoread = array();
                     if ($fields != false && !is_array($fields))
                     {
                         $fields = explode("|", $fields);
@@ -1118,7 +1158,10 @@ set_changed();
                     if ($params['defaultorder'] == false)
                         $params['defaultorder'] = is_array($table->xmltable->primarykey) ? $table->xmltable->primarykey[0] : $table->xmltable->primarykey;
                     if ($order == false)
+                    {
                         $order = $params['defaultorder'];
+                        //$reverse = isset($params['defaultorderdesc']) ? $params['defaultorderdesc'] : false;
+                    }
                     $order = preg_replace("/\[.*\]/s", "", $order);
                     $numPages = 1;
                     $all = false;
@@ -1204,7 +1247,8 @@ set_changed();
                             //first page --->
                             $s = array("{pagelink}", "{pagetitle}");
                             $r = array();
-                            $link_ = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=1&amp;order_{$postgetkey}=$order&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                            $link_ = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=1&amp;order_{$postgetkey}=$order&amp;desc_{$postgetkey}=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                            $link_ .= $flink_linkanchor;
                             $r['pagelink'] = "$link_";
                             $r['pagetitle'] = "&lt;&lt;";
                             $htmlpages .= str_replace($s, $r, $template_page);
@@ -1213,7 +1257,8 @@ set_changed();
                             //prev page --->
                             $s = array("{pagelink}", "{pagetitle}");
                             $r = array();
-                            $link_ = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=" . ($page - 1) . "&amp;order_{$postgetkey}=$order&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                            $link_ = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=" . ($page - 1) . "&amp;order_{$postgetkey}=$order&amp;desc_{$postgetkey}=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                            $link_ .= $flink_linkanchor;
                             $r['pagelink'] = "$link_";
                             $r['pagetitle'] = "&lt;";
                             $htmlpages .= str_replace($s, $r, $template_page);
@@ -1224,7 +1269,8 @@ set_changed();
                         {
                             $s = array("{pagelink}", "{pagetitle}");
                             $r = array();
-                            $link_ = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=$i&amp;order_{$postgetkey}=$order&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                            $link_ = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=$i&amp;order_{$postgetkey}=$order&amp;desc_{$postgetkey}=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                            $link_ .= $flink_linkanchor;
                             $r['pagelink'] = "$link_";
                             $r['pagetitle'] = $i;
                             $tmp_nav_page['link'] = $link_;
@@ -1254,7 +1300,7 @@ set_changed();
                         //next page --->
                         $s = array("{pagelink}", "{pagetitle}");
                         $r = array();
-                        $r['pagelink'] = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=" . ($page + 1) . "&amp;order_{$postgetkey}=$order&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                        $r['pagelink'] = XMLDB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=" . ($page + 1) . "&amp;order_{$postgetkey}=$order&amp;desc_{$postgetkey}=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
                         $r['pagetitle'] = "&gt;";
                         $htmlpages .= str_replace($s, $r, $template_page);
                         $tplvars['nav_page_next'] = array("title" => $r['pagetitle'], "link" => $r['pagelink']);
@@ -1262,7 +1308,8 @@ set_changed();
                         //last page --->
                         $s = array("{pagelink}", "{pagetitle}");
                         $r = array();
-                        $link_ = XMLDB_editor_mergelink("$flink_listmode", "?page_{$postgetkey}=$numPages&amp;order_{$postgetkey}=$order&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                        $link_ = XMLDB_editor_mergelink("$flink_listmode", "?page_{$postgetkey}=$numPages&amp;order_{$postgetkey}=$order&amp;desc_{$postgetkey}=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                        $link_ .= $flink_linkanchor;
                         $r['pagelink'] = "$link_";
                         $r['pagetitle'] = "&gt;&gt;";
                         $htmlpages .= str_replace($s, $r, $template_page);
@@ -1270,24 +1317,10 @@ set_changed();
                         //end last page ---<
                     }
                     $htmlpages_full = $htmlpages;
-                    if ($order != false)
-                    {
-                        if (is_array($all))
-                        {
-                            $all = xmldb_array_natsort_by_key($all, str_replace("{$postgetkey}", "", $order));
-                        }
-                    }
-                    if ($reverse == true && is_array($all))
-                    {
-                        $all = array_reverse($all);
-                    }
-
-
 
                     //----------------------header----------------------------->
                     $html_GridHeader = "";
                     $orderfield = array();
-
 
                     if ($fields)
                     {
@@ -1320,10 +1353,11 @@ set_changed();
                         $orderfield = $table->formvals;
                     $numcols = 0;
 
-
                     $tplvars['headers'] = array();
+                    $numcol = 0;
                     foreach ($orderfield as $key => $value)
                     {
+                        $numcol++;
                         $tmp_header = is_array($value) ? $value : array("title" => "", "value" => $value);
                         $tmp_header['id'] = $key;
                         $tmp_header['arrow'] = "";
@@ -1342,25 +1376,36 @@ set_changed();
                                 $desclink = "";
                                 if ($order == $key)
                                 {
-                                    if ($reverse)
+                                    if (false === strstr("<", $value['title']))
                                     {
-                                        $t = "<img style=\"vertical-align:middle;float:right\" src=\"{$siteurl}images/fn_up.png\" alt=\"\" />";
-                                        $desclink = "";
-                                    }
-                                    else
-                                    {
-                                        $t = "<img style=\"vertical-align:middle;float:right\" src=\"{$siteurl}images/fn_down.png\" alt=\"\" />";
-                                        $desclink = "&amp;desc_{$postgetkey}=$key";
+                                        if ($reverse)
+                                        {
+                                            $t = "<img style=\"vertical-align:middle;float:right\" src=\"{$siteurl}images/fn_up.png\" alt=\"\" />";
+                                            $desclink = "";
+                                        }
+                                        else
+                                        {
+                                            $t = "<img style=\"vertical-align:middle;float:right\" src=\"{$siteurl}images/fn_down.png\" alt=\"\" />";
+                                            $desclink = "&amp;desc_{$postgetkey}=$key";
+                                        }
                                     }
                                 }
                                 $tmp_html = str_replace("{fieldvalue}", "" . $value['title'], $template_gridheader_gridrow_gridfield);
                                 $link_ = XMLDB_editor_mergelink("$tlink", "?order_{$postgetkey}=$key{$desclink}&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                                $link_ .= $flink_linkanchor;
+                                if (false !== strstr("<", $value['title']))
+                                {
+                                    $link_ = "#";
+                                }
+
                                 $tmp_html = str_replace("{link}", "$link_", $tmp_html);
                                 $tmp_html = str_replace("{numcols}", $numcols, $tmp_html);
+                                $tmp_html = str_replace("{numcol}", $numcol, $tmp_html);
                                 $tmp_html = str_replace("{arrow}", $t, $tmp_html);
                                 $html_GridHeader .= $tmp_html;
                                 $tmp_header['link'] = $link_;
                                 $tmp_header['numcols'] = $numcols;
+                                $tmp_header['numcol'] = $numcol;
                                 $tmp_header['arrow'] = $t;
                             }
                             else
@@ -1382,12 +1427,48 @@ set_changed();
                     $html_GridRow = preg_replace('/(<!-- start gridfields -->)(.*)(<!-- end gridfields -->)/is', xmldb_encode_preg_replace2nd($html_GridHeader), $template_gridheader_gridrow);
                     $html_GridHeader = preg_replace('/(<!-- start gridrow -->)(.*)(<!-- end gridrow -->)/is', xmldb_encode_preg_replace2nd($template_gridheader_gridrow), $html_GridRow);
 
-
                     //----------------------header-----------------------------<
                     $i = 1;
                     static $tablefk = array();
                     $html_gridbody = "";
                     $tplvars['rows'] = array();
+
+                    //----order------------------------------------------------>
+                    if (is_array($all) && count($all) > 0)
+                    {
+                        foreach ($all as $idk => $row)
+                        {
+                            foreach ($orderfield as $key => $field)
+                            {
+
+                                $kfunction = (false !== strpos($key, "()")) ? str_replace("()", "", $key) : false;
+                                if (false !== strpos($kfunction, "]"))
+                                {
+                                    $kfunction = explode("]", $kfunction);
+                                    $kfunction = $kfunction[1];
+                                }
+                                if (function_exists($kfunction))
+                                {
+                                    $value = $kfunction($row[$table->xmltable->primarykey], $table, $row);
+                                    $all[$idk][$kfunction] = ($value);
+                                }
+                            }
+                        }
+                    }
+                    if ($order != false)
+                    {
+                        if (is_array($all))
+                        {
+                            $order = str_replace("()", "", $order);
+                            $all = xmldb_array_natsort_by_key($all, str_replace("{$postgetkey}", "", $order));
+                        }
+                    }
+                    if ($reverse == true && is_array($all))
+                    {
+                        $all = array_reverse($all);
+                    }
+                    //----order------------------------------------------------<
+
                     if (is_array($all) && count($all) > 0)
                     {
 
@@ -1425,10 +1506,11 @@ set_changed();
 
 
 
-                                $tmp_row['action_view'] = false;
+                                $tmp_row['action_view'] = array();
                                 if ($enableview)
                                 {
                                     $link_ = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                                    $link_ .= $flink_linkanchor;
                                     $tmp_row['action_view']['link'] = $link_;
                                     $tmp_row['action_view']['html'] = $textview;
                                     $tmp_row['action_view']['text'] = strip_tags($textview);
@@ -1436,6 +1518,7 @@ set_changed();
                                 if ($enableedit)
                                 {
                                     $link_ = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                                    $link_ .= $flink_linkanchor;
                                     $tmp_row['action_edit']['link'] = $link_;
                                     $tmp_row['action_edit']['html'] = $textmodify;
                                     $tmp_row['action_edit']['text'] = strip_tags($textmodify);
@@ -1443,6 +1526,7 @@ set_changed();
                                 if ($enabledelete)
                                 {
                                     $link_ = XMLDB_editor_mergelink($mlink, "$urlquery&op_$postgetkey=del&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                                    $link_ .= $flink_linkanchor;
                                     $tmp_row['action_delete']['link'] = $link_;
                                     $tmp_row['action_delete']['html'] = $textdelete;
                                     $tmp_row['action_delete']['text'] = strip_tags($textdelete);
@@ -1468,11 +1552,17 @@ set_changed();
                                     }
                                 }
                                 $tmp_row['cols'] = array();
-
+                                $numcol = 0;
                                 foreach ($orderfield as $key => $field)
                                 {
+
                                     $tmp_col = array();
                                     $tmp_col['fieldvalue'] = "";
+                                    $tmp_col['fieldname'] = $key;
+                                    $tmp_col['fieldtitle'] = $key;
+
+                                    $tmp_col['action_view'] = $tmp_row['action_view'];
+
                                     $kfunction = (false !== strpos($key, "()")) ? str_replace("()", "", $key) : false;
                                     if (false !== strpos($kfunction, "]"))
                                     {
@@ -1484,6 +1574,8 @@ set_changed();
                                         continue;
 
                                     $vimage = "";
+                                    $numcol++;
+
                                     if ($show_translations == true || !isset($table->formvals[$key]['frm_multilanguage']) || $table->formvals[$key]['frm_multilanguage'] != "1")
                                     {
                                         if (isset($functionsview[$key]))
@@ -1492,7 +1584,7 @@ set_changed();
                                         }
                                         elseif (function_exists($kfunction))
                                         {
-                                            $value = $kfunction($row[$table->xmltable->primarykey], $table);
+                                            $value = $all[$idk][$kfunction];
                                         }
                                         elseif (!isset($field['name']))
                                         {
@@ -1578,17 +1670,23 @@ set_changed();
                                                     }
                                                 }
                                             }
+                                            $value = isset($value) ? $value : "";
                                             $value = XMLDB_FixEncoding(substr(strip_tags($value), 0, $params['max_cell_text_lenght']), $params['charset_page']);
                                         }
 
                                         $fieldtitle = (!empty($field['title'])) ? $field['title'] : "";
                                         $html_gridfields .= str_replace("{fieldtitle}", $fieldtitle, str_replace("{fieldvalue}", "$vimage$value", $template_gridbody_gridrow_gridfield));
+                                        $tmp_col['fieldname'] = $key;
                                         $tmp_col['fieldtitle'] = "$fieldtitle";
                                         $tmp_col['fieldvalue'] = "$vimage$value";
                                     }
+
+                                    $tmp_col['fieldnumber'] = $numcol;
+                                    $tmp_col['field_' . $tmp_col['fieldname']]['action_view'] = isset($tmp_row['action_view']) ? $tmp_row['action_view'] : false;
+                                    $tmp_col['field_' . $tmp_col['fieldname']]['action_edit'] = isset($tmp_row['action_edit']) ? $tmp_row['action_edit'] : false;
+                                    $tmp_col['field_' . $tmp_col['fieldname']]['action_delete'] = isset($tmp_row['action_delete']) ? $tmp_row['action_delete'] : false;
                                     $tmp_row['cols'][] = $tmp_col;
                                 }
-
                                 //---------- $httpqueryparams actions-->
 
                                 if (empty($params['actions_before_fields']))
@@ -1596,18 +1694,20 @@ set_changed();
                                     if ($enableview && $numcols++)
                                     {
                                         $link_ = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                                        $link_ = $link_ . $flink_linkanchor;
                                         $html_gridfields .= str_replace("{fieldtitle}", "", str_replace("{fieldvalue}", "<a href=\"$link_\">" . $textview . "</a>", $template_gridbody_gridrow_gridfield));
                                     }
                                     if ($enableedit && $numcols++)
                                     {
                                         $link_ = XMLDB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
-
+                                        $link_ = $link_ . $flink_linkanchor;
                                         $html_gridfields .= str_replace("{fieldtitle}", "", str_replace("{fieldvalue}", "<a href=\"$link_\">" . $textmodify . "</a>", $template_gridbody_gridrow_gridfield));
                                     }
                                     if ($enabledelete && $numcols++)
                                     {
 
                                         $link_ = XMLDB_editor_mergelink($mlink, "$urlquery&op_$postgetkey=del&amp;filter{$postgetkey}=$link_FiltersEncoded");
+                                        $link_ = $link_ . $flink_linkanchor;
                                         $html_gridfields .= str_replace("{fieldtitle}", "", str_replace("{fieldvalue}", "<a href=\"javascript:check('$link_');\">" . $textdelete . "</a>", $template_gridbody_gridrow_gridfield));
                                     }
                                 }
@@ -1653,12 +1753,16 @@ set_changed();
                 }
                 $endloop = true;
                 //---------------------------GRID------------------------------<
-
+                $return = $params;
                 break;
         }
     }
     if ($params['echo'] == true)
         echo $html;
+    if (!empty("return_params"))
+    {
+        return $return;
+    }
     //dprint_r($_POST);
     return $html;
 }

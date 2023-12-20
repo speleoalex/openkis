@@ -11,7 +11,7 @@
 "telephone","Telefono"
 "message","Messaggio"
 "sent message","Invia messaggio"
-"view all messages"."visualizza tutti i messaggi"
+"view all messages","visualizza tutti i messaggi"
 "name","nome"
 "surname","cognome"
 "read message","leggi messaggio"
@@ -21,5 +21,7 @@
 "new messages","nuovi messaggi"
 "edit message fields","modifica campi dei messaggi"
 "download list of messages","scarica la lista dei messaggi"
+"archive","archivia"
+"unarchive","disarchivia"
 
 

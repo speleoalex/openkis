@@ -19,6 +19,13 @@
         <view_hiddentitle>1</view_hiddentitle>
     </field>
     <field>
+        <name>code</name>
+        <frm_i18n>code</frm_i18n>
+        <view_show>0</view_show>
+        <type>uppercase</type>
+        <frm_required>1</frm_required>
+    </field>      
+    <field>
         <name>areas</name>
         <frm_it>Area carsica</frm_it>
         <type>string</type>

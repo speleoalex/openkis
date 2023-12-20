@@ -9,72 +9,81 @@
 defined('_FNEXEC') or die('Restricted access');
 global $_FN;
 //extra editor params 
-$_FN['modparams'][$_FN['mod']]['editorparams']=isset($_FN['modparams'][$_FN['mod']]['editorparams']) ? $_FN['modparams'][$_FN['mod']]['editorparams'] : array();
+$_FN['modparams'][$_FN['mod']]['editorparams'] = isset($_FN['modparams'][$_FN['mod']]['editorparams']) ? $_FN['modparams'][$_FN['mod']]['editorparams'] : array();
+
+if (isset($_GET['debug']))
+{
+    dprint_r(__FILE__ . " " . __LINE__ . " : " . FN_GetExecuteTimer());    
+}
 require_once "modules/dbview/FNDBVIEW.php";
+if (isset($_GET['debug']))
+{
+    dprint_r(__FILE__ . " " . __LINE__ . " : " . FN_GetExecuteTimer());
+}
 if (file_exists("sections/{$_FN['mod']}/custom_functions.php"))
     require_once "sections/{$_FN['mod']}/custom_functions.php";
 
-$file=FN_GetParam("file",$_GET,"flat");
-$config=FN_LoadConfig();
-$dbview=new FNDBVIEW($config);
+$file = FN_GetParam("file", $_GET, "flat");
+$config = FN_LoadConfig();
+$dbview = new FNDBVIEW($config);
 
-if ((false=== strpos($file,"..")) && $file!= "" && file_exists("sections/{$_FN['mod']}/$file"))
+if ((false === strpos($file, "..")) && $file != "" && file_exists("sections/{$_FN['mod']}/$file"))
 {
     include "sections/{$_FN['mod']}/$file";
 }
 else
 {
     $dbview->Init();
-    $id=FN_GetParam("id",$_GET,"html");
-    $op=FN_GetParam("op",$_GET,"html");
-    $downloadfile=FN_GetParam("downloadfile",$_GET);
-    $mode=FN_GetParam("mode",$_GET);
+    $id = FN_GetParam("id", $_GET, "html");
+    $op = FN_GetParam("op", $_GET, "html");
+    $downloadfile = FN_GetParam("downloadfile", $_GET);
+    $mode = FN_GetParam("mode", $_GET);
 //-------------------------------config---------------------------------------->    
-    $tablename=$config['tables'];
-    $recordsperpage=$config['recordsperpage'];
-    $config['search_orders']=explode(",",$config['search_orders']);
-    $config['search_options']=explode(",",$config['search_options']);
-    $config['navigate_groups']=explode(",",$config['navigate_groups']);
-    $config['search_fields']=explode(",",$config['search_fields']);
-    $config['search_partfields']=explode(",",$config['search_partfields']);
+    $tablename = $config['tables'];
+    $recordsperpage = $config['recordsperpage'];
+    $config['search_orders'] = explode(",", $config['search_orders']);
+    $config['search_options'] = explode(",", $config['search_options']);
+    $config['navigate_groups'] = explode(",", $config['navigate_groups']);
+    $config['search_fields'] = explode(",", $config['search_fields']);
+    $config['search_partfields'] = explode(",", $config['search_partfields']);
 //-------------------------------config----------------------------------------<
-    if ($id!= "" && $op== "")
+    if ($id != "" && $op == "")
     {
-        $op="view";
+        $op = "view";
     }
-    if ($mode== "go")
+    if ($mode == "go")
     {
         $dbview->GoDownload($downloadfile);
         exit();
     }
-    $html="";
-    require_once $_FN['filesystempath']."/include/xmldb_frm_search.php";
-    $Table=FN_XmlForm($tablename);
-    $Search=new xmldb_searchform($_FN['database'],$tablename,$_FN['datadir'],$_FN['lang'],$_FN['languages'],false);
-    $html.=$Search->HtmlSearchForm();
+    $html = "";
+    require_once $_FN['filesystempath'] . "/include/xmldb_frm_search.php";
+    $Table = FN_XmlForm($tablename);
+    $Search = new xmldb_searchform($_FN['database'], $tablename, $_FN['datadir'], $_FN['lang'], $_FN['languages'], false);
+    $html .= $Search->HtmlSearchForm();
     if ($config['enable_permissions_each_records'])
     {
         if (!isset($Table->formvals['groupview']))
         {
-            $field=array();
-            $field['name']='groupview';
-            $field['frm_i18n']='limits the display of the content in these groups';
-            $field['foreignkey']='fn_groups';
-            $field['fk_link_field']='groupname';
-            $field['fk_show_field']='groupname';
-            $field['frm_type']='multicheck';
-            $field['type']='string';
-            addxmltablefield($_FN['database'],$tablename,$field,$_FN['datadir']);
+            $field = array();
+            $field['name'] = 'groupview';
+            $field['frm_i18n'] = 'limits the display of the content in these groups';
+            $field['foreignkey'] = 'fn_groups';
+            $field['fk_link_field'] = 'groupname';
+            $field['fk_show_field'] = 'groupname';
+            $field['frm_type'] = 'multicheck';
+            $field['type'] = 'string';
+            addxmltablefield($_FN['database'], $tablename, $field, $_FN['datadir']);
         }
-        $Table->formvals['groupview']['frm_show']=1;
-        if ($config['permissions_records_groups']!= "")
+        $Table->formvals['groupview']['frm_show'] = 1;
+        if ($config['permissions_records_groups'] != "")
         {
-            $allAllowedGroups=explode(",",$config['permissions_records_groups']);
+            $allAllowedGroups = explode(",", $config['permissions_records_groups']);
             if (isset($Table->formvals['groupview']['options']))
             {
-                foreach($Table->formvals['groupview']['options'] as $k=> $v)
+                foreach ($Table->formvals['groupview']['options'] as $k => $v)
                 {
-                    if (!in_array($v['value'],$allAllowedGroups))
+                    if (!in_array($v['value'], $allAllowedGroups))
                     {
                         unset($Table->formvals['groupview']['options'][$k]);
                     }
@@ -86,7 +95,7 @@ else
     {
         if (isset($Table->formvals['groupview']))
         {
-            $Table->formvals['groupview']['frm_show']=0;
+            $Table->formvals['groupview']['frm_show'] = 0;
         }
     }
 
@@ -95,34 +104,34 @@ else
     {
         if (!isset($Table->formvals['groupinsert']))
         {
-            $field=array();
-            $field['name']='groupinsert';
-            $field['frm_i18n']='limits the edit of the content to these groups';
-            $field['foreignkey']='fn_groups';
-            $field['fk_link_field']='groupname';
-            $field['fk_show_field']='groupname';
-            $field['frm_type']='multicheck';
-            $field['type']='string';
-            $field['frm_setonlyadmin']='1';
-            $field['frm_allowupdate']='onlyadmin';
-            $field['type']='string';
-            addxmltablefield($_FN['database'],$tablename,$field,$_FN['datadir']);
+            $field = array();
+            $field['name'] = 'groupinsert';
+            $field['frm_i18n'] = 'limits the edit of the content to these groups';
+            $field['foreignkey'] = 'fn_groups';
+            $field['fk_link_field'] = 'groupname';
+            $field['fk_show_field'] = 'groupname';
+            $field['frm_type'] = 'multicheck';
+            $field['type'] = 'string';
+            $field['frm_setonlyadmin'] = '1';
+            $field['frm_allowupdate'] = 'onlyadmin';
+            $field['type'] = 'string';
+            addxmltablefield($_FN['database'], $tablename, $field, $_FN['datadir']);
         }
-        if (!empty($config['groupadmin']) && FN_UserInGroup($_FN['user'],$config['groupadmin']))
+        if (!empty($config['groupadmin']) && FN_UserInGroup($_FN['user'], $config['groupadmin']))
         {
-            $Table->formvals['groupinsert']['frm_show']=1;
+            $Table->formvals['groupinsert']['frm_show'] = 1;
             unset($Table->formvals['groupinsert']['frm_setonlyadmin']);
-            $Table->formvals['groupinsert']['frm_allowupdate']="";
+            $Table->formvals['groupinsert']['frm_allowupdate'] = "";
         }
 
-        if ($config['permissions_records_edit_groups']!= "")
+        if ($config['permissions_records_edit_groups'] != "")
         {
-            $allAllowedGroups=explode(",",$config['permissions_records_edit_groups']);
+            $allAllowedGroups = explode(",", $config['permissions_records_edit_groups']);
             if (isset($Table->formvals['groupinsert']['options']))
             {
-                foreach($Table->formvals['groupinsert']['options'] as $k=> $v)
+                foreach ($Table->formvals['groupinsert']['options'] as $k => $v)
                 {
-                    if (!in_array($v['value'],$allAllowedGroups))
+                    if (!in_array($v['value'], $allAllowedGroups))
                     {
                         unset($Table->formvals['groupinsert']['options'][$k]);
                     }
@@ -134,13 +143,13 @@ else
     {
         if (isset($Table->formvals['groupinsert']))
         {
-            $Table->formvals['groupinsert']['frm_show']=0;
+            $Table->formvals['groupinsert']['frm_show'] = 0;
         }
     }
 //-----------------------------principale ------------------------------------->
     if ($dbview->CanViewRecords())
     {
-        switch($op)
+        switch ($op)
         {
             case "offlineform":
                 if ($id)
@@ -149,66 +158,65 @@ else
                     $dbview->GenOfflineInsert();
                 break;
             case "history" :
-                $shownavigatebar=true;
+                $shownavigatebar = true;
                 if ($config['enable_history'])
-                    $html.=$dbview->ViewRecordHistory($id,false,$shownavigatebar); // visualizza la pagina col record
+                    $html .= $dbview->ViewRecordHistory($id, false, $shownavigatebar); // visualizza la pagina col record
                 break;
             case "view" :
-                $shownavigatebar=true;
+                $shownavigatebar = true;
                 if (isset($_GET['embed']))
-                    $shownavigatebar=false;
+                    $shownavigatebar = false;
                 if (!empty($_GET['inner']))
-                    $shownavigatebar=false;
-                $html.=$dbview->ViewRecordPage($id,false,$shownavigatebar); // visualizza la pagina col record
+                    $shownavigatebar = false;
+                $html .= $dbview->ViewRecordPage($id, false, $shownavigatebar); // visualizza la pagina col record
                 break;
             case "writecomment" :
-                $html.=$dbview->WriteComment($id);
+                $html .= $dbview->WriteComment($id);
                 break;
             case "request" :
-                $html.=$dbview->Request($id);
+                $html .= $dbview->Request($id);
                 break;
             case "edit" :
-                
-                $html.=$dbview->EditRecordForm($id,$Table); // form edita record
+
+                $html .= $dbview->EditRecordForm($id, $Table); // form edita record
                 if (file_exists("sections/{$_FN['mod']}/bottom_edit.php"))
                 {
                     include ("sections/{$_FN['mod']}/bottom_edit.php");
-                   
                 }
-                
-               
+
+
                 break;
             case "new" :
                 if (isset($_POST['xmldbsave']))
                 {
-                    $html.=$dbview->InsertRecord($Table);
-                    $html.=$dbview->WriteSitemap();
+                    $html .= $dbview->InsertRecord($Table);
+                    $html .= $dbview->WriteSitemap();
                 }
                 else
                 {
-                    $html.=$dbview->NewRecordForm($Table); //  form nuovo record
+                    $html .= $dbview->NewRecordForm($Table); //  form nuovo record
                 }
                 break;
             case "users" :
-                $html.=$dbview->UsersForm($id); //  form nuovo record
+                $html .= $dbview->UsersForm($id); //  form nuovo record
                 break;
             case "admingroups" :
-                $html.=$dbview->AdminPerm($id); //  permessi records
+                $html .= $dbview->AdminPerm($id); //  permessi records
                 break;
             case "delcomment" :
-                $html.=$dbview->DelComment($id); //  form nuovo record
+                $html .= $dbview->DelComment($id); //  form nuovo record
                 break;
             case "del" :
-                $html.=$dbview->DelRecordForm($id); //  form nuovo record
+                $html .= $dbview->DelRecordForm($id); //  form nuovo record
                 break;
             case "updaterecord" :
-                if (count($_POST)== 0 || isset($_POST['__NOSAVE']) || !isset($_POST['xmldbsave']))
+                if (count($_POST) == 0 || isset($_POST['__NOSAVE']) || !isset($_POST['xmldbsave']))
                 {
-                    $html.=$dbview->EditRecordForm($id,$Table);
+                    $html .= $dbview->EditRecordForm($id, $Table);
                 }
                 else
                 {
-                    $html.=$dbview->UpdateRecord($Table); // esegue aggiornamento record
+                    $html .= $dbview->UpdateRecord($Table); // esegue aggiornamento record
                 }
                 break;
             case "insertrecord" : // esegue inserimento record
@@ -223,20 +231,20 @@ else
                 {
                     $dbview->GenerateRSS();
                 }
-                $html.=FN_HtmlContent("sections/{$_FN['mod']}");
-                $html.=$dbview->ViewGrid(); //griglia con tutti i records
+                $html .= FN_HtmlContent("sections/{$_FN['mod']}");
+                $html .= $dbview->ViewGrid(); //griglia con tutti i records
                 ob_start();
                 if (file_exists("sections/{$_FN['mod']}/bottom.php"))
                 {
                     include ("sections/{$_FN['mod']}/bottom.php");
                 }
-                $html.=ob_get_clean();
+                $html .= ob_get_clean();
                 break;
         }
     }
     else
     {
-        $html=FN_i18n("you are not authorized to view the data");
+        $html = FN_i18n("you are not authorized to view the data");
     }
     echo $html;
 //-----------------------------principale -------------------------------------<
@@ -378,7 +386,7 @@ else
         } catch (e)
         {
         }
-        div.innerHTML = "<div style=\"color:#ffffff;margin-top:" + getScrollY() + "px\" ><br />loading...<br /><br /><img  src='<?php echo "{$_FN['siteurl']}modules/dbview/"?>loading.gif' /><br /><br /></div>";
+        div.innerHTML = "<div style=\"color:#ffffff;margin-top:" + getScrollY() + "px\" ><br />loading...<br /><br /><img  src='<?php echo "{$_FN['siteurl']}modules/dbview/" ?>loading.gif' /><br /><br /></div>";
         document.getElementsByTagName('body')[0].appendChild(div);
     }
 </script>

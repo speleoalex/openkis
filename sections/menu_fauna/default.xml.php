@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>block_menu</type>
 	<parent></parent>
-	<position>160</position>
+	<position>170</position>
 	<title>Fauna</title>
 	<description></description>
 	<startdate></startdate>
@@ -23,9 +23,3 @@
 	<title_en>Fauna</title_en>
 	<description_en></description_en>
 </fn_sections>
-
-<fncf_block_menu>
-	<parent>__submenu__</parent>
-	<method>ul</method>
-	<recursive>1</recursive>
-</fncf_block_menu>

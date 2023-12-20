@@ -22,15 +22,12 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=caves</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
+	<link>https://www.catastogrotte.net/liguria/it/caves/</link>
 </fn_sections>
 
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>16</recordsperpage>
-	<enablecomments>0</enablecomments>
-	<enableranks>0</enableranks>
 	<groupinsert>w_caves</groupinsert>
 	<groupadmin>w_caves</groupadmin>
 	<groupview></groupview>
@@ -38,13 +35,13 @@
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>1</generate_googlesitemap>
 	<tables>ctl_caves</tables>
-	<search_orders>name,recordupdate</search_orders>
+	<search_orders>name,recordupdate,lenght_total,depth_total</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>code,name</titlefield>
 	<descriptionfield>description</descriptionfield>
-	<search_options>archeological,closed</search_options>
+	<search_options>archeological,closed,marine</search_options>
 	<navigate_groups>regione,provincia,comune,areas</navigate_groups>
 	<search_partfields>name</search_partfields>
 	<search_fields>code</search_fields>
@@ -52,13 +49,11 @@
 	<image_titlefield>photo1</image_titlefield>
 	<image_size>100</image_size>
 	<table_rules>ctl_caves_rules</table_rules>
-	<default_view_mode>icon</default_view_mode>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
-	<enable_permissions_edit_each_records>1</enable_permissions_edit_each_records>
-	<permissions_records_groups>r_caves,w_caves</permissions_records_groups>
-	<permissions_records_edit_groups>r_caves,w_caves</permissions_records_edit_groups>
+	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
+	<permissions_records_groups>r_caves,w_caves,grotte_nascoste,archeologi</permissions_records_groups>
+	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
 	<enable_history>1</enable_history>
-	<enable_rss>1</enable_rss>
 	<enable_export>1</enable_export>
 	<enable_delete>1</enable_delete>
 	<hide_on_delete>0</hide_on_delete>
@@ -67,4 +62,24 @@
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<image_size_h>300</image_size_h>
 	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
+	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
+	<groupinsert></groupinsert>
+	<groupadmin></groupadmin>
+	<groupview></groupview>
+	<mailalert></mailalert>
+	<viewonlycreator>0</viewonlycreator>
+	<generate_googlesitemap>1</generate_googlesitemap>
+	<enable_comments_notify>0</enable_comments_notify>
+	<image_size>400</image_size>
+	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
+	<permissions_records_groups>dbview_rw,dbview_ro</permissions_records_groups>
+	<enable_export>1</enable_export>
+	<enable_delete>0</enable_delete>
+	<hide_on_delete>1</hide_on_delete>
+	<default_show_groups>0</default_show_groups>
+	<enable_statistics>0</enable_statistics>
+	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

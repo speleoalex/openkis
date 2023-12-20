@@ -1299,7 +1299,7 @@ function FN_InitTables($force = false)
  * @param array $params
  * @return object
  */
-function FN_XmlTable($tablename, $params = false)
+function FN_XmlTable($tablename, $params = array())
 {
     global $_FN;
     if (!isset($params['defaultdriver']))
@@ -1313,7 +1313,7 @@ function FN_XmlTable($tablename, $params = false)
  * @param array $params
  * @return object
  */
-function FN_XmlForm($tablename, $params = false)
+function FN_XmlForm($tablename, $params = array())
 {
     global $_FN;
     $params['siteurl'] = $_FN['siteurl'];
@@ -1366,6 +1366,10 @@ function FN_GetDateTime($time)
     if (strlen("$time") == 19)
     {
         $time = strtotime($time);
+    }
+    if (!$time)
+    {
+        $time = time();
     }
     $ret = $_FN['days'][date("w", $time + (3600 * $_FN['jet_lag']))];
     $ret .= date(" d ", $time + (3600 * $_FN['jet_lag']));
@@ -1643,6 +1647,8 @@ function FN_GetSections($section = "", $recursive = false, $onlyreadable = true,
         {
             $_FN['sections'] = false;
             $_FN['sections'] = FN_GetAllSections();
+            
+
         }
         $cache = array();
         $allsections = $_FN['sections'];
@@ -1656,6 +1662,8 @@ function FN_GetSections($section = "", $recursive = false, $onlyreadable = true,
     }
     $sect_db = array();
 //---------------------   get all sections from database   -------------------->
+
+
     if ($recursive)
     {
         $sections = $allsections;
@@ -1668,6 +1676,7 @@ function FN_GetSections($section = "", $recursive = false, $onlyreadable = true,
         }
         $sections = isset($parents[$section]) ? $parents[$section] : array();
     }
+
 
 //---------------------   get all sections from database   --------------------<
     foreach ($sections as $sectionvalues)
@@ -1716,7 +1725,7 @@ function FN_GetSections($section = "", $recursive = false, $onlyreadable = true,
         FN_GetAccessKey($title, "index.php?mod={$sectionvalues['id']}", $sectionvalues['accesskey']);
         $sect_db[$sectionvalues['id']] = $sectionvalues;
     }
-
+    //dprint_r( $sect_db);
     //------------------make section tree-------------------------------------->
     foreach ($sect_db as $section)
     {
@@ -1731,6 +1740,7 @@ function FN_GetSections($section = "", $recursive = false, $onlyreadable = true,
     }
     //------------------make section tree--------------------------------------<
     $cache[$idcache] = $sect_db;
+    
     return $sect_db;
 }
 
@@ -1863,7 +1873,7 @@ function FN_GetSectionValues($section, $usecache = true)
     {
         $values['title'] = $values["title" . FN_LangSuffix()];
     }
-    $values['link'] = FN_RewriteLink("index.php?mod={$values['id']}");
+    $values['link'] = FN_RewriteLink("index.php?mod={$values['id']}","",true);
     $cache[$_FN['lang']][$section] = $values;
     return $values;
 }
@@ -2293,6 +2303,7 @@ function FN_GetFolderTitle($path, $lang = "")
  */
 function FN_LoadConfig($fileconfig = "", $sectionid = "", $usecache = true)
 {
+    //dprint_r($fileconfig);
     global $_FN;
     static $cache = array();
     if (!$usecache)
@@ -2411,6 +2422,7 @@ function FN_LoadConfig($fileconfig = "", $sectionid = "", $usecache = true)
 </tables>";
         FN_Write($xml, "{$_FN['datadir']}/fndatabase/$tablename.php");
     }
+
     $config = array();
     $fields = false;
     if (file_exists($fileconfig))
@@ -2425,12 +2437,14 @@ function FN_LoadConfig($fileconfig = "", $sectionid = "", $usecache = true)
     if ($tablename != "")
     {
         FN_LoadVarsFromTable($config, $tablename, $fields);
+
         $cache[$tablename] = $config;
     }
     if (isset($config['id']))
     {
         unset($config['id']);
     }
+    
     return $config;
 }
 
@@ -2583,7 +2597,7 @@ function FN_ReadCsvDatabase($filename, $delimiter, $enclosure = '"')
         else
         {
             $num = 0;
-            $tmp = false;
+            $tmp = array();
             foreach ($keys as $k => $val)
             {
                 $tmp[$k] = isset($data[$num]) ? $data[$num] : "";
@@ -2790,8 +2804,9 @@ function FN_SetSessionValue($key, $value)
     }
     if (is_array($value))
     {
+        $session[$key] = array();
         foreach ($value as $k => $v)
-        {
+        {            
             $session[$key][$k] = $v;
         }
     }
@@ -2841,7 +2856,10 @@ function FN_GetGlobalVarValue($varname, $maxtime = false)
         }
         $var = unserialize(file_get_contents($filename));
         if (!$var)
+        {
+            @unlink($filename);
             return null;
+        }
         return $var;
     }
     return null;

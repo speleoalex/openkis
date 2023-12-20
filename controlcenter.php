@@ -64,7 +64,6 @@ $editconf = "";
 $fileconfig_to_edit = "";
 $_FN['mod'] = "";
 
-
 $opt = FN_GetParam("opt", $_GET, "html");
 
 $_FN['configsection'] = $configsection;
@@ -72,8 +71,6 @@ $vars = array();
 $vars['sitelanguages'] = $_FN['sitelanguages'];
 $vars['current_language'] = $vars['sitelanguages'][$_FN['lang']];
 $vars['is_multilanguage'] = count($vars['sitelanguages']) > 1 ? true : "";
-
-
 
 $vars['urlcontrolcenter'] = $_FN['siteurl'] . "/" . $_FN['controlcenter'];
 $vars['version'] = htmlspecialchars(file_get_contents("VERSION"));
@@ -651,7 +648,6 @@ function FNCC_GetMenuItems()
     {
         $menu[$sectiongroup] = array();
 
-
         $sections = FN_ListDir("controlcenter/sections/$sectiongroup");
         FN_NatSort($sections);
         $sectionsIngroup = array();
@@ -1071,7 +1067,6 @@ function FN_TPL_tp_create_ccsubmenu_($str, $sections)
     preg_match('/<!-- submenuitems -->(.*)<!-- endsubmenuitems -->/is', $str, $out);
     $tp_menuitem_old = FN_TPL_GetHtmlPart("submenuitems", $str, "<li><a href=\"link\">title</a></li>");
 
-
     $tp_menuitem = FN_TPL_GetHtmlPart("submenuitem", $str);
     $tp_menuitemactive = FN_TPL_GetHtmlPart("submenuitemactive", $str, $tp_menuitem);
     $tp_menuitem = preg_replace("/<a([^>]+)(href)=(\")([^\"]*)(\")/im", "<a\\1\\2=\\3{link}\\3", $tp_menuitem);
@@ -1133,46 +1128,69 @@ function FN_TPL_tp_create_ccsubmenu_($str, $sections)
  * @param type $tablename
  * @param type $vars
  */
-function FNCC_XmltableEditor($tablename, $vars = false, $vars2 = false)
+function FNCC_XmltableEditor($tablename, $params = array())
 {
     global $_FN;
-    if (is_array($vars2))
+
+    if (empty($params['layout_template']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html"))
     {
-        if (empty($vars2['layout_template']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html"))
-        {
-            $vars2['layout_template'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html");
-            $vars2['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
-        }
-        if (empty($vars['html_template_grid']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/grid.tp.html"))
-        {
-            $vars2['html_template_grid'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/grid.tp.html");
-            $vars2['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
-        }
-        if (empty($vars['html_template_view']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/view.tp.html"))
-        {
-            $vars2['html_template_view'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/view.tp.html");
-            $vars2['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
-        }
+        $params['layout_template'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html");
+        $params['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
     }
-    else
+    if (empty($params['html_template_grid']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/grid.tp.html"))
     {
-        if (empty($vars['layout_template']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html"))
-        {
-            $vars['layout_template'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html");
-            $vars['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
-        }
-        if (empty($vars['html_template_grid']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/grid.tp.html"))
-        {
-            $vars['html_template_grid'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/grid.tp.html");
-            $vars['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
-        }
-        if (empty($vars['html_template_view']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/view.tp.html"))
-        {
-            $vars['html_template_view'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/view.tp.html");
-            $vars['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
-        }
+        $params['html_template_grid'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/grid.tp.html");
+        $params['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
     }
-    FN_XmltableEditor($tablename, $vars, $vars2);
+    if (empty($params['html_template_view']) && file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/view.tp.html"))
+    {
+        $params['html_template_view'] = file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/view.tp.html");
+        $params['template_path'] = "controlcenter/themes/{$_FN['controlcenter_theme']}/";
+    }
+
+
+    if (empty($params['xmldatabase']))
+    {
+        $params['xmldatabase'] = $_FN['database'];
+    }
+    $op = FN_GetParam("opt", $_GET, "html");
+    $link = "mod={$_FN['mod']}&amp;opt=$op";
+    $params['path'] = $_FN['datadir'];
+    $params['lang'] = $_FN['lang'];
+    $params['charset_page'] = $_FN['charset_page'];
+    $params['languages'] = $_FN['languages'];
+    $params['siteurl'] = $_FN['siteurl'];
+    $params['enable_mod_rewrite'] = $_FN['enable_mod_rewrite'];
+    $params['links_mode'] = $_FN['links_mode'];
+    if (!isset($params['link']))
+    {
+        $params['link'] = $link;
+    }
+    //messages--->
+    $params['path'] = isset($params['path']) ? $params['path'] : $_FN['datadir'];
+    $params['recordsperpage'] = isset($params['recordsperpage']) ? $params['recordsperpage'] : 20;
+    $params['textview'] = isset($params['textview']) ? $params['textview'] : FN_Translate("view");
+    $params['textsave'] = isset($params['textsave']) ? $params['textsave'] : FN_Translate("save");
+    $params['textmodify'] = isset($params['textmodify']) ? $params['textmodify'] : FN_Translate("modify");
+    $params['textdelete'] = isset($params['textdelete']) ? $params['textdelete'] : FN_Translate("delete");
+
+    $params['textviewlist'] = isset($params['textviewlist']) ? $params['textviewlist'] : "<img style=\"vertical-align:middle;border:0px;\" alt=\"\"  src=\"" . FN_FromTheme("images/left.png") . "\" />&nbsp;" . fn_i18n("back");
+    $params['textinsertok'] = isset($params['textinsertok']) ? $params['textinsertok'] : FN_Translate("the data were successfully inserted");
+    $params['textupdateok'] = isset($params['textupdateok']) ? $params['textupdateok'] : FN_Translate("the data were successfully updated");
+    $params['textpages'] = isset($params['textpages']) ? $params['textpages'] : FN_Translate("page") . ":";
+    $params['textrequired'] = isset($params['textrequired']) ? $params['textrequired'] : "*";
+    $params['textfields'] = isset($params['textfields']) ? $params['textfields'] : FN_Translate("required fields");
+    $params['textcancel'] = isset($params['textcancel']) ? $params['textcancel'] : FN_Translate("cancel");
+    $params['textnew'] = isset($params['textnew']) ? $params['textnew'] : "" . FN_Translate("new") . "";
+    $params['textexitwithoutsaving'] = isset($params['textexitwithoutsaving']) ? $params['textexitwithoutsaving'] : FN_Translate("want to exit without saving?");
+    //messages---<
+    $params['lang_default'] = isset($params['lang_default']) ? $params['lang_default'] : $_FN['lang_default'];
+    $params['siteurl'] = isset($params['siteurl']) ? $params['siteurl'] : $_FN['siteurl'];
+    $params['lang'] = isset($params['lang']) ? $params['lang'] : $_FN['lang'];
+    $params['enable_mod_rewrite'] = isset($params['enable_mod_rewrite']) ? $params['enable_mod_rewrite'] : $_FN['enable_mod_rewrite'];
+    $params['use_urlserverpath'] = isset($params['use_urlserverpath']) ? $params['use_urlserverpath'] : $_FN['use_urlserverpath'];
+    $params['sitepath'] = isset($params['sitepath']) ? $params['sitepath'] : $_FN['sitepath'];
+    XMLDB_editor($tablename, $params);
 }
 
 /**

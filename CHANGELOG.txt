@@ -1,3 +1,12 @@
+1/2022
+ -compatibilità php 8.1
+ -rimosso emailhidden 
+
+12/2021
+ -bug fix
+ -bootsrap support
+ -supporto notifiche
+
 5/2021
  -bug fix
  -aggiornato motore di template

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_fauna</parent>
-	<position>170</position>
+	<position>180</position>
 	<title>Fauna cavernicola</title>
 	<description>contiene l'elenco degli animali cavernicoli</description>
 	<startdate></startdate>
@@ -27,8 +27,8 @@
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert></groupinsert>
-	<groupadmin></groupadmin>
+	<groupinsert>fauna</groupinsert>
+	<groupadmin>fauna</groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
@@ -49,7 +49,7 @@
 	<image_size>100</image_size>
 	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>
-	<enable_permissions_each_records>0</enable_permissions_each_records>
+	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>1</enable_permissions_edit_each_records>
 	<permissions_records_groups>r_fauna,w_fauna</permissions_records_groups>
 	<permissions_records_edit_groups>w_fauna</permissions_records_edit_groups>

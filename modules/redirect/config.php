@@ -1,4 +1,4 @@
 <?php
-#[i18n]url
+//[i18n]url
 $config['url'] = "";
 ?>

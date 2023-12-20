@@ -269,6 +269,7 @@ include/xmldb_mysql.php
 include/function_management.inc.php
 include/xmldb_sqlite.php
 include/xmldb_query.php
+include/xmldb_tpl_engine.inc.php
 include/autoexec.d
 include/autoexec.d/00_autobuild.php
 include/on_site_change.d

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>60</position>
+	<position>50</position>
 	<title>Aree speleologiche</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,15 +22,13 @@
 	<description_it></description_it>
 	<title_en>Areas</title_en>
 	<description_en></description_en>
-	<link>index.php?mod=areas</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert></groupinsert>
-	<groupadmin></groupadmin>
+	<groupinsert>w_caves</groupinsert>
+	<groupadmin>w_caves</groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
@@ -62,5 +60,11 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<enable_offlineform>1</enable_offlineform>
+	<enablecomments>0</enablecomments>
+	<enableranks>0</enableranks>
+	<default_view_mode>icon</default_view_mode>
+	<enable_rss>1</enable_rss>
+	<enable_offlineform>0</enable_offlineform>
+	<databasename>fndatabase</databasename>
+	<documents_folder></documents_folder>
 </fncf_dbview>
