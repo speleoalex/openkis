@@ -145,7 +145,7 @@ $title=$_FN['sections'][$_FN['mod']]['title'];
                     document.getElementById("location_evaluation").value += " Quota non rilevata";
                 }
                 $.getJSON({
-                    url: "splx_geocode.php",
+                    url: "bs_request.php",
                     type: "GET",
                     data: {
                         lat: position.coords.latitude,

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Alessandro Vernassa <speleoalex@gmail.com>
  * @copyright Copyright (c) 2003-2009
@@ -27,38 +28,31 @@ function xmldb_xml2array($data, $elem, $fields = false)
     //eliminazione dei commenti
     $data = xmldb_removexmlcomments($data);
     //visualizza solo determinati campi
-    if (is_array($fields))
-    {
+    if (is_array($fields)) {
         $fields = implode("|", $fields);
     }
     $out = "";
     $ret = null;
-    if (preg_match("/<$elem>.*<$elem>[^<]+<\/$elem>/s", $data))//se il nome del nodo contiene un elemento con lo stesso nome
+    if (preg_match("/<$elem>.*<$elem>[^<]+<\/$elem>/s", $data)) //se il nome del nodo contiene un elemento con lo stesso nome
     {
         preg_match_all("#<$elem>(.*?<$elem>.*?</$elem>.*?)</$elem>#s", $data, $out); //CONTIENE ALL'INTERNO UN NODO CON LO STESSO NOME
-    }
-    else
-    {
+    } else {
         preg_match_all("#<$elem>.*?</$elem>#s", $data, $out); //OK
     }
     if (is_array($out[0]))
-        foreach ($out[0] as $innerxml)
-        {
+        foreach ($out[0] as $innerxml) {
             //----------metodo 0 ------------------------
-            for ($oi = 0; $oi < 1; $oi++)
-            {
+            for ($oi = 0; $oi < 1; $oi++) {
                 $tmp2 = $t1 = null;
                 preg_match_all('/<(' . $fields . '[^\/]*?)>([^<]*)<\/\1>/s', $innerxml, $t1);
-                foreach ($t1[1] as $k => $tt)
-                {
+                foreach ($t1[1] as $k => $tt) {
                     if ($t1[2][$k] != null)
                         $tmp2[$tt] = xmldec($t1[2][$k]);
                     else
                         $tmp2[$tt] = "";
                 }
             }
-            if ($tmp2 != null)
-            {
+            if ($tmp2 != null) {
                 $ret[] = ($tmp2);
             }
         }
@@ -99,47 +93,40 @@ function xmldb_readDatabase($filename, $elem, $fields = false, $usecache = true)
 
     if (!file_exists($filename))
         return false;
+
+    /*
     if (is_array($fields))
     {
         $fields = implode("|", $fields);
-    }
+    }*/
     $_fields = "_" . $fields;
     static $cache = array();
-    static $lastmod = false;
+    static $lastmod = array();
     $filename = realpath($filename);
-    if (!isset($lastmod[$filename]) || $lastmod[$filename] != filectime($filename) . filesize($filename))
-    {
+    if (!isset($lastmod[$filename]) || $lastmod[$filename] != filectime($filename) . filesize($filename)) {
         $lastmod[$filename] = filectime($filename) . filesize($filename);
         $usecache = false;
         //dprint_r("no cache $filename");
     }
-    if (is_dir($filename))
-    {
+    if (is_dir($filename)) {
         $usecache = false;
     }
-    if ($usecache === false)
-    {
-        if (isset($cache[$filename][$_fields][$elem]))
-        {
+    if ($usecache === false) {
+        if (isset($cache[$filename][$_fields][$elem])) {
             unset($cache[$filename][$_fields][$elem]);
         }
-    }
-    else
-    {
+    } else {
         //dprint_r("cache $filename");
     }
-    if ($usecache === true && isset($cache[$filename][$_fields][$elem]))
-    {
+    if ($usecache === true && isset($cache[$filename][$_fields][$elem])) {
         return $cache[$filename][$_fields][$elem];
     }
     $tmp = array();
     // --- gestione xml in più files --------->
-    if (is_dir($filename))
-    {
+    if (is_dir($filename)) {
         $data = null;
         $handle = opendir($filename);
-        while (false !== ($file = readdir($handle)))
-        {
+        while (false !== ($file = readdir($handle))) {
             $tmp2 = null;
             if (preg_match('/.php$/is', $file))
                 $tmp2 = xmldb_readDatabase("$filename/$file", $elem, $fields, $usecache);
@@ -153,12 +140,10 @@ function xmldb_readDatabase($filename, $elem, $fields = false, $usecache = true)
     }
     //<--------- gestione xml in piu' files ---
     //tenta di accedere al file
-    for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++)
-    {
+    for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++) {
         $data = file_get_contents($filename);
         // funziona ma sarebbe da verificare la chiusura di </database>
-        if ("" != $data)
-        {
+        if ("" != $data) {
             break;
         }
     }
@@ -219,28 +204,23 @@ function xmldb_create_thumb($filename, $max, $max_h = "", $max_w = "")
         $max_h = $max;
     if ($max_w == "")
         $max_w = $max;
-    if (!function_exists("getimagesize"))
-    {
+    if (!function_exists("getimagesize")) {
         echo "<br />" . _FNNOGDINSTALL;
         return;
     }
     $new_height = $new_width = 0;
-    if (!file_exists($filename))
-    {
+    if (!file_exists($filename)) {
         echo "non esiste";
         return;
     }
-    if (!getimagesize($filename))
-    {
+    if (!getimagesize($filename)) {
         echo "$filename is not image ";
         return;
     }
     list($width, $height, $type, $attr) = getimagesize($filename);
-    if (function_exists("exif_read_data"))
-    {
+    if (function_exists("exif_read_data")) {
         $exif = @exif_read_data($filename);
-        if (!empty($exif['Orientation']) && ($exif['Orientation'] == 6 || $exif['Orientation'] == 8))
-        {
+        if (!empty($exif['Orientation']) && ($exif['Orientation'] == 6 || $exif['Orientation'] == 8)) {
             $tmp = $height;
             $height = $width;
             $width = $tmp;
@@ -249,35 +229,29 @@ function xmldb_create_thumb($filename, $max, $max_h = "", $max_w = "")
 
     $path = dirname($filename) . "/thumbs";
     $file_thumb = $path . "/" . basename($filename);
-    if (!file_exists($path))
-    {
+    if (!file_exists($path)) {
         mkdir($path);
     }
-    if (!file_exists($path))
-    {
+    if (!file_exists($path)) {
         echo "error make dir $path";
         return false;
     }
-    if (!is_dir($path))
-    {
+    if (!is_dir($path)) {
         echo "<br />$path not exists";
     }
     $new_height = $height;
     $new_width = $width;
-    if ($width >= $max_w)
-    {
+    if ($width >= $max_w) {
         $new_width = $max_w;
         $new_height = intval($height * ($new_width / $width));
     }
     //se troppo alta
-    if ($new_height >= $max_h)
-    {
+    if ($new_height >= $max_h) {
         $new_height = $max_h;
         $new_width = intval($width * ($new_height / $height));
     }
     // se l' immagine e gia piccola
-    if ($width <= $max_w && $height <= $max_h)
-    {
+    if ($width <= $max_w && $height <= $max_h) {
         $new_width = $width;
         $new_height = $height;
         //return;
@@ -289,27 +263,26 @@ function xmldb_create_thumb($filename, $max, $max_h = "", $max_w = "")
     $white = imagecolorallocate($thumb, 255, 255, 255);
     $size = getimagesize($filename);
     //	dprint_r(IMAGETYPE_WBMP);
-    switch ($size[2])
-    {
-        case IMAGETYPE_GIF :
+    switch ($size[2]) {
+        case IMAGETYPE_GIF:
             $source = imagecreatefromgif($filename);
             break;
-        case IMAGETYPE_JPEG :
+        case IMAGETYPE_JPEG:
             $source = imagecreatefromjpeg($filename);
             break;
-        case IMAGETYPE_PNG :
+        case IMAGETYPE_PNG:
             $source = imagecreatefrompng($filename);
             break;
-        case IMAGETYPE_WBMP :
+        case IMAGETYPE_WBMP:
             $source = imagecreatefromwbmp($filename);
             break;
-        case IMG_XPM :
+        case IMG_XPM:
             $source = imagecreatefromxpm($filename);
             break;
-        case 6 :
+        case 6:
             $source = xmldb_ImageCreateFromBMP($filename);
             break;
-        default :
+        default:
             $tmb = null;
             $size[0] = $size[1] = 150;
             $source = ImageCreateTrueColor(150, 150);
@@ -356,8 +329,7 @@ function xmldb_ImageCreateFromBMP($filename)
     if ($BMP['decal'] == 4)
         $BMP['decal'] = 0;
     $PALETTE = array();
-    if ($BMP['colors'] < 16777216)
-    {
+    if ($BMP['colors'] < 16777216) {
         $PALETTE = unpack('V' . $BMP['colors'], fread($f1, $BMP['colors'] * 4));
     }
     $IMG = fread($f1, $BMP['size_bitmap']);
@@ -365,34 +337,25 @@ function xmldb_ImageCreateFromBMP($filename)
     $res = imagecreatetruecolor($BMP['width'], $BMP['height']);
     $P = 0;
     $Y = $BMP['height'] - 1;
-    while ($Y >= 0)
-    {
+    while ($Y >= 0) {
         $X = 0;
-        while ($X < $BMP['width'])
-        {
+        while ($X < $BMP['width']) {
             if ($BMP['bits_per_pixel'] == 24)
                 $COLOR = unpack("V", substr($IMG, $P, 3) . $VIDE);
-            elseif ($BMP['bits_per_pixel'] == 16)
-            {
+            elseif ($BMP['bits_per_pixel'] == 16) {
                 $COLOR = unpack("n", substr($IMG, $P, 2));
                 $COLOR[1] = $PALETTE[$COLOR[1] + 1];
-            }
-            elseif ($BMP['bits_per_pixel'] == 8)
-            {
+            } elseif ($BMP['bits_per_pixel'] == 8) {
                 $COLOR = unpack("n", $VIDE . substr($IMG, $P, 1));
                 $COLOR[1] = $PALETTE[$COLOR[1] + 1];
-            }
-            elseif ($BMP['bits_per_pixel'] == 4)
-            {
+            } elseif ($BMP['bits_per_pixel'] == 4) {
                 $COLOR = unpack("n", $VIDE . substr($IMG, floor($P), 1));
                 if (($P * 2) % 2 == 0)
                     $COLOR[1] = ($COLOR[1] >> 4);
                 else
                     $COLOR[1] = ($COLOR[1] & 0x0F);
                 $COLOR[1] = $PALETTE[$COLOR[1] + 1];
-            }
-            elseif ($BMP['bits_per_pixel'] == 1)
-            {
+            } elseif ($BMP['bits_per_pixel'] == 1) {
                 $COLOR = unpack("n", $VIDE . substr($IMG, floor($P), 1));
                 if (($P * 8) % 8 == 0)
                     $COLOR[1] = $COLOR[1] >> 7;
@@ -411,8 +374,7 @@ function xmldb_ImageCreateFromBMP($filename)
                 elseif (($P * 8) % 8 == 7)
                     $COLOR[1] = ($COLOR[1] & 0x1);
                 $COLOR[1] = $PALETTE[$COLOR[1] + 1];
-            }
-            else
+            } else
                 return FALSE;
             imagesetpixel($res, $X, $Y, $COLOR[1]);
             $X++;
@@ -473,32 +435,24 @@ function createxmltable($databasename, $tablename, $fields, $path = ".", $single
     if (!is_writable("$path/$databasename/"))
         return "xml database not writable";
     $str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<?php exit(0);?>\n<tables>";
-    foreach ($fields as $field)
-    {
+    foreach ($fields as $field) {
         $str .= "\n\t<field>";
-        foreach ($field as $key => $value)
-        {
+        foreach ($field as $key => $value) {
             $str .= "\n\t\t<$key>$value</$key>";
         }
         $str .= "\n\t</field>";
     }
-    if ($singlefilename != false)
-    {
-        if (is_array($singlefilename))
-        {
-            foreach ($singlefilename as $key => $values)
-            {
+    if ($singlefilename != false) {
+        if (is_array($singlefilename)) {
+            foreach ($singlefilename as $key => $values) {
                 $str .= "\n\t<$key>" . xmlenc($values) . "</$key>";
             }
-        }
-        else
-        {
+        } else {
             $str .= "\n<filename>$singlefilename</filename>";
         }
     }
     $str .= "\n</tables>";
-    if (!file_exists("$path/$databasename/$tablename"))
-    {
+    if (!file_exists("$path/$databasename/$tablename")) {
         mkdir("$path/$databasename/$tablename");
         //dprint_r("$path/$databasename/$tablename");
     }
@@ -559,7 +513,8 @@ function addxmltablefield($databasename, $tablename, $field, $path = ".", $force
     if (!isset($field['name']))
         return null;
     if (is_array($tablename))
-        return;
+        return null;
+    $newvalues = array();
     $values = $field;
     $pvalue = $field['name'];
     $pkey = "name";
@@ -567,65 +522,54 @@ function addxmltablefield($databasename, $tablename, $field, $path = ".", $force
     if (!file_exists($old))
         return null;
     $readok = false;
-    for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++)
-    {
+    for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++) {
         $oldfilestring = file_get_contents($old);
-        if (strpos($oldfilestring, "</tables>") !== false)
-        {
+        if (strpos($oldfilestring, "</tables>") !== false) {
             $readok = true;
             break;
         }
     }
-    if (!$readok)
-    {
+    if (!$readok) {
         die("error update");
     }
     $oldfilestring = xmldb_removexmlcomments($oldfilestring);
     $oldvalues = $newvalues = getxmltablefield($databasename, $tablename, $field['name'], $path);
-    foreach ($values as $key => $value)
-    {
+    foreach ($values as $key => $value) {
+
         $newvalues[$key] = $value;
     }
     //compongo il nuovo xml per il record da aggiornare
     $strnew = "<field>";
-    foreach ($newvalues as $key => $value)
-    {
+    foreach ($newvalues as $key => $value) {
         $strnew .= "\n\t\t<$key>" . xmlenc($value) . "</$key>";
     }
     $strnew .= "\n\t</field>";
 
-    if ($oldvalues)
-    {
+    if ($oldvalues) {
         $pvalue = xmlenc($pvalue);
         $pvalue = xmldb_encode_preg($pvalue);
         $strnew = str_replace('$', '\\$', $strnew);
         $newfilestring = preg_replace('/<field>([^(field)]*)<' . $pkey . '>' . $pvalue . '<\/' . $pkey . '>(.*?)<\/field>/s', $strnew, $oldfilestring);
-        if (!is_writable($old))
-        {
+        if (!is_writable($old)) {
             echo ("$old is readonly,I can't update");
             return ("$old is readonly,I can't update");
         }
-        if ($oldfilestring != $newfilestring && $force)
-        {
+        if ($oldfilestring != $newfilestring && $force) {
             $handle = fopen($old, "w");
             fwrite($handle, $newfilestring);
             xmldb_readDatabase($old, 'field', false, false); //aggiorna la cache
         }
         return $newvalues;
-    }
-    else // new field
+    } else // new field
     {
-        for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++)
-        {
+        for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++) {
             $oldfilestring = file_get_contents("$path/$databasename/$tablename.php");
-            if (strpos($oldfilestring, "</tables>") !== false)
-            {
+            if (strpos($oldfilestring, "</tables>") !== false) {
                 $readok = true;
                 break;
             }
         }
-        if (!$readok)
-        {
+        if (!$readok) {
             return "error insert field";
         }
         $strnew = xmldb_encode_preg_replace2nd($strnew);
@@ -650,16 +594,14 @@ function addxmltablefield($databasename, $tablename, $field, $path = ".", $force
 function getxmltablefield($databasename, $tablename, $fieldname, $path = ".")
 {
     if (!file_exists("$path/$databasename/$tablename.php"))
-        return false;
+        return null;
     $rows = xmldb_readDatabase("$path/$databasename/$tablename.php", "field");
-    foreach ($rows as $row)
-    {
-        if ($row['name'] == $fieldname)
-        {
+    foreach ($rows as $row) {
+        if ($row['name'] == $fieldname) {
             return $row;
         }
     }
-    return false;
+    return null;
 }
 
 /**
@@ -673,25 +615,19 @@ function xmldb_remove_dir_rec($dirtodelete)
 {
     if (strpos($dirtodelete, "../") !== false)
         die("xmldberror:xmldb_remove_dir_rec");
-    if (false != ($objs = glob($dirtodelete . "/.*")))
-    {
-        foreach ($objs as $obj)
-        {
+    if (false != ($objs = glob($dirtodelete . "/.*"))) {
+        foreach ($objs as $obj) {
             if (!is_dir($obj))
                 unlink($obj);
-            else
-            {
-                if (basename($obj) != "." && basename($obj) != "..")
-                {
+            else {
+                if (basename($obj) != "." && basename($obj) != "..") {
                     xmldb_remove_dir_rec($obj);
                 }
             }
         }
     }
-    if (false !== ($objs = glob($dirtodelete . "/*")))
-    {
-        foreach ($objs as $obj)
-        {
+    if (false !== ($objs = glob($dirtodelete . "/*"))) {
+        foreach ($objs as $obj) {
             is_dir($obj) ? xmldb_remove_dir_rec($obj) : unlink($obj);
         }
     }
@@ -776,8 +712,7 @@ function xmldb_array_sort_by_key($data, $order, $desc = false)
     if ($desc)
         $mode = "desc";
     $order = explode(",", $order);
-    foreach ($order as $v)
-    {
+    foreach ($order as $v) {
         $newmode = $mode;
         $newmodes = explode(":", $v);
         if (isset($newmodes[1]))
@@ -786,23 +721,18 @@ function xmldb_array_sort_by_key($data, $order, $desc = false)
     }
     $orders = array_reverse($orders);
 
-    foreach ($orders as $order => $mode)
-    {
+    foreach ($orders as $order => $mode) {
         $newret = array();
         $ret = array();
-        foreach ($data as $key => $value)
-        {
+        foreach ($data as $key => $value) {
             $ret[$value[$order]][] = $value;
         }
         ksort($ret);
-        if ($mode == "desc")
-        {
+        if ($mode == "desc") {
             $ret = array_reverse($ret);
         }
-        foreach ($ret as $key => $value)
-        {
-            foreach ($value as $item)
-            {
+        foreach ($ret as $key => $value) {
+            foreach ($value as $item) {
                 $newret[] = $item;
             }
         }
@@ -828,8 +758,7 @@ function xmldb_array_natsort_by_key($data, $order, $desc = false)
     if ($desc)
         $mode = "desc";
     $order = explode(",", $order);
-    foreach ($order as $v)
-    {
+    foreach ($order as $v) {
         $newmode = $mode;
         $newmodes = explode(":", $v);
         if (isset($newmodes[1]))
@@ -837,27 +766,21 @@ function xmldb_array_natsort_by_key($data, $order, $desc = false)
         $orders[$newmodes[0]] = $newmode;
     }
     $orders = array_reverse($orders);
-    foreach ($orders as $order => $mode)
-    {
+    foreach ($orders as $order => $mode) {
         $newret = array();
         $ret = array();
-        foreach ($data as $key => $value)
-        {
-            if (!isset($value[$order]))
-            {
+        foreach ($data as $key => $value) {
+            if (!isset($value[$order])) {
                 $value[$order] = null;
             }
             $ret[$value[$order]][] = $value;
         }
         uksort($ret, "xmldb_NatSort_callback");
-        if ($mode == "desc")
-        {
+        if ($mode == "desc") {
             $ret = array_reverse($ret);
         }
-        foreach ($ret as $key => $value)
-        {
-            foreach ($value as $item)
-            {
+        foreach ($ret as $key => $value) {
+            foreach ($value as $item) {
                 $newret[] = $item;
             }
         }
@@ -897,14 +820,12 @@ function xmldb_NatSort_callback($a, $b)
     $a = strtolower($a);
     $b = strtolower($b);
     //if ( fn_erg("^[0-9]", $a) && fn_erg("^[0-9]", $b) )
-    if (preg_match("/" . str_replace('/', '\\/', "^[0-9]") . "/s", $a, $regs) && preg_match("/" . str_replace('/', '\\/', "^[0-9]") . "/s", $b, $regs))
-    {
+    if (preg_match("/" . str_replace('/', '\\/', "^[0-9]") . "/s", $a, $regs) && preg_match("/" . str_replace('/', '\\/', "^[0-9]") . "/s", $b, $regs)) {
         $aa = explode("_", $a);
         $bb = explode("_", $b);
         $aa = $aa[0];
         $bb = $bb[0];
-        if (intval($aa) == intval($bb))
-        {
+        if (intval($aa) == intval($bb)) {
             return strnatcmp($a, $b);
         }
         return (intval($aa) < intval($bb)) ? -1 : 1;
@@ -932,34 +853,28 @@ function xmldb_now()
  */
 function xmldb_table($databasename, $tablename, $path = "misc", $params = false)
 {
-    static $tables = false;
-    if (is_array($tablename))
-    {
+    static $tables = array();
+    if (is_array($tablename)) {
         return new XMLTable($databasename, $tablename, $path, $params);
     }
     $assoc = $params;
     $inglue = ",";
-    if (is_array($assoc) && count($assoc) > 0)
-    {
+    if (is_array($assoc) && count($assoc) > 0) {
         //ksort($assoc,$assoc);
-        foreach ($assoc as $tk => $tv)
-        {
-            if (is_array($tv))
-            {
+        foreach ($assoc as $tk => $tv) {
+            if (is_array($tv)) {
                 $tv = implode("-", $tv);
             }
             $return[] = $tk . $inglue . $tv;
         }
         $assoc = implode($inglue, $return);
     }
-    if (is_array($assoc))
-    {
+    if (is_array($assoc)) {
         $assoc = implode($inglue, $assoc);
     }
 
     $id = "$databasename," . $tablename . ",$path;" . $assoc;
-    if (!isset($tables[$id]))
-    {
+    if (!isset($tables[$id])) {
         $tables[$id] = new XMLTable($databasename, $tablename, $path, $params);
     }
 
@@ -975,15 +890,15 @@ class XMLField
 {
 
     var
-            $title = null;
+        $title = null;
     var
-            $readonly = null;
+        $readonly = null;
     var
-            $foreignkey = null; //foreignkey
+        $foreignkey = null; //foreignkey
     var
-            $_defaultvalue;
+        $_defaultvalue;
     var
-            $type = null;
+        $type = null;
 
     function __construct($descriptionfile, $fieldname)
     {
@@ -998,35 +913,27 @@ class XMLField
         else
             $obj = $descriptionfile;
         $fields = null;
-        foreach ($obj as $ob)
-        {
-            if (isset($ob['name']) && $ob['name'] == $fieldname)
-            {
+        foreach ($obj as $ob) {
+            if (isset($ob['name']) && $ob['name'] == $fieldname) {
                 $fields = $ob;
                 break;
             }
         }
-        if ($fields != null)
-        {
-            foreach ($fields as $key => $value)
-            {
+        if ($fields != null) {
+            foreach ($fields as $key => $value) {
                 $this->$key = $value;
             }
         }
-        if ($this->title == null)
-        {
+        if ($this->title == null) {
             $this->title = $this->name; // se e' null prende il nome del campo
         }
-        if ($this->type == "string")
-        {
+        if ($this->type == "string") {
             $this->type = "varchar";
         }
-        if ($this->type == "varchar" && $this->size == "")
-        {
+        if ($this->type == "varchar" && $this->size == "") {
             $this->size = 255;
         }
     }
-
 }
 
 //-----------------------end class XMLField------------------------------------<
@@ -1091,15 +998,28 @@ class XMLTable
 {
 
     var
-            $databasename;
+        $databasename;
     var
-            $tablename;
+        $tablename;
     var
-            $primarykey;
+        $primarykey;
     var
-            $filename;
+        $filename;
     var
-            $indexfield;
+        $indexfield;
+
+    var $connection;
+    var $driverclass = false;
+    var $driver = "xmlphp";
+    var $fields = array();
+    var $path ;
+    var $numrecords = -1;
+    var $numrecordscache = array();
+    var $usecachefile = 0;
+    var $xmlfieldname ;
+    var $xmltagroot ;
+    var $pathdata = "";
+
 
     function __construct($databasename, $tablename, $path = "misc", $params = false)
     {
@@ -1117,8 +1037,7 @@ class XMLTable
         $this->xmltagroot = $this->databasename;
         $this->pathdata = "";
         //if is xml
-        if (is_array($tablename))
-        {
+        if (is_array($tablename)) {
             $this->xmldescriptor = $tablename['xml'];
             $fields = xmldb_xml2array($this->xmldescriptor, "field", false);
             if (!is_array($fields))
@@ -1128,23 +1047,18 @@ class XMLTable
             else
                 die("tablename is not set");
 
-            foreach ($fields as $field)
-            {
+            foreach ($fields as $field) {
                 $xmlfield = new XMLField($fields, $field['name']);
                 $this->fields[$field['name']] = $xmlfield;
             }
-        }
-        else
-        {
+        } else {
             if ($tablename == "")
                 die("tablename is empty");
             $this->tablename = $tablename;
-            if (!file_exists("$path/$databasename/{$this->tablename}.php"))
-            {
+            if (!file_exists("$path/$databasename/{$this->tablename}.php")) {
                 return false;
             }
-            if (!file_exists("$path/$databasename/{$this->tablename}"))
-            {
+            if (!file_exists("$path/$databasename/{$this->tablename}")) {
                 if (!is_writable("$path/$databasename/"))
                     return false;
                 mkdir("$path/$databasename/{$this->tablename}");
@@ -1152,10 +1066,8 @@ class XMLTable
             //fix old escriptor--->
             $tmp = file_get_contents("$path/$databasename/{$this->tablename}.php");
             $this->xmldescriptor = $tmp;
-            if (false !== strpos($tmp, "multilinguage"))
-            {
-                if (is_writable("$path/$databasename/{$this->tablename}.php"))
-                {
+            if (false !== strpos($tmp, "multilinguage")) {
+                if (is_writable("$path/$databasename/{$this->tablename}.php")) {
                     $tmp = str_replace("multilinguage", "multilanguage", $tmp);
                     $h = fopen("$path/$databasename/{$this->tablename}.php", "w");
                     fwrite($h, $tmp);
@@ -1176,8 +1088,7 @@ class XMLTable
             if (!is_array($fields))
                 return false;
             $this->primarykey = '';
-            foreach ($fields as $field)
-            {
+            foreach ($fields as $field) {
                 $xmlfield = new XMLField("$path/$databasename/{$this->tablename}.php", $field['name']);
                 $this->fields[$field['name']] = $xmlfield;
             }
@@ -1186,41 +1097,33 @@ class XMLTable
         $this->xmlfieldname = $this->tablename;
         // cerca la chiave primaria
         $this->primarykey = array();
-        foreach ($fields as $field)
-        {
+        foreach ($fields as $field) {
             if (isset($field['primarykey']) && $field['primarykey'] == "1")
                 $this->primarykey[] = $field['name'];
         }
-        if (count($this->primarykey) == 1 && isset($this->primarykey[0]))
-        {
+        if (count($this->primarykey) == 1 && isset($this->primarykey[0])) {
             $this->primarykey = $this->primarykey[0];
         }
         //modalita' database---->
         $this->driver = get_xml_single_element("driver", $this->xmldescriptor);
         global $xmldb_default_driver;
-        if ($this->driver == "" && $xmldb_default_driver != "")
-        {
+        if ($this->driver == "" && $xmldb_default_driver != "") {
             $this->driver = $xmldb_default_driver;
         }
-        if ($this->driver == "")
-        {
+        if ($this->driver == "") {
             $this->driver = "xmlphp";
         }
-        if (is_array($params))
-        {
-            foreach ($params as $k => $v)
-            {
+        if (is_array($params)) {
+            foreach ($params as $k => $v) {
                 $this->$k = $v;
             }
         }
-        if (file_exists(dirname(__FILE__) . "/xmldb_{$this->driver}.php"))
-        {
+        if (file_exists(dirname(__FILE__) . "/xmldb_{$this->driver}.php")) {
             require_once "xmldb_{$this->driver}.php";
         }
 
         $classname = "XMLTable_" . $this->driver;
-        if (!class_exists($classname))
-        {
+        if (!class_exists($classname)) {
             die("xmldberror: $classname not exists in table $tablename");
         }
         $this->driverclass = new $classname($this, $params);
@@ -1239,10 +1142,9 @@ class XMLTable
         $unirecid = $recordvalues[$this->primarykey];
         if (!isset($recordvalues[$recordkey]))
             $recordvalues = $this->GetRecord($recordvalues);
-        $value = $recordvalues[$recordkey];
+        $value = isset($recordvalues[$recordkey]) ? $recordvalues[$recordkey] : null;
         $tablepath = $this->FindFolderTable($recordvalues);
-        if ($value != "" /* && file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/$value") */)
-        {
+        if ($value != "" /* && file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/$value") */) {
             //die($this->path ."/$databasename/$tablepath/$unirecid/$recordkey/$value");
             return $this->path . "/$databasename/$tablepath/$unirecid/$recordkey/" . $value;
         }
@@ -1260,8 +1162,7 @@ class XMLTable
             $recordvalues = $this->GetRecord($recordvalues);
         $value = $recordvalues[$recordkey];
         $tablepath = $this->FindFolderTable($recordvalues);
-        if (file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/thumbs/$value.jpg"))
-        {
+        if (file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/thumbs/$value.jpg")) {
             return $this->path . "/$databasename/$tablepath/$unirecid/$recordkey/thumbs/$value.jpg";
         }
         return $this->getFilePath($recordvalues, $recordkey);
@@ -1272,8 +1173,7 @@ class XMLTable
     function get_file($recordvalues, $recordkey)
     {
         $file = $this->getFilePath($recordvalues, $recordkey);
-        if ($file && file_exists($file))
-        {
+        if ($file && file_exists($file)) {
             $php_self = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : "";
             $dirname = dirname($php_self);
             if ($dirname == "/" || $dirname == "\\")
@@ -1282,8 +1182,7 @@ class XMLTable
             if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")
                 $protocol = "https://";
             $siteurl = "$protocol" . $_SERVER['HTTP_HOST'] . $dirname;
-            if (substr($siteurl, strlen($siteurl) - 1, 1) != "/")
-            {
+            if (substr($siteurl, strlen($siteurl) - 1, 1) != "/") {
                 $siteurl = $siteurl . "/";
             }
             return "$siteurl" . $file;
@@ -1295,8 +1194,7 @@ class XMLTable
     {
         $file = $this->getThumbPath($recordvalues, $recordkey);
 
-        if ($file && file_exists($file))
-        {
+        if ($file && file_exists($file)) {
             $php_self = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : "";
             $dirname = dirname($php_self);
             if ($dirname == "/" || $dirname == "\\")
@@ -1305,8 +1203,7 @@ class XMLTable
             if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")
                 $protocol = "https://";
             $siteurl = "$protocol" . $_SERVER['HTTP_HOST'] . $dirname;
-            if (substr($siteurl, strlen($siteurl) - 1, 1) != "/")
-            {
+            if (substr($siteurl, strlen($siteurl) - 1, 1) != "/") {
                 $siteurl = $siteurl . "/";
             }
             return "$siteurl" . $file;
@@ -1316,8 +1213,7 @@ class XMLTable
 
     function SetFile($key, $filepath, $filename = "")
     {
-        if (!file_exists($filepath))
-        {
+        if (!file_exists($filepath)) {
             dprint_r("$filepath not exists");
         }
         $_FILES[$key]['tmp_name'] = realpath($filepath);
@@ -1357,11 +1253,9 @@ class XMLTable
 
     function InsertRecord($values)
     {
-        if (defined("XMLDB_DEBUG_FILE_LOG") && XMLDB_DEBUG_FILE_LOG)
-        {
+        if (defined("XMLDB_DEBUG_FILE_LOG") && XMLDB_DEBUG_FILE_LOG) {
             file_put_contents(XMLDB_DEBUG_FILE_LOG, FN_Now() . " " . __METHOD__ . " {$this->tablename}" . "\n", FILE_APPEND);
-            if ($this->tablename == "fn_settings")
-            {
+            if ($this->tablename == "fn_settings") {
                 file_put_contents(XMLDB_DEBUG_FILE_LOG, FN_Now() . " " . __METHOD__ . " values: " . json_encode($values) . "\n", FILE_APPEND);
             }
         }
@@ -1380,23 +1274,18 @@ class XMLTable
      */
     function GetLastUpdateTime()
     {
-        if (file_exists("{$this->path}/{$this->databasename}/{$this->tablename}/updated"))
-        {
-            return(filectime("{$this->path}/{$this->databasename}/{$this->tablename}/updated"));
-        }
-        else
-        {
-            return(filectime("{$this->path}/{$this->databasename}/{$this->tablename}.php"));
+        if (file_exists("{$this->path}/{$this->databasename}/{$this->tablename}/updated")) {
+            return (filectime("{$this->path}/{$this->databasename}/{$this->tablename}/updated"));
+        } else {
+            return (filectime("{$this->path}/{$this->databasename}/{$this->tablename}.php"));
         }
     }
 
     function DelRecord($pkvalue)
     {
-        if (defined("XMLDB_DEBUG_FILE_LOG") && XMLDB_DEBUG_FILE_LOG)
-        {
+        if (defined("XMLDB_DEBUG_FILE_LOG") && XMLDB_DEBUG_FILE_LOG) {
             file_put_contents(XMLDB_DEBUG_FILE_LOG, FN_Now() . " " . __METHOD__ . " {$this->tablename}" . "\n", FILE_APPEND);
-            if ($this->tablename == "fn_settings")
-            {
+            if ($this->tablename == "fn_settings") {
                 file_put_contents(XMLDB_DEBUG_FILE_LOG, FN_Now() . " " . __METHOD__ . " value: $pkvalue\n", FILE_APPEND);
             }
         }
@@ -1421,11 +1310,9 @@ class XMLTable
 
     function UpdateRecordBypk($values, $pkey, $pvalue)
     {
-        if (defined("XMLDB_DEBUG_FILE_LOG") && XMLDB_DEBUG_FILE_LOG)
-        {
+        if (defined("XMLDB_DEBUG_FILE_LOG") && XMLDB_DEBUG_FILE_LOG) {
             file_put_contents(XMLDB_DEBUG_FILE_LOG, FN_Now() . " " . __METHOD__ . " {$this->tablename}" . "\n", FILE_APPEND);
-            if ($this->tablename == "fn_settings")
-            {
+            if ($this->tablename == "fn_settings") {
                 file_put_contents(XMLDB_DEBUG_FILE_LOG, FN_Now() . " " . __METHOD__ . " values: " . json_encode($values) . "\n", FILE_APPEND);
             }
         }
@@ -1435,23 +1322,18 @@ class XMLTable
 
     function UpdateRecord($values, $pkvalue = false)
     {
-        if (is_array($this->primarykey))
-        {
+        if (is_array($this->primarykey)) {
             if ($pkvalue && !is_array($pkvalue))
                 return false;
             if ($pkvalue !== false)
                 $unirecid = $pkvalue;
-            else
-            {
+            else {
                 $unirecid = array();
-                foreach ($this->primarykey as $pkk)
-                {
+                foreach ($this->primarykey as $pkk) {
                     $unirecid[$pkk] = $values[$this->$pkk];
                 }
             }
-        }
-        else
-        {
+        } else {
             if (!isset($values[$this->primarykey]) && $pkvalue === false)
                 return false;
             if ($pkvalue !== false)
@@ -1467,8 +1349,7 @@ class XMLTable
     function FindFolderTable($oldvalues)
     {
 
-        if (!isset($oldvalues[$this->primarykey]))
-        {
+        if (!isset($oldvalues[$this->primarykey])) {
             return false;
         }
         $id = $oldvalues[$this->primarykey];
@@ -1484,21 +1365,18 @@ class XMLTable
         //-----------------first folder---------------------------------------->
         $oldfileimage = "$path/$databasename/$dirtable_oldvalue/$id";
         //dprint_r($oldfileimage);
-        if (file_exists($oldfileimage))
-        {
+        if (file_exists($oldfileimage)) {
             return $dirtable_oldvalue;
         }
         //-----------------first folder----------------------------------------<
         $i = 1;
         $ret = $dirtable_oldvalue;
         $max = count(glob("$path/$databasename/*"));
-        while ($i < $max)
-        {
+        while ($i < $max) {
             $tmp = explode(".", $dirtable_oldvalue);
             $dirtable_oldvalue = $tmp[0] . ".$i";
             $oldfileimage = "$path/$databasename/$dirtable_oldvalue/$id/";
-            if (file_exists($oldfileimage))
-            {
+            if (file_exists($oldfileimage)) {
                 $ret = $dirtable_oldvalue;
             }
             $i++;
@@ -1524,32 +1402,25 @@ class XMLTable
             return;
         $unirecid = $newvalues[$this->primarykey];
         $dirtable_new = false;
-        if (isset($oldvalues[$this->primarykey]) && $oldvalues[$this->primarykey] != $values[$this->primarykey])
-        {
+        if (isset($oldvalues[$this->primarykey]) && $oldvalues[$this->primarykey] != $values[$this->primarykey]) {
             $dirtable = $this->FindFolderTable($oldvalues);
-            if (false !== $dirtable)
-            {
-                if (file_exists("$path/$databasename/$dirtable/" . $oldvalues[$this->primarykey]))
-                {
+            if (false !== $dirtable) {
+                if (file_exists("$path/$databasename/$dirtable/" . $oldvalues[$this->primarykey])) {
                     rename("$path/$databasename/$dirtable/" . $oldvalues[$this->primarykey], "$path/$databasename/$dirtable/" . $values[$this->primarykey]);
                     $dirtable_new = $this->FindFolderTable($oldvalues);
                 }
             }
-        }
-        elseif (isset($oldvalues[$this->primarykey]))
-        {
+        } elseif (isset($oldvalues[$this->primarykey])) {
             $dirtable_new = $this->FindFolderTable($oldvalues);
         }
-        if ($dirtable_new === false)
-        {
+        if ($dirtable_new === false) {
             $i = 1;
             $maxfiles = intval(_MAX_FILES_PER_FOLDER);
             $dirtable_new = $tablename;
             if ($this->pathdata)
                 $dirtable_oldvalue = $this->pathdata;
 
-            while (file_exists("$path/$databasename/$dirtable_new") && count(glob("$path/$databasename/$dirtable_new/*")) >= $maxfiles)
-            {
+            while (file_exists("$path/$databasename/$dirtable_new") && count(glob("$path/$databasename/$dirtable_new/*")) >= $maxfiles) {
                 $tmp = explode(".", $dirtable_new);
                 $dirtable_new = $tmp[0] . ".$i";
                 $i++;
@@ -1558,15 +1429,12 @@ class XMLTable
 
 
         //die ($dirtable_new);
-        foreach ($newvalues as $key => $value)
-        {
+        foreach ($newvalues as $key => $value) {
             $type = isset($this->fields[$key]) ? $this->fields[$key] : null;
-            if (isset($type->type) && ($type->type == 'file' || $type->type == 'image'))
-            {
+            if (isset($type->type) && ($type->type == 'file' || $type->type == 'image')) {
                 //cancello i vecchi record se esiste il nuovo
                 $dirtable_oldvalue = false;
-                if (isset($values[$this->primarykey]))
-                {
+                if (isset($values[$this->primarykey])) {
 
                     if (isset($_FILES[$key]['tmp_name']) && $_FILES[$key]['tmp_name'] != "" && $oldvalues != null && isset($values[$key])) // se e' un aggiornamento
                     {
@@ -1576,56 +1444,45 @@ class XMLTable
                             $dirtable_oldvalue = $tablename;
                         //find folder---<
                     }
-                    if (!empty($values[$this->primarykey]) && !empty($oldvalues[$key]))
-                    {
+                    if (!empty($values[$this->primarykey]) && !empty($oldvalues[$key])) {
 
                         $oldfileimage = "$path/$databasename/$dirtable_oldvalue/" . $values[$this->primarykey] . "/" . $key . "/" . $oldvalues[$key];
                         $oldfilethumb = "$path/$databasename/$dirtable_oldvalue/" . $values[$this->primarykey] . "/" . $key . "/thumbs/" . $oldvalues[$key] . ".jpg";
-                        if ($dirtable_oldvalue != false && $oldvalues[$key] != "" && file_exists($oldfilethumb))
-                        {
+                        if ($dirtable_oldvalue != false && $oldvalues[$key] != "" && file_exists($oldfilethumb)) {
                             unlink($oldfilethumb);
                         }
-                        if ($dirtable_oldvalue != false && $oldvalues[$key] != "" && file_exists($oldfileimage))
-                        {
+                        if ($dirtable_oldvalue != false && $oldvalues[$key] != "" && file_exists($oldfileimage)) {
                             unlink($oldfileimage);
                         }
 
                         // cancellazione di un record
-                        if (isset($_POST["__isnull__$key"]) && $_POST["__isnull__$key"] == "null")
-                        {
+                        if (isset($_POST["__isnull__$key"]) && $_POST["__isnull__$key"] == "null") {
                             $dirtable_oldvalue = $this->FindFolderTable($values);
                             $oldfileimage = "$path/$databasename/$dirtable_oldvalue/" . $values[$this->primarykey] . "/" . $key . "/" . $oldvalues[$key];
                             $oldfilethumb = "$path/$databasename/$dirtable_oldvalue/" . $values[$this->primarykey] . "/" . $key . "/thumbs/" . $oldvalues[$key] . ".jpg";
-                            if ($oldvalues[$key] != "" && file_exists($oldfilethumb))
-                            {
+                            if ($oldvalues[$key] != "" && file_exists($oldfilethumb)) {
                                 unlink($oldfilethumb);
                                 rmdir(dirname($oldfilethumb));
                             }
-                            if ($oldvalues[$key] != "" && file_exists($oldfileimage))
-                            {
+                            if ($oldvalues[$key] != "" && file_exists($oldfileimage)) {
                                 unlink($oldfileimage);
                                 rmdir(dirname($oldfileimage));
                             }
                         }
                     }
                 }
-                if (isset($_FILES[$key]['tmp_name']) && $_FILES[$key]['tmp_name'] != "")
-                {
+                if (isset($_FILES[$key]['tmp_name']) && $_FILES[$key]['tmp_name'] != "") {
                     $name_clean = $_FILES["$key"]['name'];
-                    if (ini_get('magic_quotes_gpc') == 1)
-                    {
+                    if (ini_get('magic_quotes_gpc') == 1) {
                         $name_clean = stripslashes($_FILES["$key"]['name']);
                     }
                     $name_clean = str_replace("\\", "", $name_clean);
                     $name_clean = str_replace("/", "", $name_clean);
 
                     //die ($name_clean);
-                    if (preg_match('/.php/is', $name_clean) || preg_match('/.php3/is', $name_clean) || preg_match('/.php4/is', $name_clean) || preg_match('/.php5/is', $name_clean) || preg_match('/.phtml/is', $name_clean))
-                    {
+                    if (preg_match('/.php/is', $name_clean) || preg_match('/.php3/is', $name_clean) || preg_match('/.php4/is', $name_clean) || preg_match('/.php5/is', $name_clean) || preg_match('/.phtml/is', $name_clean)) {
                         touch("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
-                    }
-                    else
-                    {
+                    } else {
 
                         if (!file_exists("$path/$databasename/$dirtable_new/"))
                             mkdir("$path/$databasename/$dirtable_new/");
@@ -1633,8 +1490,15 @@ class XMLTable
                             mkdir("$path/$databasename/$dirtable_new/$unirecid");
                         if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key"))
                             mkdir("$path/$databasename/$dirtable_new/$unirecid/$key");
-                        if (!move_uploaded_file($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean))
-                            copy($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                        //workarround: alla insert non funziona move_uploaded_file
+                        //se elimino il file temporaneo non funziona nemmeno copy  
+                        if ($oldvalues) {
+                            move_uploaded_file($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                        } else {
+                            $tmpname = $_FILES[$key]['tmp_name'];
+                            copy($tmpname, "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                        }
+
                         $create_thumb[$key] = true;
                     }
                 }
@@ -1642,11 +1506,9 @@ class XMLTable
         }
         //---------------- creazione anteprime per le immagini ----------------------
 
-        foreach ($this->fields as $field)
-        {
-            switch ($field->type)
-            {
-                case "image" :
+        foreach ($this->fields as $field) {
+            switch ($field->type) {
+                case "image":
                     if (isset($values[$field->name]) && $values[$field->name] != "") // se il campo e' stato aggiornato
                     {
                         $dirtable = $dirtable_new;
@@ -1655,8 +1517,7 @@ class XMLTable
 
                         $fileimage = isset($values[$this->primarykey]) ? "$path/$databasename/$dirtable/" . $values[$this->primarykey] . "/" . $field->name . "/" . $values[$field->name] : "";
                         $filethumb = isset($values[$this->primarykey]) ? "$path/$databasename/$dirtable/" . $values[$this->primarykey] . "/" . $field->name . "/thumbs/" . $values[$field->name] . ".jpg" : false;
-                        if (file_exists($fileimage) && (isset($create_thumb[$key]) || ($filethumb && !file_exists($filethumb))))
-                        {
+                        if (file_exists($fileimage) && (isset($create_thumb[$key]) || ($filethumb && !file_exists($filethumb)))) {
                             $size = isset($field->thumbsize) ? $field->thumbsize : 22;
                             $size_w = isset($field->thumbsize_w) ? $field->thumbsize_w : "";
                             $size_h = isset($field->thumbsize_h) ? $field->thumbsize_h : "";
@@ -1669,7 +1530,6 @@ class XMLTable
             }
         }
     }
-
 }
 
 /**
@@ -1680,17 +1540,17 @@ class XMLTable_xmlphp
 {
 
     var
-            $databasename;
+        $databasename;
     var
-            $tablename;
+        $tablename;
     var
-            $primarykey;
+        $primarykey;
     var
-            $filename;
+        $filename;
     var
-            $indexfield;
+        $indexfield;
     var
-            $fields;
+        $fields;
 
     function __construct(&$xmltable, $params = false)
     {
@@ -1715,10 +1575,8 @@ class XMLTable_xmlphp
         $tablename = $this->tablename;
         // dati su singolo file
         $this->filename = get_xml_single_element("filename", $this->xmldescriptor);
-        if (is_array($params))
-        {
-            foreach ($params as $k => $v)
-            {
+        if (is_array($params)) {
+            foreach ($params as $k => $v) {
                 $this->$k = $v;
             }
         }
@@ -1738,8 +1596,7 @@ class XMLTable_xmlphp
         if ($restr == null)
             $cacheid = " ";
         $cacheid = md5($cacheid);
-        if (isset($this->numrecordscache[$cacheid]))
-        {
+        if (isset($this->numrecordscache[$cacheid])) {
             return $this->numrecordscache[$cacheid];
         }
         $c = count($this->GetRecords($restr, false, false, false, false, $this->primarykey));
@@ -1758,8 +1615,7 @@ class XMLTable_xmlphp
         $path = $this->path;
         $files = glob($cachefile = "$path/" . $databasename . "/cache/$tablename*");
         if (is_array($files))
-            foreach ($files as $file)
-            {
+            foreach ($files as $file) {
                 @unlink($file);
             }
     }
@@ -1776,38 +1632,32 @@ class XMLTable_xmlphp
         $tablename = $this->tablename;
         $path = $this->path;
         $fieldname = $this->xmlfieldname;
-        if ($order && !isset($this->fields[$order]))
-        {
+        if ($order && !isset($this->fields[$order])) {
             $order = false;
         }
 
-        if (is_array($fields))
-        {
+        if (is_array($fields)) {
             $fields = implode("|", $fields);
         }
         $tmf = "";
-        if ($fields != false && is_array($restr))
-        {
+        if ($fields != false && is_array($restr)) {
             foreach ($restr as $key => $value)
                 $fields .= "|$key";
         }
         $rc = $restr;
         if (is_array($restr))
             $rc = implode("|", $restr);
-        if ($restr && is_string($restr))
-        {
+        if ($restr && is_string($restr)) {
             die("TODO xmldb: not yet implemented function for this driver");
         }
 
         //cache su file---->
-        if ($this->usecachefile == 1)
-        {
+        if ($this->usecachefile == 1) {
             $cacheindex = $rc . $min . $length . $order . $reverse . $fields;
             if (!file_exists("$path/" . $databasename . "/cache"))
                 mkdir("$path/" . $databasename . "/cache");
             $cachefile = "$path/" . $databasename . "/cache/" . $tablename . "." . md5($cacheindex) . ".cache";
-            if (file_exists($cachefile))
-            {
+            if (file_exists($cachefile)) {
                 $ret = file_get_contents($cachefile);
                 $ret = @unserialize($ret);
                 //dprint_r("[$cachefile]");
@@ -1818,11 +1668,9 @@ class XMLTable_xmlphp
         }
         //cache su file----<
         // filtro i field che non sono associati alla tabella
-        if ($fields === false)
-        {
+        if ($fields === false) {
             $fields = array();
-            foreach ($this->fields as $v)
-            {
+            foreach ($this->fields as $v) {
                 $fields[] = $v->name;
             }
             $fields = implode("|", $fields);
@@ -1838,76 +1686,58 @@ class XMLTable_xmlphp
             return null;
         }
         //se il campo manca lo forzo a default oppure null
-        foreach ($all as $k => $r)
-        {
-            foreach ($this->fields as $field)
-            {
+        foreach ($all as $k => $r) {
+            foreach ($this->fields as $field) {
                 if (!isset($r[$field->name]))
                     $r[$field->name] = isset($this->fields[$field->name]->defaultvalue) ? $this->fields[$field->name]->defaultvalue : null;
             }
             $all[$k] = $r;
         }
-        if (is_array($restr))
-        {
+        if (is_array($restr)) {
             $ret = array();
-            foreach ($all as $r)
-            {
+            foreach ($all as $r) {
                 $ok = true;
-                foreach ($restr as $key => $value)
-                {
+                foreach ($restr as $key => $value) {
                     //-----%xxx%------>
-                    if (isset($restr[$key]) && preg_match("/^%/s", $restr[$key]) && preg_match('/%$/s', $restr[$key]))
-                    {
-                        
+                    if (isset($restr[$key]) && preg_match("/^%/s", $restr[$key]) && preg_match('/%$/s', $restr[$key])) {
+
                         $t = xmldb_encode_preg(substr($restr[$key], 1, strlen($restr[$key]) - 2));
-                        if (preg_match("/$t/is", $r[$key]) == false)
-                        {
+                        if (preg_match("/$t/is", $r[$key]) == false) {
                             $ok = false;
                             break;
                         }
-                    }
-                    elseif (isset($restr[$key]) && preg_match("/%" . '$/is', $restr[$key]))
-                    {
-                        
+                    } elseif (isset($restr[$key]) && preg_match("/%" . '$/is', $restr[$key])) {
+
                         $t = xmldb_encode_preg(substr($restr[$key], 0, strlen($restr[$key]) - 1));
-                        if (preg_match("/^$t/is", $r[$key]) == false)
-                        {
+                        if (preg_match("/^$t/is", $r[$key]) == false) {
                             $ok = false;
                             break;
                         }
-                    }
-                    elseif (isset($restr[$key]) && preg_match("/^%/is", $restr[$key]))
-                    {
+                    } elseif (isset($restr[$key]) && preg_match("/^%/is", $restr[$key])) {
                         $t = xmldb_encode_preg(substr($restr[$key], 1));
-                        
-                        if (preg_match("/" . $t . '$/is', $r[$key]) == false)
-                        {
+
+                        if (preg_match("/" . $t . '$/is', $r[$key]) == false) {
                             $ok = false;
                             break;
                         }
                     }
                     //-----%xxx%------<
-                    else
-                    {
-                        if (!isset($r[$key]) || $r[$key] != $restr[$key])
-                        {
+                    else {
+                        if (!isset($r[$key]) || $r[$key] != $restr[$key]) {
                             $ok = false;
                             break;
                         }
                     }
                 }
-                if ($ok == true)
-                {
+                if ($ok == true) {
                     $ret[] = $r;
                 }
             }
-        }
-        else
+        } else
             $ret = $all;
         //ordinamento dei records ------>
 
-        if ($order !== false && $order !== "" && /*  isset($this->fields[$order]) && */ is_array($ret))
-        {
+        if ($order !== false && $order !== "" && /*  isset($this->fields[$order]) && */ is_array($ret)) {
             $ret = xmldb_array_sort_by_key($ret, $order);
 
             /*
@@ -1939,8 +1769,7 @@ class XMLTable_xmlphp
               $ret=$newret;
              * */
         }
-        if ($reverse)
-        {
+        if ($reverse) {
             $ret = array_reverse($ret);
         }
         //ordinamento dei records ------<
@@ -1949,8 +1778,7 @@ class XMLTable_xmlphp
             $ret = array_slice($ret, $min - 1, $length);
         $ret = array_values($ret);
         //cache su file---->
-        if ($this->usecachefile == 1)
-        {
+        if ($this->usecachefile == 1) {
             $cachestring = serialize($ret);
             $fp = fopen($cachefile, "wb");
             fwrite($fp, $cachestring);
@@ -1970,8 +1798,7 @@ class XMLTable_xmlphp
     function GetRecord($restr = false)
     {
         $rec = $this->GetRecords($restr, 0, 1);
-        if (is_array($rec) && isset($rec[0]))
-        {
+        if (is_array($rec) && isset($rec[0])) {
 
             return $rec[0];
         }
@@ -2008,17 +1835,15 @@ class XMLTable_xmlphp
         $records = $this->GetRecords();
         $max = 0;
         $contrec = 0;
-        if (is_array($records))
-        {
-            foreach ($records as $rec)
-            {
+        if (is_array($records)) {
+            foreach ($records as $rec) {
                 $contrec++;
                 if (isset($rec[$field]) && intval($rec[$field]) > intval($max))
                     $max = intval($rec[$field]);
             }
         }
         $this->numrecords = $contrec;
-//		return ($max + 1).uniqid(".");
+        //		return ($max + 1).uniqid(".");
         return $max + 1;
     }
 
@@ -2036,41 +1861,32 @@ class XMLTable_xmlphp
         $databasename = $this->databasename;
         $tablename = $this->tablename;
         $path = $this->path;
-        for ($tlock = time(); $this->dbIsLocked();)
-        {
-            if (time() - $tlock > _MAX_LOCK_TIME)
-            {
+        for ($tlock = time(); $this->dbIsLocked();) {
+            if (time() - $tlock > _MAX_LOCK_TIME) {
                 $this->dbunlock();
                 return "error:table is locked";
             }
             usleep(rand(1, 500));
         }
-        if (!$this->dblock())
-        {
+        if (!$this->dblock()) {
             return "error:table lock failed";
         }
-        if (isset($values[$this->primarykey]))
-        {
+        if (isset($values[$this->primarykey])) {
             $t = $this->GetRecordByPrimaryKey($values[$this->primarykey]);
-            if (is_array($t))
-            {
+            if (is_array($t)) {
                 $this->dbunlock();
                 return "error:there is already a record with this primary key {$this->primarykey}={$values[$this->primarykey]}";
             }
         }
-        foreach ($this->fields as $f)
-        {
-            if (!isset($values[$f->name]) || (isset($values[$f->name]) && $values[$f->name] == ""))
-            {
-                if (isset($this->fields[$f->name]->extra) && $this->fields[$f->name]->extra == "autoincrement")
-                {
+        foreach ($this->fields as $f) {
+            if (!isset($values[$f->name]) || (isset($values[$f->name]) && $values[$f->name] == "")) {
+                if (isset($this->fields[$f->name]->extra) && $this->fields[$f->name]->extra == "autoincrement") {
                     $newid = $this->GetAutoincrement($f->name);
                     $values[$f->name] = $newid;
                     $this->maxautoincrement[$f->name] = $newid;
                 }
             }
-            if ((!isset($values[$f->name]) || $values[$f->name] === null) && (isset($this->fields[$f->name]->defaultvalue) && $this->fields[$f->name]->defaultvalue != ""))
-            {
+            if ((!isset($values[$f->name]) || $values[$f->name] === null) && (isset($this->fields[$f->name]->defaultvalue) && $this->fields[$f->name]->defaultvalue != "")) {
                 $dv = $this->fields[$f->name]->defaultvalue;
                 $fname = $f->name;
                 $rv = "";
@@ -2080,77 +1896,63 @@ class XMLTable_xmlphp
                 eval("\$values" . "['$fname'] = '$rv' ;");
             }
         }
-        if (!isset($values[$this->primarykey]) || $values[$this->primarykey] == "")
-        {
+        if (!isset($values[$this->primarykey]) || $values[$this->primarykey] == "") {
             $this->dbunlock();
             return "error:missing the primary key in table  $tablename";
         }
         // cerco il file da modificare o creare----->
         if (!preg_match("/\\/$/si", $this->datafile)) //datafile
             $xmltowritefullpath = $this->datafile;
-        else
-        {
+        else {
             $unirecid = urlencode($values[$this->primarykey]);
             $xmltowritefullpath = "{$this->datafile}" . $unirecid . ".php"; //default
-            if ($this->filename != "")
-            {
+            if ($this->filename != "") {
                 $xmltowritefullpath = "{$this->datafile}" . urlencode($this->filename) . ".php"; //filename
             }
-            if ($this->indexfield != "" && isset($values[$this->indexfield]))
-            {
+            if ($this->indexfield != "" && isset($values[$this->indexfield])) {
                 $xmltowritefullpath = "{$this->datafile}" . urlencode($values[$this->indexfield]) . ".php"; //indexfield
             }
         }
         // cerco il file da modificare o creare-----<
         // se esiste gia'
-        if (file_exists($xmltowritefullpath))
-        {
+        if (file_exists($xmltowritefullpath)) {
             $readok = false;
-            for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++)
-            {
+            for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++) {
                 $oldfilestring = file_get_contents($xmltowritefullpath);
-                if (strpos($oldfilestring, "</{$this->xmltagroot}") !== false)
-                {
+                if (strpos($oldfilestring, "</{$this->xmltagroot}") !== false) {
                     $readok = true;
                     break;
                 }
             }
-            if (!$readok)
-            {
+            if (!$readok) {
                 $this->dbunlock();
                 return "error:insert record db is locked";
             }
             $str = "\t<{$this->xmlfieldname}>";
-            foreach ($this->fields as $field)
-            {
+            foreach ($this->fields as $field) {
                 $valtowrite = isset($values[$field->name]) ? $values[$field->name] : "";
                 $valtowrite = xmlenc("$valtowrite");
                 $str .= "\n\t\t<" . $field->name . ">" . $valtowrite . "</" . $field->name . ">";
             }
             $str .= "\n\t</{$this->xmlfieldname}>\n</{$this->xmltagroot}>";
             $newfilestring = preg_replace('/<\/' . $this->xmltagroot . '>$/s', xmldb_encode_preg_replace2nd($str), trim(ltrim($oldfilestring)));
-            if (file_exists("$xmltowritefullpath") && !is_writable("$xmltowritefullpath"))
-            {
+            if (file_exists("$xmltowritefullpath") && !is_writable("$xmltowritefullpath")) {
                 $this->dbunlock();
                 return "error:not file writable";
             }
             $handle = fopen($xmltowritefullpath, "w");
             fwrite($handle, $newfilestring);
             fclose($handle);
-        }
-        else
-        {
+        } else {
             $str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<?php exit(0);?>";
             $str .= "\n<{$this->xmltagroot}>\n\t<{$this->xmlfieldname}>";
-            foreach ($this->fields as $field)
-            {
+            foreach ($this->fields as $field) {
                 $valtowrite = isset($values[$field->name]) ? $values[$field->name] : "";
                 $valtowrite = xmlenc("$valtowrite");
                 $str .= "\n\t\t<" . $field->name . ">" . $valtowrite . "</" . $field->name . ">";
             }
             $str .= "\n\t</{$this->xmlfieldname}>\n</{$this->xmltagroot}>";
-            if (file_exists("$xmltowritefullpath") && !is_writable("$xmltowritefullpath"))
-            {
+            if (file_exists("$xmltowritefullpath") && !is_writable("$xmltowritefullpath")) {
                 $this->dbunlock();
                 return false;
             }
@@ -2175,8 +1977,7 @@ class XMLTable_xmlphp
     {
         if ($this->tablename == "____empty_____")
             return false;
-        if (file_exists("{$this->path}/{$this->databasename}/{$this->tablename}/lock"))
-        {
+        if (file_exists("{$this->path}/{$this->databasename}/{$this->tablename}/lock")) {
             return true;
         }
         return false;
@@ -2190,8 +1991,7 @@ class XMLTable_xmlphp
     {
         if ($this->tablename == "____empty_____")
             return true;
-        if (false !== ($fp = @fopen("{$this->path}/{$this->databasename}/{$this->tablename}/lock", "x")))
-        {
+        if (false !== ($fp = @fopen("{$this->path}/{$this->databasename}/{$this->tablename}/lock", "x"))) {
             fclose($fp);
             return true;
         }
@@ -2204,8 +2004,7 @@ class XMLTable_xmlphp
      */
     function dbunlock()
     {
-        if ($this->tablename == "____empty_____")
-        {
+        if ($this->tablename == "____empty_____") {
             return true;
         }
         $r = unlink("{$this->path}/{$this->databasename}/{$this->tablename}/lock");
@@ -2222,8 +2021,7 @@ class XMLTable_xmlphp
         $path = $this->path;
         $this->numrecords = -1;
         $this->numrecordscache = array();
-        if ($tablename == "____empty_____")
-        {
+        if ($tablename == "____empty_____") {
             if (!empty($this->datafile))
                 unlink($this->datafile);
         }
@@ -2259,13 +2057,10 @@ class XMLTable_xmlphp
         $this->ClearCachefile();
         $n = xmldb_readDatabase($oldfile, $this->xmlfieldname, false, false);
         // se e' l' ultimo record
-        if (count($n) == 1)
-        {
-            if (preg_match("/\\/$/si", $this->datafile))
-            {
-                @ unlink($oldfile);
-                if (file_exists($oldfile) && is_dir($oldfile))
-                {
+        if (count($n) == 1) {
+            if (preg_match("/\\/$/si", $this->datafile)) {
+                @unlink($oldfile);
+                if (file_exists($oldfile) && is_dir($oldfile)) {
                     xmldb_remove_dir_rec($oldfile);
                 }
             }
@@ -2275,19 +2070,16 @@ class XMLTable_xmlphp
         $pkey = $this->primarykey;
         $pvalue = $pkvalue;
         $readok = false;
-        for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++)
-        {
+        for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++) {
             if (!file_exists($oldfile)) //errore
                 break;
             $oldfilestring = file_get_contents("$oldfile");
-            if (strpos($oldfilestring, "</{$this->xmltagroot}>") !== false)
-            {
+            if (strpos($oldfilestring, "</{$this->xmltagroot}>") !== false) {
                 $readok = true;
                 break;
             }
         }
-        if (!$readok)
-        {
+        if (!$readok) {
             return false;
         }
         $oldfilestring = xmldb_removexmlcomments($oldfilestring);
@@ -2315,17 +2107,14 @@ class XMLTable_xmlphp
         $path = $this->path;
 
         //$pvalue=urlencode($pvalue);
-        if (!preg_match("/\\/$/si", $this->datafile))
-        {
+        if (!preg_match("/\\/$/si", $this->datafile)) {
             return $this->datafile;
         }
         //guardo prima quelo con la chiave primaria
-        if (file_exists($this->datafile . "/" . urlencode($pvalue) . ".php"))
-        {
+        if (file_exists($this->datafile . "/" . urlencode($pvalue) . ".php")) {
             $data = file_get_contents($this->datafile . "/" . urlencode($pvalue) . ".php");
             $data = xmldb_removexmlcomments($data);
-            if (preg_match('/<' . $tablename . '>(.*)<' . $pkey . '>' . xmlenc(xmldb_encode_preg($pvalue)) . '<\/' . $pkey . '>/s', $data))
-            {
+            if (preg_match('/<' . $tablename . '>(.*)<' . $pkey . '>' . xmlenc(xmldb_encode_preg($pvalue)) . '<\/' . $pkey . '>/s', $data)) {
                 $this->cache_filerecord[$pvalue] = $this->datafile . "/" . urlencode($pvalue) . ".php";
                 return $this->datafile . "/" . urlencode($pvalue) . ".php";
             }
@@ -2337,17 +2126,14 @@ class XMLTable_xmlphp
         if (!file_exists($this->datafile))
             return false;
         $handle = opendir($this->datafile);
-        while (false !== ($file = readdir($handle)))
-        {
+        while (false !== ($file = readdir($handle))) {
             $tmp2 = null;
-            if (preg_match('/.php$/s', $file) and!is_dir($this->datafile . "/$file"))
-            {
+            if (preg_match('/.php$/s', $file) and !is_dir($this->datafile . "/$file")) {
                 $data = file_get_contents($this->datafile . "/$file");
                 $data = xmldb_removexmlcomments($data);
                 ///dprint_xml('/<' . $pkey . '>' . $pvalue . '<\/' . $pkey . '>/s');
                 //dprint_r($this->datafile . "/$file");
-                if (preg_match('/<' . $pkey . '>' . $pvalue . '<\/' . $pkey . '>/s', $data))
-                {
+                if (preg_match('/<' . $pkey . '>' . $pvalue . '<\/' . $pkey . '>/s', $data)) {
                     $this->cache_filerecord[$pvalue] = $this->datafile . "/$file";
                     return $this->datafile . "/$file";
                 }
@@ -2369,14 +2155,12 @@ class XMLTable_xmlphp
         $tablename = $this->tablename;
         $path = $this->path;
         //cache su file---->
-        if (!is_array($pkey) && $this->usecachefile == 1)
-        {
+        if (!is_array($pkey) && $this->usecachefile == 1) {
             $cacheindex = $pvalue;
             if (!file_exists("$path/" . $databasename . "/cache"))
                 mkdir("$path/" . $databasename . "/cache");
             $cachefile = "$path/" . $databasename . "/cache/" . $tablename . "." . urlencode($pvalue) . ".cache";
-            if (file_exists($cachefile))
-            {
+            if (file_exists($cachefile)) {
                 $ret = file_get_contents($cachefile);
                 $ret = @unserialize($ret);
                 if ($ret !== false)
@@ -2389,14 +2173,11 @@ class XMLTable_xmlphp
         $values = xmldb_readDatabase($old, $this->xmlfieldname);
         $ret = false;
         $found = false;
-        if (!is_array($values))
-        {
+        if (!is_array($values)) {
             return $values;
         }
-        foreach ($values as $value)
-        {
-            if ($value[$pkey] == ($pvalue))
-            {
+        foreach ($values as $value) {
+            if ($value[$pkey] == ($pvalue)) {
                 $found = true;
                 $ret = $value;
                 break;
@@ -2404,14 +2185,12 @@ class XMLTable_xmlphp
         }
         //riempo i campi che mancano
         if ($found)
-            foreach ($this->fields as $field)
-            {
+            foreach ($this->fields as $field) {
                 if (!isset($ret[$field->name]))
                     $ret[$field->name] = isset($field->defaultvalue) ? $field->defaultvalue : null;
             }
         //cache su file---->
-        if ($this->usecachefile == 1)
-        {
+        if ($this->usecachefile == 1) {
             $cachestring = serialize($ret);
             $fp = fopen($cachefile, "wb");
             fwrite($fp, $cachestring);
@@ -2435,51 +2214,42 @@ class XMLTable_xmlphp
         $databasename = $this->databasename;
         $tablename = $this->tablename;
         $path = $this->path;
-        $strnew = "";
-        {
+        $strnew = ""; {
             $old = $this->GetFileRecord($pkey, $pvalue);
             if (!file_exists($old))
                 return false;
             //$oldfilestring = file_get_contents($old);
             $readok = false;
-            for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++)
-            {
+            for ($i = 0; $i < _MAXTENTATIVIDIACCESSO; $i++) {
                 $oldfilestring = file_get_contents($old);
-                if (strpos($oldfilestring, "</") !== false)
-                {
+                if (strpos($oldfilestring, "</") !== false) {
                     $readok = true;
                     break;
                 }
             }
-            if (!$readok)
-            {
+            if (!$readok) {
                 return "error update";
             }
 
             $oldfilestring = xmldb_removexmlcomments($oldfilestring);
             $oldvalues = $newvalues = $this->GetRecordByPk($pvalue);
-            if (isset($values[$this->primarykey]) && $values[$this->primarykey] != $pvalue)
-            {
+            if (isset($values[$this->primarykey]) && $values[$this->primarykey] != $pvalue) {
                 $tatget = $this->GetRecordByPk($values[$this->primarykey]);
-                if ($tatget)
-                {
+                if ($tatget) {
                     return "duplicate primarykey";
                 }
             }
             //dprint_r($oldvalues);
             //die();
-            foreach ($values as $key => $value)
-            {
+            foreach ($values as $key => $value) {
                 $newvalues[$key] = $value;
             }
             $oldvalues[$this->primarykey] = $pvalue;
             $this->xmltable->gestfiles($values, $oldvalues);
             //compongo il nuovo xml per il record da aggiornare
             $strnew = "<{$this->xmlfieldname}>";
-            foreach ($newvalues as $key => $value)
-            {
-                if (is_array($value))
-                {
+            foreach ($newvalues as $key => $value) {
+                if (is_array($value)) {
                     error_log("$value is not array");
                 }
                 $strnew .= "\n\t\t<$key>" . xmlenc("$value") . "</$key>";
@@ -2490,8 +2260,7 @@ class XMLTable_xmlphp
             $pvalue = xmldb_encode_preg($pvalue);
             $newfilestring = preg_replace('/<' . $this->xmlfieldname . '>([^(' . $this->xmlfieldname . ')]*)<' . $pkey . '>' . $pvalue . '<\/' . $pkey . '>(.*?)<\/' . $this->xmlfieldname . '>/s', $strnew, $oldfilestring);
             $newfilestring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<?php exit(0);?>\n" . trim(ltrim($newfilestring));
-            if (!is_writable($old))
-            {
+            if (!is_writable($old)) {
                 echo ("$old is readonly,I can't update");
                 return ("$old is readonly,I can't update");
             }
@@ -2506,7 +2275,6 @@ class XMLTable_xmlphp
             return $newvalues;
         }
     }
-
 }
 
 /**
@@ -2516,13 +2284,10 @@ class XMLTable_xmlphp
  */
 function xmldb_image_fix_orientation(&$image, $filename)
 {
-    if (function_exists("exif_read_data"))
-    {
+    if (function_exists("exif_read_data")) {
         $exif = @exif_read_data($filename);
-        if (!empty($exif['Orientation']))
-        {
-            switch ($exif['Orientation'])
-            {
+        if (!empty($exif['Orientation'])) {
+            switch ($exif['Orientation']) {
                 default:
                     break;
                 case 3:
@@ -2538,11 +2303,6 @@ function xmldb_image_fix_orientation(&$image, $filename)
                     break;
             }
         }
-    }
-    else
-    {
-        
+    } else {
     }
 }
-
-?>

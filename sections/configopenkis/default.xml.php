@@ -3,7 +3,7 @@
 <fn_sections>
 	<type></type>
 	<parent>menu_settings</parent>
-	<position>220</position>
+	<position>230</position>
 	<title>Configurazione</title>
 	<description></description>
 	<startdate></startdate>

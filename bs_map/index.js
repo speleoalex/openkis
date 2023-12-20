@@ -15,6 +15,19 @@ getUrlVar = function (name, defaultValue) {
     return results === null ? defaultValue : decodeURIComponent(results[1].replace(/\+/g, " "));
 };
 
+function validateNewPlantsForm(latlng) {
+    var latlngArray = latlng.split(",");
+    if (latlngArray.length !== 2)
+    {
+        return false;
+    }
+    for (var i = 0; i < latlngArray.length; i++) {
+        if (isNaN(latlngArray[i]) || latlngArray[i] < -127 || latlngArray[i] > 75) {
+            return false;
+        }
+    }
+    return true;
+}
 /**
  * 
  * @param {type} title
@@ -190,7 +203,18 @@ window.setTimeout(function () {
             cb(matches);
         };
     };
+    $('#searchText').on("change", function () {
+        var text = $('#searchText').val();
+        var latlon = text.split(",");
+        if (validateNewPlantsForm(text))
+        {
+            var lat = latlon[0];
+            var lon = latlon[1];
+            OPS_Map.setCenter(parseFloat(lon), parseFloat(lat));
+            //OPS_Map.setZoom(10);
+        }
 
+    });
     $('.typeahead').typeahead({
         hint: true,
         highlight: true,
@@ -236,7 +260,7 @@ window.setTimeout(function () {
         ResizeLayerMenu();
 
     });
-    ResizeLayerMenu() ;
+    ResizeLayerMenu();
 
     OPS_Map.addLayerSwitcher();
     OPS_Map.switchBaseLayer();
@@ -322,10 +346,12 @@ function SearchMarkers_(text) {
  * @returns {undefined}
  */
 function GoToMarker(text) {
+
     if (text == "")
     {
         return;
     }
+
     OPS_Map.getKmlPoints();
     var result = OPS_Map.getMarkerKmlByName(text);
     if (result)
@@ -338,6 +364,7 @@ function GoToMarker(text) {
             {
                 OPS_Map.map.removeLayer(OPS_Map.SearchResultCircle);
             }
+
             var lat = latlon[1];
             var lon = latlon[0];
             OPS_Map.setCenter(parseFloat(lon), parseFloat(lat));
@@ -399,7 +426,7 @@ function GetInfoPoint(coordinates, evt)
 {
     $.ajax({
         type: 'GET',
-        url: OPS_Map.geocodepath + 'splx_geocode.php?lat=' + coordinates[1] + '&lon=' + coordinates[0],
+        url: OPS_Map.geocodepath + 'bs_request.php?lat=' + coordinates[1] + '&lon=' + coordinates[0],
         dataType: "text",
         // data: {lat: coordinates.lat,lon:coordinates.lon},
         success: function (data) {

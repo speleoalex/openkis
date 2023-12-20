@@ -1602,7 +1602,7 @@ class HTML2PDF_parsingCss
         }
 
         // like #FFFFFF
-        if (preg_match('/^#[0-9A-Fa-f]{6}$/isU', $css)) {
+        if (preg_match('/^\/\/[0-9A-Fa-f]{6}$/isU', $css)) {
             $r = floatVal(hexdec(substr($css, 1, 2)));
             $v = floatVal(hexdec(substr($css, 3, 2)));
             $b = floatVal(hexdec(substr($css, 5, 2)));
@@ -1610,7 +1610,7 @@ class HTML2PDF_parsingCss
         }
 
         // like #FFF
-        if (preg_match('/^#[0-9A-F]{3}$/isU', $css)) {
+        if (preg_match('/^\/\/[0-9A-F]{3}$/isU', $css)) {
             $r = floatVal(hexdec(substr($css, 1, 1).substr($css, 1, 1)));
             $v = floatVal(hexdec(substr($css, 2, 1).substr($css, 2, 1)));
             $b = floatVal(hexdec(substr($css, 3, 1).substr($css, 3, 1)));

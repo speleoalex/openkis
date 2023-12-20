@@ -14,6 +14,11 @@
         <type>string</type>
     </field>
     <field>
+        <name>codesystem</name>
+        <frm_i18n>code cave system</frm_i18n>
+        <type>string</type>
+    </field>    
+    <field>
         <name>name</name>
         <frm_it>Nome rilievo</frm_it>
     </field>

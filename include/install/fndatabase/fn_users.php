@@ -27,14 +27,6 @@
         <frm_required>1</frm_required>
     </field>
     <field>
-        <name>emailhidden</name>
-        <type>check</type>
-        <frm_type>check</frm_type>                
-        <frm_i18n>hide email to other users</frm_i18n>
-        <frm_required>0</frm_required>
-        <frm_show>1</frm_show>
-    </field>
-    <field>
         <name>name</name>
         <frm_i18n>name</frm_i18n>
         <frm_help_i18n>Insert your name here</frm_help_i18n>
@@ -69,11 +61,6 @@
         <frm_i18n>upload custom avatar</frm_i18n>
         <frm_maximagesize>100</frm_maximagesize>
         <thumbsize>24</thumbsize>
-    </field>
-    <field>
-        <name>signature</name>
-        <type>text</type>
-        <frm_i18n>signature</frm_i18n>
     </field>
     <field>
         <name>level</name>
@@ -118,3 +105,4 @@
         <frm_allowupdate>onlyadmin</frm_allowupdate>
     </field>
 </tables>
+

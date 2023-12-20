@@ -58,9 +58,13 @@ switch ($op)
             $tplvars['urllogout'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;fnlogin=logout");
             $uservalues = FN_GetUser($_FN['user']);
             $todisplay = array();
-            $form = FN_GetUserForm();
+            $form = FN_GetUserForm();            
             foreach ($uservalues as $k => $v)
             {
+                if (!isset($form->formvals[$k]))
+                {
+                    continue;
+                }
                 //dprint_r($form->formvals[$k]);
                 if (isset($form->formvals[$k]['frm_show']) && $form->formvals[$k]['frm_show'] == false)
                 {

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type></type>
 	<parent>menu_settings</parent>
-	<position>210</position>
+	<position>220</position>
 	<title>Tipi di coordinate</title>
 	<description></description>
 	<startdate></startdate>

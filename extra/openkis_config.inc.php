@@ -13,4 +13,10 @@ if (file_exists("extra/openkis_config.local.php"))
 
     include "extra/openkis_config.local.php";
 }
+if (file_exists("openkis_config.local.php"))
+{
+
+    include "openkis_config.local.php";
+}
+
 ?>

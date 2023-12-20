@@ -51,12 +51,8 @@ if ($html!= "")
 
 
 $table=new XMLTable("fndatabase","ctl_fauna",$_FN['datadir']);
-$fauna=explode("|",$row['fauna']);
-
+$fauna=explode(",",$row['fauna']);
 $fauna=array_unique($fauna);
-//dprint_r($row);
-//dprint_r($fauna);
-
 $fhtml="";
 foreach($fauna as $key=> $val)
 {
@@ -65,6 +61,7 @@ foreach($fauna as $key=> $val)
     {
         $query="SELECT * FROM ctl_fauna WHERE scientific_name LIKE \"%".$val."%\" OR scientific_name LIKE \"%".strtolower($val)."%\" OR scientific_name LIKE \"%".ucfirst(strtolower($val))."%\" OR scientific_name LIKE \"%".strtoupper($val)."%\" ";
         $r=FN_XMLQuery($query);
+
         if (isset($r[0]['scientific_name']))
         {
             $l=fn_rewritelink("index.php?mod=fauna&op=view&id={$r[0]['id']}");

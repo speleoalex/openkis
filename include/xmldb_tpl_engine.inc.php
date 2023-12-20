@@ -1,5 +1,4 @@
 <?php
-
 /**
  * find <!-- $partname -->(.*)<!-- end$partname -->
  * 
@@ -34,7 +33,6 @@ function TPL_GetHtmlPart($partname, $tp_str, $default = "")
     $tp_str = empty($out[0]) ? $default : $out[0];
     return $tp_str;
 }
-
 /**
  * 
  * @staticvar array $cache
@@ -52,7 +50,7 @@ function TPL_GetHtmlParts($partname, $tp_str, $default = "")
         return $cache[$md5];
     }
     $out = array();
-    $ret = false;
+    $ret = array();
     if (preg_match("/<!-- $partname -->.*<!-- $partname -->/s", $tp_str))//se il nome del nodo contiene un elemento con lo stesso nome
     {
         $tmp = explode("<!-- $partname -->", $tp_str);
@@ -82,7 +80,6 @@ function TPL_GetHtmlParts($partname, $tp_str, $default = "")
     }
     return array();
 }
-
 /**
  * 
  * @param type $partname
@@ -107,6 +104,8 @@ function TPL_ReplaceHtmlPart($partname, $replace, $tp_str, $default = "")
 function TPL_encode($str)
 {
     global $tpl_skeep;
+    if (!isset($str))
+        return "";
     if (!$tpl_skeep)
         $tpl_skeep = "__skeep___graph_";
     $str = str_replace("{", $tpl_skeep, $str);
@@ -151,8 +150,9 @@ function TPL_ApplyTplFile($tplname, $vars, $config)
  * @param type $config
  * @return type
  */
-function TPL_ApplyTplString($str, $vars, $basepath = false, $config)
+function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
 {
+    global $_TPL_DEBUG;
     /*
 
       $config['lang_default']=isset($config['lang_default'])?$config['lang_default']:"";
@@ -162,13 +162,17 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config)
       $config['use_urlserverpath']=isset($config['use_urlserverpath'])?$config['use_urlserverpath']:"";
       $config['sitepath']=isset($config['sitepath'])?$config['sitepath']:"";
      */
-
     static $recursion = 0;
     $recursion++;
-    if ($recursion > 5)
+    if ($recursion > 4)
     {
+
         $recursion--;
         return $str;
+    }
+    if (is_string($vars))
+    {
+        $vars=array("item"=>$vars);
     }
     foreach ($config as $k => $v)
     {
@@ -388,6 +392,12 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config)
     }
 
     $ret = TPL_decode($strout);
+
+    if (isset($_GET['debug']))
+    {
+        //dprint_xml($str);
+        //dprint_r(__FILE__ . " " . __LINE__ . " : " . FN_GetExecuteTimer());
+    }
     $recursion--;
     return $ret;
 }

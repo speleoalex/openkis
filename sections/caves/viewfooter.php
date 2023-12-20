@@ -1,12 +1,17 @@
 <?php
 
 global $_FN;
+$icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
+//print_r($icon);
+//echo  openkis_GetIcon_custom($iconparams,$itemvalues, $mod);//
 if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['openkis_custom']}/viewfooter_{$_FN['mod']}.php"))
 {
+
     include("extra/openkis/custom/{$_FN['openkis_custom']}/viewfooter_{$_FN['mod']}.php");
 
 } else
 {
+    $icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
     if (!empty($row['latitude']))
     {
         $zoom = 17;

@@ -10,9 +10,9 @@
  * in misc/fndatabase/sections_news/settings.php
  * this file contains only the default values
  */
-#[it]Nome tabella 
-#[en]Table name news
-#[i18n]table name news
+//[it]Nome tabella 
+//[en]Table name news
+//[i18n]table name news
 $config['tablename']="";
 
 ?>

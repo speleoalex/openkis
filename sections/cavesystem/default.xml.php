@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>50</position>
+	<position>40</position>
 	<title>Complessi carsici</title>
 	<description></description>
 	<startdate></startdate>
@@ -20,17 +20,15 @@
 	<blocks></blocks>
 	<title_it>Complessi carsici</title_it>
 	<description_it></description_it>
-	<title_en></title_en>
+	<title_en>Karst complexes</title_en>
 	<description_en></description_en>
-	<link>index.php?mod=cavesystem</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert></groupinsert>
-	<groupadmin></groupadmin>
+	<groupinsert>w_caves</groupinsert>
+	<groupadmin>w_caves</groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
@@ -62,9 +60,12 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>0</enable_offlineform>
+	<databasename>fndatabase</databasename>
+	<databasename>fndatabase</databasename>
 	<enablecomments>0</enablecomments>
 	<enableranks>0</enableranks>
 	<default_view_mode>icon</default_view_mode>
 	<enable_rss>1</enable_rss>
-	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

@@ -220,7 +220,7 @@ function FN_HtmlAdminOptions()
             $form->formvals['title']['frm_required']="0";
             $form->formvals['parent']['frm_show']="0";
             $form->formvals['position']['frm_show']="0";
-            $newvalues=isset($_POST['updatesection']) ? $form->GetByPost() : false;
+            $newvalues=isset($_POST['updatesection']) ? $form->GetByPost() : array();
             $newvalues['id']=$_FN['mod'];
             $errors=array();
             if (isset($_POST['updatesection']))
@@ -281,7 +281,7 @@ function FN_HtmlAdminOptions()
             if (FN_IsWritable("sections"))
             {
                 $forminsert=FN_XmlForm("fn_sections");
-                $newvalues=isset($_POST['newsection']) ? $forminsert->GetByPost() : false;
+                $newvalues=isset($_POST['newsection']) ? $forminsert->GetByPost() : array();
                 $errors=array();
                 $html.=FN_OpenAdminSection(FN_Translate("create new page"),isset($_POST['newsection']));
                 $html.="<form class=\"fn_adminform\" method=\"post\" action=\"".FN_RewriteLink("index.php?mod={$_FN['mod']}")."\"><div>";

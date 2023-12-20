@@ -13,7 +13,8 @@ $filelox = FN_GetParam("f", $_GET);
         <script type="text/javascript" src="CaveView/js/CaveView2.js" ></script>
     </head>
     <body onload="onload();" style="padding:0px;margin:0px;background-color:#000000">
-        <div style="padding:0px;margin:0px;width:100%" id="scene"></div>
+        <!--<div style="padding:0px;margin:0px;width:100%" id="scene"></div>-->
+        <div style="padding:0px;margin:0px;width:100%;position:absolute;height:100%;width:100%" id="scene"></div>
         <button style="position:absolute;bottom:0px;right:0px" onclick="openFullscreen(document.getElementById('scene'))">Full screen</button>
         <script type="text/javascript" >
             function onload() {

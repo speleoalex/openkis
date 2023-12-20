@@ -11,11 +11,16 @@
 class xmldb_searchform
 {
 
-    function __construct($databasename,$tablename,$path="misc",$lang="en",$languages="en,it",$params=false)
+    function __construct($databasename,$tablename,$path="misc",$lang="en",$languages="en,it",$params=array())
     {
+        if (!is_array($params))
+        {
+            $params=array();
+        }
+        
         if (empty($params['tpl_filters']))
         {
-
+            
             $params['tpl_filters']="
 <div>
 <!-- contents -->

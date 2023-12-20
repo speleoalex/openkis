@@ -1,7 +1,7 @@
 <?php
 
 $icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
-//echo "<img src=\"$icon\" />";
+
 
 if (!empty($row['latitude']))
 {
@@ -30,7 +30,15 @@ if (!empty($row['latitude']))
     echo "</div><br />";
 
 
-    echo "<div>Coordinate:<input class=\"form-input\" value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" /></div>";
+    $position=openkis_GetItemPosition($row);
+    echo "<div>Coordinate  WGS84 (Lon,Lat):<input class=\"form-input\" value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" /></div>";
+    
+    echo "<div>Coordinate  WGS84 (Lon,Lat):<input class=\"form-input\" value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" /></div>";
+   
+    echo "<div>Coordinate  WGS84 UTM (x,y,zone):<input class=\"form-input\" value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" /></div>";
+    
+    
+    
 }
 $config = FN_LoadConfig("", "bibliography");
 $biblio = new FNDBVIEW($config);
@@ -51,28 +59,32 @@ if (is_array($biblio_items) && count($biblio_items))
     echo "</table>";
     echo "</div>";
 }
-//survey------------------------------------------------------------------->
+//----survey------------------------------------------------------------------->
 $config = FN_LoadConfig("", "survey");
 $survey = new FNDBVIEW($config);
 $params['appendquery'] = "codecave LIKE '{$row['code']}'";
-$params['fields'] = "id,title,filelox,priority";
-$items = $survey->GetResults(false, $params);
-$items = FN_ArraySortByKey($items, "priority");
+$params['fields'] = "id,name,filelox,priority";
+
+$items = array();
+
+$items = $survey->GetResults($config, $params);
 if (is_array($items) && count($items))
 {
+    $items = FN_ArraySortByKey($items, "priority");
     foreach ($items as $survey_item)
     {
-        if (!empty($survey_item['filelox']))
+        if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}"))
         {
             $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
             $iframe_href = "{$_FN['siteurl']}openkis_cave_viewer.php?f={$file}";
-            //echo "<br/><a href=\"$iframe_href\" target=\"_blank\">" . FN_Translate("open") . "</a><br />";
-            echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
+//            echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
+ //           dprint_r($survey_item);
+            echo "<br/>{$survey_item['name']}: <a class=\"btn btn-primary\" href=\"$iframe_href\" target=\"_blank\">" . FN_Translate("3D Viewer") . "</a><br />";
         }
     }
 }
 
-//survey-------------------------------------------------------------------<
+//----survey-------------------------------------------------------------------<
 //-----------SCANSIONI--------------------------------------------------------->
 function DrawFile($file)
 {
@@ -237,4 +249,18 @@ if (file_exists("../nextcloud/data/catasto/files/schede_dsl/"))
 
 
 //-----------SCANSIONI---------------------------------------------------------<
+
+
+//------------------generazione scheda catastale------------------------>
+if (!empty($_GET['export_pdf']))
+{
+    include(__DIR__."/pdf/pdf.php");
+    die();
+}
+$urlexport = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1");
+echo "<br/><a class=\"btn btn-primary\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a><br />";
+
+//------------------generazione scheda catastale------------------------<
+
+
 ?>

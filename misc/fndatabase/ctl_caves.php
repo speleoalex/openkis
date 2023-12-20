@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?php exit(0);?>
 <tables>
     <field>
         <name>id</name>
@@ -15,7 +13,7 @@
         <frm_help_i18n>leave blank for self assignment</frm_help_i18n>
         <unique>1</unique>
     </field>
-    
+
     <field>
         <name>name</name>
         <frm_it>Nome</frm_it>
@@ -68,13 +66,15 @@
         <name>regione</name>
         <type>select</type>
         <frm_type>regione</frm_type>
-        <frm_it>Regione</frm_it>          
+        <frm_it>Regione</frm_it>
+        <frm_default>PIEMONTE</frm_default>                
     </field>
     <field>
         <name>provincia</name>
         <type>string</type>
         <frm_it>Provincia</frm_it>
         <frm_type>provincia</frm_type>
+        <frm_showinlist>1</frm_showinlist>
     </field>    
     <field>
         <name>comune</name>
@@ -122,7 +122,7 @@
         <type>string</type>
         <frm_it>Litologia</frm_it>
     </field>
-    
+
     <field>
         <name>lenght_total</name>
         <view_group>size</view_group>
@@ -332,7 +332,7 @@
         <frm_help>Attenzione !! Il campo deve essere compilato dopo che la grotta è stata ritrovata successivamente la messa a catasto</frm_help>
         <type>varchar</type>
         <frm_show>1</frm_show>
-    </field>
+    </field>    
     <field>
         <name>check_date</name>
         <frm_it>Data ultima verifica sul campo</frm_it>
@@ -544,15 +544,6 @@
         <view_endgroup>data</view_endgroup>
     </field>    
     <field>
-        <name>groupview</name>
-        <frm_i18n>limits the display of the content in these groups</frm_i18n>
-        <foreignkey>fn_groups</foreignkey>
-        <fk_link_field>groupname</fk_link_field>
-        <fk_show_field>groupname</fk_show_field>
-        <frm_type>multicheck</frm_type>
-        <type>string</type>
-    </field>
-    <field>
         <name>groupinsert</name>
         <frm_i18n>limits the edit of the content in these groups</frm_i18n>
         <foreignkey>fn_groups</foreignkey>
@@ -563,7 +554,7 @@
         <frm_setonlyadmin>1</frm_setonlyadmin>
         <frm_allowupdate>onlyadmin</frm_allowupdate>
     </field>    
-    
+
     <field>
         <name>latitude</name>
         <type>float</type>
@@ -584,4 +575,25 @@
         <type>bool</type>
         <frm_show>0</frm_show>
     </field>
+    <field>
+        <name>groupview</name>
+        <frm_i18n>limits the display of the content in these groups</frm_i18n>
+        <foreignkey>fn_groups</foreignkey>
+        <fk_link_field>groupname</fk_link_field>
+        <fk_show_field>groupname</fk_show_field>
+        <frm_type>multicheck</frm_type>
+        <type>string</type>
+    </field>
+    <field>
+        <name>xxx</name>
+        <frm_it>Data curatore</frm_it>
+        <frm_help_i18n>campo riservato a curatore</frm_help_i18n>
+        <type>datetime</type>
+        <frm_show>1</frm_show>
+        <frm_dateformat>y-mm-dd</frm_dateformat>
+        <view_dateformat>dd/mm/y</view_dateformat>
+        <frm_setonlyadmin>1</frm_setonlyadmin>
+        <frm_allowupdate>onlyadmin</frm_allowupdate>        
+    </field>
+    
 </tables>

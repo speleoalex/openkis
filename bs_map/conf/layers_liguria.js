@@ -10,10 +10,20 @@ OPS_Map.MyAddLayers = function ()
     OPS_Map.addWMSLayer("IGM 1:25000 Liguria", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/igm25k_liguria_wgs/ImageServer/WMSServer", 'igm25k_piemonte_wgs', false, false, "png", 'EPSG:4326');
     OPS_Map.addWMSLayer("Geologica 1:50000", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/geo_50k_italia/ImageServer/WMSServer", '0', false, false, "png", 'EPSG:4326');
     OPS_Map.addWMSLayer("Geologica 1:100000", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/geo_100k_italia/ImageServer/WMSServer", '0', false, false, "png", 'EPSG:4326');
-    OPS_Map.addWMSLayer("Ortofoto2007", "openkis_proxy.php/http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/ORTOFOTO/1361.asp?", 'M1361', true, true, "jpeg");
+    OPS_Map.addWMSLayer("Ortofoto2011", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2248/ows?service=WMS&", 'L8256', true, true, "image/png");
     OPS_Map.addWMSLayer("CTR 1:10000", "openkis_proxy.php/http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/CARTE_TECNICHE/1238.asp?", 'M1238', true, true);
-    OPS_Map.addWMSLayer("Cartografia catastale", "openkis_proxy.php/http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/PIANIFICAZIONE/1162.asp?", 'M1162', false, false);
+    OPS_Map.addWMSLayer("Cartografia catastale fogli", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6589', false, false, "image/png");
+    OPS_Map.addWMSLayer("Cartografia catastale particelle", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6592', false, false, "image/png");
+    OPS_Map.addWMSLayer("Cartografia catastale fabbricati", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6593', false, false, "image/png");
+    OPS_Map.addWMSLayer("Cartografia catastale strade", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6590', false, false, "image/png");
+    OPS_Map.addWMSLayer("Cartografia catastale comuni", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6588', false, false, "image/png");
+    OPS_Map.addWMSLayer("Cartografia catastale acque", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6591', false, false, "image/png");
+    
     OPS_Map.addWMSLayer("Idrografia", "openkis_proxy.php/http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/ACQUE_INTERNE/1172.asp?", 'M1172', false, false);
+
+
+
+
 
     var layers = getUrlVar("layers", "");
     var mod = getUrlVar("mod", "");

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>40</position>
+	<position>80</position>
 	<title>Rilievi</title>
 	<description>Rilievi delle grotte</description>
 	<startdate></startdate>
@@ -13,25 +13,23 @@
 	<accesskey></accesskey>
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
-	<level>0</level>
-	<group_view>catasto_scrittura,catasto_lettura</group_view>
-	<group_edit>catasto_scrittura</group_edit>
+	<level></level>
+	<group_view></group_view>
+	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
 	<title_it>Rilievi</title_it>
 	<description_it>Rilievi delle grotte</description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=survey</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert>catasto_scrittura</groupinsert>
-	<groupadmin>catasto_scrittura</groupadmin>
-	<groupview>catasto_scrittura</groupview>
+	<groupinsert></groupinsert>
+	<groupadmin></groupadmin>
+	<groupview></groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>0</generate_googlesitemap>
@@ -47,14 +45,14 @@
 	<search_partfields></search_partfields>
 	<search_fields>codecave</search_fields>
 	<appendquery></appendquery>
-	<image_titlefield>survey</image_titlefield>
+	<image_titlefield>photo1</image_titlefield>
 	<image_size>200</image_size>
 	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
-	<permissions_records_groups></permissions_records_groups>
-	<permissions_records_edit_groups></permissions_records_edit_groups>
+	<permissions_records_groups>r_caves,w_caves</permissions_records_groups>
+	<permissions_records_edit_groups>w_caves</permissions_records_edit_groups>
 	<enable_history>0</enable_history>
 	<enable_export>0</enable_export>
 	<enable_delete>1</enable_delete>
@@ -62,5 +60,6 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<enable_offlineform>1</enable_offlineform>
+	<enable_offlineform>0</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

@@ -169,7 +169,7 @@ function FN_Copy($s,$d)
  */
 function FN_Write($string,$file,$mode="w")
 {
-    if (false!== ($fp=fopen($file,$mode)))
+    if (false!== ($fp=@fopen($file,$mode)))
     {
         fwrite($fp,$string);
         fclose($fp);
@@ -325,7 +325,7 @@ function FN_RelativePath($path)
 function FN_FileIsLocked($file)
 {
     global $_FN;
-    $filelock="{$_FN['datadir']}/_cache/".md5(($file)).".lock";
+    $filelock="{$_FN['datadir']}/_cache/lock/".md5(($file)).".lock";
     if (file_exists($filelock))
     {
         return true;
@@ -339,8 +339,14 @@ function FN_FileIsLocked($file)
  */
 function FN_LockFile($file)
 {
+    //dprint_r($file);
+    //die("");
     global $_FN;
-    $filelock="{$_FN['datadir']}/_cache/".md5(($file)).".lock";
+    if (!file_exists("{$_FN['datadir']}/_cache/lock/"))
+    {
+        mkdir("{$_FN['datadir']}/_cache/lock/");
+    }
+    $filelock="{$_FN['datadir']}/_cache/lock/".md5(($file)).".lock";
     if (false!== ($fp=@fopen($filelock,"x")))
     {
         fclose($fp);
@@ -356,8 +362,8 @@ function FN_LockFile($file)
 function FN_UnlockFile($file)
 {
     global $_FN;
-    $filelock="{$_FN['datadir']}/_cache/".md5(($file)).".lock";
-    $r=unlink($filelock);
+    $filelock="{$_FN['datadir']}/_cache/lock/".md5(($file)).".lock";
+    $r=@unlink($filelock);
     return $r;
 }
 

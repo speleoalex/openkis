@@ -7,6 +7,6 @@
  *
  */
 
-#[i18n]url
+//[i18n]url
 $config['url_rss']="http://www.linux.org/originalcontent";
 ?>

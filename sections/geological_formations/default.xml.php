@@ -3,7 +3,7 @@
 <fn_sections>
 	<type></type>
 	<parent>menu_settings</parent>
-	<position>200</position>
+	<position>210</position>
 	<title>Formazioni geologiche</title>
 	<description></description>
 	<startdate></startdate>
