@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_fauna</parent>
-	<position>190</position>
+	<position>200</position>
 	<title>Rilevamenti faunistici</title>
 	<description></description>
 	<startdate></startdate>

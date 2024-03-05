@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>block_menu</type>
 	<parent></parent>
-	<position>170</position>
+	<position>180</position>
 	<title>Fauna</title>
 	<description></description>
 	<startdate></startdate>

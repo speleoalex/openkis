@@ -3,9 +3,9 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_fauna</parent>
-	<position>180</position>
+	<position>190</position>
 	<title>Fauna cavernicola</title>
-	<description>contiene l'elenco degli animali cavernicoli</description>
+	<description>contiene l&#039;elenco degli animali cavernicoli</description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
@@ -19,7 +19,7 @@
 	<blocksmode></blocksmode>
 	<blocks></blocks>
 	<title_it>Fauna cavernicola</title_it>
-	<description_it>contiene l'elenco degli animali cavernicoli</description_it>
+	<description_it>contiene l&#039;elenco degli animali cavernicoli</description_it>
 	<title_en></title_en>
 	<description_en></description_en>
 </fn_sections>
@@ -61,4 +61,5 @@
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

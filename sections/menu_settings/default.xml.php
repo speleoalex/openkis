@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>block_menu</type>
 	<parent></parent>
-	<position>200</position>
+	<position>210</position>
 	<title>Configurazione</title>
 	<description></description>
 	<startdate></startdate>

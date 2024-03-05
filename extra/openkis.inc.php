@@ -1,4 +1,9 @@
 <?php
+if (file_exists("openkis_config.local.php"))
+{
+
+    include "openkis_config.local.php";
+}
 
 //da gauss a wgs84 1000030 15
 require_once(dirname(__FILE__) . "/openkis_geoconverter/openkis_geoconverter.class.php");
@@ -13,6 +18,7 @@ if (is_array($files))
         require_once $file;
     }
 }
+
 
 /**
  * 

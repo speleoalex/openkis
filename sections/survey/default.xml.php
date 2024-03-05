@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>80</position>
+	<position>90</position>
 	<title>Rilievi</title>
 	<description>Rilievi delle grotte</description>
 	<startdate></startdate>
@@ -13,7 +13,7 @@
 	<accesskey></accesskey>
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
-	<level></level>
+	<level>0</level>
 	<group_view></group_view>
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>

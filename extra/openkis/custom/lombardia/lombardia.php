@@ -122,6 +122,8 @@ function GeneraNumero($values)
  */
 function InizializzaDB()
 {
+
+
     $TableFRM=FN_XmlForm("ctl_caves");
     $TableFRM->formvals['country']['frm_default']="ITALIA";
     $TableFRM->formvals['regione']['frm_default']="LOMBARDIA";
@@ -143,7 +145,7 @@ function InizializzaDB()
     $field['frm_show']='0';
     $field['view_show']='1';
     addxmltablefield("fndatabase","ctl_caves",$field,"misc");
-
+/*
     $field=array();
     $field['name']='provincia';
     $field['type']='string';
@@ -152,6 +154,21 @@ function InizializzaDB()
     $field['frm_validator']='cglombardia_checkprovincia';
     $field['frm_required']='1';
     addxmltablefield("fndatabase","ctl_caves",$field,"misc",false);
+*/
+    if (!file_exists("misc/fndatabase/ctl_caves.php") || filemtime(__DIR__."/ctl_caves.php") > filemtime("misc/fndatabase/ctl_caves.php") )
+    {
+        file_put_contents("misc/fndatabase/ctl_caves.php", file_get_contents(__DIR__."/ctl_caves.php"));
+        die("misc/fndatabase/ctl_caves.php updated");
+    }
+    else
+    {
+
+        //    dprint_r(filemtime("misc/fndatabase/ctl_caves.php") );
+        //    dprint_r(filemtime(__DIR__."/ctl_caves.php") );
+    }
+
+
+
 }
 
 /**
@@ -211,13 +228,15 @@ function GeneraCodiciFSLO($silent=false)
         {
             $newitem=array();
             $newitem['id']=$item['id'];
-            $codice="LO{$item['provincia']}{$item['code']}";
+            $codenum = str_replace("LO","",($item['code']));
+            $codice="LO{$item['provincia']}{$codenum}";
             if ($item['code']!= $codice)
             {
                 $newitem['code_fslo']=$codice;
                 $table->UpdateRecord($newitem);
                 if (!$silent)
                     echo "<span style=\"color:red\">Aggiorno $codice</span><br />";
+                //die();
             }
             else
             {

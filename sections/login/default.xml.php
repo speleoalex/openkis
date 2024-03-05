@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>login</type>
 	<parent></parent>
-	<position>240</position>
+	<position>250</position>
 	<title>Accesso</title>
 	<description></description>
 	<startdate></startdate>

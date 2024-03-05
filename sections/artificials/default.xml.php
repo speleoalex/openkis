@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_artificials</parent>
-	<position>110</position>
+	<position>130</position>
 	<title>Database cavit&amp;agrave; artificiali</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,8 +22,6 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=artificials</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_dbview>
@@ -31,7 +29,7 @@
 	<recordsperpage>16</recordsperpage>
 	<groupinsert>w_artificials</groupinsert>
 	<groupadmin>w_artificials</groupadmin>
-	<groupview></groupview>
+	<groupview>r_artificials</groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>1</generate_googlesitemap>
@@ -62,9 +60,10 @@
 	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>1</enable_offlineform>
 	<enablecomments>0</enablecomments>
 	<enableranks>0</enableranks>
 	<default_view_mode>icon</default_view_mode>
 	<enable_rss>1</enable_rss>
-	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

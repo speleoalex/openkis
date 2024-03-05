@@ -997,27 +997,21 @@ class XMLField
 class XMLTable
 {
 
-    var
-        $databasename;
-    var
-        $tablename;
-    var
-        $primarykey;
-    var
-        $filename;
-    var
-        $indexfield;
-
+    var $databasename;
+    var $tablename;
+    var $primarykey;
+    var $filename;
+    var $indexfield;
     var $connection;
     var $driverclass = false;
     var $driver = "xmlphp";
     var $fields = array();
-    var $path ;
+    var $path;
     var $numrecords = -1;
     var $numrecordscache = array();
     var $usecachefile = 0;
-    var $xmlfieldname ;
-    var $xmltagroot ;
+    var $xmlfieldname;
+    var $xmltagroot;
     var $pathdata = "";
 
 
@@ -1978,6 +1972,10 @@ class XMLTable_xmlphp
         if ($this->tablename == "____empty_____")
             return false;
         if (file_exists("{$this->path}/{$this->databasename}/{$this->tablename}/lock")) {
+            if (!empty($_GET['debug'])) {
+                die("table is locked " . $this->tablename);
+            }
+
             return true;
         }
         return false;

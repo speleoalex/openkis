@@ -3,7 +3,7 @@
 <fn_sections>
 	<type></type>
 	<parent>menu_artificials</parent>
-	<position>140</position>
+	<position>160</position>
 	<title>Mappa cavit&agrave; artificiali</title>
 	<description></description>
 	<startdate></startdate>
@@ -14,7 +14,7 @@
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
 	<level></level>
-	<group_view></group_view>
+	<group_view>r_artificials</group_view>
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
