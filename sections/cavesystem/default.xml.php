@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>40</position>
+	<position>50</position>
 	<title>Complessi carsici</title>
 	<description></description>
 	<startdate></startdate>
@@ -60,12 +60,9 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<enable_offlineform>0</enable_offlineform>
-	<databasename>fndatabase</databasename>
-	<databasename>fndatabase</databasename>
 	<enablecomments>0</enablecomments>
 	<enableranks>0</enableranks>
 	<default_view_mode>icon</default_view_mode>
 	<enable_rss>1</enable_rss>
-	<documents_folder></documents_folder>
+	<enable_offlineform>0</enable_offlineform>
 </fncf_dbview>

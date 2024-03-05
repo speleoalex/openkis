@@ -20,6 +20,7 @@ var OPS_Map = {
     TrackIsActive: false,
     FollowingIsActive: false,
     geolocationPositions: false,
+    layergroups:[],
 //    viewMapProjectonEPSG: 'EPSG:4326',
     viewMapProjectonEPSG: 'EPSG:900913',
     //   viewMapProjectonEPSG: 'EPSG:3857',
@@ -503,7 +504,7 @@ var OPS_Map = {
         {
             if (OPS_Map.layergroups == undefined)
             {
-                OPS_Map.layergroups = new Array();
+                OPS_Map.layergroups =  [];
             }
             if (OPS_Map.layergroups[layergroup] == undefined)
             {
@@ -533,7 +534,15 @@ var OPS_Map = {
             layer.setZIndex(10);
             layer.showLabels = _showPointNames;
             layer.visible = visible;
-            OPS_Map.layergroups[layergroup].getLayers().array_.push(layer);
+            try{
+                console.log("layergroup "+layergroup);
+                OPS_Map.layergroups[layergroup].getLayers().push(layer);
+
+            }
+            catch(e){
+                console.log(OPS_Map.layergroups[layergroup].getLayers());
+                console.log(e);
+            };
 // this.map.get("markerGroup").getLayers() should return the same array
             OPS_Map.map.removeLayer(OPS_Map.layergroups[layergroup]);
             OPS_Map.map.addLayer(OPS_Map.layergroups[layergroup]);

@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>table_editor</type>
 	<parent>menu_artificials</parent>
-	<position>130</position>
+	<position>150</position>
 	<title>Configurazione tipologie</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,10 +22,4 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=art_tipologie</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
-
-<fncf_table_editor>
-	<tablename>ctl_art_types</tablename>
-</fncf_table_editor>

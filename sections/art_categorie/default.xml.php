@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>table_editor</type>
 	<parent>menu_artificials</parent>
-	<position>120</position>
+	<position>140</position>
 	<title>Configurazione categorie</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,8 +22,6 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=art_categorie</link>
-	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
 </fn_sections>
 
 <fncf_table_editor>

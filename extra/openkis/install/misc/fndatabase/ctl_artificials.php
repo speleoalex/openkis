@@ -203,15 +203,7 @@
         <fk_link_field>code</fk_link_field>
         <fk_show_field>name,note</fk_show_field>
     </field>
-     <field>
-        <name>walls</name>
-        <frm_it>Materiale delle pareti</frm_it>
-        <type>string</type>
-	<frm_type>multicave</frm_type>
-        <foreignkey>ctl_walls</foreignkey>
-        <fk_link_field>walls</fk_link_field>
-        <fk_show_field>walls</fk_show_field>
-    </field>
+
     <field>
         <name>notes</name>
         <frm_it>Note</frm_it>
