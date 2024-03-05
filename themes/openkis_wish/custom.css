@@ -1,0 +1,35 @@
+/* put your own styles to customize and override the theme */
+.page{
+    background-color:#ffffff;
+}
+
+.app-header-dark {
+    background-color: #00aadd !important;
+    color: hsla(0,0%,100%,.8);
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #00aadd;
+    border-color: #d67e36;
+}
+
+a {
+    color: #d67e36;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+img{
+    max-width: 100%
+}
+
+.bg-dark{
+    background-color: #00aadd !important;
+    color: hsla(0,0%,100%,.8) !important;
+    font-weight: bold;
+}
+
+body{
+        font-family: "Trebuchet MS", sans-serif
+}
