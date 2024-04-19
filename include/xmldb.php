@@ -15,7 +15,28 @@ define("_MAXTENTATIVIDIACCESSO", "1000");
 define("_MAX_FILES_PER_FOLDER", "10000");
 define("_MAX_LOCK_TIME", "30"); // seconds
 //define("XMLDB_DEBUG_FILE_LOG","/tmp/xmldb.log"); // seconds
-
+function xmldb_Copy($s, $d)
+{
+    global $_FN;
+    if (!file_exists($s) || is_dir($s)) {
+        return false;
+    }
+    $contents = file_get_contents($s);
+    if (is_dir($d)) {
+        $d .= $_FN['slash'] . basename($s);
+    }
+    //dprint_r($s." ".$d);
+    $h = fopen($d, "wb");
+    if ($h === false)
+        return false;
+    fwrite($h, $contents);
+    fclose($h);
+    if ($contents != file_get_contents($d)) {
+        @unlink($d);
+        return false;
+    }
+    return true;
+}
 /**
  *
  * @param string $data
@@ -263,33 +284,39 @@ function xmldb_create_thumb($filename, $max, $max_h = "", $max_w = "")
     $white = imagecolorallocate($thumb, 255, 255, 255);
     $size = getimagesize($filename);
     //	dprint_r(IMAGETYPE_WBMP);
-    switch ($size[2]) {
-        case IMAGETYPE_GIF:
-            $source = imagecreatefromgif($filename);
-            break;
-        case IMAGETYPE_JPEG:
-            $source = imagecreatefromjpeg($filename);
-            break;
-        case IMAGETYPE_PNG:
-            $source = imagecreatefrompng($filename);
-            break;
-        case IMAGETYPE_WBMP:
-            $source = imagecreatefromwbmp($filename);
-            break;
-        case IMG_XPM:
-            $source = imagecreatefromxpm($filename);
-            break;
-        case 6:
-            $source = xmldb_ImageCreateFromBMP($filename);
-            break;
-        default:
-            $tmb = null;
-            $size[0] = $size[1] = 150;
-            $source = ImageCreateTrueColor(150, 150);
-            $rosso = ImageColorAllocate($tmb, 255, 0, 0);
-            ImageString($tmb, 5, 10, 10, "Not a valid", $rosso);
-            ImageString($tmb, 5, 10, 30, "GIF, JPEG or PNG", $rosso);
-            ImageString($tmb, 5, 10, 50, "image.", $rosso);
+    try {
+        switch ($size[2]) {
+            case IMAGETYPE_GIF:
+                $source = imagecreatefromgif($filename);
+                break;
+            case IMAGETYPE_JPEG:
+                $source = imagecreatefromjpeg($filename);
+                break;
+            case IMAGETYPE_PNG:
+                $source = imagecreatefrompng($filename);
+                break;
+            case IMAGETYPE_WBMP:
+                $source = imagecreatefromwbmp($filename);
+                break;
+            case IMG_XPM:
+                $source = imagecreatefromxpm($filename);
+                break;
+            case 6:
+                $source = xmldb_ImageCreateFromBMP($filename);
+                break;
+            default:
+                // unknown file format
+                $source = imagecreatetruecolor(300, 300);
+                $color = imagecolorallocate($source, 255, 255, 255);
+                imagefill($source, 0, 0, $color);
+                break;
+        }
+    } catch (Exception $e) {
+        $source = false;
+    }
+
+    if (!$source) {
+        return;
     }
     xmldb_image_fix_orientation($source, $filename);
     // Resize
@@ -1488,11 +1515,21 @@ class XMLTable
                         //se elimino il file temporaneo non funziona nemmeno copy  
                         if ($oldvalues) {
                             move_uploaded_file($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                            if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
+                                xmldb_Copy($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                            }
+                            if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
+                                trigger_error("failed copy {$_FILES[$key]['tmp_name']}");
+                                dprint_r("failed copy {$_FILES[$key]['tmp_name']} to " . "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                            }
                         } else {
                             $tmpname = $_FILES[$key]['tmp_name'];
-                            copy($tmpname, "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                            FN_Copy($tmpname, "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                            if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
+                                trigger_error("failed copy {$_FILES[$key]['tmp_name']}", E_USER_WARNING);
+                                dprint_r("failed copy {$_FILES[$key]['tmp_name']} to " . "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                            }
                         }
-
                         $create_thumb[$key] = true;
                     }
                 }
@@ -2055,7 +2092,7 @@ class XMLTable_xmlphp
         $this->ClearCachefile();
         $n = xmldb_readDatabase($oldfile, $this->xmlfieldname, false, false);
         // se e' l' ultimo record
-        if (count($n) == 1) {
+        if (is_array($n) && count($n) == 1) {
             if (preg_match("/\\/$/si", $this->datafile)) {
                 @unlink($oldfile);
                 if (file_exists($oldfile) && is_dir($oldfile)) {

@@ -27,5 +27,8 @@ $_FN_datadir="misc";
 $_FN_default_auth_method = "local";
 //default driver: xmlphp,sqlite3,sqlite,csv,serialize,mysql,mssql
 $_FN_default_database_driver = "xmlphp";
-
+if (file_exists("config.vars.local.php"))
+{
+    include("config.vars.local.php");
+}
 ?>

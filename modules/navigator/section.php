@@ -1186,7 +1186,7 @@ function FNNAV_PrintList($results,$tplvars)
                     alert(e)
                 }
             };
-            xsreq.open("POST", url, true);
+            xsreq.open("GET", url, true);
             xsreq.send("");
         }
     }

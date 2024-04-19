@@ -164,9 +164,8 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
      */
     static $recursion = 0;
     $recursion++;
-    if ($recursion > 4)
+    if ($recursion > 5)
     {
-
         $recursion--;
         return $str;
     }
@@ -392,12 +391,6 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
     }
 
     $ret = TPL_decode($strout);
-
-    if (isset($_GET['debug']))
-    {
-        //dprint_xml($str);
-        //dprint_r(__FILE__ . " " . __LINE__ . " : " . FN_GetExecuteTimer());
-    }
     $recursion--;
     return $ret;
 }

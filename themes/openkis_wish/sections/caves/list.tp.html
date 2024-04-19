@@ -148,6 +148,7 @@
                                             call_ajax(this.href, 'pageresults,collapseFilters');
                                             return false;
                                         } catch (e) {
+                                            console.log(e);return true;
                                         }" href="{urlremovefilter}">{i18n:Remove filter}</a>
                                 <!-- end if {urlremovefilter} -->
                                 <div style="max-height:200px;overflow:auto" id="filters">
@@ -160,6 +161,7 @@
                                                             call_ajax(this.href, 'pageresults,collapseFilters');
                                                             return false;
                                                         } catch (e) {
+                                                            console.log(e);return true;
                                                         }" href="{urlfilteritem}"><span>{titleitem}</span></a></td>
                                             </tr>
 
@@ -194,7 +196,7 @@
                         <li class="page-item"><a  title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
                         <!-- end if {linkpreviouspage} -->
                         <!-- foreach {pages} -->
-                        <!-- if not {active} --><li class="page-item"><a  onclick="call_ajax(this.href, 'pageresults,collapseFilters');return false"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
+                        <!-- if not {active} --><li class="page-item"><a  onclick="try{call_ajax(this.href, 'pageresults,collapseFilters');return false}catch(e){console.log(e);return true;}"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
                         <!-- if {active} --><li class="page-item active"><a class="page-link" href="{link}">{txt_page}</a></li><!-- end if {active} -->
                         <!-- end foreach {pages} -->
                         <!-- if {linknextpage} -->
@@ -238,7 +240,7 @@
                         <li class="page-item"><a  title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
                         <!-- end if {linkpreviouspage} -->
                         <!-- foreach {pages} -->
-                        <!-- if not {active} --><li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters');return false"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
+                        <!-- if not {active} --><li class="page-item"><a onclick="try{call_ajax(this.href, 'pageresults,collapseFilters');return false}catch(e){console.log(e);return true;}"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
                         <!-- if {active} --><li class="page-item active"><a class="page-link" href="{link}">{txt_page}</a></li><!-- end if {active} -->
                         <!-- end foreach {pages} -->
                         <!-- if {linknextpage} -->

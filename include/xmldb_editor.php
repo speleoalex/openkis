@@ -189,7 +189,7 @@ function XMLDB_editor($tablename, $params = array())
         , "forcevaluesupdate" => ""
         , "forcenewvalues" => ""       //force if not set
         , "forceupdatevalues" => ""    //force if not set
-        , "recordsperpage" => ""
+        , "recordsperpage" =>  isset($params['recordsperpage']) ? $params['recordsperpage'] : ""
         , "requiredfieldsymbol" => "*"
         , "textrequiredfields" => XMLDB_i18n("required fields")
         , "textsave" => XMLDB_i18n("save")
@@ -362,6 +362,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     //force in form update
     $forceupdatevalues = isset($params['forceupdatevalues']) ? $params['forceupdatevalues'] : true;
     $recordsperpage = isset($params['recordsperpage']) ? $params['recordsperpage'] : false;
+
     $requiredfieldsymbol = $params['requiredfieldsymbol'];
     $textrequiredfields = $params['textrequiredfields'];
 
