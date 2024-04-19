@@ -1,0 +1,29 @@
+<script>
+    var formData = {json};
+    console.log(formData);
+</script>
+<form enctype="multipart/form-data" action="{formaction}" method="post" name="register" >
+
+    <table style="margin:auto">
+        <!-- contents -->
+        <!-- group -->
+        <tr><td colspan="2" style="text-align:center"><b>{groupname}</b></td></tr>
+        <!-- end_group -->
+        <!-- item -->
+        <tr>
+            <td valign="top">{title}<!-- error --><span style="color:red"><br />{error}</span><!-- end_error --></td>
+            <td valign="top"><!-- inputattributes text:class="form-control" style="color:red" --> <!-- inputattributes:class="form-control"  -->{input}</td>
+        </tr>
+        <!-- end_item -->
+        <!-- endgroup -->
+        <!-- end_endgroup -->
+        <!-- end_contents -->
+        <tr>
+            <td colspan="2" style="text-align: center">
+                <input name="updateuser" value="1" type="hidden" />
+                <button type="submit">{i18n:Save}</button>
+                <button type="button" onclick="window.location = '{urlcancel}'">{i18n:Cancel}</button>
+            </td>
+        </tr>
+    </table>
+</form>
