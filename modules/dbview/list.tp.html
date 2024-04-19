@@ -158,6 +158,7 @@
                                             call_ajax(this.href, 'pageresults,collapseFilters');
                                             return false;
                                         } catch (e) {
+                                            console.log(e);return true;
                                         }" href="{urlremovefilter}">{i18n:Remove filter}</a>
                                 <!-- end if {urlremovefilter} -->
                                 <div style="max-height:200px;overflow:auto" id="filters">
@@ -170,6 +171,7 @@
                                                             call_ajax(this.href, 'pageresults,collapseFilters');
                                                             return false;
                                                         } catch (e) {
+                                                            console.log(e);return true;
                                                         }" href="{urlfilteritem}"><span>{titleitem}</span></a></td>
                                             </tr>
 

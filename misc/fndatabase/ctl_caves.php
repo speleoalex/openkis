@@ -275,43 +275,43 @@
         <frm_group_i18n>references to special censuses</frm_group_i18n>
         <frm_it>Cavit&agrave; archeologica</frm_it>
         <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
+        <frm_options>Y,N</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
     </field>
     <field> 
         <name>marine</name>
         <frm_it>Cavit&agrave; marina</frm_it>
         <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
+        <frm_options>Y,N</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
     </field>
     <field> 
         <name>lake</name>
         <frm_it>Cavit&agrave;lacustre</frm_it>
         <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
+        <frm_options>Y,N</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
     </field>    
     <field>  
         <name>environmentalrisk</name>
         <frm_it>Rischio ambientale</frm_it>
         <type>radio</type>
-        <frm_options>S,N</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
+        <frm_options>Y,N</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
     </field>
     <field>  
         <name>tourist</name>
         <frm_it>Grotta turistica</frm_it>
         <type>radio</type>
-        <frm_options>X,</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
+        <frm_options>Y,</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
     </field>    
     <field>  
         <name>closed</name>
         <frm_it>Cavit&agrave; chiusa</frm_it>
         <type>radio</type>
-        <frm_options>X,</frm_options>
-        <frm_options_it>Si,No</frm_options_it>
+        <frm_options>Y,</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
     </field>
     <field>  
         <name>closed_notes</name>
@@ -322,8 +322,8 @@
         <name>destroyed</name>
         <frm_it>Cavit&agrave; distrutta</frm_it>
         <type>radio</type>
-        <frm_options>X,,P</frm_options>
-        <frm_options_it>Si,No,Parzialmente</frm_options_it>
+        <frm_options>Y,,P</frm_options>
+        <frm_options_i18n>yes,no,partially</frm_options_i18n>
         <frm_endgroup>references to special censuses</frm_endgroup>
     </field>
     <field>
@@ -568,8 +568,18 @@
     <field>
         <name>coordnatesupdated</name>
         <frm_show>0</frm_show>
-    </field>  
-    <driver>mysql</driver>
+    </field>
+    <field>
+        <name>to_check</name>
+        <default>1</default>
+        <frm_default>y</frm_default>
+        <type>varchar</type>
+        <frm_type>check</frm_type>
+        <frm_show>1</frm_show>
+        <frm_i18n>data to be verified</frm_i18n>
+        <frm_options>Y,N</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
+    </field>
     <field>
         <name>recorddeleted</name>
         <type>bool</type>
@@ -587,7 +597,7 @@
     <field>
         <name>xxx</name>
         <frm_it>Data curatore</frm_it>
-        <frm_help_i18n>campo riservato a curatore</frm_help_i18n>
+        <frm_help_i18n>field reserved for curator</frm_help_i18n>
         <type>datetime</type>
         <frm_show>1</frm_show>
         <frm_dateformat>y-mm-dd</frm_dateformat>
@@ -595,5 +605,6 @@
         <frm_setonlyadmin>1</frm_setonlyadmin>
         <frm_allowupdate>onlyadmin</frm_allowupdate>        
     </field>
-    
+    <driver>mysql</driver>
+
 </tables>

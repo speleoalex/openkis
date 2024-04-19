@@ -134,18 +134,19 @@ class XMLTable_mysql
                         return;
                     }
                 }
-                $exists = false;
-                if (empty($dbcache['tables'][$this->mysqldatabasename]))
-                    $dbcache['tables'][$this->mysqldatabasename] = $this->dbQuery("SHOW tables");
-                $result = $dbcache['tables'][$this->mysqldatabasename];
+            }
+            $exists = false;
+            if (empty($dbcache['tables'][$this->mysqldatabasename]))
+                $dbcache['tables'][$this->mysqldatabasename] = $this->dbQuery("SHOW tables");
+            $result = $dbcache['tables'][$this->mysqldatabasename];
 
-                if ($result) {
-                    foreach ($result as $tmp) {
-                        if ($tmp['Tables_in_' . $mysql['database']] == $this->sqltable)
-                            $exists = true;
-                    }
+            if ($result) {
+                foreach ($result as $tmp) {
+                    if ($tmp['Tables_in_' . $mysql['database']] == $this->sqltable)
+                        $exists = true;
                 }
             }
+
 
             //crea la tabella----->
             if (!$exists) {

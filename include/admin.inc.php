@@ -166,7 +166,7 @@ function FN_HtmlAdminOptions()
                 }
                 if (empty($_FN['sectionvalues']['type']) && file_exists("sections/{$_FN['mod']}/config.php"))
                 {
-                    $html.="<tr><td><button onclick=\"window.location='{$_FN['siteurl']}{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/config.php'\">".
+                    $html.="<tr><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/config.php'\">".
                             FN_Translate("advanced settings")." ".$_FN['sectionvalues']['title'].
                             "</button></td></tr>";
                 }
