@@ -1,0 +1,535 @@
+/*
+#viewrecordpage {
+    background-color: transparent;
+    border: 0 solid red;
+    font-size: 14px;
+    margin: auto;
+    position: relative;
+    text-align: justify;
+    width: auto;
+}
+.searchresult {
+    border: 1px solid #297DDD;
+    float: left;
+    margin: 5px;
+    padding-bottom: 20px;
+    position: relative;
+    width: 200px;
+}
+.searchnewrecord {
+    clear: both;
+}
+.searchresult1 {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #DADADA;
+    height: 68px;
+    text-align: center;
+}
+.searchresult1 img {
+    margin-top: 5px;
+}
+.searchresult2 {
+    color: #FFFFFF;
+    height: 35px;
+    overflow: hidden;
+}
+searchresult2 a {
+    font-weight: bold;
+    text-decoration: none !important;
+}
+.searchresult3 {
+    border-bottom: 1px solid #DADADA;
+    height: 20px;
+    padding: 2px;
+    text-align: center;
+}
+.searchresult3 img {
+    vertical-align: middle;
+}
+.searchresult4 {
+    height: auto;
+}
+.searchresultitems {
+    background-color: transparent;
+    height: 120px;
+    overflow: hidden;
+    padding-bottom: 40px;
+}
+.searchresultitem {
+    border-bottom: 1px dotted #DADADA;
+    font-size: 11px;
+    line-height: 12px;
+}
+.searchresult4 {
+    border-bottom: 1px solid #DADADA;
+}
+.searchresultfooter {
+    bottom: 2px;
+    position: absolute;
+}
+
+.searchresultlink {
+    color: blue;
+    text-decoration: none;
+}
+.monospace {
+    color: #046544;
+    font-family: monospace;
+}
+
+.pages {
+    border-bottom: 1px dotted #DADADA;
+    border-top: 1px dotted #DADADA;
+    text-align: right;
+    vertical-align: middle;
+    width: 100%;
+}
+.pages span {
+    border: 1px solid #FFFFFF;
+    color: #5881D0;
+    height: 20px;
+    margin: 2px;
+    padding: 2px;
+    text-decoration: none;
+}
+.pages a {
+    border: 1px solid #5881D0;
+    color: #5881D0;
+    height: 20px;
+    margin: 2px;
+    padding: 2px;
+    text-decoration: none;
+}
+.pages a:hover {
+    text-decoration: none;
+}
+.pages .disabled {
+    border: 1px solid #A0A0A0;
+    color: #A0A0A0;
+}
+.searchoptions {
+    border-left: 2px dotted #DADADA;
+    display: block;
+    margin: 5px;
+    padding: 5px;
+    width: auto;
+}
+table.searchformtable {
+    background-color: #FFFFFF;
+    border: 1px dotted;
+    padding: 2px;
+    width: 100%;
+}
+a.nv_selected {
+    background-color: #297DDD;
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+}
+
+.fnfilesranks {
+    clear: both;
+    margin: 10px;
+}
+.fnfilesuserbar {
+    border: 1px solid;
+    padding: 5px;
+    text-align: left;
+}
+.fnfilesuserbar img {
+    border: 0 none;
+    margin: 2px;
+    text-align: left;
+    vertical-align: middle;
+}
+.fnfilesuserbar a {
+    border: 1px solid #000000;
+    line-height: 25px;
+    margin: 1px;
+    padding: 1px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.fnfilesuserbar a:hover, .fnfilesuserbar a.selected {
+    background-color: #C6D3EF;
+    border: 1px solid #3169C6;
+    color: #000000;
+    text-decoration: none;
+}
+
+.fnfilesfooter {
+    clear: both;
+}
+*/
+.searchresult {
+    height: 300px;
+}
+
+.searchresultBox{
+    height: auto;
+}
+.pdf {
+    bottom: 2px;
+    position: absolute;
+    right: 2px;
+}
+.xmldbtitletypevarchar img {
+    vertical-align: middle;
+}
+.xmldbtitletypevarchar, .xmldbtitletypeselect, .xmldbtitletypedatetime, .xmldbtitletyperadio {
+    border-bottom: 1px dotted;
+    color: #000000;
+    display: -moz-inline-stack;
+    font-variant: small-caps;
+    font-weight: bold;
+    min-width: 200px;
+}
+.xmldbvaluegroups {
+    color: green;
+}
+.xmldbcontenttext {
+    display: block;
+}
+.xmldbtitletypetext h3, .xmldbcontenttext h4, .xmldbtitletypehtml h3, .xmldbcontenthtml h4 {
+    margin-top: 10px;
+}
+.xmldbtitletypetext {
+    display: block;
+    font-weight: bold;
+}
+.frm_title {
+    border-bottom: 1px dotted #DADADA;
+    white-space: nowrap;
+    width: 250px;
+}
+.frm_title input {
+    border-bottom: 1px dotted #DADADA;
+    display: inline;
+    float: none;
+    white-space: nowrap;
+    width: 200px;
+}
+.frm_group .frm_title {
+    border-bottom: 1px dotted;
+    clear: left;
+    float: left;
+    height: 15px;
+    white-space: nowrap;
+    width: 200px;
+}
+.frm_group .frm_title input {
+    clear: right;
+    height: 12px;
+    margin-bottom: 1px;
+}
+.xmldbcontentfile {
+    clear: both;
+}
+
+.xmldbcontentos_lenght {
+    display: block;
+}
+.xmldbtitletypeos_lenght {
+    border-bottom: 1px dotted;
+    color: #000000;
+    display: -moz-inline-stack;
+    font-variant: small-caps;
+    font-weight: bold;
+    min-width: 200px;
+}
+.xmldbtitletypehtmlopenspeleo h3 {
+    margin-top: 10px;
+}
+.xmldbcontentresque {
+    background-color: yellow;
+    border: 3px dotted red;
+    color: #000000;
+    margin: 5px;
+    padding: 5px;
+}
+.xmldbcontenttimeyear {
+    color: green;
+}
+.xmldbcontenttimeyear .xmldbtitletypevarchar {
+    border: 0 none;
+    width: auto;
+}
+.xmldbcontenttraveltime {
+    color: green;
+}
+.xmldbcontenttraveltime .xmldbtitletypevarchar {
+    border: 0 none;
+    width: auto;
+}
+.xmldbcontentshuttle {
+    color: green;
+}
+.xmldbcontentshuttle .xmldbtitletypevarchar {
+    border: 0 none;
+    width: auto;
+}
+.xmldbcontentshuttle {
+    color: green;
+}
+.xmldbcontentshuttle .xmldbtitletypevarchar {
+    border: 0 none;
+    width: auto;
+}
+.xmldbcontentshuttle .xmldbtitleoption {
+    border: 0 none;
+    width: auto;
+}
+.xmldbtitletypetext h3 {
+}
+.xmldbgroupdata {
+    background-color: #EEEEEE;
+    border: 1px solid gray;
+    float: right;
+    margin: 10px;
+    padding: 10px;
+    width: auto;
+}
+.xmldbgroupphoto {
+    background-color: #EEEEEE;
+    border: 0 solid gray;
+    float: left;
+    margin: 5px;
+    text-align: center;
+    width: auto;
+}
+.xmldbgroupphoto img {
+    height: 187px;
+    vertical-align: middle;
+}
+.xmldbcontentfile {
+    display: block;
+}
+.xmldbcontentswf {
+    display: inline;
+}
+.xmldbtitlefoto1 {
+    display: block;
+}
+.xmldbtitlelink, .xmldbtitlefile {
+    font-weight: bold;
+}
+.xmldbvaluelink {
+    font-weight: normal;
+    text-decoration: blink;
+}
+FORM FIELDSET {
+    background-color: #FFFFFF;
+    padding: 3px;
+}
+FORM FIELDSET LEGEND {
+    background-color: transparent;
+    font-weight: bold;
+}
+.navigatorformtitle {
+    line-height: 20px;
+}
+.navigatorformtitle span {
+    border-bottom: 1px dotted #DADADA;
+    clear: both;
+    display: block;
+    float: left;
+    height: 18px;
+    width: 150px;
+}
+.navigatorformtitle input, .navigatorformtitle select {
+    height: 15px;
+}
+.coordconvert {
+    border: 1px solid #A0A0A0;
+    display: block;
+    float: left;
+    font-size: 12px;
+    line-height: 13px;
+    margin: 2px;
+    padding: 2px;
+    width: 200px;
+}
+.coordconvert h5 {
+    border: 1px solid #A0A0A0;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+}
+.searchresultlist {
+    border: 1px solid #297DDD;
+    margin: 5px;
+    padding: 4px;
+}
+.searchresultlist2 {
+    border-bottom: 1px solid #F3A862;
+    font-weight: normal;
+}
+.searchresultlist img {
+    vertical-align: middle;
+}
+.searchresultlist .searchresultitem {
+    border: 0 none;
+    display: inline;
+    font-size: 12px;
+    margin-left: 2px;
+    padding: 1px;
+    white-space: normal;
+}
+.xmldbcontentlatlon, .xmldbcontentuppercase {
+    display: block;
+}
+.xmldbcontent {
+    display: block;
+}
+.xmldbtitle {
+    border-bottom: 1px dotted;
+    color: #000000;
+    display: -moz-inline-stack;
+    font-variant: small-caps;
+    font-weight: bold;
+    min-width: 200px;
+}
+.xmldbtitletypetext {
+    border: 0 none;
+    clear: both;
+    display: block;
+    font-variant: small-caps;
+    font-weight: bold;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+.xmldbcontent {
+    display: block;
+}
+.xmldbtitle img {
+    vertical-align: middle;
+}
+.xmldbvalue {
+}
+.xmldbgroupdata {
+    background-color: #FFFFFF;
+    border: 1px solid #F0A105;
+    clear: right;
+    float: right;
+    margin: 10px;
+    padding: 10px;
+    width: 35%;
+}
+.xmldbgroupsviluppo {
+    background-color: #FFFFFF;
+    border: 1px solid #297DDD;
+    clear: right;
+    float: right;
+    margin: 10px;
+    padding: 10px;
+    width: 35%;
+}
+.xmldbgroupcens {
+    clear: both;
+}
+.xmldbgroupcens * {
+    border: 0 none;
+    display: inline;
+    margin-right: 10px;
+}
+.xmldbgroupleft {
+    border-right: 0 solid gray;
+    clear: left;
+    float: left;
+    width: 55%;
+}
+.xmldbgroupleft {
+    text-align: left;
+}
+.xmldbgroupleft .xmldbtitle {
+    border-bottom: 1px dotted;
+    color: #000000;
+    display: -moz-inline-stack;
+    font-variant: small-caps;
+    font-weight: bold;
+    min-width: 140px;
+}
+.xmldbvalueSINON {
+    display: block;
+    font-size: 18px;
+    padding-bottom: 15px;
+    text-align: left;
+}
+
+
+/*****************************************************************************/
+.searchresultitems {
+	height: 160px;
+	background-color: transparent;
+	overflow: hidden;
+	padding-bottom:40px;
+       /* overflow: auto;*/
+}
+
+.searchresult {
+	margin: 3px;
+	width: 240px;
+        height: 350px;
+	float: left;
+	border: 1px solid #dd6c02;
+	position: relative;
+	padding:2px;
+	padding-bottom: 20px;
+        /*overflow: auto;*/
+}
+.searchresult2{
+	text-align: center;
+	background-color:#dd6c02
+}
+.searchresult2 a{
+	color: #ffffff !important;
+	font-weight: bold
+}
+
+.searchresult1 img{
+    vertical-align: middle;
+    width: expression( document.body.clientWidth > 100 ? "100px" : "auto" );
+    height: expression( document.body.clientHeight > 100 ? "100px" : "auto" );
+    max-height: 100px;
+    max-width: 100px;
+    border-radius:5px;
+}
+
+
+
+
+.xmldbtitleNOME{
+    display: none;
+}
+.xmldbvalueNOME{
+    font-size: 200%;
+}
+
+.xmldbtitleSINON{
+    display: none;
+}
+.xmldbvalueSINON{
+    font-size: 150%;
+    font-style: italic
+}
+.xmldbcontentphoto1{
+    display:block;
+    text-align: left;
+    margin:10px;
+}
+.xmldbtitlephoto1{
+    display:block;
+    border: 0px;
+}
+
+.FNNAV_innerform{
+    border:1px inset;
+    margin:5px;
+    padding:5px;
+}
+
+.xmldbtitleTitolo{
+    display: none;
+}
+.xmldbvalueTitolo{
+    font-size: 200%;
+}

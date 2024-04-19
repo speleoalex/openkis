@@ -1,0 +1,52 @@
+{html_header}
+<h2>{section_description}</h2>
+<div id="pageresults">
+    <div class="art-block clearfix">
+<div class="art-blockcontent" >
+        <b>{i18n:Search}</b>
+        {html_searchform}
+</div></div>
+{html_categories}{html_filters}{html_export}
+<div class="navigatorresults">
+    <div class="pageresults">{html_pages}</div>
+<!-- items -->
+<!-- item -->
+<div class="art-block clearfix" style="width:250px;float:left">
+        <div class="art-blockheader" style="height:37px;overflow:hidden"><h3 class="t">{item_title}</a></div>
+            <div style="height:100px;text-align:center;"><img  style="max-width:100px;max-height: 100px;"
+alt="" src="{item_urlimage}"></div>
+        <div class="art-blockcontent" style="height:180px;overflow:auto">
+        <!-- itemvalues -->
+        <!-- field -->
+        <b>{title}</b>
+        <span class="xmldbvaluetype xmldbvaluetype{fieldtype} xmldbvalue{fieldname} ">{value}</span><br />
+        <!-- end field -->
+        <b>Title</b>
+        <span class="xmldbvaluetype xmldbvaluetypetext xmldbvaluename ">Value</span><br />
+        <!-- end itemvalues -->
+        <div>
+            <!-- comments -->
+            <div class=""><a href="{url_viewcomments}">{i18n:comments} : {countercomments}</a></div>
+            <!-- end comments -->
+            <!-- rank -->
+            <div class="">{i18n:rank} : <div style="display:inline;line-height:10px;">{html_rank}</div>
+            </div>
+            <!-- end rank -->
+        </div>
+        <div class=""></div>      
+    </div>
+    <div class="art-postmetadatafooter">
+        <!-- view --><a class="art-button" href="{item_urlview}">{i18n:View}</a><!-- end view -->
+        <!-- modify --><a class="art-button" href="{item_urledit}">&nbsp;{i18n:Modify}</a><!-- end modify -->
+        <!-- delete --><a href="javascript:if(confirm('{i18n:are you sure you want to delete this content?}')){window.location='{item_urldelete}'}"> {i18n:Delete }</a><!-- end delete -->
+        <!-- pdf -->
+        <a  title="PDF" href="{url_pdf}"><img style="vertical-align:middle;border:0px" src="../../images/mime/pdf.png" alt=""></a>
+        <!-- end pdf -->
+    </div>
+</div>
+<!-- end item -->
+<!-- end items -->
+        <div class="pageresults">{html_pages}</div>{html_addnew}
+</div>
+</div>
+{html_footer}

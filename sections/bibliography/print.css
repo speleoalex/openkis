@@ -1,0 +1,79 @@
+body
+{
+	background-color:#ffffff;
+	text-align: justify;
+	font-family: sans-serif, Arial, Verdana;
+	width: 16.5cm;
+	
+}
+.iframemap{
+	width: 16.5cm;	
+	
+}
+/*comuni a tutte*/
+#viewrecordpage
+{
+	width: auto;
+	border:0px;
+	position: relative;
+	background-color: transparent;
+	font-size: 14px;
+	text-align: justify;
+	
+}
+
+
+
+
+
+/*xmldbcontent -> xmldbtitle -> xmldbvalue */
+.xmldbcontent{
+	display: block;
+}
+
+.xmldbtitle
+	{
+	color: #000000;
+	font-weight: bold;
+	font-variant: small-caps;
+	display: inline-block;
+	display: -moz-inline-stack;
+	min-width: 200px;
+	_width: 200px;
+	border-bottom: 1px dotted;
+}
+
+
+.xmldbcontent{
+	display: block;
+}
+
+
+.xmldbtitle img {
+	vertical-align: middle;
+}
+
+.xmldbvalue
+{
+	
+	
+}
+
+
+
+
+.xmldbtitletypetext
+{
+	font-weight: bold;
+	border: 0px;
+	margin-top:5px;
+	margin-bottom:5px;
+	font-variant: small-caps;
+	clear:both;
+	display:block;
+}
+
+.xmldbcontenttext{
+	border: margin:10px;;	
+	
+}
