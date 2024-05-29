@@ -73,6 +73,31 @@ function xmldb_frm($databasename, $tablename, $path = "misc", $lang = "en", $lan
  */
 class FieldFrm
 {
+    var $databasename;
+    var $table;
+    var $tablename;
+    var $tableparams;
+    var $path;
+    var $siteurl;
+    var $lang;
+    var $languages;
+    var $charset_page;
+    var $charset_storage;
+    var $langdefault;
+    var $frm_i18n;
+    var $formvals;
+    var $requiredtext;
+    var $innertables;
+    var $formclass ;
+    var $messages;
+    var $templateobjects;
+    var $xmltable;
+    var $templateviewobjects;
+    var $fieldname_active;
+    var $fieldname_user;
+    var $fieldname_password;
+    var $escapechar;
+    
 
     function __construct($databasename, $tablename, $path = "misc", $lang = "en", $languages = "en,it", $params = false)
     {
@@ -1228,13 +1253,16 @@ $frm_endgroupfooter
                 $foreignkeyvalues = explode(",", $oldval);
                 $sep = "";
 
+                //dprint_r($foreignkeyvalues);
+                //dprint_r($fieldform_values);
                 foreach ($foreignkeyvalues as $foreignkeyVal)
                 {
                     //$tmp_optionvalues = array();
+                    
                     foreach ($fieldform_values['options'] as $option)
                     {
                         //	if (!isset($tmp_optionvalues[$option['value']]))
-                        if ($option['value'] == $foreignkeyVal)
+                        if (isset($option['value']) && $option['value'] == $foreignkeyVal)
                         {
                             $tit .= $sep . $option['title'];
                             $sep = ",";
@@ -2402,7 +2430,7 @@ class xmldbfrm_field_file
 //---------image--------------------------------------->
 class xmldbfrm_field_image
 {
-
+    var $fieldvalues;
     function __construct($field)
     {
         $this->fieldvalues = $field['fieldvalues'];

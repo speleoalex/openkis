@@ -10,6 +10,8 @@
 //TODO: to complete
 class xmldb_searchform
 {
+    var $params;
+    var $xmldb_frm;
 
     function __construct($databasename,$tablename,$path="misc",$lang="en",$languages="en,it",$params=array())
     {

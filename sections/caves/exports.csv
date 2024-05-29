@@ -1,5 +1,5 @@
 title,script
 KML (Google Earth),openkis_kml.php?absolute=1
-KML, openkis_kml.php
+KML,openkis_kml.php
 GPX,openkis_gpx.php
 SHAPEFILE,openkis_shapefile.php

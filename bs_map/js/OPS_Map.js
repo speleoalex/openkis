@@ -1,4 +1,35 @@
-//console.log("load OPS_Map.js");
+var touchDevice = ('ontouchstart' in document.documentElement);
+
+var interactions;
+if (touchDevice)
+{
+    interactions =  ol.interaction.defaults({dragPan: false, mouseWheelZoom: false}).extend([
+        new ol.interaction.DragPan({
+          condition: function (event) {
+            return this.getPointerCount() === 2 || ol.events.condition.platformModifierKeyOnly(event);
+          },
+        }),
+        new ol.interaction.MouseWheelZoom({
+          condition: ol.events.condition.platformModifierKeyOnly,
+        }),
+      ])
+    
+}
+function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+}
+
 
 var OPS_Map = {
     lat: 0,
@@ -56,16 +87,28 @@ var OPS_Map = {
             center: ol.proj.transform([this.lon, this.lat], this.inputProjectonEPSG, this.viewMapProjectonEPSG),
             projection: this.viewMapProjectonEPSG,
             zoom: this.zoom});
-        this.map = new ol.Map({
-            target: document.getElementById(divId),
-            view: this.view
+        if (detectMob())
+        {
+            this.map = new ol.Map({
+                target: document.getElementById(divId),
+                view: this.view,
+                 interactions : interactions
+            });
+        }
+        else{
+            this.map = new ol.Map({
+                target: document.getElementById(divId),
+                view: this.view
+            });
+        }
 
-        });
         //------------------map object ----------------------------------------<
         //---------------- display popup on click------------------------------>
         this.map.on('click', function (evt) {
             OPS_Map.onMapClick(evt);
         });
+
+
         // change mouse cursor when over marker
         this.map.on('pointermove', function (e) {
             if (e.dragging) {
@@ -90,6 +133,17 @@ var OPS_Map = {
         });
         this.map.addOverlay(this.GeolocationMarker);
 //------------------------ Geolocation marker----------------------------------<
+
+        // Listener per l'evento wheel
+        this.map.getViewport().addEventListener('wheel', function(event) {
+            event.preventDefault();
+            try{
+                document.getElementsByClassName("ol-mouse-position")[0].innerHTML='press Ctrl';
+            }catch(e){
+
+            }
+
+        });
 
 //--------------------------- export PNG -------------------------------------->
         document.getElementById('export-png').addEventListener('click', function () {

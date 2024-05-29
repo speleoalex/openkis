@@ -28,11 +28,38 @@ global $xmldb_mysqlcurrentdb, $xmldb_mysqlconnection;
 
 class XMLTable_mysql
 {
+    var $databasename;
+    var $tablename;
+    var $primarykey;
+    var $filename;
+    var $indexfield;
+    var $fields;
+    var $xmltable;
+    var $path;
+    var $numrecords;
+    var $usecachefile;
+    var $xmldescriptor;
+    var $xmlfieldname;
+    var $datafile;
+    var $xmltagroot;
+    var $defaultdriver;
+    var $driver;
+    var $mysqldatabasename;
+    var $nullfields;
+    var $mysqlfields;
+    var $sqltable;
+    var $conn;
+    var $connection;
+    var $charset_page;
+    var $requiredtext;
+    var $params;
 
+
+    
     function __construct(&$xmltable, $params = false)
     {
         static $dbcache;
-
+        $this->params = $params;
         $this->xmltable = &$xmltable;
         $this->tablename = &$xmltable->tablename;
         $this->databasename = &$xmltable->databasename;
@@ -45,7 +72,10 @@ class XMLTable_mysql
         $this->nullfields = array();
         if (is_array($params)) {
             foreach ($params as $k => $v) {
-                $this->$k = $v;
+                if (isset($this->$k))
+                {
+                    $this->$k = $v;
+                }
             }
         }
         $path = $this->path;

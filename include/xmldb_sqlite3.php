@@ -24,7 +24,7 @@
  */
 global $xmldb_sqlitedatabase, $xmldb_sqliteusername, $xmldb_sqlitefilename;
 
-class XMLTable_sqlite3
+class XMLTable_sqlite3 extends stdClass
 {
 
     function __construct(& $xmltable, $params = false)
@@ -42,7 +42,7 @@ class XMLTable_sqlite3
         $this->primarykey = &$xmltable->primarykey;
         $this->xmldescriptor = &$xmltable->xmldescriptor;
         $this->sqlitefields = array();
-        $this->nullfields = false;
+        $this->nullfields = array();
         $this->sqlite_error = false;
         $this->maxautoincrement = array();
         if (is_array($params))

@@ -17,12 +17,18 @@ class XMLTable_serialize
 
     var $databasename;
     var $tablename;
+    var $xmltablename;
     var $primarykey;
     var $filename;
+    var $path;
+    var $usecachefile;
     var $indexfield;
     var $fields;
     var $records;
-
+    var $driver;
+    var $numrecords;
+    var $xmltable;
+    var $maxautoincrement;
     function __construct(&$xmltable,$params=false)
     {
         $this->xmltable=&$xmltable;

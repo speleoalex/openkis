@@ -27,7 +27,7 @@ ini_set('mssql.textsize','65536');
 
 //ini_set('mssql.charset', 'UTF-8');
 
-class XMLTable_sqlserver
+class XMLTable_sqlserver extends stdClass
 {
 
     function __construct(& $xmltable,$params=false)

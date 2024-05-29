@@ -913,23 +913,28 @@ function xmldb_table($databasename, $tablename, $path = "misc", $params = false)
  * classe  XMLField
  * classe che descrive un singolo field della tabella
  */
-class XMLField
+//#[AllowDynamicProperties]
+class XMLField extends stdClass
 {
+    var $name = null;
+    var $extra = null;
+    var $primarykey = null;
+    var $frm_required = null;
+    var $frm_show = null;
 
-    var
-        $title = null;
-    var
-        $readonly = null;
-    var
-        $foreignkey = null; //foreignkey
-    var
-        $_defaultvalue;
-    var
-        $type = null;
-
+    var $size = null;
+    var $title = null;
+    var $readonly = null;
+    var $foreignkey = null; //foreignkey
+    var $_defaultvalue;
+    var $type = null;
+    var $proprieties = null;
     function __construct($descriptionfile, $fieldname)
     {
+        $this->proprieties = array();
         //---proprieta' relative al database
+        $this->proprieties['type']= "varchar";
+
         $this->type = "varchar";
         $this->name = "";
         $this->extra = "";
@@ -947,8 +952,9 @@ class XMLField
             }
         }
         if ($fields != null) {
+            //$this->proprieties = $fields;
             foreach ($fields as $key => $value) {
-                $this->$key = $value;
+                $this->{$key} = $value;
             }
         }
         if ($this->title == null) {
@@ -1040,6 +1046,13 @@ class XMLTable
     var $xmlfieldname;
     var $xmltagroot;
     var $pathdata = "";
+    var $xmldescriptor = null;
+    var $datafile = null;
+    var $defaultdriver = null;
+    var $siteurl;
+    var $charset_page;
+    var $requiredtext;
+    var $charset_storage;
 
 
     function __construct($databasename, $tablename, $path = "misc", $params = false)
@@ -1149,7 +1162,7 @@ class XMLTable
         }
         $this->driverclass = new $classname($this, $params);
         if (!is_object($this->driverclass))
-            die("xmldberror: this->driverclass");
+            die("xmldberror: $this->proprieties = array();>driverclass");
         //modalita' database----<
     }
 
@@ -1570,18 +1583,28 @@ class XMLTable
 class XMLTable_xmlphp
 {
 
-    var
-        $databasename;
-    var
-        $tablename;
-    var
-        $primarykey;
-    var
-        $filename;
-    var
-        $indexfield;
-    var
-        $fields;
+    var $databasename;
+    var $tablename;
+    var $primarykey;
+    var $filename;
+    var $indexfield;
+    var $fields;
+    var $xmltable;
+    var $path;
+    var $numrecords;
+    var $usecachefile;
+    var $xmldescriptor;
+    var $xmlfieldname;
+    var $datafile;
+    var $xmltagroot;
+    var $defaultdriver;
+    var $driver;
+    var $siteurl;
+    var $charset_page;
+    var $requiredtext;
+    var $cache_filerecord;
+    var $charset_storage;
+    var $numrecordscache;
 
     function __construct(&$xmltable, $params = false)
     {
@@ -1608,7 +1631,11 @@ class XMLTable_xmlphp
         $this->filename = get_xml_single_element("filename", $this->xmldescriptor);
         if (is_array($params)) {
             foreach ($params as $k => $v) {
-                $this->$k = $v;
+               // if (isset($this->$k))
+                {
+                    $this->$k = $v;
+
+                }
             }
         }
         //dprint_r($this->datafile);

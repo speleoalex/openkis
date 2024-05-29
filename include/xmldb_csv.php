@@ -10,12 +10,19 @@
 class XMLTable_csv
 {
 
+    var $xmltable;
+    var $path;
+    var $numrecords;
+    var $usecachefile;
+    var $driver;
+    var $xmldescriptor;
     var $databasename;
     var $tablename;
     var $primarykey;
     var $filename;
     var $indexfield;
     var $fields;
+    var $separator;
     var $records;
 
     function __construct(&$xmltable)

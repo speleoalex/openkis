@@ -52,7 +52,8 @@ if (!defined("FNNEWS_FUNCTIONS"))
 
     class FNNEWS
     {
-
+        var $config;
+        var $tablename;
         function __construct($config)
         {
             global $_FN;

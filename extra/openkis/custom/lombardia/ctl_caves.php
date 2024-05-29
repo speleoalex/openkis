@@ -14,16 +14,14 @@
         <unique>1</unique>
     </field>
     <field>
-        <name>code_fslo</name>
-        <frm_it>Codice FSLo</frm_it>
-        <type>string</type>
-        <frm_size>8</frm_size>
-        <frm_help_it>Codice univoco della federazione Speleologica Lombarda. È composto LO+CODICE PROVINCIA+NUMERO+NUMERO INGRESSO AGGIUNTIVO</frm_help_it>
-        <frm_show>0</frm_show>
-        <view_show>1</view_show>
-    </field>
-
-
+		<name>code_fslo</name>
+		<frm_it>Codice FSLo</frm_it>
+		<type>string</type>
+		<frm_size>8</frm_size>
+		<frm_help_it>Codice univoco della federazione Speleologica Lombarda. È composto LO+CODICE PROVINCIA+NUMERO+NUMERO INGRESSO AGGIUNTIVO</frm_help_it>
+		<frm_show>0</frm_show>
+		<view_show>1</view_show>
+	</field>
     <field>
         <name>name</name>
         <frm_it>Nome</frm_it>
@@ -51,10 +49,43 @@
         <fk_link_field>code</fk_link_field>
         <fk_show_field>provincia,code,name</fk_show_field>
     </field>
+
     <field>
-        <name>alias</name>
+        <name>recordinsert</name>
+        <view_group>data</view_group>
+        <view_group_i18n>Dati compilazione</view_group_i18n>
+        
+        <frm_it>Data inserimento</frm_it>
+        <type>datetime</type>
+        
+        <view_dateformat>dd/mm/y 00:00:00</view_dateformat>
+        <frm_show>1</frm_show>
+        <frm_allowupdate>0</frm_allowupdate>
+        <view_show>1</view_show>
+    </field>
+    <field>
+        <name>username</name>
         <type>string</type>
-        <frm_help_it>Se la cavità è stata messa a catasto con più numeri indicarli separati da virgola (es. PI1,PI12)</frm_help_it>
+        <frm_it>Utente che ha fatto l'inserimento</frm_it>
+        <frm_show>1</frm_show>
+        <frm_allowupdate>0</frm_allowupdate>
+        <view_show>1</view_show>
+    </field>
+    <field>
+        <name>recordupdate</name>
+        <type>datetime</type>
+        
+        <view_dateformat>dd/mm/y 00:00:00</view_dateformat>
+        <frm_it>Data ultima modifica</frm_it>
+        <frm_show>0</frm_show>
+        <view_show>1</view_show>
+    </field>
+    <field>
+        <name>userupdate</name>
+        <type>varchar</type>
+        <frm_it>Utente ultima modifica</frm_it>
+        <frm_show>0</frm_show>
+        <view_show>0</view_show>
     </field>
     <field>
         <name>firstreference</name>
@@ -68,6 +99,8 @@
         <frm_group>location</frm_group>
         <frm_group_i18n>location</frm_group_i18n>
         <name>country</name>
+        <view_group>data</view_group>
+        <view_group_i18n>Dati di localizzazione</view_group_i18n>
         <type>select</type>
         <frm_default>Italy</frm_default>
         <frm_show>0</frm_show>
@@ -129,12 +162,10 @@
     <field>
         <name>age</name>
         <type>string</type>
-    </field>
-
-    <field>
-        <name>lithology</name>
-        <type>string</type>
-        <frm_it>Litologia</frm_it>
+	    <frm_it>Et&agrave;</frm_it>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>age</fk_link_field>
+        <fk_show_field>age</fk_show_field>
     </field>
 
     <field>
@@ -145,7 +176,7 @@
         <frm_group_i18n>size</frm_group_i18n>
         <type>string</type>
         <frm_help_it>somma delle lunghezze di tutte le gallerie calcolate nelle tre
-            dimensioni; si sommano perciò anche le lunghezze dei pozzi e dei tratti inclinati</frm_help_it>
+            dimensioni; si sommano perci&ograve; anche le lunghezze dei pozzi e dei tratti inclinati</frm_help_it>
         <frm_type>os_lenght</frm_type>
         <frm_it>Sviluppo reale</frm_it>
         <frm_showinlist>1</frm_showinlist>
@@ -158,7 +189,7 @@
         <frm_type>os_lenght</frm_type>
         <frm_it>Sviluppo planimetrico</frm_it>
         <frm_help_it>somma delle lunghezze di tutte le gallerie,calcolate in pianta,
-            cioè proiettate su un piano orizzontale</frm_help_it>
+            cio&egrave; proiettate su un piano orizzontale</frm_help_it>
         <frm_suffix> m</frm_suffix>
         <frm_size>8</frm_size>
     </field>
@@ -166,7 +197,7 @@
         <name>lenght_extension</name>
         <type>string</type>
         <frm_type>os_lenght</frm_type>
-        <frm_help_it>Per estensione si intende la massima lunghezza planimetrica della cavità,non
+        <frm_help_it>Per estensione si intende la massima lunghezza planimetrica della cavit&agrave;,non
             necessariamente a partire dall'ingresso</frm_help_it>
         <frm_it>Estensione</frm_it>
         <frm_suffix> m</frm_suffix>
@@ -199,8 +230,6 @@
         <frm_size>8</frm_size>
         <frm_showinlist>1</frm_showinlist>
     </field>
-
-
     <field>
         <name>latitude_txt</name>
         <view_group>entrance location</view_group>
@@ -220,7 +249,7 @@
         <frm_en>Longitude</frm_en>
         <frm_es>Longitud</frm_es>
         <frm_fr>Longitude</frm_fr>
-        <frm_help_it>Inserisci qui la longitude. Se questa &grave; riferita a Monte Mario non dimenticarti di specificarlo,ad esempio inserendo 2&#176;12'11,5'' W di M.Mario</frm_help_it>
+        <frm_help_it>Inserisci qui la longitude. Se questa &egrave; riferita a Monte Mario non dimenticarti di specificarlo,ad esempio inserendo 2&#176;12'11,5'' W di M.Mario</frm_help_it>
         <type>varchar</type>
         <frm_type>latlon</frm_type>
     </field>
@@ -236,6 +265,7 @@
     <field>
         <name>original_coordinates_type</name>
         <frm_i18n>original coordinates type</frm_i18n>
+        
     </field>
     <field>
         <name>elevation</name>
@@ -258,8 +288,8 @@
         <type>string</type>
         <frm_type>os_lenght</frm_type>
         <frm_it>Quota GPS</frm_it>
-        <frm_help>ATTENZIONE: la quota data dai gps barometrici NON è la quota GPS ma la quota altimetrica.
-            la quota GPS è quella data dall'elissoide a cui fa riferimento il datum wgs84
+        <frm_help>ATTENZIONE: la quota data dai gps barometrici NON &egrave; la quota GPS ma la quota altimetrica.
+            la quota GPS &egrave; quella data dall'elissoide a cui fa riferimento il datum wgs84
         </frm_help>
         <frm_suffix> m s.l.m</frm_suffix>
         <frm_size>8</frm_size>
@@ -278,6 +308,7 @@
     <field>
         <name>location_evaluation_options</name>
         <type>string</type>
+        <frm_it>Valutazione dato</frm_it>
         <frm_type>stringselect</frm_type>
         <foreignkey>ctl_caves</foreignkey>
         <fk_link_field>location_evaluation_options</fk_link_field>
@@ -286,72 +317,15 @@
     <field>
         <name>location_evaluation</name>
         <type>string</type>
-        <frm_it>Valutazione dato</frm_it>
+        <frm_it>Valutazione dato (descrizione)</frm_it>
         <frm_help>descrivere l'affidabilit&agrave; del dato inserito,per esempio coordinate GPS del 12 febbraio 2011 con precisione 4m,oppure dato preso sui carta,oppure dato preso a occhio sulla carta</frm_help>
         <frm_size>60</frm_size>
-        <frm_endgroup>entrance location</frm_endgroup>
-        <view_endgroup>entrance location</view_endgroup>
-    </field>
-    <field>
-        <name>archeological</name>
-        <frm_group_i18n>references to special censuses</frm_group_i18n>
-        <frm_it>Cavit&agrave; archeologica</frm_it>
-        <type>radio</type>
-        <frm_options>Y,N</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
-        <name>marine</name>
-        <frm_it>Cavit&agrave; marina</frm_it>
-        <type>radio</type>
-        <frm_options>Y,N</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
-        <name>lake</name>
-        <frm_it>Cavit&agrave; lacustre</frm_it>
-        <type>radio</type>
-        <frm_options>Y,N</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
-        <name>environmentalrisk</name>
-        <frm_it>Rischio ambientale</frm_it>
-        <type>radio</type>
-        <frm_options>Y,N</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
-        <name>tourist</name>
-        <frm_it>Grotta turistica</frm_it>
-        <type>radio</type>
-        <frm_options>Y,</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
-        <name>closed</name>
-        <frm_it>Cavit&agrave; chiusa</frm_it>
-        <type>radio</type>
-        <frm_options>Y,</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
-        <name>closed_notes</name>
-        <frm_it>Note accesso alla grotta</frm_it>
-        <type>text</type>
-    </field>
-    <field>
-        <name>destroyed</name>
-        <frm_it>Cavit&agrave; distrutta</frm_it>
-        <type>radio</type>
-        <frm_options>Y,,P</frm_options>
-        <frm_options_it>Si,No,Parzialmente</frm_options_it>
-        <frm_endgroup>references to special censuses</frm_endgroup>
+        
     </field>
     <field>
         <name>check</name>
         <frm_it>Posizione verificata sul campo da curatore</frm_it>
-        <frm_help>Attenzione !! Il campo deve essere compilato dopo che la grotta è stata ritrovata successivamente la messa a catasto</frm_help>
+        <frm_help>Attenzione !! Il campo deve essere compilato dopo che la grotta &egrave; stata ritrovata successivamente la messa a catasto</frm_help>
         <frm_type>check</frm_type>
         <frm_show>1</frm_show>
     </field>
@@ -363,6 +337,8 @@
         <frm_show>1</frm_show>
         <frm_dateformat>y-mm-dd</frm_dateformat>
         <view_dateformat>dd/mm/y 00:00:00</view_dateformat>
+        <frm_endgroup>entrance location</frm_endgroup>
+        <view_endgroup>entrance location</view_endgroup>
     </field>
     <field>
         <name>hydrology</name>
@@ -371,7 +347,10 @@
         <frm_type>multicheck</frm_type>
         <frm_options>temporary flooding,absorbent,emitting,permanent absorbent,temporary absorbent,permanent issuing,temporary issuing,lakes,permanent lakes,temporary lakes,slight flows,dry,siphons,permanent siphons,temporary siphons,only dripping,torrents,permanent torrents,temporary torrents,temporary ice,permanent ice,snow wells</frm_options>
         <frm_options_it>allagamenti temporanei,assorbente,emittente,assorbente permanente,assorbente temporanea,emittente permanente,emittente temporanea,laghi,laghi permanenti,laghi temporanei,lievi scorrimenti,secca,sifoni,sifoni permanenti,sifoni temporanei,solo stillicidio,torrenti,torrenti permanenti,torrenti temporanei,ghiaccio temporaneo,ghiaccio permanente,pozzi a neve</frm_options_it>
+
     </field>
+    
+        
     <field>
         <name>trend</name>
         <frm_it>Andamento</frm_it>
@@ -382,6 +361,10 @@
         <name>practicability</name>
         <frm_it>Percorribilit&agrave;</frm_it>
         <frm_help_it>es. Facile</frm_help_it>
+        
+        <frm_type>select</frm_type>
+        <frm_options>ATTREZZATURA SPELEOSUBACQUEA,DA ATTREZZI - FACILE,DIFFICILE,DIFFICOLTOSA - STRETTOIE - ACQUA E FANGO,FACILE,FACILE - ARRAMPICATA PER L'INGRESSO,FACILE - MUTA,FACILE - PERICOLO FRANE,FACILE - STRETTOIE,FACILE - STRETTOIE - PERICOLO FRANE,IMPEGNATIVA,NORMALE ATTREZZATURA,normale attrezzatura,NORMALE ATTREZZATURA, PERICOLO CADUTA GHIACCIO,NORMALE ATTREZZATURA - ARRAMPICATA,NORMALE ATTREZZATURA - ARRAMPICATA PER L'INGRESSO,NORMALE ATTREZZATURA - MUTA,NORMALE ATTREZZATURA - PERICOLO FRANE,NORMALE ATTREZZATURA - STRETTOIE,SERVE BARCA,SERVE BARCA E MUTA,STRETTOIA ALLAGATA,STRETTOIE - A RISCHIO PIENA,TURISTICA</frm_options>
+        <type>string</type>
         <type>uppercase</type>
     </field>
     <field>
@@ -393,7 +376,7 @@
     <field>
         <name>associations</name>
         <frm_it>Gruppi</frm_it>
-        <frm_help>Gruppi o persone che hanno effettuato attivit&agrave; rilevanti o esplorative sulla cacit&agrave;</frm_help>
+        <frm_help>Gruppi o persone che hanno effettuato attivit&agrave; rilevanti o esplorative sulla cavit&agrave;</frm_help>
         <type>text</type>
         <frm_type>multiselect</frm_type>
 
@@ -422,12 +405,6 @@
         <type>text</type>
         <frm_rows>auto</frm_rows>
         <frm_cols>80</frm_cols>
-    </field>
-    <field>
-        <name>notes</name>
-        <type>text</type>
-        <frm_rows>auto</frm_rows>
-        <frm_cols>60</frm_cols>
     </field>
     <field>
         <name>description</name>
@@ -459,7 +436,7 @@
     </field>
     <field>
         <name>meteorology</name>
-        <frm_it>Meteorologia</frm_it>
+        <frm_it>Circolazione aria ingresso</frm_it>
         <frm_type>multicheck</frm_type>
         <frm_options>blow_during_heat,blow_during_cold,suck_during_heat,suck_during_cold,none,blow_always,suck_always,none_in_heat,none_in_cold</frm_options>
         <frm_options_it>soffia con il caldo,soffia con il freddo,aspira con il caldo,aspira con il freddo,nessuna circolazione,soffia sempre,aspira sempre,nessuna circolazione in estate,nessuna circolazione in inverno</frm_options_it>
@@ -468,7 +445,7 @@
     </field>
     <field>
         <name>meteorology_text</name>
-        <frm_it>Meteorologia</frm_it>
+        <frm_it>Meteorologia (descrizione)</frm_it>
         <type>text</type>
         <frm_show>1</frm_show>
         <frm_help_it>Descrizione delle circolazioni d'aria e di acqua della grotta</frm_help_it>
@@ -488,6 +465,70 @@
         <type>text</type>
         <frm_rows>auto</frm_rows>
         <frm_cols>80</frm_cols>
+    </field>
+    <field>
+        <name>notes</name>
+        <frm_it>Informazioni aggiuntive</frm_it>
+        <type>text</type>
+        <frm_rows>auto</frm_rows>
+        <frm_cols>60</frm_cols>
+    </field>
+    <field>
+        <name>archeological</name>
+        <frm_group_i18n>references to special censuses</frm_group_i18n>
+        <frm_it>Cavit&agrave; archeologica</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>
+    <field>
+        <name>marine</name>
+        <frm_it>Cavit&agrave; marina</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+        <frm_default>N</frm_default>
+    </field>
+    <field>
+        <name>lake</name>
+        <frm_it>Cavit&agrave; lacustre</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>
+    <field>
+        <name>environmentalrisk</name>
+        <frm_it>Rischio ambientale</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>
+    <field>
+        <name>tourist</name>
+        <frm_it>Grotta turistica</frm_it>
+        <type>radio</type>
+        <frm_options>X,</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>
+    <field>
+        <name>closed</name>
+        <frm_it>Cavit&agrave; chiusa</frm_it>
+        <type>radio</type>
+        <frm_options>S,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+    </field>
+    <field>
+        <name>closed_notes</name>
+        <frm_it>Note accesso alla grotta</frm_it>
+        <type>text</type>
+    </field>
+    <field>
+        <name>destroyed</name>
+        <frm_it>Cavit&agrave; distrutta</frm_it>
+        <type>radio</type>
+        <frm_options>X,,P</frm_options>
+        <frm_options_it>Si,No,Parzialmente</frm_options_it>
+        <frm_endgroup>references to special censuses</frm_endgroup>
     </field>
     <innertable>
         <tablename>ctl_surveys</tablename>
@@ -560,38 +601,6 @@
         <name>import_rawdata</name>
         <frm_it>Dati pre importazione</frm_it>
         <type>text</type>
-    </field>
-    <field>
-        <name>recordinsert</name>
-        <view_group>data</view_group>
-        <view_group_i18n>Dati compilazione</view_group_i18n>
-        <frm_it>Data importazione</frm_it>
-        <type>datetime</type>
-        <view_dateformat>dd/mm/y</view_dateformat>
-        <frm_show>0</frm_show>
-        <view_show>1</view_show>
-    </field>
-    <field>
-        <name>username</name>
-        <type>string</type>
-        <frm_it>Utente che ha inserito i dati</frm_it>
-        <frm_show>0</frm_show>
-        <view_show>1</view_show>
-    </field>
-    <field>
-        <name>userupdate</name>
-        <type>varchar</type>
-        <frm_it>Utente che ha aggiornato i dati</frm_it>
-        <frm_show>0</frm_show>
-        <view_show>1</view_show>
-    </field>
-    <field>
-        <name>recordupdate</name>
-        <type>datetime</type>
-        <view_dateformat>dd/mm/y</view_dateformat>
-        <frm_it>Ultima modifica dei dati</frm_it>
-        <frm_show>0</frm_show>
-        <view_show>1</view_show>
         <view_endgroup>data</view_endgroup>
     </field>
     <field>
@@ -629,21 +638,10 @@
         <name>coordnatesupdated</name>
         <frm_show>0</frm_show>
     </field>
+    <driver>mysql</driver>
     <field>
         <name>recorddeleted</name>
         <type>bool</type>
         <frm_show>0</frm_show>
     </field>
-    <field>
-        <name>to_check</name>
-        <default>1</default>
-        <frm_default>y</frm_default>
-        <type>varchar</type>
-        <frm_type>check</frm_type>
-        <frm_show>1</frm_show>
-        <frm_i18n>data to be verified</frm_i18n>
-        <frm_options>Y,N</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>    
-    <driver>mysql</driver>
 </tables>

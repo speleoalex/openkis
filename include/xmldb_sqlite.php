@@ -24,7 +24,7 @@
  */
 global $xmldb_sqlitedatabase,$xmldb_sqliteusername,$xmldb_sqlitefilename;
 
-class XMLTable_sqlite
+class XMLTable_sqlite extends stdClass
 {
 
     function __construct(& $xmltable,$params=false)
