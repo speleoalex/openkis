@@ -15,6 +15,7 @@ global $_FN;
 class FNDBVIEW
 {
 
+    var $config;
     function __construct($config)
     {
         $this->config = $config;
@@ -843,7 +844,7 @@ class FNDBVIEW
             $pkold = FN_GetParam($Table->xmltable->primarykey, $_POST);
         $pk = FN_GetParam($Table->xmltable->primarykey, $_POST);
         $oldvalues = $Table->xmltable->GetRecordByPrimarykey($pkold);
-        if (!$this->CanAddRecord() && !$this->UserCanEditField($username, $oldvalues))
+        if (!$this->CanAddRecord() && !$this->UserCanEditField($username, $oldvalues) && !$this->IsAdminRecord($oldvalues))
             return (FN_Translate("you may not do that"));
         $toupdate = false;
         if (is_array($oldvalues))

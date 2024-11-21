@@ -22,6 +22,7 @@
 function FN_HtmlHtmlArea($name,$cols,$rows,$text="",$defaultdir="",$editor_params=false)
 {
     global $_FN;
+    
     $siteurl=$_FN['siteurl'];
     $filetomod=FN_GetParam("file",$_GET);
     $htmleditor = basename(__DIR__);
@@ -113,9 +114,8 @@ var css = new Array();
     {
         $fullpage="true";
     }
-
     $html.="
-CKEDITOR.replace( 'fckeditor$name',
+editor = CKEDITOR.replace( 'fckeditor$name',
     {
         image2_prefillDimensions : false,
         allowedContent : true,
@@ -135,6 +135,17 @@ CKEDITOR.replace( 'fckeditor$name',
         uiColor: '{$config['fckcolor']}'
      } );
 //]]>
+
+CKEDITOR.instances.fckeditor$name.on('change', function() { 
+    var text = document.getElementById('fckeditor$name').value;
+    document.getElementById('fckeditor$name').value =      editor.getData();
+    try{
+    set_changed();
+    }catch(e){
+    }
+    
+});
+
 </script>
 ";
     if ($jsfck && FN_IsAdmin())

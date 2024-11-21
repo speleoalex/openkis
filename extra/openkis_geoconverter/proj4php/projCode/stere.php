@@ -8,7 +8,7 @@
  */
 
 // Initialize the Stereographic projection
-class Proj4phpProjStere {
+class Proj4phpProjStere extends stdClass{
 
     protected $TOL = 1.e-8;
     protected $NITER = 8;

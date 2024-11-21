@@ -31,7 +31,7 @@
 // Initialize the Cassini projection
 // -----------------------------------------------------------------
 
-class Proj4phpProjCass {
+class Proj4phpProjCass extends stdClass{
 
     public function init() {
         if( !$this->sphere ) {

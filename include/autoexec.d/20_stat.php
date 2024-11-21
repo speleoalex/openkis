@@ -754,4 +754,5 @@ function FNSTAT_BrowserDetect($userAgent)
 	}
 	return array('name' => $name, 'platform' => $platform, 'userAgent' => $userAgent);
 }
+
 ?>

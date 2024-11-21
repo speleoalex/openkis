@@ -1027,7 +1027,7 @@ class XMLField extends stdClass
  * <CodiceISO>DE</CodiceISO>
  * </stati>
  */
-class XMLTable
+class XMLTable extends stdClass
 {
 
     var $databasename;
@@ -1164,22 +1164,70 @@ class XMLTable
         if (!is_object($this->driverclass))
             die("xmldberror: $this->proprieties = array();>driverclass");
         //modalita' database----<
+        $this->sendFileToClient();
     }
-
+    function sendFileToClient()
+    {
+        $unirecid = FN_GetParam("unirecid",$_REQUEST);
+        $recordkey = FN_GetParam("recordkey",$_REQUEST);
+        $uid = FN_GetParam("uid",$_REQUEST);
+        $xmldbgetfile = FN_GetParam("xmldbgetfile",$_REQUEST);
+        if (!$xmldbgetfile || $recordkey == "" || $uid == "" || $unirecid==="")
+        {
+            return;
+        }
+        $databasename = $this->databasename;
+        $path = realpath($this->path);
+        $recordvalues = $this->GetRecordByPrimaryKey($unirecid);
+        $filename = $recordvalues[$recordkey];
+        $value = isset($recordvalues[$recordkey]) ? $recordvalues[$recordkey] : null;
+        $tablepath = $this->FindFolderTable($recordvalues);
+        if ($value != "") {
+            if (!empty($recordvalues[$recordkey."_base64data"]))
+            {
+                if($uid === md5($recordvalues[$recordkey."_base64data"]))
+                {
+                    $filecontents = base64_decode($recordvalues[$recordkey."_base64data"]);
+                    FN_SaveFile($filecontents, $filename);
+                    return;
+                }
+            }
+            if (file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/$value"))
+            {
+                $filecontents = file_get_contents("$path/$databasename/$tablepath/$unirecid/$recordkey/$value");
+                if (md5($filecontents) === $uid)
+                {
+                    FN_SaveFile($filecontents, $filename);
+                    return;
+                }
+            }            
+        }
+    }
+    
     function getFilePath($recordvalues, $recordkey)
     {
         if ($recordkey == "")
+        {
             return false;
+        }
         $databasename = $this->databasename;
         $tablename = $this->tablename;
         $path = realpath($this->path);
         $unirecid = $recordvalues[$this->primarykey];
         if (!isset($recordvalues[$recordkey]))
+        {
             $recordvalues = $this->GetRecord($recordvalues);
+        }
+        
         $value = isset($recordvalues[$recordkey]) ? $recordvalues[$recordkey] : null;
         $tablepath = $this->FindFolderTable($recordvalues);
-        if ($value != "" /* && file_exists("$path/$databasename/$tablepath/$unirecid/$recordkey/$value") */) {
-            //die($this->path ."/$databasename/$tablepath/$unirecid/$recordkey/$value");
+        if ($value != "") {
+            if (!empty($recordvalues[$recordkey."_base64data"]))
+            {
+                $uid = md5($recordvalues[$recordkey."_base64data"]);
+                return "?xmldbgetfile=1&unirecid=$unirecid&recordkey=$recordkey&uid=$uid";
+            }
+           // dprint_r($this->path . "/$databasename/$tablepath/$unirecid/$recordkey/" . $value);
             return $this->path . "/$databasename/$tablepath/$unirecid/$recordkey/" . $value;
         }
         return false;
@@ -1206,19 +1254,24 @@ class XMLTable
 
     function get_file($recordvalues, $recordkey)
     {
+        $php_self = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : "";
+        $dirname = dirname($php_self);
+        if ($dirname == "/" || $dirname == "\\")
+            $dirname = "";
+        $protocol = "http://";
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")
+            $protocol = "https://";
+        $siteurl = "$protocol" . $_SERVER['HTTP_HOST'] . $dirname;
+        if (substr($siteurl, strlen($siteurl) - 1, 1) != "/") {
+            $siteurl = $siteurl . "/";
+        }
         $file = $this->getFilePath($recordvalues, $recordkey);
+        if ($file && $file[0]=="?")
+        {
+            return "$siteurl" . $file;
+        }
+        
         if ($file && file_exists($file)) {
-            $php_self = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : "";
-            $dirname = dirname($php_self);
-            if ($dirname == "/" || $dirname == "\\")
-                $dirname = "";
-            $protocol = "http://";
-            if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")
-                $protocol = "https://";
-            $siteurl = "$protocol" . $_SERVER['HTTP_HOST'] . $dirname;
-            if (substr($siteurl, strlen($siteurl) - 1, 1) != "/") {
-                $siteurl = $siteurl . "/";
-            }
             return "$siteurl" . $file;
         }
         return false;
@@ -1491,6 +1544,12 @@ class XMLTable
 
                         // cancellazione di un record
                         if (isset($_POST["__isnull__$key"]) && $_POST["__isnull__$key"] == "null") {
+                            if (isset($this->fields[$key."_base64data"]))      
+                            {
+                                $values[$key."_base64data"] = "";
+                                $r = $this->UpdateRecord(array("{$this->primarykey}"=>$values[$this->primarykey],$key."_base64data"=>$values[$key."_base64data"]));                           
+                            }
+
                             $dirtable_oldvalue = $this->FindFolderTable($values);
                             $oldfileimage = "$path/$databasename/$dirtable_oldvalue/" . $values[$this->primarykey] . "/" . $key . "/" . $oldvalues[$key];
                             $oldfilethumb = "$path/$databasename/$dirtable_oldvalue/" . $values[$this->primarykey] . "/" . $key . "/thumbs/" . $oldvalues[$key] . ".jpg";
@@ -1517,25 +1576,43 @@ class XMLTable
                     if (preg_match('/.php/is', $name_clean) || preg_match('/.php3/is', $name_clean) || preg_match('/.php4/is', $name_clean) || preg_match('/.php5/is', $name_clean) || preg_match('/.phtml/is', $name_clean)) {
                         touch("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
                     } else {
+                        if (isset($this->fields[$key."_base64data"]))
+                        {
+                            $values[$key."_base64data"] = base64_encode(file_get_contents($_FILES[$key]['tmp_name']));     
+                            $r = $this->UpdateRecord(array("{$this->primarykey}"=>$values[$this->primarykey],$key."_base64data"=>$values[$key."_base64data"]));                           
+                        }
+                        else
+                        {
 
                         if (!file_exists("$path/$databasename/$dirtable_new/"))
+                        { 
                             mkdir("$path/$databasename/$dirtable_new/");
+                            
+                        }
                         if (!file_exists("$path/$databasename/$dirtable_new/$unirecid"))
+                        {
                             mkdir("$path/$databasename/$dirtable_new/$unirecid");
+                            
+                        }
                         if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key"))
+                        {
                             mkdir("$path/$databasename/$dirtable_new/$unirecid/$key");
+                            
+                        }
+                        
                         //workarround: alla insert non funziona move_uploaded_file
                         //se elimino il file temporaneo non funziona nemmeno copy  
                         if ($oldvalues) {
-                            move_uploaded_file($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
-                            if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
-                                xmldb_Copy($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
-                            }
-                            if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
-                                trigger_error("failed copy {$_FILES[$key]['tmp_name']}");
-                                dprint_r("failed copy {$_FILES[$key]['tmp_name']} to " . "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
-                            }
+                                move_uploaded_file($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                                if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
+                                    xmldb_Copy($_FILES[$key]['tmp_name'], "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                                }
+                                if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
+                                    trigger_error("failed copy {$_FILES[$key]['tmp_name']}");
+                                    dprint_r("failed copy {$_FILES[$key]['tmp_name']} to " . "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
+                                }
                         } else {
+                            
                             $tmpname = $_FILES[$key]['tmp_name'];
                             FN_Copy($tmpname, "$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean);
                             if (!file_exists("$path/$databasename/$dirtable_new/$unirecid/$key/" . $name_clean)) {
@@ -1544,6 +1621,7 @@ class XMLTable
                             }
                         }
                         $create_thumb[$key] = true;
+                        }
                     }
                 }
             }
@@ -1580,7 +1658,7 @@ class XMLTable
  * driver xmlphp per Xmltable
  *
  */
-class XMLTable_xmlphp
+class XMLTable_xmlphp extends stdClass
 {
 
     var $databasename;

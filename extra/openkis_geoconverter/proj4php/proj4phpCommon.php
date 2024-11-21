@@ -7,7 +7,7 @@
  *                      and Richard Greenwood rich@greenwoodmap.com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpCommon {
+class Proj4phpCommon extends stdClass{
 
     public $PI = M_PI; #3.141592653589793238; //Math.PI,
     public $HALF_PI = M_PI_2; #1.570796326794896619; //Math.PI*0.5,

@@ -412,8 +412,11 @@ function FN_TPL_html_MakeThemeFromTemplate($templatefile)
 
     $vars['credits'] = FN_HtmlCredits();
     $vars['navbar'] = FN_HtmlNavbar();
-    $vars['section_title'] = $_FN['sectionvalues']['title'];
-    $vars['section_description'] = $_FN['sectionvalues']['description'];
+    if (!empty($_FN['sectionvalues']))
+    {
+        $vars['section_title'] = $_FN['sectionvalues']['title'];
+        $vars['section_description'] = $_FN['sectionvalues']['description'];    
+    }
     $vars['rss_link'] = isset($_FN['rss_link']) ? $_FN['rss_link'] : "#";
     $vars['hmenu'] = FN_TPL_tp_create_hmenu();
     $vars['languages'] = FN_HtmlLanguages();
@@ -505,7 +508,7 @@ function FN_TPL_tp_create_section()
 {
     global $_FN;
     $config = FN_LoadConfig("themes/{$_FN['theme']}/config.php");
-    $page_title = $_FN['sectionvalues']['title'];
+    $page_title = isset($_FN['sectionvalues']['title'])?$_FN['sectionvalues']['title']:"";
     $htmlsection = FN_TPL_encode(FN_HtmlSection());
     if (isset($config['show_page_title']))
     {
@@ -1380,7 +1383,7 @@ function FN_GetMenuTree($parent = "")
     $current = $_FN['mod'];
     $sections = FN_GetSections($parent);
     if (empty($sections) || count($sections) == 0)
-        return false;
+        return array();
     foreach ($sections as $section)
     {
         $menuitem = $section;

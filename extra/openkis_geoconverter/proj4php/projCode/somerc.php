@@ -21,7 +21,7 @@
 
 *******************************************************************************/
 
-class Proj4phpProjSomerc {
+class Proj4phpProjSomerc extends stdClass{
 
     /**
      * 

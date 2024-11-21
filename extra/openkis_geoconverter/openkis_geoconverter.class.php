@@ -37,7 +37,7 @@ Proj4php::$defs["GAUSSBOAGA_SICILY"] = "+proj=tmerc +lat_0=0 +lon_0=9 +k=0.9996 
 
 
 
-class openkis_geoconverter
+class openkis_geoconverter extends stdClass
 {
 
     var

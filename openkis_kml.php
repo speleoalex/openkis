@@ -9,9 +9,11 @@ $_FN['enable_compress_gzip']=1;
 $exclude=FN_GetParam("exclude",$_GET,"flat");
 $minimal=FN_GetParam("minimal",$_GET,"flat");
 $codes=FN_GetParam("filter_code",$_GET,"flat");
-$zoom=FN_GetParam("zoom",$_GET,"flat");
+$zoom=FN_GetParam("zoom",$_GET,"html");
 $nocache=FN_GetParam("nocache",$_GET,"flat");
-
+$absolute=FN_GetParam("absolute",$_GET,"html");
+$iconsize = FN_GetParam("iconsize",$_GET,"html");        
+$iconsize = floatval($iconsize);
 $big_icons=!empty($_GET['big_icons']);
 $mod=$_FN['mod'];
 if ($mod== "")
@@ -19,7 +21,7 @@ if ($mod== "")
     $mod="caves";
 }
 foreach($_REQUEST as $k=> $v)
-{
+{ 
     $params[$k]=$v;
 }
 if (!file_exists("sections/$mod"))
@@ -68,14 +70,14 @@ else
 
 $results=$dbview->GetResults(false,$params,$idresult);
 //evita di ricalcolare tutto se non è cambiato niente nel db o in questo file-->
-$idcache="$idresult$minimal$big_icons";
+$idcache="$idresult$minimal$big_icons$absolute$iconsize";
 if ($_FN['enable_compress_gzip'])
 {
     $idcache.=".gz";
 }
 $maxtime=max(filectime(__FILE__),$table->GetLastUpdateTime());
 $cache=FN_GetGlobalVarValue("$idcache",$maxtime);
-if (!empty($cache) && empty($nocache))
+if (empty($absolute) && !empty($cache) && empty($nocache))
 {
     PrintKml($cache,$filename);
 }
@@ -133,6 +135,11 @@ foreach($results as $item)
         {
             $size=$size * 3;
         }
+        if ($iconsize>0)
+        {
+            $size=$size * $iconsize;
+
+        }
         $size=str_replace(",",".",$size);
         $url=FN_RewriteLink("index.php?mod=$mod&op=view&id={$item['id']}","&",true);
         //$description="{$item['hydrology']}";
@@ -177,7 +184,7 @@ foreach($results as $item)
         {
             $title=htmlspecialchars($item['code']."-".$item['name']);
         }
-        if (empty($_GET['absolute'])) 
+        if (empty($absolute)) 
         {
             $siteurl=str_replace("https://","//",$_FN['siteurl']);
             $siteurl=str_replace("http://","//",$siteurl);

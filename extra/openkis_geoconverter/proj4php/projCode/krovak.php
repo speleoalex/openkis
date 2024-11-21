@@ -22,7 +22,7 @@
   y_0 = False Northing of the centre of the projection at the apex of the cone
 
 **/
-class Proj4phpProjKrovak {
+class Proj4phpProjKrovak extends stdClass{
 
     /**
      * 

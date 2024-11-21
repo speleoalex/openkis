@@ -32,7 +32,7 @@
 /* Variables common to all subroutines in this code file
 -----------------------------------------------------*/
 
-class Proj4phpProjEqdc {
+class Proj4phpProjEqdc extends stdClass{
     
     /* Initialize the Equidistant Conic projection
       ------------------------------------------ */

@@ -6,7 +6,7 @@
  *                      and Richard Greenwood rich@greenwoodmap.com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpProj {
+class Proj4phpProj extends stdClass{
 
     /**
      * Property: readyToUse

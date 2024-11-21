@@ -32,6 +32,7 @@ if ($is_gzip)
 {
     header("Content-Encoding: gzip");
 }
+header("Access-Control-Allow-Origin: *");
 die($contents['content']);
 
 /**

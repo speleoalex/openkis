@@ -162,7 +162,7 @@ function FN_XmltableEditor($tablename,$params=array())
     $params['textpages']=isset($params['textpages']) ? $params['textpages'] : FN_Translate("page").":";
     $params['textrequired']=isset($params['textrequired']) ? $params['textrequired'] : "*";
     $params['textfields']=isset($params['textfields']) ? $params['textfields'] : FN_Translate("required fields");
-    $params['textcancel']=isset($params['textcancel']) ? $params['textcancel'] : FN_Translate("view all");
+    $params['textcancel']=isset($params['textcancel']) ? $params['textcancel'] : FN_Translate("view list");
     $params['textnew']=isset($params['textnew']) ? $params['textnew'] : "".FN_Translate("new")."";
     $params['textexitwithoutsaving']=isset($params['textexitwithoutsaving']) ? $params['textexitwithoutsaving'] : FN_Translate("want to exit without saving?");
     //messages---<
@@ -519,7 +519,10 @@ class xmldbfrm_field_multicheck
 
     function show($params)
     {
-        $inputid_prefix=md5(serialize($params));
+        static $i =0;
+        $i++;
+//        $inputid_prefix=md5(serialize($params));
+        $inputid_prefix = "$i";
         $html="
 <script type=\"text/javascript\" >
 var synccheck{$inputid_prefix}_{$params['name']} = function (id)
@@ -848,7 +851,9 @@ class xmldbfrm_field_multiselect
     function show($params)
     {
         global $_FN;
-        $inputid_prefix=md5(serialize($params));
+        static $i = 0;
+        $i++;
+        $inputid_prefix="_{$i}_";
         $html="
 <script type=\"text/javascript\" >
 var synccheck{$inputid_prefix}_{$params['name']} = function ()

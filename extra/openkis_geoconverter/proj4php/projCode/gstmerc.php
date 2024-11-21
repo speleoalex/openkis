@@ -6,7 +6,7 @@
  *                      and Richard Greenwood rich@greenwoodma$p->com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpProjGstmerc {
+class Proj4phpProjGstmerc extends stdClass{
 
     public function init() {
 

@@ -488,6 +488,7 @@ function FNREG_ConfirmUser($uservalues, $sendwelcomemessage = 1)
  */
 function FNREG_ManageRegister($actionform = "")
 {
+    
     global $_FN;
     $config = FN_LoadConfig("modules/login/config.php");
     $form = FN_GetUserForm();
@@ -509,6 +510,7 @@ function FNREG_ManageRegister($actionform = "")
     //-----resend registration code-------------------------------------------->
     if ($op == "send_code")
     {
+        
         $tplfileresend = FN_FromTheme("modules/login/resend.tp.html", false);
         $tplvalues['error'] = false;
         $tplvalues['formaction'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=send_code");

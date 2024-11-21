@@ -30,7 +30,7 @@
 // Initialize the Lambert Conformal conic projection
 // -----------------------------------------------------------------
 //class Proj4phpProjlcc = Class.create();
-class Proj4phpProjLcc {
+class Proj4phpProjLcc extends stdClass{
 
     public function init() {
         // array of:  r_maj,r_min,lat1,lat2,c_lon,c_lat,false_east,false_north

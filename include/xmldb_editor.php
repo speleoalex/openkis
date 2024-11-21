@@ -189,7 +189,9 @@ function XMLDB_editor($tablename, $params = array())
         , "forcevaluesupdate" => ""
         , "forcenewvalues" => ""       //force if not set
         , "forceupdatevalues" => ""    //force if not set
-        , "recordsperpage" =>  isset($params['recordsperpage']) ? $params['recordsperpage'] : ""
+        , "edit_single_record" => ""    //edit single record
+        
+        , "recordsperpage" => isset($params['recordsperpage']) ? $params['recordsperpage'] : ""
         , "requiredfieldsymbol" => "*"
         , "textrequiredfields" => XMLDB_i18n("required fields")
         , "textsave" => XMLDB_i18n("save")
@@ -301,6 +303,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     {
         $params[$key] = isset($params[$key]) ? $params[$key] : $defaultsParams[$key];
     }
+
     //dprint_r($params);
     $errors = array();
     $postgetkey = "__xdb_{$tname}"; //identificatico della tabella
@@ -396,8 +399,15 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
 
     //--parametri ----<
     //-----variabili da get --------->
+    
+    
     $opmod = isset($_GET["op_$postgetkey"]) ? htmlspecialchars($_GET["op_$postgetkey"]) : "";
     $pk = isset($_GET["pk_$postgetkey"]) ? ($_GET["pk_$postgetkey"]) : "";
+    if (!empty($params['edit_single_record']))
+    {
+        $opmod = "insnew";
+        $pk = $params['edit_single_record'];
+    }    
     $page = isset($_GET["page_$postgetkey"]) ? htmlspecialchars($_GET["page_$postgetkey"]) : "";
     if ($page == "")
         $page = 1;
@@ -470,7 +480,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
         {
             foreach ($params['restrfk'] as $k => $v)
             {
-                if (isset($table->formvals[$k]))
+                // if (isset($table->formvals[$k]))
                 {
                     $table->formvals[$k]['fk_filter_field'] = $v;
                 }
@@ -599,6 +609,7 @@ set_changed();
 
     $link_FiltersEncoded = json_encode($array_filters);
     $tplvars['textviewlist'] = $textviewlist;
+    $is_error = false;
     while ($endloop == false)
     {
         switch ($opmod)
@@ -607,9 +618,9 @@ set_changed();
             case "insnew" :
 
                 $tplvars = array();
+                $tplvars['text_on_insert_fail'] = "";
                 $tplvars['text_on_update_fail'] = "";
                 $tplvars['text_on_update_ok'] = "";
-                $tplvars['text_on_insert_fail'] = "";
                 $tplvars['text_on_insert_ok'] = "";
 
                 $layout_template = $scriptOnExit . $layout_template;
@@ -697,7 +708,11 @@ set_changed();
                             else
                                 $newvalues = $table->UpdateRecord($newvalues, $pk);
 
-
+                            if (!is_array($newvalues))
+                            {
+                                $is_error = true;
+                                $newvalues = $oldvalues;
+                            }
                             if (is_array($table->xmltable->primarykey))
                             {
                                 $pk = array();
@@ -714,7 +729,7 @@ set_changed();
                             {
                                 break;
                             }
-                            if (is_array($newvalues))
+                            if ($is_error == false && is_array($newvalues))
                             {
                                 if ($function_on_update && function_exists($function_on_update))
                                 {
@@ -733,7 +748,8 @@ set_changed();
                             }
                             else
                             {
-                                $tplvars['text_on_update_fail'] = $textupdateok;
+                                
+                                $tplvars['text_on_update_fail'] =  $textupdatefail;                                
                                 $html = XMLDBEDITOR_HtmlAlert($textupdatefail) . $html;
                             }
                         }
@@ -1504,8 +1520,9 @@ set_changed();
                                 $httpqueryparams["order_$postgetkey"] = $order;
                                 $urlquery = (http_build_query($httpqueryparams));
                                 //---------- $httpqueryparams actions--<
-
-
+                                $idrow = is_array($httpqueryparams["pk_{$postgetkey}"]) ? implode(",",$httpqueryparams["pk_{$postgetkey}"]):$httpqueryparams["pk_{$postgetkey}"];
+                                $tmp_row['pk'] = $idrow;
+                                $tmp_row['idrow'] = $idk;
 
                                 $tmp_row['action_view'] = array();
                                 if ($enableview)

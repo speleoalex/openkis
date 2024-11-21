@@ -6,7 +6,7 @@
  *                      and Richard Greenwood rich@greenwoodmap.com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class proj4phpLongLat {
+class proj4phpLongLat extends stdClass {
 
     public function init() {
         

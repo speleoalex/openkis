@@ -71,7 +71,7 @@ function xmldb_frm($databasename, $tablename, $path = "misc", $lang = "en", $lan
  * frm_required_condition : condizione per cui il campo e' obbligatorio es
  *
  */
-class FieldFrm
+class FieldFrm  extends stdClass
 {
     var $databasename;
     var $table;
@@ -156,6 +156,10 @@ class FieldFrm
         {
             if (!empty($field['name']))
             {
+                if (file_exists(__DIR__."/xmldbfrm_field_{$field['frm_type']}.php"))
+                {
+                    require_once (__DIR__."/xmldbfrm_field_{$field['frm_type']}.php");
+                }
                 if (!isset($field['frm_type']) || $field['frm_type'] == "varchar")
                     if (!empty($field['foreignkey']))
                     {
@@ -910,7 +914,7 @@ $frm_endgroupfooter
                 $tpobject = $this->templateobjects[$fieldform_valuesk];
             else
                 $tpobject = $this->templateobject;
-            $fieldform_values['template'] = $tpobject;
+            $fieldform_values['template_id'] = $tpobject;
 
             //----------------------filters------------------------------------>
             if (isset($fieldform_values['fk_filter_field']) && $fieldform_values['fk_filter_field'] != "")
@@ -1135,7 +1139,7 @@ $frm_endgroupfooter
         }
 
         $htmlform = str_replace("{formcontents}", $htmlitems, $tpobject->templateContents);
-
+        
         return $this->DecodeValues($this->DecodeValues($htmlform));
     }
 
@@ -2384,7 +2388,9 @@ class xmldbfrm_field_file
         $html .= "<br />";
         if ($oldval != "" && isset($oldvalues[$primarykey]))
         {
-            $html .= "<br /><a href=\"{$params['fieldform']->siteurl}" . $params['fieldform']->path . "/" . $params['fieldform']->databasename . "/" . $tablepath . "/" . $oldvalues[$primarykey] . "/" . $params['name'] . "/$oldval\" >$oldval</a>";
+            $url = $params['fieldform']->xmltable->getFilePath($oldvalues, $params['name']);
+//            $html .= "<br /><a href=\"{$params['fieldform']->siteurl}" . $params['fieldform']->path . "/" . $params['fieldform']->databasename . "/" . $tablepath . "/" . $oldvalues[$primarykey] . "/" . $params['name'] . "/$oldval\" >$oldval</a>";
+            $html .= "<br /><a href=\"$url\" >$oldval</a>";
             $html .= "<input $toltips type=\"checkbox\" value=\"null\" name=\"__isnull__" . $params['name'] . "\" />" . $params['messages']["_XMLDBDELETE"];
         }
         return $html;

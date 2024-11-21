@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find <!-- $partname -->(.*)<!-- end$partname -->
  * 
@@ -33,6 +34,7 @@ function TPL_GetHtmlPart($partname, $tp_str, $default = "")
     $tp_str = empty($out[0]) ? $default : $out[0];
     return $tp_str;
 }
+
 /**
  * 
  * @staticvar array $cache
@@ -80,6 +82,7 @@ function TPL_GetHtmlParts($partname, $tp_str, $default = "")
     }
     return array();
 }
+
 /**
  * 
  * @param type $partname
@@ -169,9 +172,9 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
         $recursion--;
         return $str;
     }
-    if (is_string($vars))
+    if (is_string($vars) )
     {
-        $vars=array("item"=>$vars);
+        $vars = array("item" => $vars);
     }
     foreach ($config as $k => $v)
     {
@@ -182,19 +185,52 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
     }
     $arrayvars = array();
     $match = "";
-    if (preg_match_all('/\{([a-zA-Z0-9_&]+)\}/m', $str, $match))
+    if (preg_match_all('/\{([a-zA-Z0-9_&]+(?:\.(?:addSlashes|addHtmlEntities)\(\))?)\}/m', $str, $match))
     {
         foreach ($match[1] as $tplvar)
         {
+            // Rimuove "_&" alla fine della variabile, se presente
             $tplvar = str_replace("_&", "", $tplvar);
-            $arrayvars[$tplvar] = null;
+
+            // Gestisci il caso in cui ci siano metodi
+            if (strpos($tplvar, '.') !== false)
+            {
+                // Estrai il nome della variabile senza il metodo
+                list($varName, $method) = explode('.', $tplvar);
+                $arrayvars[$varName] = ['method' => $method];
+            }
+            else
+            {
+                $arrayvars[$tplvar] = null;
+            }
         }
     }
+
     foreach ($arrayvars as $k => $v)
     {
         if (isset($vars[$k]))
         {
-            $arrayvars[$k] = $vars[$k];
+            // Se il valore ha un metodo associato, applicalo
+            if (is_array($v) && isset($v['method']))
+            {
+                $method = $v['method'];
+                //dprint_r($method);
+                //dprint_r($vars[$k]);
+                //dprint_r($k);
+                if ($method === 'addSlashes()')
+                {
+                    $arrayvars[$k] = addslashes($vars[$k]);
+                }
+                elseif ($method === 'addHtmlEntities()')
+                {
+                    $arrayvars[$k] = htmlentities($vars[$k], ENT_QUOTES, 'UTF-8');
+                }
+                $arrayvars["$k.$method"] = $arrayvars[$k];
+            }
+            else
+            {
+                $arrayvars[$k] = $vars[$k];
+            }
         }
     }
     $old = "";
@@ -263,7 +299,7 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
                 $html_template_array_clean = TPL_str_replace_last("<!-- end foreach {_&" . $key . "} -->", "", $html_template_array_clean);
                 if ($html_template_array_clean == "<!-- recursion -->")
                 {
-                    $html_template_array_clean=$strout;
+                    $html_template_array_clean = $strout;
                 }
                 if ($html_template_array)
                 {
@@ -357,7 +393,7 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
             {
                 $mode = "AA";
             }
-            $strout = str_replace("{i18n:$i18n_item}", TPL_Translate(strtolower("$i18n_item"), $mode), $strout);
+            $strout = str_replace("{i18n:$i18n_item}", TPL_Translate("$i18n_item", $mode), $strout);
         }
     }
 

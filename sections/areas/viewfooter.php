@@ -15,12 +15,13 @@ $lat=45;
 $lon=9;
 
 $config=FN_LoadConfig("modules/dbview/config.php","caves");
-$params['fields']="code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total";
+$params['fields']="code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,filelox,lenght_total";
 
 
 $params['navigate_groups']=array("nv_areas"=>$row['code']);
 $dbview=new FNDBVIEW($config);
 $items=$dbview->GetResults($config,$params);
+
 
 
 $num=count($items);
@@ -70,5 +71,15 @@ if ($num > 0)
     frameborder=\"0\" src=\"{$_FN['siteurl']}bs_map.htm?nv_areas={$row['code']}&zoom=$zoom&mod=caves&lat=$lat&lon=$lon\" width=\"100%\" height=\"500\" ></iframe>";
     }
 }
+
+
+
+
+$file = urlencode("misc/fndatabase/ctl_areas/{$row['id']}/filelox/{$row['filelox']}");
+$iframe_href = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
+//$html.= "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
+$html.= "<br/><a href=\"$iframe_href\" target=\"_blank\">" . FN_Translate("open 3d") . "</a><br />";
+
+
 echo $html;
 ?>

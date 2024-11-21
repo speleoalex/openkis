@@ -28,7 +28,7 @@
   U.S. Geological Survey Professional Paper 1453 , United State Government
   Printing Office, Washington D.C., 1989.
  *******************************************************************************/
-class Proj4phpProjEqui {
+class Proj4phpProjEqui extends stdClass{
 
     public function init() {
         if( !$this->x0 )

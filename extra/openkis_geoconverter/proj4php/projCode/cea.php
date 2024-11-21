@@ -41,7 +41,7 @@
  *                      and Richard Greenwood rich@greenwoodma$p->com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpProjCea {
+class Proj4phpProjCea extends stdClass{
     /* Initialize the Cylindrical Equal Area projection
       ------------------------------------------- */
 

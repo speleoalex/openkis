@@ -16,6 +16,7 @@ defined('_FNEXEC') or die('Restricted access');
 function FN_HtmlAdminOnOff()
 {
     global $_FN;
+    $html = "";
     $stout="";
     //tasto editmode ON/OFF---------------------------------------------------->
     if (FN_IsAdmin() || FN_CanModify($_FN['user'],"sections/{$_FN['mod']}"))
@@ -45,7 +46,7 @@ function FN_HtmlAdminOnOff()
         $stout.="</select>";
         $stout.="<img title=\"".FN_Translate("close")."\" onclick=\"document.getElementById('fn_adminonoff').style.display='none';return false;\" alt=\"close\" style=\"border:0px;vertical-align:middle;cursor:pointer\" src=\"".FN_FromTheme("images/fn_close.png")."\" />";
         $stout.="</div>";
-    }
+    
     //tasto editmode ON/OFF----------------------------------------------------<
     $html="";
     $stout=addslashes($stout);
@@ -61,6 +62,7 @@ function FN_HtmlAdminOnOff()
     window.setTimeout('fn_addOnOff()',100);
 </script>
 ";
+    }
     return $html;
 }
 

@@ -86,7 +86,7 @@ function e4fn( $x ) {
   Printing Office, Washington D.C., 1989.
  * ***************************************************************************** */
 
-class Proj4phpProjPoly {
+class Proj4phpProjPoly extends stdClass{
     
     /* Initialize the POLYCONIC projection
       ---------------------------------- */

@@ -14,7 +14,7 @@ require_once($dir . "/proj4phpDatum.php");
 require_once($dir . "/proj4phpLongLat.php");
 require_once($dir . "/proj4phpPoint.php");
 
-class Proj4php {
+class Proj4php extends stdClass{
 
     protected $defaultDatum = 'WGS84';
     public static $ellipsoid = array( );

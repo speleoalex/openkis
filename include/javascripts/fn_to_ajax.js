@@ -1,7 +1,7 @@
 /**
  * Flatnux ajax funcions
  * @package Flatnux
- * @author Alessandro Vernassa <speleoalex@gmail.com>
+ * @autor Alessandro Vernassa <speleoalex@gmail.com>
  * @copyright Copyright (c) 2011
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License
  */
@@ -62,59 +62,17 @@ function fn_to_ajax(a,div)
 /**
  * sample: <button onclick="fn_call_ajax_silent('index.php','section')" >pippo</button>
  */
-function fn_call_ajax_silent(url,div,method,params)
+function fn_call_ajax_silent(url,div,method,params,callback)
 {
-    method = (typeof(method) !=='undefined') ? method : "post";    
-    params = (typeof(params) !=='undefined') ? params : "";    
-    return fn_call_ajax(url,div,true,method);
+    method = (typeof(method) !=='undefined' && method!==false) ? method : "post";    
+    params = (typeof(params) !=='undefined' && params!==false) ? params : false;    
+    return fn_call_ajax(url,div,true,method,params,callback);
 }
+
 /**
  *
  */
-function fn_call_ajax(url,div,silent,method,params)
-{
-    method = (typeof(method) !=='undefined') ? method : "post";
-    method = method.toUpperCase();
-    
-    silent = (typeof(silent) !=='undefined') ? silent : false;
-    params = (typeof(params) !=='undefined') ? params : false;
-    
-    //alert("url="+url+"\nparams="+params);
-    var xsreq;
-    if (!silent)
-        fn_loading(div);
-    if (window.XMLHttpRequest) {
-        xsreq = new XMLHttpRequest();
-    }
-    else if (window.ActiveXObject) {
-        xsreq = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    if (xsreq) {
-        xsreq.onreadystatechange = function() {
-            try{
-                fn_ajDone(url, div,xsreq);
-            }catch(e){
-                //alert(e);
-                window.location = url;
-            }
-        };
-        
-        xsreq.open(method, url, true);
-        
-        if (method == "POST" )
-        {
-            xsreq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xsreq.send(params);
-        }
-        else
-            xsreq.send(params);
-    }
-    return false;
-}
-/**
- *
- */
-function fn_ajDone(url,divs,xsreq)
+function fn_ajDone(url, divs, xsreq, callback)
 {
 	
     if (xsreq.readyState == 4)
@@ -180,6 +138,7 @@ function fn_ajDone(url,divs,xsreq)
             alert(e);
         }
         ajaxOk = true;
+        callback();
     }
 }
 /**
@@ -230,6 +189,7 @@ function fn_loading(_div)
 {
     var div;
     div = document.createElement('div');
+    div.setAttribute('id', 'fnajloading');
     div.innerHTML='loading...';
     oHeight = document.getElementsByTagName('body')[0].clientHeight + fn_getScrollY();
     oWidth = document.getElementsByTagName('body')[0].clientWidth + fn_getScrollX();
@@ -241,27 +201,25 @@ function fn_loading(_div)
         div.style.display='block';
         div.style.position='absolute';
         div.style.width=oWidth;
-        div.style.height = "auto";
+        div.style.height = oHeight;
         div.style.top='0px';
         div.style.left='0px';
         div.style.textAlign='center';
         div.style.opacity='0.5';
         div.style.filter='alpha(opacity=50)';
         div.style.overflow='hidden';
+        div.style.transition = 'opacity 0.5s ease-in-out';
     }
     catch(e)
     {
 		
     }
-    //alert(fn_to_ajaxFilesPath+"../../images/loading.gif");
-    //document.getElementsByTagName('body')[0].appendChild(div);
     div.innerHTML = "<div id=\"fnajloading\" style=\"color:#ffffff;margin-top:"+fn_getScrollY()+"px\" ><br />Loading...<br /><br /><img  src='"+fn_to_ajaxFilesPath+"../../images/loading.gif' /><br /><br /></div>";
     var listdivs = _div.split(',');
     try{
         if (!document.getElementById("fnajloading"))
         {
             document.getElementsByTagName('body')[0].appendChild(div);
-        //document.getElementById(listdivs[0]).appendChild(div);
         }
 	
     }catch(e){}
@@ -299,18 +257,93 @@ function fn_execJS (node) {
     }
 
 }
+
+
+/**
+ * Function to handle form submission via AJAX
+ */
+function fn_FormToAjax(formElement, divToUpdate, method, makeJson, action, callback, loadingCallback) {
+    method = (typeof(method) !== 'undefined' && method !== false) ? method : formElement.getAttribute("method");
+    makeJson = (typeof(makeJson) !== 'undefined' && makeJson !== false) ? makeJson : false;
+    loadingCallback = (typeof(loadingCallback) !== 'undefined' && loadingCallback !== false) ? loadingCallback : false;
+    var url = (typeof(action) !== 'undefined' && action !== false) ? action : formElement.action;
+   
+    divToUpdate = (typeof(divToUpdate) !== 'undefined' && divToUpdate !== false) ? divToUpdate : "";
+    callback = (typeof(callback) !== 'undefined' && callback !== false) ? callback : function() {};
+    
+    var params;
+    if (makeJson) {
+        params = fn_MakegetString(formElement, makeJson);
+    } else {
+        // Use FormData for file uploads
+        params = new FormData(formElement);
+    }
+    
+    fn_call_ajax(url, divToUpdate, loadingCallback, method, params, callback);
+    return false;
+}
+
+/**
+ * Function to perform AJAX call
+ */
+function fn_call_ajax(url, div, silent, method, params, callback) {
+    method = (typeof(method) !== 'undefined' && method !== false) ? method : "post";
+    method = method.toUpperCase();
+    
+    silent = (typeof(silent) !== 'undefined' && silent !== false) ? silent : false;
+    callback = (typeof(callback) !== 'undefined' && callback !== false) ? callback : function() {};
+    
+    var xsreq;
+
+    if (silent === false)
+        fn_loading(div);
+
+    if (typeof(silent) == "function") {
+        silent();
+    }
+
+    if (window.XMLHttpRequest) {
+        xsreq = new XMLHttpRequest();
+    } else if (window.ActiveXObject) {
+        xsreq = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    if (xsreq) {
+        xsreq.onreadystatechange = function() {
+            try {
+                fn_ajDone(url, div, xsreq, callback);
+            } catch(e) {
+                window.location = url;
+            }
+        };
+        
+        xsreq.open(method, url, true);
+        
+        if (method == "POST" && !(params instanceof FormData)) {
+            xsreq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        }
+        
+        xsreq.send(params);
+    }
+    return false;
+}
+
+
+
+
 /**
  * 
  */
-function fn_FormToAjax(formElement,divToUpdate,method,makeJson,action)
+function _fn_FormToAjax(formElement,divToUpdate,method,makeJson,action,callback,loadingCallback)
 {
     
-    method = (typeof(method) !=='undefined') ? method : formElement.getAttribute("method");
-    makeJson = (typeof(makeJson) !=='undefined') ? makeJson : false;
-    var url = (typeof(action) !=='undefined') ? action : formElement.action;
+    method = (typeof(method) !=='undefined' && method !==false) ? method : formElement.getAttribute("method");
+    makeJson = (typeof(makeJson) !=='undefined' && makeJson !==false) ? makeJson : false;
+    loadingCallback = (typeof(loadingCallback) !=='undefined' && loadingCallback !==false) ? loadingCallback : false;
+    var url = (typeof(action) !=='undefined' && action !==false) ? action : formElement.action;
    
-    divToUpdate = (typeof(divToUpdate) !=='undefined') ? divToUpdate : "";
+    divToUpdate = (typeof(divToUpdate) !=='undefined' && divToUpdate !==false ) ? divToUpdate : "";
     var params = fn_MakegetString(formElement,makeJson);
+    callback = (typeof(callback) !== 'undefined' && callback !==false) ? callback : function() {};
     
     if (method == 'get')
     {
@@ -323,7 +356,61 @@ function fn_FormToAjax(formElement,divToUpdate,method,makeJson,action)
             url = url+'?'+params;
         }
     }
-    fn_call_ajax(url,divToUpdate,false,method,params);
+    fn_call_ajax(url,divToUpdate,loadingCallback,method,params,callback);
+    return false;
+}
+/**
+ *
+ */
+function _fn_call_ajax(url,div,silent,method,params,callback)
+{
+    method = (typeof(method) !=='undefined' && method!==false) ? method : "post";
+    method = method.toUpperCase();
+    
+    silent = (typeof(silent) !=='undefined' && silent!==false) ? silent : false;
+    params = (typeof(params) !=='undefined' && params!==false) ? params : false;
+    callback = (typeof(callback) !== 'undefined' && callback!==false) ? callback : function() {};
+    
+    //alert("url="+url+"\nparams="+params);
+    var xsreq;
+
+
+
+    if (silent===false)
+        fn_loading(div);
+
+    if (typeof(silent)=="function")
+    {
+        silent();
+    }
+
+
+    if (window.XMLHttpRequest) {
+        xsreq = new XMLHttpRequest();
+    }
+    else if (window.ActiveXObject) {
+        xsreq = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    if (xsreq) {
+        xsreq.onreadystatechange = function() {
+            try{
+                fn_ajDone(url, div, xsreq, callback);
+            }catch(e){
+                //alert(e);
+                window.location = url;
+            }
+        };
+        
+        xsreq.open(method, url, true);
+        
+        if (method == "POST" )
+        {
+            xsreq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xsreq.send(params);
+        }
+        else
+            xsreq.send(params);
+    }
     return false;
 }
 /**

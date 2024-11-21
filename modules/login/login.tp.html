@@ -20,5 +20,11 @@
         <!-- register --> 
         <br /><a href="{urlregister}">{i18n:Register}</a>
         <!-- end register --> 
+        <!-- if {oauth_providers} -->
+        <hr />
+        <!-- end if {oauth_providers} -->
+        <!-- foreach {oauth_providers} -->
+        <a class="btn btn-outline-secondary" href="{url}"><!-- if {urlimage} --><img style="max-height:30px;" src="{urlimage}" /> <!-- end if {urlimage} -->{i18n:Continue width}: {name}</a> 
+        <!-- end foreach {oauth_providers} -->        
     </div>
 </form>

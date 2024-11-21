@@ -9,7 +9,7 @@
 
 /** datum object
  */
-class proj4phpDatum {
+class proj4phpDatum extends stdClass {
 
     public $datum_type;
     public $datum_params;

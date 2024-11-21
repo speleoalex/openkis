@@ -119,7 +119,7 @@
 /**
   Initialize New Zealand Map Grip projection
  */
-class Proj4phpProjNzmg {
+class Proj4phpProjNzmg extends stdClass{
 
     /**
      * iterations: Number of iterations to refine inverse transform.

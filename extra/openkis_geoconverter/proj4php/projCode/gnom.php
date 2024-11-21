@@ -28,7 +28,7 @@
   Accessed: 12th November 2009
 ******************************************************************************/
 
-class Proj4phpProjGnom {
+class Proj4phpProjGnom extends stdClass{
     
     /**
      * Initialize the Gnomonic projection

@@ -27,6 +27,11 @@ $_FN_default_database_driver="xmlphp";
 require_once dirname(__FILE__)."/config.vars.php";
 if (file_exists(dirname(__FILE__)."/config.vars.local.php"))
     require_once dirname(__FILE__)."/config.vars.local.php";
+if (file_exists("config.vars.local.php"))
+{
+    require_once ("config.vars.local.php");
+}
+
 if (!$_FN_datadir)
 {
     $_FN_datadir="misc";
@@ -305,7 +310,15 @@ if (!$_FN['consolemode'])
     if (!in_array($_FN['lang'],$_FN['listlanguages']))
         $_FN['lang']=$_FN['lang_default'];
     $_FN['showaccesskey']=FN_SaveGetPostParam("showaccesskey");
-    $usertheme=FN_SaveGetPostParam("theme");
+    $change_theme = isset($_REQUEST['change_theme']);
+    if ($change_theme)
+    {
+        $usertheme=FN_SaveGetPostParam("theme",false,false,false);    
+    }
+    else{
+        $usertheme=FN_SaveGetPostParam("theme",true,true,!$_FN['switchtheme']);
+    }
+    
     $_FN['section_header_footer']=isset($_FN['section_header_footer']) ? $_FN['section_header_footer'] : "";
     if ($usertheme!= "")
     {

@@ -14,6 +14,7 @@ $_FN['default_latitude']=$config['default_latitude'];
 $_FN['default_longitude']=$config['default_longitude'];
 $_FN['default_zoom']=$config['default_zoom'];
 
+
 /**
  * 
  * @param string $values
@@ -123,38 +124,6 @@ function GeneraNumero($values)
 function InizializzaDB()
 {
 
-
-    $TableFRM=FN_XmlForm("ctl_caves");
-    $TableFRM->formvals['country']['frm_default']="ITALIA";
-    $TableFRM->formvals['regione']['frm_default']="LOMBARDIA";
-    $TableFRM->formvals['provincia']['frm_validator']="cglombardia_checkprovincia";
-    $TableFRM1=FN_XmlForm("ctl_artificials");
-    $TableFRM1->formvals['country']['frm_default']="ITALIA";
-    $TableFRM1->formvals['regione']['frm_default']="LOMBARDIA";
-    $TableFRM2=FN_XmlForm("ctl_springs");
-    $TableFRM2->formvals['country']['frm_default']="ITALIA";
-    $TableFRM2->formvals['regione']['frm_default']="LOMBARDIA";
-    //<frm_validator>cglombardia_checkprovincia</frm_validator>
-
-    $field=array();
-    $field['name']='code_fslo';
-    $field['frm_it']='Codice FSLo';
-    $field['type']='string';
-    $field['frm_size']='8';
-    $field['frm_help_it']='Codice univoco della federazione Speleologica Lombarda. È composto LO+CODICE PROVINCIA+NUMERO+NUMERO INGRESSO AGGIUNTIVO';
-    $field['frm_show']='0';
-    $field['view_show']='1';
-    addxmltablefield("fndatabase","ctl_caves",$field,"misc");
-/*
-    $field=array();
-    $field['name']='provincia';
-    $field['type']='string';
-    $field['frm_it']='Provincia';
-    $field['frm_type']='provincia';
-    $field['frm_validator']='cglombardia_checkprovincia';
-    $field['frm_required']='1';
-    addxmltablefield("fndatabase","ctl_caves",$field,"misc",false);
-*/
     if (!file_exists("misc/fndatabase/ctl_caves.php") || filemtime(__DIR__."/ctl_caves.php") > filemtime("misc/fndatabase/ctl_caves.php") )
     {
         file_put_contents("misc/fndatabase/ctl_caves.php", file_get_contents(__DIR__."/ctl_caves.php"));
@@ -167,9 +136,23 @@ function InizializzaDB()
         //    dprint_r(filemtime(__DIR__."/ctl_caves.php") );
     }
 
+    //LONTRA
+    if (!file_exists("misc/fndatabase/ctl_surveys.php") || filemtime(__DIR__."/ctl_surveys.php") > filemtime("misc/fndatabase/ctl_surveys.php") )
+    {
+        file_put_contents("misc/fndatabase/ctl_surveys.php", file_get_contents(__DIR__."/ctl_surveys.php"));
+        die("misc/fndatabase/ctl_surveys.php updated");
+    }
+    else
+    {
+
+        //    dprint_r(filemtime("misc/fndatabase/ctl_surveys.php") );
+        //    dprint_r(filemtime(__DIR__."/ctl_surveys.php") );
+    }
 
 
 }
+
+
 
 /**
  * 
@@ -177,9 +160,16 @@ function InizializzaDB()
  * @param type $prov
  * @return boolean
  */
+
+//echo '<script>console.log("Lombardia"); </script>';
+//wh_log("Lombardia");
+//wh_log($group);
+
 function cglombardia_checkprovincia($prov)
 {
     global $_FN;
+    //echo "<script>console.log('".$_FN."');</script>";
+    syslog(LOG_WARNING, "User #14 is logged from two different places.");
     if (FN_IsAdmin())
     {
         return true;
@@ -190,7 +180,7 @@ function cglombardia_checkprovincia($prov)
         return true;
     }
     if (false!== stripos("CO_LC_SO_MI_PV","$prov") && FN_UserInGroup($_FN['user'],"RW_CO_LC_SO_MI_PV"))
-    {
+    { 
         return true;
     }
 
@@ -200,8 +190,9 @@ function cglombardia_checkprovincia($prov)
     {
         $oldvalues=$table->GetRecordByPk($id);
         //dprint_r($oldvalues);
+        //dprint_r($_FN['user'],$oldvalues);
         if (FNNAV_UserCanEditField($_FN['user'],$oldvalues))
-        {
+        { 
             return true;
         }
     }
@@ -251,7 +242,6 @@ function GeneraCodiciFSLO($silent=false)
             echo "funzione riservata agli amministratori";
     }
 }
-
 
 
 InizializzaDB();

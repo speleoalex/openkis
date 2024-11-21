@@ -38,8 +38,8 @@ function FN_LoginInitUrl()
     $_FN['urlregister'] = FN_RewriteLink("index.php?mod=$loginmod&amp;op=register", "&amp;", true);
     $_FN['urlprofile'] = FN_RewriteLink("index.php?mod=$loginmod&amp;op=profile", "&amp;", true);
     $_FN['urleditprofile'] = FN_RewriteLink("index.php?mod=$loginmod&amp;op=editreg", "&amp;", true);
-
     $_FN['urllogin'] = FN_RewriteLink("index.php?mod=$loginmod", "&amp;", true);
+    $_FN['urlloginform'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&fnlogin=login", "&amp;", true);
     $_FN['urllogout'] = FN_RewriteLink("index.php?fnlogin=logout", "&amp;", true);
     $_FN['urlpasswordrecovery'] = FN_RewriteLink("index.php?mod=$loginmod&op=recovery", "&amp;", true);
     $_FN['urlresendcode'] = false;
@@ -104,6 +104,7 @@ function FN_ManageLogin()
     $fnuser = FN_GetParam("username", $_POST);
     $fnpwd = FN_GetParam("password", $_POST);
     $captcha_ok = true;
+    FN_ManageLoginWithOpenAuthentication();
     //-------------------captcha----------------------------------------------->
     if (!empty($_FN['enable_captcha']))
     {
@@ -219,6 +220,7 @@ function FN_HtmlLoginForm($templateForm = false,$url="")
     $tplvars['login_error'] = "";
     $tplvars['formaction'] = $querystring;
     $tplvars['txtusername'] = (!empty($_FN['username_is_email'])) ? FN_Translate("email") : FN_Translate("username");
+    
     //------------------------------------ captcha ---------------------------->
     $captcha_ok = true;
     $htmlcaptcha = "";
@@ -253,7 +255,8 @@ function FN_HtmlLoginForm($templateForm = false,$url="")
     {
         $templateForm = FN_TPL_ReplaceHtmlPart("register", "", $templateForm);
     }
-
+    $tplvars['oauth_providers'] = FN_GetOpenAuthProviders();
+  
     $html = FN_TPL_ApplyTplString($templateForm, $tplvars, $tplbasepath);
 
     return $html;
@@ -600,6 +603,10 @@ function FN_GetUserImage($user)
     }
     else
     {
+        if (!empty($_FN['userimage']) )
+        {
+            return $_FN['userimage'];
+        }
         $image = FN_FromTheme("images/user.png", false);
     }
     return $_FN['siteurl'] . $image;
@@ -752,4 +759,168 @@ function FN_PasswordVerifyConstraints($password)
     return "";
 }
 
+
+
+function FN_ManageLoginWithOpenAuthentication()
+{
+
+    global $_FN;
+    $session_provider = FN_GetSessionValue("session_provider");
+    $session_access_token = FN_GetSessionValue("session_access_token");
+    $_FN['userimage'] = FN_GetSessionValue("session_userimage");
+    // Provider configurations
+    $providers = FN_GetOpenAuthProviders();
+    if (!$providers)
+    {
+        return;
+    }
+    $op = FN_GetParam("fnlogin", $_GET);
+    if ($op == "logout")
+    {
+        FN_SetSessionValue("session_access_token", "");
+        FN_SetSessionValue("session_provider", "");
+        FN_SetSessionValue("session_userimage", "");
+        $providerId = "";
+        $session_provider = "";
+        $session_access_token = "";
+        FN_Logout();
+        return;
+    }
+    $providerId = FN_GetParam("fnloginprovider", $_GET);    
+    $redirectUri = $_FN['siteurl']."?fnloginprovider=$providerId";
+    $found_provider = false;
+    foreach ($providers as $provider)
+    {
+        if ($providerId == $provider['id'])
+        {
+            $found_provider = $provider;
+            break;
+        }
+    }
+    if (!$found_provider)
+    {
+        return;
+    }
+    $config = $found_provider;
+    
+
+    // Check if the user is already authenticated
+    if (empty($session_access_token))
+    {
+        // If not authenticated, start the OAuth flow
+        if (!isset($_GET['code']))
+        {
+            // Redirect to provider's authorization page
+            $params = array(
+                'client_id' => $config['client_id'],
+                'redirect_uri' => $redirectUri,
+                'response_type' => 'code',
+                'scope' => $config['scope'],
+            );
+
+            $authRedirect = $config['auth_url'] . '?' . http_build_query($params);
+            header('Location: ' . $authRedirect);
+            exit;
+        }
+        else
+        {
+            // Exchange the authorization code for an access token
+            $postData = array(
+                'code' => $_GET['code'],
+                'client_id' => $config['client_id'],
+                'client_secret' => $config['client_secret'],
+                'redirect_uri' => $redirectUri,
+                'grant_type' => 'authorization_code',
+            );
+
+            $ch = curl_init($config['token_url']);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            $response = curl_exec($ch);
+            curl_close($ch);
+            $tokenData = json_decode($response, true);
+            if (isset($tokenData['access_token']))
+            {
+                $session_access_token = $tokenData['access_token'];
+                $session_provider = $provider['id'];
+                FN_SetSessionValue("session_access_token", $session_access_token);
+                FN_SetSessionValue("session_provider", $session_provider);
+            }
+            else
+            {
+               return;
+            }
+        }
+    }
+
+// Get user information using the access token
+    $ch = curl_init($config['userinfo_url']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $session_access_token));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $userInfo = json_decode($response, true);
+    FN_SetSessionValue("session_provider", $session_provider);
+    $user_email = isset($userInfo['email']) ? $userInfo['email'] : "";
+    $user_image = !empty($userInfo['picture']) ?$userInfo['picture']:"";
+    if (!$user_image || is_array($user_image))
+    {
+        $user_image = !empty($userInfo['picture']['data']['url']) ? $userInfo['picture']['data']['url']:"";        
+    }
+    if ($user_email)
+    {
+        $users = FN_GetUsers(array("email" => $user_email));
+        if ($users)
+        {
+            $uservalues = $users[0];
+            FN_Login($uservalues['username']);
+        }
+        else
+        {
+            if ($_FN['enable_registration'])
+            {
+                $uservalues = array("username" => $user_email, "email" => $user_email, "active" => 1);
+                $res = FN_AddUser($uservalues, generateSecurePassword());
+                FN_Login($uservalues['username']);
+            }
+        }
+        $_FN['userimage'] = $user_image;
+        FN_SetSessionValue("session_userimage", $user_image);
+        return;
+    }
+    else
+    {
+        FN_Logout();
+    }
+}
+
+function generateSecurePassword($length = 12)
+{
+    // Define the character sets to use in the password
+    $lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $numbers = '0123456789';
+    $specialChars = '!@#$%^&*()-_=+<>?';
+
+    // Combine all character sets
+    $allChars = $lowercase . $uppercase . $numbers . $specialChars;
+
+    // Shuffle the characters to ensure randomness
+    $shuffledChars = str_shuffle($allChars);
+
+    // Initialize the password variable
+    $password = '';
+
+    // Generate a password of the specified length
+    for ($i = 0; $i < $length; $i++)
+    {
+        // Select a random character from the shuffled character set
+        $randomIndex = rand(0, strlen($shuffledChars) - 1);
+        $password .= $shuffledChars[$randomIndex];
+    }
+
+    return $password;
+}
 ?>

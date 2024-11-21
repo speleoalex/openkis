@@ -78,12 +78,21 @@ function openkis_GetItemPosition($row)
     $table_coordinatestypes = FN_XmlTable("ctl_coordinatestypes");
     $lat_ori = $row['latitude_txt'];
     $lon_ori = $row['longitude_txt'];
-    if ($lat_ori == "" && $lon_ori == "")
+    $lat_wgs84 = $row['latitude'];
+    $lon_wgs84 = $row['longitude'];
+    
+    if ($lat_wgs84 == "" && $lat_ori == "" && $lon_ori == "")
     {
         $ret['lat'] = 0;
         $ret['lon'] = 0;
         $ret['elevation'] = 0;
         return $ret;
+    }
+    if ($lat_ori == "" && $lon_ori == "")
+    {
+        $lat_ori = $lat_wgs84;
+        $lon_ori = $lon_wgs84;
+        
     }
     $coordinatestypes = isset($row['coordinates_type']) ? $row['coordinates_type'] : "";
     if ($coordinatestypes == "")

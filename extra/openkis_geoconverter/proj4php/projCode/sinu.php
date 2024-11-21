@@ -32,7 +32,7 @@
   Package", U.S. Geological Survey National Mapping Division, May 1982.
  * ***************************************************************************** */
 
-class Proj4phpProjSinu {
+class Proj4phpProjSinu extends stdClass{
     
     /* Initialize the Sinusoidal projection
       ------------------------------------ */

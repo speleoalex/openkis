@@ -36,7 +36,7 @@
   Package", U.S. Geological Survey National Mapping Division, May 1982.
  * ***************************************************************************** */
 
-class Proj4phpProjLaea {
+class Proj4phpProjLaea extends stdClass{
 
     protected $S_POLE = 1;
     protected $N_POLE = 2;

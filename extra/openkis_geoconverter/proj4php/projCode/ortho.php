@@ -29,7 +29,7 @@
   Printing Office, Washington D.C., 1989.
  * ***************************************************************************** */
 
-class Proj4phpProjOrtho {
+class Proj4phpProjOrtho extends stdClass{
     
     /* Initialize the Orthographic projection
       ------------------------------------- */

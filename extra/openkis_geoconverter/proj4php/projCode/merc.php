@@ -41,7 +41,7 @@
 //static double false_easting = x0;	   /* x offset in meters			*/
 //scale_fact = k0 
 
-class Proj4phpProjMerc {
+class Proj4phpProjMerc extends stdClass{
 
     public function init() {
         //?$this->temp = $this->r_minor / $this->r_major;

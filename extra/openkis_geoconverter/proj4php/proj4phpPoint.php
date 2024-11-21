@@ -13,7 +13,7 @@
  * Other point classes may be used as long as they have
  * x and y properties, which will get modified in the transform method.
 */
-class proj4phpPoint {
+class proj4phpPoint extends stdClass{
 
     public $x;
     public $y;

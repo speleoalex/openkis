@@ -7,7 +7,7 @@
  *                      and Richard Greenwood rich@greenwoodma$p->com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpProjAeqd {
+class Proj4phpProjAeqd extends stdClass{
 
     public function init() {
         $this->sin_p12 = sin( $this->lat0 );

@@ -1192,6 +1192,30 @@ function FNCC_XmltableEditor($tablename, $params = array())
     $params['sitepath'] = isset($params['sitepath']) ? $params['sitepath'] : $_FN['sitepath'];
     XMLDB_editor($tablename, $params);
 }
+/**
+ *
+ * @param string $tablename
+ * @param array $params
+ * @return object
+ */
+function FNCC_XmlForm($tablename, $params = array())
+{
+    global $_FN;
+    $params['siteurl'] = $_FN['siteurl'];
+    $params['charset_page'] = $_FN['charset_page'];
+    $params['requiredtext'] = isset($_FN['requiredfieldsymbol']) ? $_FN['requiredfieldsymbol'] : "*";
+    $t = xmldb_frm($_FN['database'], $tablename, $_FN['datadir'], $_FN['lang'], $_FN['languages'], $params);
+    if (file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/xmldb_form.tp.html"))
+    {
+        //die(FN_TPL_ApplyTplFile("controlcenter/themes/{$_FN['controlcenter_theme']}/xmldb_form.tp.html",$params));
+        $t->SetlayoutTemplate(file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/xmldb_form.tp.html"));
+    }
+    elseif (file_exists("themes/{$_FN['theme']}/xmldb_form.tp.html"))
+    {
+        $t->SetlayoutTemplate(file_get_contents("themes/{$_FN['theme']}/xmldb_form.tp.html"));
+    }
+    return $t;
+}
 
 /**
  * 

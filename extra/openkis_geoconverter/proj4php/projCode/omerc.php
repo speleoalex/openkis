@@ -29,7 +29,7 @@
   Printing Office, Washington D.C., 1989.
  * ***************************************************************************** */
 
-class Proj4phpProjOmerc {
+class Proj4phpProjOmerc extends stdClass{
     /* Initialize the Oblique Mercator  projection
       ------------------------------------------ */
 

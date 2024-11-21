@@ -6,7 +6,7 @@
  *                      and Richard Greenwood rich@greenwoodma$p->com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpProjSterea {
+class Proj4phpProjSterea extends stdClass {
 
     protected $dependsOn = 'gauss';
     

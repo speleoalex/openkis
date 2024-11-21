@@ -12,7 +12,7 @@
  * driver xmlphp per Xmltable
  * 
  */
-class XMLTable_serialize
+class XMLTable_serialize  extends stdClass
 {
 
     var $databasename;

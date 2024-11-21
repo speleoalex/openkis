@@ -28,7 +28,7 @@
 /**
   Initialize Transverse Mercator projection
  */
-class Proj4phpProjUtm {
+class Proj4phpProjUtm extends stdClass{
 
     public $dependsOn = 'tmerc';
     

@@ -117,6 +117,7 @@
         <type>string</type>
         <frm_it>Provincia</frm_it>
         <frm_type>provincia</frm_type>
+        <frm_validator>cglombardia_checkprovincia</frm_validator>        
     </field>
     <field>
         <name>comune</name>

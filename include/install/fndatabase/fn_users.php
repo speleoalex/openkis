@@ -14,6 +14,7 @@
     <field>
         <name>email</name>
         <frm_i18n>email</frm_i18n>
+        <unique>1</unique>
         <frm_validator>FN_CheckMail</frm_validator>
         <showinprofile>1</showinprofile>
         <frm_required>1</frm_required>

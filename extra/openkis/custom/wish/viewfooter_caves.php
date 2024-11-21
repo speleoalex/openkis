@@ -46,8 +46,11 @@ if (!empty($row['latitude']))
 
 
     $position=openkis_GetItemPosition($row);
+
+
     echo "<div>Coordinate  WGS84 (Lon,Lat):<input class=\"form-input\" value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" /></div>";
     
+
     echo "<div>Coordinate  WGS84 (Lon,Lat):<input class=\"form-input\" value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" /></div>";
    
     echo "<div>Coordinate  WGS84 UTM (x,y,zone):<input class=\"form-input\" value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" /></div>";

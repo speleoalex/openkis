@@ -32,8 +32,7 @@ switch ($op)
     case "recovery":
         FNREG_ManageRecovery();
         break;
-
-    default:
+    case "profile":
         if (empty($op))
         {
             echo FN_HtmlContent("sections/{$_FN['mod']}");
@@ -47,7 +46,8 @@ switch ($op)
                 $templateForm = file_get_contents(FN_FromTheme("modules/login/login.tp.html", false));
             }
             FN_LoginForm($templateForm);
-        } else
+        }
+        else
         {
             $templateStr = file_get_contents(FN_FromTheme("modules/login/profile.tp.html", false));
             $tplbasepath = dirname(FN_FromTheme("modules/login/profile.tp.html", false)) . "/";
@@ -58,7 +58,7 @@ switch ($op)
             $tplvars['urllogout'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;fnlogin=logout");
             $uservalues = FN_GetUser($_FN['user']);
             $todisplay = array();
-            $form = FN_GetUserForm();            
+            $form = FN_GetUserForm();
             foreach ($uservalues as $k => $v)
             {
                 if (!isset($form->formvals[$k]))
@@ -82,7 +82,7 @@ switch ($op)
                 {
                     continue;
                 }
-                if ($form->formvals[$k]['frm_type'] == "password" || strstr($form->formvals[$k]['frm_type'],"passwd")!==false)
+                if ($form->formvals[$k]['frm_type'] == "password" || strstr($form->formvals[$k]['frm_type'], "passwd") !== false)
                 {
                     continue;
                 }
@@ -99,6 +99,25 @@ switch ($op)
                     $_FN['return'][$k] = $var;
             }
             echo FN_TPL_ApplyTplString($templateStr, $tplvars, $tplbasepath);
+        }
+        break;
+    default:
+        if ($_FN['user'] == "")
+        {
+            $templateForm = false;
+            $tppath = FN_FromTheme("modules/login/login.tp.html", false);
+            if (file_exists($tppath))
+            {
+                $templateForm = file_get_contents(FN_FromTheme("modules/login/login.tp.html", false));
+            }
+            FN_LoginForm($templateForm);
+        }
+        else
+        {
+            if ($_FN['home_section'] && $_FN['mod'] != $_FN['home_section'])
+            {
+                FN_Redirect(FN_RewriteLink($_FN['siteurl']));
+            }
         }
         break;
 }

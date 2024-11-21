@@ -28,7 +28,7 @@
 /**
   Initialize Transverse Mercator projection
  */
-class Proj4phpProjTmerc {
+class Proj4phpProjTmerc extends stdClass{
     
     private $e0, $e1, $e2, $e3, $ml0;
     

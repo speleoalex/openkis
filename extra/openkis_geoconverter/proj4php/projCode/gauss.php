@@ -6,7 +6,7 @@
  *                      and Richard Greenwood rich@greenwoodma$p->com 
  * License: LGPL as per: http://www.gnu.org/copyleft/lesser.html 
  */
-class Proj4phpProjGauss {
+class Proj4phpProjGauss extends stdClass{
 
     /**
      * 
