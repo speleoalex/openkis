@@ -1,0 +1,40 @@
+<form enctype="multipart/form-data" action="{formaction}" method="post" name="register" >
+    <h2>{i18n:Register}:</h2>
+    <table style="margin:auto">
+        <!-- contents -->
+        <!-- group -->
+        <tr><td colspan="2" style="text-align:center"><b>{groupname}</b></td></tr>
+        <!-- end_group -->
+        <!-- item -->
+        <tr>
+            <td valign="top">{title}<!-- error --><span style="color:red"><br />{error}</span><!-- end_error --></td>
+            <td valign="top">{input}</td>
+        </tr>
+        <!-- end_item -->
+        <!-- endgroup -->
+        <!-- end_endgroup -->
+        <!-- end_contents -->
+        <!-- conditions -->
+        <tr>
+            <td colspan="2">
+                {htmlconditions}<br />
+            </td>
+        </tr>
+        <!-- endconditions -->
+        <!-- captcha -->
+        <tr>
+            <td colspan="2">
+                {i18n:Enter this security code}:<br />
+                {htmlcaptcha} <span style="background-color:#ffffff;color:red">{txt_error_security_code}</span>
+            </td>
+        </tr>
+        <!-- endcaptcha -->
+        <tr>
+            <td colspan="2" style="text-align: center">
+                <input name="updateuser" value="1" type="hidden" />
+                <button type="submit">{i18n:Save}</button>
+                <button type="button" onclick="window.location = '{urlcancel}'">{i18n:Cancel}</button>
+            </td>
+        </tr>
+    </table>
+</form>

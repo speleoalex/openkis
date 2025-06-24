@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="{lang}">
+    <head>
+        <meta charset="utf-8">
+        <title>{site_title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            /* Modern CSS Reset */
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            body, h1, h2, h3, h4, p, figure, blockquote, dl, dd {
+                margin: 0;
+            }
+            ul[role="list"], ol[role="list"] {
+                list-style: none;
+            }
+            html:focus-within {
+                scroll-behavior: smooth;
+            }
+            body {
+                min-height: 100vh;
+                text-rendering: optimizeSpeed;
+                line-height: 1.5;
+            }
+            a:not([class]) {
+                text-decoration-skip-ink: auto;
+            }
+            img, picture {
+                max-width: 100%;
+            }
+            input, button, textarea, select {
+                font: inherit;
+            }
+
+            /* Custom styles */
+            :root {
+                --primary-color: #4444ff;
+                --text-color: #333;
+                --bg-color: #fff;
+                --border-color: #ddd;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: var(--text-color);
+                background-color: var(--bg-color);
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+
+            header {
+                background-color: var(--bg-color);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 0;
+            }
+
+            .logo {
+                max-width: 100px;
+            }
+
+            .menu {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .menu li {
+                list-style-type: none;
+            }
+
+            .menu a {
+                color: var(--text-color);
+                text-decoration: none;
+                text-transform: capitalize;
+            }
+
+            .menu a:hover, .menu a.active {
+                color: var(--primary-color);
+            }
+
+            .languages {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            main {
+                display: flex;
+                flex: 1;
+            }
+
+            .content {
+                flex: 1;
+                padding: 2rem 0;
+            }
+
+            aside {
+                width: 250px;
+                padding: 2rem 0 2rem 2rem;
+            }
+
+            footer {
+                background-color: var(--bg-color);
+                border-top: 1px solid var(--border-color);
+                padding: 1rem 0;
+                text-align: center;
+            }
+
+            .menu-toggle {
+                display: none;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+
+            @media (max-width: 768px) {
+                nav {
+                    flex-wrap: wrap;
+                }
+
+                .menu-toggle {
+                    display: block;
+                }
+
+                .menu {
+                    flex-basis: 100%;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease-out;
+                }
+
+                .menu.expanded {
+                    max-height: 500px; /* Adjust this value as needed */
+                }
+
+                main {
+                    flex-direction: column;
+                }
+
+                aside {
+                    width: 100%;
+                    padding: 2rem 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <nav>
+                    <img src="logo.png" alt="Logo" class="logo">
+                    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+                    <!-- if {menuitems} -->
+                    <ul class="menu">
+                        <!-- foreach {menuitems} -->
+                        <!-- menuitem -->
+                        <!-- if not {active} -->
+                        <li><a href="{link}" accesskey="{accesskey}" >{title}</a></li>
+                        <!-- end if not {active} -->                        
+                        <!-- if {active} -->
+                        <li class="active"><a href="{link}" accesskey="{accesskey}" class="active">{title}</a></li>
+                        <!-- end if {active} -->                        
+                        <!-- end foreach {menuitems} -->
+                    </ul>
+                    <!-- end if {menuitems} -->
+                    <div class="languages">
+                        <!-- foreach {sitelanguages} -->
+                        <!-- langitem -->
+                        <a href='{siteurl}?lang={langname}'><img src="{siteurl}/images/flags/{langname}.png" alt="{langtitle}" title="{langtitle}"/></a>
+                        <!-- endlangitem -->
+                        <!-- end foreach {sitelanguages} -->
+                    </div>
+                </nav>
+            </div>
+            <!-- if {blocks_top} -->
+            <!-- foreach {blocks_left} -->
+            <section>
+                <h3><!-- if {title} -->{title}<!-- end if {title} --></h3>
+                <div>
+                    {html}
+                </div>
+            </section>
+            <!-- end foreach {blocks_left} -->
+            <!-- end if {blocks_top} -->
+        </header>
+        <main class="container">
+
+            <!-- if {blocks_left} -->
+            <aside>
+                <!-- foreach {blocks_left} -->
+                <section>
+                    <h3><!-- if {blocktitle} -->{blocktitle}<!-- end if {blocktitle} --></h3>
+                    <div>
+                        {html}
+                    </div>
+                </section>
+                <!-- end foreach {blocks_left} -->
+            </aside>
+            <!-- end if {blocks_left} -->
+
+
+            <div class="content">
+                <!-- include section -->
+                <!-- end include section -->
+            </div>
+
+            <!-- if {blocks_right} -->
+            <aside>
+                <!-- foreach {blocks_right} -->
+                <section>
+                    <h3><!-- if {blocktitle} -->{blocktitle}<!-- end if {blocktitle} --></h3>
+                    <div>
+                        {html}
+                    </div>
+                </section>
+                <!-- end foreach {blocks_right} -->
+            </aside>
+            <!-- end if {blocks_right} -->
+        </main>
+
+        <footer>
+            <div class="container">
+                <!-- if {blocks_bottom} -->
+                {html}
+                <!-- end if {blocks_bottom} -->
+                {credits}
+            </div>
+        </footer>
+
+        <script>
+            // Toggle menu functionality
+            document.addEventListener('DOMContentLoaded', function () {
+                const menuToggle = document.querySelector('.menu-toggle');
+                const menu = document.querySelector('.menu');
+
+                menuToggle.addEventListener('click', function () {
+                    menu.classList.toggle('expanded');
+                });
+            });
+        </script>
+    </body>
+</html>

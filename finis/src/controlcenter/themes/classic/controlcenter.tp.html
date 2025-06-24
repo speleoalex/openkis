@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- include FN_HtmlHeader -->
+    <title></title>
+    <!-- end include FN_HtmlHeader -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        #fncc_menutop {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 25px;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <header id="fncc_top">
+        <nav>
+            <a id="fncc_controlcenter" href="{controlcenter}"><img alt="home" src="../../../images/configure.png">&nbsp;{i18n:Control panel}</a>
+            <a id="fncc_logout" href="{siteurl}?fnapp=controlcenter&&fnlogin=logout"><img alt="home" src="../../../images/user.png">&nbsp;{i18n:Exit}</a>
+            <a id="fncc_gohome" href="{siteurl}index.php?theme=__default__"><img alt="home" src="../../../images/home.png">&nbsp;{i18n:Go to} {sitename}</a>
+            <span id="fncc_languages"><!-- include languages --><!-- langitem --><a href="?fnapp=controlcenter&lang={langname}">{langflag}</a>&nbsp;<!-- endlangitem --><!-- end include languages --></span>
+        </nav>
+    </header>
+
+    <div id="fncc_menutop"><div id="myMenuID"></div></div>
+
+    <aside id="fncc_leftmenu">
+        <!-- include ccmenu -->
+        <!-- menitems -->
+        <!-- menuitemdropdown -->
+        <div class="fncc_leftmenu">
+            <div class="fncc_leftmenutitle">{title}</div>
+            <!-- submenu -->
+            <!-- submenuitems -->
+            <!-- submenuitem -->
+            <a href="?opt=contents/blocks" title="{description}">
+                <img alt="" src="{image}"><span>{title}</span></a>
+            <!-- endsubmenuitem -->
+            <!-- submenuitemactive -->
+            <a href="?opt=contents/blocks" class="current" title="{description}">
+                <img alt="" src="{image}"><span>{title}</span></a>
+            <!-- endsubmenuitemactive -->
+            <!-- endsubmenuitems -->
+            <!-- endsubmenu -->
+        </div>
+        <!-- endmenitems -->
+        <!-- endmenuitemdropdown -->
+        <!-- end include ccmenu -->
+    </aside>
+
+    <main id="fncc_contents">
+        <div class="fncc_sectiontitle">{section_title}</div>
+        <!-- include ccsection -->
+        <h2>{sidebar_title}</h2>
+        <div>{sidebar_contents}</div>
+        <!-- end include ccsection -->
+    </main>
+</body>
+</html>

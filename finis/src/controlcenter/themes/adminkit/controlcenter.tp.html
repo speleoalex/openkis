@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="{lang}">
+    <head>
+        <!-- include FN_HtmlHeader -->
+        <title></title>
+        <!-- end include FN_HtmlHeader -->            
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="AdminKit">
+        <meta name="keywords" content="">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link rel="shortcut icon" href="img/icons/icon-48x48.png" />
+        <title></title>
+        <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        <link href="css/app.css" rel="stylesheet">
+        <link href="css/no-more-tables.css" rel="stylesheet">
+
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <nav id="sidebar" class="sidebar">
+                <div class="sidebar-content js-simplebar">
+                    <a class="sidebar-brand" href="{siteurl}index.php?fnapp=controlcenter">
+                        <!-- if {url_logo} -->
+                        <div class="align-middle text-center"><img src="{url_logo}" alt="{i18n:Control center}"/><br /><small class="text-muted">{i18n:Control center}</small></div>
+                        <!-- end if {url_logo} -->
+                        <!-- if not {url_logo} -->
+                        <span class="align-middle">{sitename} - {i18n:Control center} </span>
+                        <!-- end if not {url_logo} -->
+                    </a>
+
+                    <ul class="sidebar-nav">
+                        <!-- foreach {menuitems} -->
+                        <!-- if {active} -->
+                        <li class="sidebar-item active opened" aria-expanded="true" >
+                            <a href="#{id}" data-bs-toggle="collapse" class="sidebar-link">
+                                <i class="align-middle" data-feather="settings"></i> <span class="align-middle">{title}</span>
+                            </a>
+                            <ul id="{id}" class="sidebar-dropdown list-unstyled collapse show " data-bs-parent="#sidebar">
+                                <!-- end if {active} -->
+                                <!-- if not {active} -->
+                                <li class="sidebar-item ">
+                                    <a href="#{id}" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                                        <i class="align-middle" data-feather="settings"></i> <span class="align-middle">{title}</span>
+                                    </a>
+                                    <ul id="{id}" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
+                                        <!-- end if not {active} -->
+
+                                        <!-- foreach {sections} -->
+                                        <!-- if {active} -->
+                                        <li class="sidebar-item active"><a class="sidebar-link" href="{link}">{title}</a></li>
+                                        <!-- end if {active} -->
+                                        <!-- if not {active} -->
+                                        <li class="sidebar-item"><a class="sidebar-link" href="{link}">{title}</a></li>
+                                        <!-- end if not {active} -->
+
+                                        <!-- end foreach {sections} -->
+                                    </ul>
+                                </li>
+                                <!-- end foreach {menuitems} -->
+                                <!-- if {active} -->
+                            </ul>
+                            <!-- end if {active} -->
+                            <!-- if not {active} -->
+                    </ul>
+                    <!-- end if not {active} -->
+
+                    <div class="sidebar-cta">
+
+                        <div class="sidebar-cta-content">
+
+                            <strong class="d-inline-block mb-2">{i18n:Home page} </strong>
+
+                            <div class="mb-3 text-sm">
+                                <a href="{siteurl}">{i18n:Go to}: {sitename}</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </nav>
+
+            <div class="main">
+                <nav class="navbar navbar-expand navbar-light navbar-bg">
+                    <a class="sidebar-toggle d-flex">
+                        <i class="hamburger align-self-center"></i>
+                    </a>
+
+                    <div class="navbar-collapse collapse">
+                        <ul class="navbar-nav navbar-align">
+                            <li class="nav-item" ><a target="_blank" class="nav-icon" href="{siteurl}manuale.pdf"><i class="align-middle me-1" data-feather="help-circle"></i> </a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-bs-toggle="dropdown">
+                                    <div class="position-relative">
+                                        <i class="align-middle" data-feather="bell"></i>
+                                        <!-- if {notifications_count} -->
+                                        <span class="indicator">{notifications_count}</span>
+                                        <!-- end if {notifications_count} -->
+                                    </div>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
+
+                                    <div class="dropdown-menu-header">
+                                        {notifications_count} {i18n:New Notifications}
+                                    </div>
+                                    <!-- foreach {notifications} -->
+                                    <div class="list-group">
+                                        <a onclick="SetDisplayed({id})"  href="{link}" class="list-group-item">
+                                            <div class="row g-0 align-items-center">
+                                                <div class="col-2">
+                                                    <i class="text-warning" data-feather="bell"></i>
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="text-dark">{text}</div>
+                                                    <div class="text-muted small mt-1"><span data-id="{id}" class="notifications">{human_date}</span></div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- end foreach {notifications} -->
+
+                                </div>
+                            </li>
+                            <!-- if {is_multilanguage} -->
+                            <li class="nav-item dropdown">
+                            <!-- if {current_language} -->
+                            <a class="nav-flag dropdown-toggle" href="#" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                {langflag}
+                            </a>
+                            <!-- end if {current_language} -->
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                                <!-- foreach {sitelanguages} -->
+                                <a class="dropdown-item" href="{siteurl}index.php?fnapp=controlcenter&lang={langname}">
+                                    {langflag}
+                                    <span class="align-middle">{langtitle}</span>
+
+                                </a>
+                                <!-- end foreach {sitelanguages} -->              
+                            </div>
+                            </li>
+                            <!-- end if {is_multilanguage} -->
+
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
+                                    <i class="align-middle" data-feather="settings"></i>
+                                </a>
+                                <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
+                                    <img src="img/user.png" class="avatar img-fluid rounded me-1" alt="{user}" /> <span class="text-dark">{user}</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <!-- if {users_and_groups__profile} -->
+                                    <a class="dropdown-item" href="{siteurl}index.php?fnapp=controlcenter&opt=users_and_groups/profile"><i class="align-middle me-1" data-feather="user"></i> {i18n:Profile settings}</a>
+                                    <!-- end if {users_and_groups__profile} -->
+                                    <!-- if {users_and_groups__fnc_ccnf_plugin_google_analitics} -->
+                                    <a class="dropdown-item" href="{siteurl}index.php?fnapp=controlcenter&opt=fnc_ccnf_plugin_google_analitics"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+                                    <!-- end if {users_and_groups__fnc_ccnf_plugin_google_analitics} -->
+                            
+                                    
+                         
+                                    
+                                    
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{siteurl}index.php?fnapp=controlcenter&fnlogin=logout">{i18n:Logout}</a>
+                                </div>
+                            </li>
+                        </ul>
+
+                        
+                    </div>
+
+                </nav>
+
+                <main class="content">
+                    <div class="container-fluid p-0">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="#">{cc_sectiongroup_title}</a></li>
+                                <li class="breadcrumb-item active" aria-current="{cc_section_title}">{cc_section_title}</li>
+                            </ol>
+                        </nav>
+                        <!-- include ccsection -->
+                        <!-- end include ccsection -->   
+                    </div>
+                </main>
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row text-muted">
+                            <div class="col-6 text-start">
+                                <p class="mb-0">
+                                    <a href="{siteurl}" class="text-muted"><strong>{credits}</strong></a> 
+                                </p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <!--
+                                <ul class="list-inline">
+                                    <li class="list-inline-item">
+                                        <a class="text-muted" href="#">Support</a>
+                                    </li>
+                                    <li class="list-inline-item">
+                                        <a class="text-muted" href="#">Help Center</a>
+                                    </li>
+                                    <li class="list-inline-item">
+                                        <a class="text-muted" href="#">Privacy</a>
+                                    </li>
+                                    <li class="list-inline-item">
+                                        <a class="text-muted" href="#">Terms</a>
+                                    </li>
+                                </ul>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script src="js/jquery-1.11.2.min.js"></script>
+        <script src="js/app.js"></script>
+        <script>
+                                            /*
+                                             var one_flag = false;
+                                             function foo() {
+                                             $('.notifications').each(function () {
+                                             if ($(this).is(':visible')) {
+                                             if (!one_flag)
+                                             {
+                                             one_flag = true;
+                                             SetDisplayed($(this).attr('data-id'));
+                                             }
+                                             }
+                                             });
+                                             }
+                                             function SetDisplayed(id)
+                                             {
+                                             $.ajax({
+                                             url: "{siteurl}notifications.php?display=" + id,
+                                             context: document.body
+                                             }).done(function () {
+                                             return true;
+                                             });
+                                             }
+                                             window.setInterval(foo, 1000);
+                                             
+                                             */
+                                            function SetDisplayed(id)
+                                            {
+                                                $.ajax({
+                                                    url: "{siteurl}notifications.php?display=" + id,
+                                                    context: document.body
+                                                }).done(function () {
+                                                    return true;
+                                                });
+                                                return true;
+                                            }
+        </script>
+    </body>
+</html>

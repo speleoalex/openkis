@@ -1,0 +1,114 @@
+body{
+    margin:0px;
+    padding:0px;
+    font-family:"Helvetica";
+    font-size: 12px;
+    color:#505050;
+}
+td{
+    font-family:"Helvetica";
+    font-size: 12px;
+}
+input{
+    border:1px #808080 solid;
+    padding:1px;
+    font-size: 12px;
+    vertical-align: middle;
+    border-radius:2px;
+}
+input[type="radio"] {
+    height:16px;
+    border-style:none;
+}
+input[type="checkbox"] {
+    height:16px;
+    border-style:none;
+}
+input[type="button"] {
+    border-style:outset;
+}
+input[type="submit"] {
+    border-style:outset;
+}
+textarea{
+    border:1px #808080 inset;
+    border-radius:5px;
+}
+input[type="radio"] {
+    height:16px;
+    border-style:none;
+}
+input[type="checkbox"] {
+    height:16px;
+    border-style:none;
+}
+input[type="button"] {
+    border-style:outset;
+}
+input[type="submit"] {
+    border-style:outset;
+}
+button {
+    border: 1px solid #999999;
+    background-color: #d0d1d0;
+    font-size: 11px;
+    color: #444444;
+    font-weight: normal;
+    background-repeat: repeat-x;
+    background-position: top;
+    border-radius:2px;
+    box-shadow: 0px 0px 2px #808080;
+    margin:2px;
+}
+button:hover {
+    border: 1px solid #444444;
+    background-color: #ffffff;
+    font-size: 11px;
+    color: #444444;
+    font-weight: normal;
+    background-repeat: repeat-x;
+    background-position: top;
+    border-color: #758a9e;
+}
+fieldset{
+    border: 1px solid #f4f4f4;
+    background-color: #ffffff;
+
+}
+#fninstaller{
+    width:640px;
+    display:block;
+    margin: auto;
+    background-color:#f4f4f4;
+    border: 1px solid #808080;
+    margin-top:10px;
+    padding:10px;
+    box-shadow: 0px 0px 2px #808080;
+    border-radius:8px;
+}
+#installerbody{
+    height:440px;
+    padding:5px;
+    background-color: #ffffff;
+    border:1px solid #dadada;
+    margin:5px;
+}
+#fninstallertitle{
+    background-color: #004A80;
+    color:#ffffff;
+    font-size: 15px;
+    height:20px;
+    line-height: 20px;
+    padding:5px;
+    border:1px solid #dadada;
+    margin:5px;
+    text-shadow: 0px 0px 4px #080808;
+}
+img {
+    border:0px;
+    vertical-align: middle
+}
+pre{
+    border:1px dotted;
+    padding: 2px;
+}

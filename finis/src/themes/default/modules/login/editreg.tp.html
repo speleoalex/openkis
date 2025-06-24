@@ -1,0 +1,25 @@
+<form enctype="multipart/form-data"  action="{formaction}" method="post" name="register" >
+    <h2>{i18n:Edit profile}:</h2>
+    <table class="table" >
+        <!-- contents -->
+        <!-- group -->
+        <tr><td colspan="2" style="text-align:center"><b>{groupname}</b></td></tr>
+        <!-- end_group -->
+        <!-- item -->
+        <tr>
+            <td valign="top">{title}<!-- error --><span style="color:red"><br />{error}</span><!-- end_error --></td>
+            <td valign="top">{input}</td>
+        </tr>
+        <!-- end_item -->
+        <!-- endgroup -->
+        <!-- end_endgroup -->
+        <!-- end_contents -->
+        <tr>
+            <td colspan="2" style="text-align: center">
+                <input name="updateuser" value="1" type="hidden" />
+                <button class="btn btn-primary" type="submit">{i18n:Save}</button>
+                <button class="btn btn-secondary" type="button" onclick="window.location = '{urlcancel}'">{i18n:Cancel}</button>
+            </td>
+        </tr>
+    </table>
+</form>

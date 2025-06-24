@@ -1,0 +1,18 @@
+<div class="container-fluid" >
+    <h3>{i18n:Login}</h3>
+    <form role="form"  action="{formaction}" method="post" name="login" >
+        <input class="form-control" placeholder="{i18n:Username}" name="username" type="text" >
+        <input  class="form-control" name="password" type="password" placeholder="Password">
+        <!-- captcha -->
+        {i18n:Enter this security code}:<br />
+        {htmlcaptcha}
+        <!-- end captcha -->
+        
+        <br />
+        <button type="submit" class="btn btn-primary">{i18n:Login}</button>
+        <!-- passwordrecovery -->
+        <a href="{urlpasswordrecovery}" >{i18n:Password recovery}</a>
+        <!-- end passwordrecovery -->
+        <!-- loginerror --><br /><br /><div class="alert alert-danger" >{login_error}</div><!-- end loginerror -->
+    </form> 
+</div>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="{lang}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{site_title}</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">        
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+        <link id="cssmode" href="css/no-more-tables.css" rel="stylesheet" >
+        <link id="cssmode" href="css/style.css?2" rel="stylesheet" >
+        <link id="cssmode" href="css/light.css?2" rel="stylesheet" >
+
+
+        <style>
+            .navbar{
+                border-bottom: 2px solid #FAB941;
+                border-top: 1px solid #2D344E;
+            }
+            .menubutton{
+                border:0px
+            }
+            /* Custom styles */
+            .navbar-brand img {
+                height: 30px;
+            }
+            .avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+            }
+            .sidebar {
+                position: fixed;
+                top: 56px;
+                bottom: 0;
+                left: 0;
+                z-index: 100;
+                width: 250px; /* Fixed width for desktop */
+                padding: 48px 0 0;
+                box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+                background-color: #f8f9fa;
+            }
+            .sidebar-sticky {
+                position: relative;
+                top: 0;
+                height: calc(100vh - 48px);
+                padding-top: .5rem;
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+            .content {
+                margin-left: 250px; /* Same width as sidebar */
+                padding:10px
+            }
+            .listlanguages{
+                margin-right: 20px;
+            }
+
+
+            @media (max-width: 401px) {
+                .sitename{
+                    display:none
+                }
+            }
+            @media (max-width: 451px) {
+                .username{
+                    display:none
+                }
+            }
+            @media (max-width: 991px) {
+
+                .sidebar {
+                    display: none; /* Hide sidebar in mobile mode */
+                }
+                .content {
+                    margin-left: 0; /* Remove margin in mobile mode */
+                    width: 100%
+                }
+                .navbar-brand {
+                    position: absolute;
+                    left: 60px; /* Adjust this value as needed */
+                }
+
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navigation bar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+            <div class="container-fluid">
+                <!-- Left side: Menu toggle and logo -->
+                <button class="navbar-toggler menubutton" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand ms-2" href="{siteurl}">
+                        <img src="img/logo.png" alt="{sitename}"> <span class="sitename">{sitename}</span>
+                    </a>
+                </div>
+
+                <!-- Right side: User menu -->
+                <div class="d-flex align-items-center">
+
+                    <!-- if {is_multilanguage} -->
+                    <div class="dropdown listlanguages">
+                        <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- if {current_language} -->{langflag}<!-- end if {current_language} -->
+                        </a>                     
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbar_languages">
+                            <!-- foreach {sitelanguages} -->
+                            <li>
+                                <a class="dropdown-item" href="{siteurl}?lang={langname}">
+                                    {langflag} {langtitle}
+                                </a>
+                            </li>
+                            <!-- end foreach {sitelanguages} -->                        
+                        </ul>
+                    </div>
+                    <!-- end if {is_multilanguage} -->
+
+
+                    <!-- if {user} -->
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="username">{user} </span><img style="max-height:20px;" src="{url_avatar}" alt="">
+                        </a>                         
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{urlprofile}">
+                                    <span class="dropdown-icon oi oi-person"></span> {i18n:Profile settings}</a> </li>
+                            <li><a class="dropdown-item" href="{urllogout}">
+                                    <span class="dropdown-icon oi oi-account-logout"></span> {i18n:Logout}</a></li>
+                        </ul>
+                    </div>
+                    <!-- end if {user} -->
+                    <!-- if not {user} -->
+                    <div class="dropdown">                 
+                        <a href="{urllogin}" class="text-decoration-none" id="userDropdown" role="button" >
+                            {i18n:Login}
+                        </a>
+                    </div>
+                    <!-- end if not {user} -->
+                    <!-- end include FN_HtmlLoginLogout -->                      
+
+                    <!-- 
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://via.placeholder.com/32" alt="User Avatar" class="avatar">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#">Profilo</a></li>
+                            <li><a class="dropdown-item" href="#">Impostazioni</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Esci</a></li>
+                        </ul>-->  
+                </div>
+            </div>
+
+        </nav>
+
+        <!-- Sidebar for desktop -->
+        <div class="sidebar d-none d-lg-block">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <!-- foreach {menuitems} -->
+                    <!-- if {havechilds} -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbar{id}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-list"></i> {title}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbar{id}">
+                            <!-- foreach {childs} -->
+                            <li><a class="dropdown-item" href="{link}">{title}</a></li>
+                            <!-- end foreach {childs} -->
+                        </ul>
+                    </li>
+                    <!-- end if {havechilds} -->
+                    <!-- if not {havechilds} -->
+                    <li class="navbar-item "  >
+                        <a class="nav-link <!-- if {active} -->active<!-- end if {active} -->" href="{link}" accesskey="{accesskey}"  >
+                            <i class="fas fa-{id}"></i> {title}
+                        </a>
+                    </li>
+                    <!-- end if not {havechilds} -->
+                    <!-- end foreach {menuitems} -->                
+                </ul>
+                <!-- if {blocks_left} -->
+                <aside class="p-2">
+                    <!-- foreach {blocks_left} -->
+                    <section >
+                        <h3><!-- if {blocktitle} -->{blocktitle}<!-- end if {blocktitle} --></h3>
+                        <div>
+                            {html}
+                        </div>
+                    </section>
+                    <!-- end foreach {blocks_left} -->
+                </aside>
+                <!-- end if {blocks_left} -->
+            </div>
+        </div>
+
+        <!-- Sidebar for mobile -->
+        <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="mobileSidebarLabel">{sitename}</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="nav flex-column">
+
+
+                    <!-- foreach {menuitems} -->
+                    <!-- if {havechilds} -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbar{id}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {title}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbar{id}">
+                            <!-- foreach {childs} -->
+                            <li class="navbar-item "  >
+                                <a class="nav-link <!-- if {active} -->active<!-- end if {active} -->" href="{link}" accesskey="{accesskey}"  >
+                                    <i class="fas fa-{id}"></i> {title}
+                                </a>
+                            </li>
+                            <!-- end foreach {childs} -->
+                        </ul>
+                    </li>
+                    <!-- end if {havechilds} -->
+                    <!-- if not {havechilds} -->
+                    <li class="navbar-item "  >
+                        <a class="nav-link <!-- if {active} -->active<!-- end if {active} -->" href="{link}" accesskey="{accesskey}"  >
+                            <i class="fas fa-{id}"></i> {title}
+                        </a>
+                    </li>
+                    <!-- end if not {havechilds} -->
+                    <!-- end foreach {menuitems} -->
+
+                </ul>
+            </div>
+        </div>
+        <!-- Main content -->
+        <main class="content mt-5 pt-3">
+
+            <!-- include section -->
+
+            <!-- end include section -->
+        </main>
+        <script src="js/bootstrap.bundle.min.js" ></script>
+        <script>
+            // Function to set minimum window size
+            function setMinWindowSize() {
+                // Get the current window width
+                var windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+                // If the window width is less than 480px, resize it to 480px
+                if (windowWidth < 300) {
+                    window.resizeTo(300, window.innerHeight);
+                }
+            }
+
+            // Call the function when the window is resized
+            window.addEventListener('resize', setMinWindowSize);
+
+            // Call the function on page load
+            window.addEventListener('load', setMinWindowSize);
+        </script>        
+    </body>
+</html>

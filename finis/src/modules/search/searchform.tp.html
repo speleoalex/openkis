@@ -1,0 +1,20 @@
+<div class="searchform">
+    <form method="post" action="{form_action}"><div>{i18n:Search}:
+            <input type="text" name="q" value="{q}">
+            <input type="hidden" name="where" value="{where}">
+            <input type="hidden" name="op" value="{op}">
+            <select name="method">
+                <option value="OR">{i18n:Any word}</option>
+                <option value="AND">{i18n:All word}</option>
+                <option value="" >{i18n:Exact phrase}</option>
+            </select><br />
+            <button type="submit">{i18n:Search}</button></div>
+    </form>
+</div><br />
+{text_result}
+<!-- foreach {items} -->
+<div>
+    <a href="{link}">{title}</a><br />
+    <em>{text}</em>
+</div>
+<!-- end foreach {items} -->

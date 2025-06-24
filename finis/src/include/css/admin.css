@@ -1,0 +1,338 @@
+/* Define CSS variables for admin theme colors */
+:root {
+  --admin-primary: #0085ba;
+  --admin-secondary: #ffffff;
+  --admin-text: #565656;
+  --admin-border: #cccccc;
+  --admin-hover: #0590ca;
+  --admin-background:#f4f4f4 ;
+  --admin-mainborder: #D67E36;
+  --admin-mainbackground: #ffffff;
+  --admin-inputbackground: #ffffff;
+  
+}
+
+/* General admin styles */
+.fn_admin * {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.fn_admin pre {
+  font: 14px monospace;
+}
+
+.fn_admin a, .fn_admin a:visited, .fn_admin a:hover {
+  text-decoration: none;
+  color: var(--admin-primary);
+}
+
+/* Admin headings */
+.fn_admin h4 {
+  background-color: var(--admin-background);
+  color: var(--admin-text);
+  font-size: 16px;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--admin-border);
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fn_admin h4 button {
+  margin-left: 10px;
+}
+
+/* Main admin container */
+.fn_admin {
+  border: 1px solid var(--admin-border);
+  background-color: var(--admin-secondary);
+  color: var(--admin-text);
+  padding: 10px;
+  line-height: 1.5;
+  border-radius: 4px;
+}
+
+/* Table styles */
+.fn_admin table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.fn_admin td {
+  padding: 8px;
+}
+
+/* Form elements */
+.fn_admin input {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+}
+
+.fn_admin button {
+  padding: 8px 12px;
+  background-color: var(--admin-primary);
+  color: var(--admin-background);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.fn_admin button:hover {
+  background-color: var(--admin-hover);
+}
+
+.fn_admin div {
+  padding: 5px;
+}
+
+.fn_admin fieldset {
+  padding: 10px;
+  background-color: var(--admin-background);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+}
+
+/* Admin username display */
+.fn_admin_username {
+  float: left;
+  margin-left: 10px;
+  line-height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.fn_admin_username img {
+  height: 20px;
+  margin-right: 5px;
+}
+
+/* Admin on/off toggle */
+#fn_adminonoff {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+  z-index: 999;
+  text-align: right;
+  background-color: var(--admin-background);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#fn_adminonoff a {
+  background-color: var(--admin-background);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  margin: 0 5px;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+#fn_adminonoff img {
+  vertical-align: middle;
+  border: 0;
+  width: 20px;
+  margin-right: 5px;
+}
+
+#fn_adminonoff a:hover {
+  border-color: var(--admin-primary);
+  background-color: var(--admin-secondary);
+}
+
+#fn_adminonoff .fn_admin_on {
+  border-color: var(--admin-primary);
+  background-color: #94cd9d;
+}
+
+#fn_adminonoff select {
+  vertical-align: middle;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  background-color: var(--admin-background);
+  margin: 0 5px;
+  font-size: 14px;
+  height: 30px;
+  border-radius: 4px;
+}
+
+/* Admin options */
+#fn_adminoptions {
+  background-color: var(--admin-mainbackground);
+  color: var(--admin-text);
+  margin-top: 20px;
+  text-align: left;
+  font-size: 14px;
+  border: 3px solid var(--admin-mainborder);
+  padding: 20px;
+  border-radius: 4px;
+}
+
+#fn_adminoptions td,
+#fn_adminoptions div,
+#fn_adminoptions select,
+#fn_adminoptions input,
+#fn_admin option {
+  color: var(--admin-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#fn_adminoptions input {
+  vertical-align: middle;
+  background-color: var(--admin-inputbackground);
+  color: var(--admin-text);
+}
+
+#fn_adminoptions a {
+  background-color: var(--admin-background);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  height: 30px;
+  line-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+#fn_adminoptions img {
+  vertical-align: middle;
+  border: 0;
+  width: 20px;
+  margin-right: 5px;
+}
+
+#fn_adminoptions a:hover {
+  border-color: var(--admin-primary);
+  background-color: var(--admin-secondary);
+}
+
+#fn_adminoptions fieldset {
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+/* Admin toggle sections */
+.fn_admin_toggle {
+  border: 1px solid var(--admin-border);
+  padding: 1px;
+  background-color: var(--admin-background);
+  line-height: 1.5;
+  margin: 10px 0;
+  border-radius: 4px;
+  text-align: right
+  
+}
+
+.fn_admin_toggle div {
+  padding: 10px;
+  background-color: var(--admin-secondary);
+  text-align: left;
+  border-top: 1px solid var(--admin-border);
+}
+
+/* Editor styles */
+.fn_editor * {
+  background-color: var(--admin-background);
+  color: var(--admin-text);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.fn_editor {
+  border: 1px solid var(--admin-border);
+  background-color: var(--admin-background);
+  color: var(--admin-text);
+  border-radius: 4px;
+}
+
+.fn_editor textarea {
+  padding: 10px;
+  border: none;
+  width: 100%;
+  min-height: 200px;
+}
+
+.fn_editortitle {
+  font-size: 14px;
+  padding: 10px;
+  background-color: var(--admin-secondary);
+  color: var(--admin-text);
+  text-align: center;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.fn_editortitle b {
+  color: red;
+  background-color: yellow;
+}
+
+div.fn_editorfooter {
+  background-color: var(--admin-secondary);
+  border-top: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  padding: 10px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+div.fn_editorfooter button {
+  margin-left: 10px;
+}
+
+div.fn_fnadminsave {
+  border-top: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  padding: 10px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+div.fn_fnadminsave button {
+  padding: 8px 12px;
+  cursor: pointer;
+  background-repeat: no-repeat;
+}
+
+/* Admin form styles */
+.fn_adminform table {
+  width: 100%;
+}
+
+td.fn_fnadminformtitle {
+  font-variant: small-caps;
+  font-weight: bold;
+  padding-right: 10px;
+}

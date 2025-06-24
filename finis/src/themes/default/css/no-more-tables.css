@@ -1,0 +1,77 @@
+@media only screen and (max-width: 800px) {
+    /* Reset table styles for mobile view */
+    .no-more-tables table,
+    .no-more-tables thead,
+    .no-more-tables tbody,
+    .no-more-tables th,
+    .no-more-tables td,
+    .no-more-tables tr {
+        display: block;
+    }
+
+    .table-bordered {
+        border: none;
+    }
+
+    /* Hide table headers visually but keep them accessible */
+    .no-more-tables thead tr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .no-more-tables tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px; /* Add space between rows */
+    }
+
+    .no-more-tables td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 40%; /* Reduced from 50% to give more space to content */
+        min-height: 30px; /* Ensure minimum height for empty cells */
+        text-align: left;
+    }
+
+    .no-more-tables td:before {
+        content: attr(data-title);
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 35%; /* Reduced from 45% to give more space to content */
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        font-size: 0.85em; /* Slightly smaller font for labels */
+        color: #666; /* Softer color for labels */
+    }
+
+    /* Hide file select on mobile */
+    .no-more-tables td .selectfile {
+        display: none;
+    }
+
+    /* Remove content for the first field (assuming it's an index or checkbox) */
+    .no-more-tables td.fieldnumber1:before {
+        content: none;
+    }
+
+    /* Add some spacing and styling */
+    .no-more-tables td:not(.fieldnumber1) {
+        margin-bottom: 5px;
+    }
+
+    /* Improve readability of content */
+    .no-more-tables td:not(:before) {
+        font-weight: normal;
+        padding-top: 5px; /* Add some top padding to content */
+    }
+}
