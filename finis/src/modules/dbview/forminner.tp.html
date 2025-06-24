@@ -1,0 +1,42 @@
+    <!-- contents -->
+<div class="form-group row">
+    <!-- group -->
+    <fieldset><legend>{groupname}</legend>
+        <!-- end_group -->
+        <!-- item -->
+        <div class="form-group row">
+            <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10">
+                <!-- inputattributes radio:class="form-check-input" style=""  --> <!-- inputattributes:class="form-control"  -->{input}
+                <!-- if {help} --><small class="form-text text-muted">{help}</small><!-- end if {help} -->
+            </div>        
+        </div> 
+        <!-- end_item -->
+
+        <!-- item_type_radio -->
+        <div class="form-group row">
+            <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check">
+                    <!-- inputattributes:class=""  -->{input}
+                    <!-- if {help} --><small class="form-text text-muted">{help}</small><!-- end if {help} -->
+                </div>
+            </div>
+        </div> 
+        <!-- end_item_type_radio -->       
+        <!-- item_type_check -->
+        <div class="form-group row">
+            <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check">
+                    <!-- inputattributes:class="form-check-input"  -->{input}
+                    <!-- if {help} --><small class="form-text text-muted">{help}</small><!-- end if {help} -->
+                </div>
+            </div>
+        </div> 
+        <!-- end_item_type_check -->            
+        <!-- endgroup -->
+    </fieldset>
+    <!-- end_endgroup -->
+</div>
+<!-- end_contents -->
+
+

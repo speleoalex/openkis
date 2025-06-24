@@ -1,0 +1,80 @@
+  <!-- if {navigationbar} -->
+    <ul class="nav nav-tabs">
+        <!-- if {viewlist} -->
+        <li class="nav-item">
+            <a class="nav-link" href="{link}">{title}</a>
+        </li>
+        <!-- end if {viewlist} -->
+        <!-- if {viewprev} -->
+        <li class="nav-item">
+            <a class="nav-link" href="{link}"><span class="oi oi-arrow-left"></span> {title}</a>
+        </li>
+        <!-- end if {viewprev} -->
+        <!-- if {viewnext} -->
+        <li class="nav-item">
+            <a class="nav-link" href="{link}">{title} <span class="oi oi-arrow-right"></span></a>
+        </li>
+        <!-- end if {viewnext} -->
+        <!-- foreach {user_options} -->
+        <li class="nav-item">
+            <!-- if {active} -->
+            <a class="nav-link active" href="{link}">{title}</a>
+            <!-- end if {active} -->
+            <!-- if not {active} -->
+            <a class="nav-link" href="{link}">{title}</a>
+            <!-- end if not {active} -->
+
+        </li>
+        <!-- end foreach {user_options} -->
+    </ul>
+    <!-- end if {navigationbar} -->
+
+<form id="frmedit" 
+      onchange="set_changed();" 
+      enctype="multipart/form-data" 
+      action="{formaction}" 
+      method="post">
+
+    <!-- contents -->
+<div class="form-group row">
+    <!-- group -->
+    <fieldset><legend>{groupname}</legend>
+        <!-- end_group -->
+        <!-- item -->
+        <div class="form-group row">
+            <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10">
+                <!-- inputattributes radio:class="form-check-input" style=""  --> <!-- inputattributes:class="form-control"  -->{input}
+               <small class="form-text text-muted">{help}</small>
+            </div>        
+        </div> 
+        <!-- end_item -->
+
+        <!-- item_type_radio -->
+        <div class="form-group row">
+            <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check">
+                    <!-- inputattributes:class=""  -->{input}
+                   <small class="form-text text-muted">{help}</small>
+                </div>
+            </div>
+        </div> 
+        <!-- end_item_type_radio -->       
+        <!-- item_type_check -->
+        <div class="form-group row">
+            <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check">
+                    <!-- inputattributes:class="form-check-input"  -->{input}
+                   <small class="form-text text-muted">{help}</small>
+                </div>
+            </div>
+        </div> 
+        <!-- end_item_type_check -->            
+        <!-- endgroup -->
+    </fieldset>
+    <!-- end_endgroup -->
+</div>
+<!-- end_contents -->
+    <input name="xmetadbsave" type="submit" value="{i18n:Save}" /> 
+    <input id="exitform" type="button" value="{i18n:Cancel}" onclick="window.location = '{urlcancel}'" /> 
+</form>

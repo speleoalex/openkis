@@ -1,0 +1,118 @@
+<!-- if {filters} -->
+<div class="card">
+    <div class="card-header">     
+        {i18n:Filter}:
+    </div>
+    <div class="card-body">     
+        <form method="{method}">
+            <div class="row g-3">
+                <!-- foreach {filters} -->
+                <!-- if not {options} -->
+                <div class="form-floating col-md-4">
+                    <input  class="form-control" type="text" placeholder="{name}" id="_{name}" name="{name}" value="{value}" />
+                    <label for="_{name}">{title}</label>
+                </div>
+                <!-- end if not {options} -->
+                <!-- if {options} -->
+                <div class="form-floating col-md-4">
+                    <select  class="form-control" name="{name}" id="_{name}" data-value="{value}" id="select_{name}" >
+                        <option value=""></option>
+                        <!-- foreach {options} -->
+                        <!-- if {selected} -->
+                        <option  value="{value}" selected="selected">{title}</option>
+                        <!-- end if {selected} -->
+                        <!-- if not {selected} -->
+                        <option  value="{value}">{title}</option>
+                        <!-- end if not {selected} -->
+                        <!-- end foreach {options} -->
+                    </select>
+                    <label for="select_{name}">{title}</label>
+
+                </div>
+                <!-- end if {options} -->        
+
+
+
+                <!-- end foreach {filters} -->
+            </div>  
+            <hr />
+            <div class="row g-3">
+                <div class="form-group col-md-3">
+                    <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> {i18n:Search}</button>
+                    <button class="btn btn-primary" type="button" onclick="window.location = '{urlreset}'">{i18n:Reset}</button>
+                </div>
+            </div>    
+
+        </form>
+    </div>
+</div>
+<!-- end if {filters} -->
+<div class="card">
+    <div class="card-header">        
+        <div class="btn-group btn-round" role="group" aria-label="">
+            <!-- if {enablenew} -->
+            <button type="button" onclick="window.location = '{urlnewrecord}'" class="btn btn-success ">
+                <span class="glyphicon glyphicon-file" aria-hidden="true"></span> {textnew}</button>
+            <!-- end if {enablenew} -->
+            <!-- if {enableexport} -->
+            <button type="button" onclick="window.location = '{urlexport}'" class="btn btn-primary">
+                <span class="glyphicon glyphicon-download" aria-hidden="true"></span> {textexport}</button>
+            <!-- end if {enableexport} -->
+        </div>
+    </div>
+    <div class="card-body">
+        <nav aria-label="">
+            <ul class="pagination">
+                <!-- if {nav_page_prev} -->
+                <li class="page-item"><a class="page-link"  href="{link}">{title}</a></li>
+                <!-- end if {nav_page_prev} -->
+                <!-- foreach {nav_pages} -->
+                <!-- if {current} -->
+                <li class="page-item active"><a class="page-link"  href="{link}">{title}</a></li> 
+                <!-- end if {current} -->
+                <!-- if not {current} -->
+                <li class="page-item"><a class="page-link"  href="{link}">{title}</a></li> 
+                <!-- end if not {current} -->
+                <!-- end foreach {nav_pages} -->
+                <!-- if {nav_page_next} -->
+                <li class="page-item"><a class="page-link"  href="{link}">{title}</a></li>
+                <!-- end if {nav_page_next} -->
+            </ul>
+        </nav>
+        <div class="no-more-tables" >
+            <table id="keywords"  class="table col-sm-12 table-bordered table-striped table-hover table-condensed">
+                <thead class="bg-primary">
+                    <tr>
+                        <!-- foreach {headers} -->
+                        <td><a class="text-light" href="{link}">{title}{arrow}</a></td>
+                        <!-- end foreach {headers} -->
+                        <td colspan="{numactions}"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- foreach {rows} -->
+                    <tr>
+                        <!-- foreach {cols} -->
+                        <td data-title="{fieldtitle}">{fieldvalue}</td>
+                        <!-- end foreach {cols} -->
+                        <!-- if {action_view} -->
+                        <td><a href="{link}"><img alt="{text}" src="img/view.svg"/></a></td>
+                        <!-- end if {action_view} -->
+                        <!-- if {action_edit} -->
+                        <td><a href="{link}"><img alt="{text}" src="img/edit.svg"/></a></td>
+                        <!-- end if {action_edit} -->
+                        <!-- if {action_delete} -->
+                        <td><a href="#" onclick="if (confirm('{i18n:are you sure you want to delete this content?}')) {
+                                    window.location = '{link}'
+                                }"><img alt="{text}" src="img/delete.svg"/></a></td>
+                        <!-- end if {action_delete} -->
+                    </tr>
+                    <!-- end foreach {rows} -->
+                </tbody>           
+            </table>
+        </div>  
+        <div id="customarea"></div>
+    </div>
+</div>
+<br />
+

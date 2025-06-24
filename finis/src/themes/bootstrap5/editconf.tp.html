@@ -1,0 +1,30 @@
+<div class="card">
+    <div class="card-body">   
+        <form method="post" action="{formaction}" class="">
+            <!-- foreach {items} -->
+            <!-- if not {is_text} -->
+            <div class="form-group row">
+                <label  class="col-sm-4 col-form-label" for="{id}">{title}:</label>
+                <div class="col-sm-8">
+                    {htmlinput}
+                </div>        
+            </div>             
+            <!-- end if not {is_text} -->
+            <!-- if {is_text} -->
+            <div class="form-group row">
+                <label  class="col-sm-4 col-form-label" for="{id}">{title}:</label>
+                <div class="col-sm-8">
+                    <input title="default={defaultvalue}" type="text" class="form-control" id="{id}" name="{name}" value="{value}" placeholder="{defaultvalue}">
+                </div>
+            </div>
+            <!-- end if {is_text} -->
+            <!-- end foreach {items} -->
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <button type="submit" class="btn btn-primary">{i18n:Save}</button>
+                    <a href="{linkcancel}" class="btn btn-primary">{i18n:Cancel}</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

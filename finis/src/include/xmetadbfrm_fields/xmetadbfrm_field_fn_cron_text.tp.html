@@ -1,0 +1,169 @@
+<div id="operationsContainer"></div>
+<button type="button" onclick="addOperation()">{i18n:Add schedule}</button>
+<textarea {htmlattributes} name="{name}" onchange="initializeOperations()" id="hiddenTextarea" cols="80" rows="5">
+{value}
+</textarea>
+<script>
+    const textarea = document.getElementById('hiddenTextarea');
+    const container = document.getElementById('operationsContainer');
+
+    // Initialize operations from textarea
+    function initializeOperations() {
+        container.innerHTML = "";
+        const lines = textarea.value.trim().split('\n');
+        lines.forEach(line => {
+            if (line.trim() !== '') {
+                addOperationToUI(line);
+            }
+        });
+    }
+
+    function htmlOptions(_title, start, end, unity)
+    {
+        var html = "";
+        html += `<option value="*">${_title}</option>`;
+        for (let i = start; i <= end; i++)
+        {
+            let val = i < 10 ? '0' + i : i;
+            html += `<option value="${val}">${val}</option>`;
+        }
+        for (let i = start+1; i <= end; i++)
+        {
+            let val = i < 10 ? '0' + i : i;
+            html += `<option value="*/${val}">{i18n:every} ${val} {i18n:${unity}}</option>`;
+        }
+        return html;
+    }
+    const getCurrentYear = () => new Date().getFullYear();
+    // Add operation to UI
+    function addOperationToUI(value = '*-*-* *:*:* *') {
+        const div = document.createElement('div');
+        const [schedule, comment] = value.split('#').map(s => s.trim());
+        const [date, time, dayOfWeek] = schedule.split(' ');
+        const [year, month, dayOfMonth] = date.split('-');
+        const [hour, minute, second] = time.split(':');
+
+        div.className = 'operation';
+        console.log(schedule);
+        console.log(comment);
+        const curyear = getCurrentYear()-2;
+        let hoptions = htmlOptions("{i18n:all hours}", 0, 23,"{i18n:hours}");
+        let moptions = htmlOptions("{i18n:all minutes}", 0, 59,"{i18n:minutes}");
+        let soptions = htmlOptions("{i18n:all seconds}", 0, 59,"{i18n:seconds}");
+        
+        div.innerHTML = `
+        <fieldset>
+        <legend>{i18n:Schedule}</legend>
+            {i18n:Year}:<select  onchange="updateTextarea()" data-type="year">
+                <option value="*">{i18n:every year}</option>
+                ${Array.from({length: 20}, (_, i) => `<option value="${i + curyear}">${i + curyear}</option>`)}
+            </select>
+        
+            {i18n:Month}:<select  onchange="updateTextarea()" data-type="month">
+                <option value="*">{i18n:every month}</option>
+                <option value="1">{i18n:january}</option>
+                <option value="2">{i18n:february}</option>
+                <option value="3">{i18n:march}</option>
+                <option value="4">{i18n:april}</option>
+                <option value="5">{i18n:may}</option>
+                <option value="6">{i18n:june}</option>
+                <option value="7">{i18n:july}</option>
+                <option value="8">{i18n:august}</option>
+                <option value="9">{i18n:september}</option>
+                <option value="10">{i18n:october}</option>
+                <option value="11">{i18n:november}</option>
+                <option value="12">{i18n:december}</option>
+            </select>
+            {i18n:Day of the month}:
+            <select onchange="updateTextarea()" data-type="dayOfMonth">
+                <option value="*">{i18n:everyday}</option>
+                ${Array.from({length: 31}, (_, i) => `<option value="${i + 1}">${i + 1}</option>`)}
+            </select>
+        
+            <br /> 
+            {i18n:Weekday}:<select onchange="updateTextarea()" data-type="dayOfWeek">
+                <option value="*">{i18n:Every day of the week}</option>
+                <option value="1">{i18n:Monday}</option>
+                <option value="2">{i18n:Tuesday}</option>
+                <option value="3">{i18n:Wednesday}</option>
+                <option value="4">{i18n:Thursday}</option>
+                <option value="5">{i18n:Friday}</option>
+                <option value="6">{i18n:Saturday}</option>
+                <option value="0">{i18n:Sunday}</option>
+            </select>
+            <br /> {i18n:Hours}:
+            <select onchange="updateTextarea()" data-type="hour">${hoptions}</select> :
+            <select onchange="updateTextarea()" data-type="minute">${moptions}</select> :
+            <select onchange="updateTextarea()" data-type="second">${soptions}</select>        
+            <input type="text" placeholder="{i18n:Comment}" data-type="comment" onchange="updateTextarea()" style="width: 200px;">
+        </fieldset>
+            <a href="#" onclick="removeOperation(this)">&#10060; {i18n:Delete}</a><br /><br />
+        `;
+
+        container.appendChild(div);
+
+        // Set initial values
+        setSelectValue(div, 'year', year);
+        setSelectValue(div, 'month', month);
+        setSelectValue(div, 'dayOfMonth', dayOfMonth);
+        setSelectValue(div, 'dayOfWeek', dayOfWeek);
+        setSelectValue(div, 'hour', hour);
+        setSelectValue(div, 'minute', minute);
+        setSelectValue(div, 'second', second);
+        setInputValue(div, 'comment', comment || "");
+    }
+
+    // Helper function to set input value
+    function setInputValue(div, _type, value) {
+        const input = div.querySelector(`input[data-type="${_type}"]`);
+        if (input) {
+            input.value = value;
+        }
+    }
+
+    // Helper function to set select value
+    function setSelectValue(div, _type, value) {
+        const select = div.querySelector(`select[data-type="${_type}"]`);
+        if (select) {
+            if (value.startsWith('*/')) {
+                select.value = value;
+            } else {
+                select.value = value.replace('/', '*/');
+            }
+        }
+    }
+
+    // Add new operation
+    function addOperation() {
+        addOperationToUI();
+        updateTextarea();
+    }
+
+    // Remove operation
+    function removeOperation(button) {
+        button.parentElement.remove();
+        updateTextarea();
+    }
+
+    // Update textarea content
+    function updateTextarea() {
+        const operations = container.querySelectorAll('.operation');
+        textarea.value = Array.from(operations).map(op => {
+            const year = op.querySelector('[data-type="year"]').value;
+            const month = op.querySelector('[data-type="month"]').value;
+            const dayOfMonth = op.querySelector('[data-type="dayOfMonth"]').value;
+            const dayOfWeek = op.querySelector('[data-type="dayOfWeek"]').value;
+            const hour = op.querySelector('[data-type="hour"]').value || '*';
+            const minute = op.querySelector('[data-type="minute"]').value || '*';
+            const second = op.querySelector('[data-type="second"]').value || '*';
+            const comment = op.querySelector('[data-type="comment"]').value || '';
+            const schedule = `${year}-${month}-${dayOfMonth} ${hour}:${minute}:${second} ${dayOfWeek}`;
+            return comment ? `${schedule} # ${comment}` : schedule;
+        }).join('\n');
+    }
+
+    // Initialize on page load
+    window.setTimeout(function () {
+        initializeOperations()
+    }, 1);
+</script>

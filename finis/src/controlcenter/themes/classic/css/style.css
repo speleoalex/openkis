@@ -1,0 +1,323 @@
+body{
+    margin:0px;
+    padding:0px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    background-color: #ffffff
+}
+td{
+
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 12px;
+
+}
+a{
+    color:#025a8d;
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
+}
+form td{
+    margin:0px;
+    padding:0px;
+
+}
+button {
+
+    border: 1px solid #999999;
+    background-color: #d0d1d0;
+    font-size: 11px;
+    color: #444444;
+    font-weight: normal;
+    background-repeat: repeat-x;
+    background-position: top;
+}
+select{
+    vertical-align: middle;
+}
+button:hover {
+
+    border: 1px solid #444444;
+    background-color: #ffffff;
+    font-size: 11px;
+    color: #444444;
+    font-weight: normal;
+    background-repeat: repeat-x;
+    background-position: top;
+    border-color: #758a9e;
+}
+input {
+    vertical-align: middle
+}
+#fncc_login{
+    width:400px;
+    margin:auto;
+    margin-top:10px;
+    padding:0px;
+    border:1px solid #cccccc;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+#fncc_loginform{
+    text-align: center;
+    margin-top:10px;
+    padding:10px;
+
+}
+#fncc_loginform a{
+    text-decoration: none;
+    color: #000000;
+}
+#fncc_loginform form{
+    width:200px;
+    margin-left:120px;
+    margin-top:10px;
+    padding:10px;
+    border:1px solid #cccccc;
+    background-color: #ffffff;
+    text-align: center;
+}
+#fncc_loginformtitle{
+    text-align: center;
+    background-color: #025a8d;
+    color: #ffffff;
+    height:30px;
+    line-height: 30px;
+    font-size: 20px;
+}
+.fncc_table{
+    width:100%;
+}
+#fncc_top{
+    width:100%;
+    height:40px;
+    padding:0px;
+    margin:0px;
+    line-height: 40px;
+    font-size: 14px;
+    font-family:Arial, Helvetica, sans-serif;
+    background-color: #000000;
+    color:#ffffff;
+}
+#fncc_top *{
+    color:#ffffff;
+    text-decoration: none;
+}
+
+#fncc_top a{
+    border:1px solid #000000;
+    height:34px;
+    line-height: 34px;
+}
+#fncc_top a:hover{
+    border:1px solid #3169C6;
+    text-decoration: none;
+    background-color: #C6D3EF;
+    color:#000000;
+}
+#fncc_top img{
+    height:16px;
+    vertical-align:middle;
+    border:0px;
+}
+#fncc_logout{
+    float:left;
+    margin-left:10px;
+}
+#fncc_languages{
+    float:right;
+    margin-right:10px;
+}
+#fncc_languages img{
+    vertical-align: middle;
+    border: 0px;
+    text-decoration: none;
+}
+#fncc_languages a , #fncc_languages a:hover{
+    text-decoration: none;
+    border:0px
+}
+
+#fncc_controlcenter{
+    margin-left:10px;
+    float:left;
+}
+
+#fncc_gohome{
+    margin-right:20px;
+    float:right;
+}
+/*******    center menu ********/
+#fncc_centermenu{
+    margin: 5px;
+    margin-top:10px;
+    border:0px;
+    padding:0px;
+    border:1px solid #cccccc;
+    background-color: #ffffff;
+
+}
+.fncc_centermenutitle{
+    text-align:left;
+    color:#000000;
+    border-bottom: 1px solid #c0c0c0;
+    margin-left:5px;
+    margin-right:5px;
+
+}
+.fncc_centermenu{
+    background-color: #f4f4f4;
+    text-align:left;
+}
+.fncc_centermenu a{
+    position:relative;
+    color: #565656;
+    width:70px;
+    height:70px;
+    line-height: 12px;
+    display:inline-block ;
+    text-decoration: none;
+    margin:5px;
+    overflow:hidden;
+    text-align:center;
+    font-size: 10px;
+    border:1px solid #cccccc;
+    background-color: #ffffff;
+}
+.fncc_centermenu a{
+    display:inline
+}
+.fncc_centermenu>a{
+    display:inline-block
+}
+.fncc_centermenu span
+{
+    display: block;
+    position:absolute;
+    left:0px;
+    line-height: 10px;
+    width:70px;
+    height:30px;
+    overflow: hidden;
+}
+.fncc_centermenu a img{
+    vertical-align: middle;
+    height:32px;
+    width:32px;
+    border:0px;
+    margin-top: 2px;
+}
+.fncc_centermenu a:hover{
+    border:1px solid #3169C6;
+    text-decoration: none;
+    background-color: #C6D3EF;
+}
+/*******    left menu ********/
+#fncc_leftmenu{
+    width:210px;
+    float:left;
+    margin: 0px;
+    margin-top:10px;
+    border:0px;
+    padding:0px;
+    margin-left:5px;
+    width:240px;
+
+}
+.fncc_leftmenu{
+    width:240px;
+    border:1px solid #dadada;
+    margin-bottom: 5px;
+    border-radius:10px 10px 0px 0px;
+    box-shadow: 0px 0px 3px #dadada;
+}
+.fncc_leftmenutitle{
+    text-align:center;
+    background-color: #808080;
+    color:#ffffff;
+    font-variant: small-caps;
+    border-radius:10px 10px 0px 0px;
+}
+.fncc_leftmenu a{
+    text-decoration: none;
+    width:238px;
+    display:block;
+    height:24px;
+    line-height:24px;
+    border:1px solid  #ffffff;
+    color:#000000;
+    overflow:hidden;
+    white-space: nowrap
+
+}
+.fncc_leftmenu .current{
+
+    text-decoration: none;
+    background-color: #C6D3EF;
+    overflow: visible;
+}
+.fncc_leftmenu a:hover{
+    border:1px solid #3169C6;
+    text-decoration: none;
+    background-color: #C6D3EF;
+    overflow: visible;
+}
+.fncc_leftmenu a img{
+    vertical-align: middle;
+    height:16px;
+    border:0px;
+}
+.fncc_leftmenu a span{
+    margin-left: 5px;
+}
+#fncc_contents{
+    position:absolute;
+    left:260px;
+    border:1px solid #dadada;
+    background-color: #f4f4f4;
+    padding:10px;
+    margin-top:10px;
+    border-radius:6px;
+    box-shadow: 0px 0px 3px #dadada;
+    width:auto;
+    min-width: 500px;
+}
+.fncc_sectiontitle{
+    background-color: #ffffff;
+    color:#080808;
+    font-size: 14px;
+    height:15px;
+    line-height: 15px;
+    padding:5px;
+    border:1px solid #dadada;
+    margin-bottom:5px;
+    text-shadow: 0px 0px 4px #dadada;
+
+}
+#fncc_footer{
+    text-align: center
+
+}
+#fncc_version{
+    color:#000000;
+}
+.fncc_dashboard_item{
+    border:1px solid #dadada;
+    margin-bottom: 2px;
+
+}
+.fncc_dashboard_itemtitle{
+    color:#ffffff;
+    background-color: #000000;
+}
+#fncc_helpframe{
+    position:absolute;
+    display:none;
+    border-left:1px solid gray;
+    right:0px;
+    background-color: #ffffff;
+    color: #444444;
+    width:200px;
+    padding:10px;
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html class="no-js css-menubar" lang="en">
+    <head>
+        <!-- include FN_HtmlHeader -->
+        <title></title>
+        <!-- end include FN_HtmlHeader -->
+        <link rel="stylesheet" href="css/style.css"> 
+    </head>
+    <body>
+        <div id="fncc_top">
+            <a id="fncc_controlcenter" href="{controlcenter}"><img alt="home" src="../../../images/configure.png">&nbsp;{i18n:Control panel}</a><a id="fncc_logout" href="{siteurl}{controlcenter}?fnapp=controlcenter&fnlogin=logout"><img alt="home" src="../../../images/user.png">&nbsp;{i18n:Exit}</a><a id="fncc_gohome" href="{siteurl}index.php?theme=__default__"><img alt="home" src="../../../images/home.png">&nbsp;{i18n:Go to} {sitename}</a><span id="fncc_languages"><!-- include languages --><!-- langitem --><a href="?fnapp=controlcenter&lang={langname}">{langflag}</a>&nbsp;<!-- endlangitem --><!-- end include languages --></span></div>
+        <div id="fncc_menutop"><div id="myMenuID"></div></div>
+
+
+
+
+
+        <table width="100%"><tr><td  width="50%" valign="top" >
+                    <div id="fncc_centermenu">
+                        <!-- include ccmenu -->
+                        <!-- menitems -->
+                        <!-- menuitemdropdown -->
+                        <div class="fncc_centermenu">
+                            <div class="fncc_centermenutitle">{title}</div>
+                            <!-- submenu -->
+                            <!-- submenuitems -->
+                            <!-- submenuitem -->
+                            <a href=""><img alt="" src="{image}"><br><span>{title}</span></a>
+                            <!-- endsubmenuitem -->
+                            <!-- endsubmenuitems -->
+                            <!-- endsubmenu -->
+                        </div>
+                        <!-- endmenitems -->
+                        <!-- endmenuitemdropdown -->
+                        <!-- end include ccmenu -->
+                    </div>
+                </td><td  width="50%" valign="top" >
+                    <!-- include dashboard -->
+                    <h2>{dashboard_title}</h2>
+                    <div>{dashboard_contents}</div>
+                    <!-- end include dashboard --></td></tr></table>
+
+
+
+    </body>
+</html>

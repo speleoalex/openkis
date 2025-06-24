@@ -1,0 +1,76 @@
+<div class="card">
+    <div class="card-header">     
+
+    </div>
+    <div class="card-body">
+        <!-- if {text_on_update_ok} -->
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {text_on_update_ok}
+        </div>
+        <!-- end if {text_on_update_ok} -->
+        <!-- if {text_on_update_fail} -->
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {text_on_update_ok}
+        </div>
+        <!-- end if {text_on_update_fail} -->
+        <!-- if {text_on_insert_ok} -->
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {text_on_insert_ok}
+        </div>
+        <!-- end if {text_on_insert_ok} -->
+        
+        <form method="post"  action="{action}" enctype="multipart/form-data" onchange="set_changed();">
+            <!-- contents -->
+            <div class="form-group row">
+                <!-- group -->
+                <fieldset><legend>{groupname}</legend>
+                    <!-- end_group -->
+                    <!-- item -->
+                    <div class="form-group row">
+                        <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+                        <div class="col-sm-10">
+                            <!-- inputattributes select:class="form-select"  -->
+                            <!-- inputattributes radio:class="form-check-input"  -->
+                            <!-- inputattributes:class="form-control"  -->                            
+                            {input}                    
+                            <em class="text-primary">{help}</em>
+                        </div>        
+                    </div> 
+                    <!-- end_item -->
+                    <!-- item_type_check -->
+                    <div class="form-group row">
+                        <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+                        <div class="col-sm-10">
+                            <!-- inputattributes:class="form-check-input"  -->
+                            <span class="form-switch">{input}</span>                     
+                            <em class="text-primary">{help}</em>
+                        </div>        
+                    </div> 
+                    <!-- end_item_type_check -->
+                    <!-- item_type_radio -->
+                    <div class="form-group row">
+                        <label  class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em style="color:red"><br />{error}</em><!-- end_error --></label>
+                        <div class="col-sm-10 ">
+                            <!-- inputattributes:class="form-check-input",class="form-check-label"  -->
+                            {input}
+                            <em class="text-primary">{help}</em>
+                        </div>        
+                    </div> 
+                    <!-- end_item_type_radio -->
+                    <!-- endgroup -->
+                </fieldset>
+                <!-- end_endgroup -->
+            </div>
+            <!-- end_contents -->
+            <div>
+            {html_on_insert}
+            </div>
+            
+            <button  class="btn btn-primary" type="submit">{textsave}</button>
+            <!-- if {textcancel} -->
+            <a class="btn btn-primary" href="{url_cancel}" type="submit">{textviewlist}</a>
+            <!-- end if {textcancel} -->
+        </form>
+         
+    </div>
+</div>

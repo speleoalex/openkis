@@ -1,0 +1,30 @@
+<form enctype="multipart/form-data" action="{formaction}" method="post" name="login" >
+    <div>
+        <div><label>{txtusername}</label><br /><input type="text" size="15" name="username" /></div>
+        <div><label>{i18n:Password}</label><br /><input type="password" size="15" name="password" /></div>
+        <!-- captcha -->
+        {i18n:Enter this security code}:<br />
+        {htmlcaptcha}
+        <!-- end captcha -->
+        <!-- rememberlogin -->
+        <div><input type="checkbox" name="rememberlogin" value="1" />&nbsp;{i18n:Stay connected}</div>
+        <!-- endrememberlogin -->
+        <div><button type="submit" >{i18n:login}</button></div>
+        <!-- loginerror --><div style="background-color:yellow;color:red" >{login_error}</div><!-- end loginerror -->
+        <!-- passwordrecovery -->
+        <a href="{urlpasswordrecovery}" >{i18n:Password recovery}</a>
+        <!-- end passwordrecovery -->
+        <!-- if {urlresendcode} -->
+        <a href="{urlresendcode}" >{i18n:Resend the verification code}</a>
+        <!-- end if {urlresendcode} -->
+        <!-- register --> 
+        <br /><a href="{urlregister}">{i18n:Register}</a>
+        <!-- end register --> 
+        <!-- if {oauth_providers} -->
+        <hr />
+        <!-- end if {oauth_providers} -->
+        <!-- foreach {oauth_providers} -->
+        <a class="btn btn-outline-secondary" href="{url}"><!-- if {urlimage} --><img style="max-height:30px;" src="{urlimage}" /> <!-- end if {urlimage} -->{i18n:Continue with}: {name}</a> 
+        <!-- end foreach {oauth_providers} -->        
+    </div>
+</form>

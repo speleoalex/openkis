@@ -1,0 +1,129 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="{lang}"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <!-- include FN_HtmlHeader -->
+        <title></title>
+        <!-- end include FN_HtmlHeader -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/main.css">
+       
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    </head>
+    <body><nav class="navbar navbar-inverse sidebar" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-sidebar-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{siteurl}index.php?fnapp=controlcenter">{i18n:Control center}</a>                    
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">  {user}<span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-user"></span></a>
+                            <ul class="dropdown-menu" role="menu" >
+                                <li>                        
+                                    <a href='{siteurl}index.php?fnapp=controlcenter&opt=users_and_groups/profile'>{i18n:Profile settings}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img style="height:16px" src="{siteurl}/images/user.png" /></span></a>                                    
+                                    <a href='{siteurl}index.php?fnapp=controlcenter&fnlogin=logout'>{i18n:Logout}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img style="height:16px" src="{siteurl}/images/fn_close.png" /></span></a>
+                                </li>    
+                            </ul>
+                        </li>
+
+
+                        <li class="dropdown">
+                            <a href="#"  class="dropdown-toggle" data-toggle="dropdown" >
+                                {i18n:Language}<span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img src="{siteurl}/images/flags/{lang}.png" /></span></a>
+                            <ul class="dropdown-menu" role="menu" >
+                                <!-- include languages -->
+                                <!-- langitem -->
+                                <li>                        
+                                    <a href='index.php?fnapp=controlcenter&lang={langname}'><img src="{siteurl}/images/flags/{langname}.png" /> {langtitle}</a>
+                                </li>    
+                                <!-- endlangitem -->
+
+                                <!-- end include languages -->          
+                            </ul>
+
+                        </li>            
+                        <!-- include ccmenu -->
+                        <!-- menuitems -->
+                        <!-- menuitemdropdown -->
+                        <li class="dropdown">
+
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{title} <span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-cog glyphicon-{opt}"></span></a>
+                            <!-- submenu -->
+                            <ul class="dropdown-menu" role="menu">
+                                <!-- submenuitems -->
+                                <!-- submenuitem -->
+                                <li><a href="#"> {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img height="16" src="{image}" /></span></a></li>
+                                <!-- endsubmenuitem -->
+                                <!-- endsubmenuitems -->
+                            </ul>
+                            <!-- endsubmenu --></li>
+                        <!-- endmenuitemdropdown -->
+                        <!-- menuitemdropdownactive -->
+                        <li class="dropdown active open">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{title}&nbsp;<span class="caret"></span><span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-cog glyphicon-{opt}"></span></a><!-- submenu -->
+                            <ul class="dropdown-menu open" role="menu">
+                                <!-- submenuitems -->
+                                <!-- submenuitem -->
+                                <li><a href="#"> {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img height="16" src="{image}" /></span></a></li>
+                                <!-- endsubmenuitem -->
+                                <!-- submenuitemactive -->
+                                <li class="active open"><a href="#"> {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon"><img height="16" src="{image}" /></span></a></li>
+                                <!-- endsubmenuitemactive -->
+
+                                <!-- endsubmenuitems -->
+                            </ul>
+                            <!-- endsubmenu --></li>
+                        <!-- endmenuitemdropdownactive -->
+                        <!-- menuitem -->
+                        <li><a  href="">{title}</a></li>
+                        <!-- endmenuitem -->
+                        <!-- menuitemactive -->
+                        <li class="active"><a href="#"><img height="16" src="{image}" />  {title}<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+
+                        <!-- endmenuitemactive -->
+
+                        <!-- endmenuitems -->
+                        <!-- end include ccmenu -->
+
+
+
+
+                    </ul>
+
+                    <a class="navbar-brand" href="{siteurl}?theme=__default__">{i18n:Go to}: {site_title}</a>
+                </div>
+
+            </div>
+        </nav>
+
+        <div class="main">  
+            <!-- include dashboard -->
+            <div class="panel panel-default">
+                <div class="panel-heading">{dashboard_title}</div>
+                <div class="panel-body">{dashboard_contents}</div>
+            </div>            
+            <!-- end include dashboard -->          
+        </div> <!-- /container -->     
+
+
+
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>');</script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+    </body></html>

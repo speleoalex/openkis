@@ -1,0 +1,12 @@
+<?php
+global $_FN;
+//display error, http://php.net/manual/it/errorfunc.configuration.php#ini.display-errors
+$_FN['display_errors'] = "on";
+//authentication method (include/auth/)
+$_FN['default_auth_method'] = "local";
+//specific options for the mysql driver:
+$_FN['default_database_driver'] = "mysql";
+$_FN['xmetadb_mysqlhost'] = "localhost";
+$_FN['xmetadb_mysqldatabase'] = "finis";
+$_FN['xmetadb_mysqlusername'] = "root";
+$_FN['xmetadb_mysqlpassword'] = "";

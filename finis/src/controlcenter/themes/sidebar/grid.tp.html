@@ -1,0 +1,56 @@
+<script type="text/javascript">
+    trh = function (over, elem) {
+        var old;
+        if (over) {
+            this.old = elem.style.backgroundColor;
+            elem.style.backgroundColor = '#dadada';
+        } else {
+            elem.style.backgroundColor = this.old;
+        }
+    }
+</script>            
+<!-- start grid -->
+
+<div class="text-right"> 
+    <div class="btn-group btn-round" role="group" aria-label="">
+    <!-- start export -->
+    <button type="button" onclick="window.location = '{urlexport}'" class="btn btn-primary">
+        <span class="glyphicon glyphicon-download" aria-hidden="true"></span> {textexport}</button>
+    <!-- end export -->     
+    <!-- start insertnew -->
+    <button type="button" onclick="window.location = '{urlnewrecord}'" class="btn btn-primary ">
+        <span class="glyphicon glyphicon-file" aria-hidden="true"></span> {textnew}</button>
+    <!-- end insertnew -->
+    </div>
+</div>
+
+<ul class="pagination"><!-- start pages --><!-- start page --><li><a href="{pagelink}">{pagetitle}</a></li> <!-- end page --> <!-- start currentpage --><li class="active" ><a href="{pagelink}">{pagetitle}</a></li> <!-- end currentpage --> <!-- end pages --></ul>
+<!-- start table -->
+<div class="no-more-tables" >
+    <table id="keywords"  class="table col-sm-12 table-bordered table-striped table-condensed cf">
+        <thead class="cf bg-primary">
+            <!-- start gridheader -->
+            <!-- start gridrow -->
+            <tr>
+
+                <!-- start gridfields -->
+                <!-- start gridfield --><th><a style="color:#ffffff" href="{link}">{fieldvalue} {arrow}</a></th><!-- end gridfield -->
+                <!-- end gridfields -->
+                <th colspan="{numactions}"> </th>
+            </tr><!-- end gridrow -->
+            <!-- end gridheader -->
+        </thead>
+        <tbody>
+            <!-- start gridbody -->
+            <!-- start gridrow -->
+            <tr>
+                <!-- start gridfields -->
+                <!-- start gridfield --><td data-title="{fieldtitle}">{fieldvalue}</td><!-- end gridfield -->
+                <!-- end gridfields -->
+            </tr>
+            <!-- end gridrow --> 
+            <!-- end gridbody -->
+        </tbody>           
+    </table>
+</div><br />
+<!-- end table --><!-- end grid -->

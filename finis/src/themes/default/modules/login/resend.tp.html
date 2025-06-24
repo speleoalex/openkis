@@ -1,0 +1,11 @@
+<h3>{i18n:resend the verification code}</h3>
+<!-- if {error} --><br /><div class="alert alert-danger" >{error}</div><!-- end if {error} -->
+<form enctype="multipart/form-data" action="{formaction}" method="post" name="login" >
+    <div class="form-group">
+        <label class="form-control-l">{txtusername}</label><input class="form-control"  type="text" size="15" name="username" /> 
+    </div>
+    
+    <button class="btn btn-info" type="submit" >{i18n:send}</button>
+    
+    
+</form>

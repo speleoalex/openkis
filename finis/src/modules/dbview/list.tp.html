@@ -1,0 +1,282 @@
+<!--
+
+.col-xs-x
+.col-sm-x
+.col-md-x
+.col-lg-x
+
+-->
+
+<div class="accordion" id="accordionDiv">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="collapse" data-target="#collapseOne" data-bs-target="#collapseOne" data-bs-toggle="collapse"  aria-expanded="true" aria-controls="collapseOne">
+                    {i18n:Filter results}
+                </button>
+            </h5>
+        </div>
+
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" >
+            <div class="card-body">
+                <form id="formfilters" name="filter" method="get" action="{formaction}">
+                    <input name="mod" type="hidden" value="{mod}">
+                    <!-- if {table_rules} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label" for="table_rules">{i18n:Shows only}:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="table_rules" name="rule">
+                                <option value="">-----</option>
+                                <!-- foreach {rules} -->
+                                <option {selected} value="{value}">{title}</option>
+                                <!-- end foreach {rules} -->
+                            </select>
+                        </div>
+                    </div>
+                    <!-- end if {table_rules} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label" for="searchtext">{i18n:Text}:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="searchtext" size="15" name="q" value="{q}" />
+                        </div>
+                    </div>
+                    <!-- foreach {search_fields} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label" for="search_fields{name}">{title}:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="search_fields{name}" name="{name}" value="{value}" placeholder="{suffix}">
+                        </div>
+                    </div>
+                    <!-- end foreach {search_fields} -->
+                    <!-- foreach {search_partfields} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label" for="search_partfields{name}">{title}:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="search_partfields{name}" name="{name}" value="{value}" placeholder="{suffix}">
+                        </div>
+                    </div>
+                    <!-- end foreach {search_partfields} -->        
+                    <!-- foreach {search_min} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label" for="search_min{name}">{title} &gt;</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="search_min{name}" name="{name}" value="{value}" placeholder="{suffix}">
+                        </div>            
+                    </div>
+                    <!-- end foreach {search_min} -->        
+
+
+                    <!-- foreach {search_options} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label">{title}:</label>
+                        <div class="col-sm-9">
+                            <!-- foreach {options} -->
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" id="{id}" name="{name}" value="{value}" type="checkbox" {checked} />
+                                <label class="form-check-label" for="{id}">{title}</label>
+                            </div>
+                            <!-- end foreach {options} -->
+                        </div>
+                    </div>
+                    <!-- end foreach {search_options} -->
+                    <div class="form-group row">        
+                        <label class="col-sm-3 col-form-label" for="table_order">{i18n:Order by}:</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" id="table_order" name="order">
+                                <!-- foreach {order_by} -->
+                                <option {selected} value="{value}">{title}</option>
+                                <!-- end foreach {order_by} -->
+                            </select>
+                        </div>
+                        <div class="col-sm-5">
+                            <label class="form-check-label" for="checked_desc">{i18n:reverse order (from largest to smallest)}</label>
+                            <input class="form-check-input" id="checked_desc" type="checkbox" {checked_desc} name="desc" value="1" /> 
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" >{i18n:Search}</button>
+                    <button type="button" class="btn btn-primary" onclick="window.location = '{siteurl}index.php?mod={mod}'" >{i18n:New Search}</button>
+                </form>            
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script defer="defer">
+    window.addEventListener('load', function() {
+        // Delay execution by 1 second
+        setTimeout(function() {
+            // Select all relevant form elements
+            var formElements = document.querySelectorAll("#formfilters input[type=text], #formfilters select, #formfilters textarea, #formfilters input:checked");
+            
+            formElements.forEach(function(element) {
+                // Check if the element value is not empty
+                if (element.value !== "") {
+                    // Check if the element's id is not 'table_order' or 'checked_desc'
+                    if (element.id !== "table_order" && element.id !== "checked_desc") {
+                        document.getElementById("collapseOne").style.display = "block";
+                    }
+                    return;
+                }
+            });
+        }, 1000);
+
+        // Delay execution by 1 second
+        setTimeout(function() {
+            // Select all elements with class 'removefilter'
+            var removeFilters = document.querySelectorAll(".removefilter");
+            
+            removeFilters.forEach(function() {
+                document.getElementById("collapseFilters").style.display = "block";
+            });
+        }, 1000);
+    });
+</script>
+
+
+<div  class="row">
+    <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 " >
+        <div class="accordion" id="accordionDiv2">
+            <div class="card" >
+                <!-- if {categories} -->
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="collapse" data-target="#collapseFilters" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilters"  aria-expanded="true" aria-controls="collapseOne">
+                            {i18n:Browse by categories}
+                        </button>
+                    </h5>
+                </div>
+                <!-- end if {categories} -->
+                <div id="collapseFilters" class="collapse hidden" aria-labelledby="headingOne" >
+                    <div class="row"  >
+                        <!-- foreach {categories} -->
+                        <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 "  >
+                            <div class="card " style="height: 90%" >
+                                <div class="card-header bg-light">
+                                    {filtertitle}
+                                </div>
+                                <!-- clearfilter -->
+
+                                <!-- if {urlremovefilter} -->
+                                <a class="btn btn-warning removefilter" onclick="try {
+                                            call_ajax(this.href, 'pageresults,collapseFilters');
+                                            return false;
+                                        } catch (e) {
+                                            console.log(e);return true;
+                                        }" href="{urlremovefilter}">{i18n:Remove filter}</a>
+                                <!-- end if {urlremovefilter} -->
+                                <div style="max-height:200px;overflow:auto" id="filters">
+                                    <table>
+                                        <tbody>
+                                            <!-- foreach {groups} -->
+                                            <tr>
+                                                <td valign="top"><span class="badge badge-pill badge-primary">{counteritem}</span></td>
+                                                <td valign="top"><a onclick="try {
+                                                            call_ajax(this.href, 'pageresults,collapseFilters');
+                                                            return false;
+                                                        } catch (e) {
+                                                            console.log(e);return true;
+                                                        }" href="{urlfilteritem}"><span>{titleitem}</span></a></td>
+                                            </tr>
+
+                                            <!-- end foreach {groups} -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <!-- end foreach {categories} -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>    
+    <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 " id="pageresults"  >
+        <div class="navigatorresults">
+            <div class="pageresults">
+                <nav aria-label="{i18n:Pages}">
+                    <ul class="pagination">
+                        <!-- if {linkpreviouspage} -->
+                        <li class="page-item"><a  title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
+                        <!-- end if {linkpreviouspage} -->
+                        <!-- foreach {pages} -->
+                        <!-- if not {active} --><li class="page-item"><a  onclick="call_ajax(this.href, 'pageresults,collapseFilters');return false"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
+                        <!-- if {active} --><li class="page-item active"><a class="page-link" href="{link}">{txt_page}</a></li><!-- end if {active} -->
+                        <!-- end foreach {pages} -->
+                        <!-- if {linknextpage} -->
+                        <li class="page-item"><a title="{i18n:Next}" class="page-link" href="{linknextpage}">&gt;</a></li>
+                        <!-- end if {linknextpage} -->
+                    </ul>
+                </nav>      
+            </div>
+            <div class="card-group">
+                <!-- foreach {items} -->
+                <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" >
+                    <div class="card mb-4 box-shadow" style="height: 95%"  ><img src="{item_urlimage}" class="card-img-top" alt="">
+                        <div class="card-body">
+                            <div class="card-title" >{item_title}</div>
+                            <!-- foreach {itemvalues} -->
+                            <b>{title}:</b> {value}<br />
+                            <!-- end foreach {itemvalues} -->
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group">
+                                <!-- if {item_urlview} --><a class="btn btn-primary" href="{item_urlview}">{i18n:View}</a><!-- end if {item_urlview} -->
+                                <!-- if {item_urledit} --><a class="btn btn-secondary" href="{item_urledit}">{i18n:Modify}</a><!-- end if {item_urledit} -->
+                                <!-- if {item_urldelete} --><a class="btn btn-light"  
+                                                               href="javascript:if(confirm('{i18n:are you sure you want to delete this content?}')){window.location='{item_urldelete}'}">
+                                    <img title="{i18n:Delete}" style="vertical-align:middle" src="../../images/delete.png" alt="{i18n:Delete}" border="0" />
+                                </a><!-- end if {item_urldelete} -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end foreach {items} -->
+                <!-- if not {items} -->
+                {i18n:no result}
+                <!-- end if not {items} -->
+            </div>        
+            <div class="pageresults">
+                <nav aria-label="{i18n:Pages}">
+                    <ul class="pagination">
+                        <!-- if {linkpreviouspage} -->
+                        <li class="page-item"><a  title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
+                        <!-- end if {linkpreviouspage} -->
+                        <!-- foreach {pages} -->
+                        <!-- if not {active} --><li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters');return false"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
+                        <!-- if {active} --><li class="page-item active"><a class="page-link" href="{link}">{txt_page}</a></li><!-- end if {active} -->
+                        <!-- end foreach {pages} -->
+                        <!-- if {linknextpage} -->
+                        <li class="page-item"><a title="{i18n:Next}" class="page-link" href="{linknextpage}">&gt;</a></li>
+                        <!-- end if {linknextpage} -->
+                    </ul>
+                </nav>      
+            </div>
+            <!-- if {url_addnew} -->
+            <a class="btn btn-primary" href="{url_addnew}">{i18n:Add new}</a>
+            <!-- end if {url_addnew} -->
+            <!-- if {enable_offlineform} -->
+            <a class="btn btn-primary" href="{url_offlineforminsert}">{i18n:Download insertion form}</a>
+            <!-- end if {enable_offlineform} -->
+
+
+
+            <!-- if {access_control_url} -->
+            <a class="btn btn-primary" href="{access_control_url}">{i18n:Access control}</a>
+            <!-- end if {access_control_url} -->
+            <!-- if {url_exports} -->
+            <br /><br />
+            <div class="alert alert-info"><h5>{i18n:Export the results}:</h5>    
+                <!-- foreach {url_exports} -->
+                <a href="{url_export}" class="btn btn-primary">{title}</a>
+                <!-- end foreach {url_exports} -->
+            </div>
+            <!-- end if {url_exports} -->
+        </div>
+    </div>
+</div>
+{html_footer}
