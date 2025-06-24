@@ -35,7 +35,7 @@ function openkis_UpdateCoords($mod, $forceall = false)
         fclose(fopen($file_lastUpdate, "a"));
         $forceall = true;
     }
-    $table = FN_XmlTable($config['tables']);
+    $table = FN_XMDBTable($config['tables']);
     if (!$forceall && ($table->GetLastUpdateTime() <= filectime($file_lastUpdate)))
     {
         if (isset($_GET['debug']))
@@ -50,9 +50,9 @@ function openkis_UpdateCoords($mod, $forceall = false)
 
     $params['fields'] = "id,code,latitude,longitude,latitude_txt,longitude_txt,coordinates_type,elevation,elevation_map,elevation_gps";
     if ($forceall)
-        $results = FN_XMLQuery("select {$params['fields']} FROM {$config['tables']}");
+        $results = FN_XMETADBQuery("select {$params['fields']} FROM {$config['tables']}");
     else
-        $results = FN_XMLQuery("select {$params['fields']} FROM {$config['tables']} WHERE recordupdate > coordnatesupdated OR latitude LIKE '0' OR latitude LIKE ''");
+        $results = FN_XMETADBQuery("select {$params['fields']} FROM {$config['tables']} WHERE recordupdate > coordnatesupdated OR latitude LIKE '0' OR latitude LIKE ''");
 
     foreach ($results as $result)
     {
@@ -75,7 +75,7 @@ function openkis_UpdateCoords($mod, $forceall = false)
 function openkis_GetItemPosition($row)
 {
     //dprint_r($row,"splx","red");
-    $table_coordinatestypes = FN_XmlTable("ctl_coordinatestypes");
+    $table_coordinatestypes = FN_XMDBTable("ctl_coordinatestypes");
     $lat_ori = $row['latitude_txt'];
     $lon_ori = $row['longitude_txt'];
     $lat_wgs84 = $row['latitude'];
@@ -439,7 +439,8 @@ function xmldb_viewfilecatasto($row, $path, $databasename, $tablename, $field, $
         $fsize = round($fsize / 1024, 2);
         $suff = "Mb";
     }
-    $stat = new XMLTable($databasename, $tablename . "_download_stat", $_FN['datadir']);
+    $paramsTable = array("databasename"=>$databasename);
+    $stat = new XMDBTable( $tablename . "_download_stat", $paramsTable);
     $val = $stat->GetRecordByPrimaryKey($fileimage2);
     //dprint_r($stat);
     $count = isset($val['numdownload']) ? $val['numdownload'] : 0;

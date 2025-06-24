@@ -88,4 +88,5 @@
 		<type>varchar</type>
 		<frm_show>0</frm_show>
 	</field>
+	<driver>mysql</driver>
 </tables>

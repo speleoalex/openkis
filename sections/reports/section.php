@@ -9,21 +9,31 @@ $section = str_replace("ctl_", "", $tablename);
 $suffix = "";
 $config = FN_LoadConfig("modules/dbview/config.php", $section);
 
-
-
+// Handle CSV download
+if (isset($_GET['download']) && $_GET['download'] == 'csv') {
+    // Set headers for CSV download
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=report_' . date('Y-m-d') . '.csv');
+    
+    // Create output stream
+    $output = fopen('php://output', 'w');
+    
+    // We'll populate this later
+    $csv_data = array();
+}
 
 if ($section !== "caves")
 {
     $suffix = "_$section";
 }
 FN_LoadMessagesFolder("modules/dbview");
-$table = new XMLTable("fndatabase", "$tablename", $_FN['datadir']);
-$tableSurveys = new XMLTable("fndatabase", "ctl_surveys$suffix", $_FN['datadir']);
-$tablePhotos = new XMLTable("fndatabase", "ctl_photos$suffix", $_FN['datadir']);
+$table = FN_XMDBTable("$tablename");
+$tableSurveys = FN_XMDBTable("ctl_surveys$suffix");
+$tablePhotos = FN_XMDBTable("ctl_photos$suffix");
 $all_items = $table->GetRecords();
 $all_surveys = $tableSurveys->GetRecords();
 $all_foto = $tablePhotos->GetRecords();
-$all_items = xmldb_array_natsort_by_key($all_items, "code", $desc = false);
+$all_items = xmetadb_array_natsort_by_key($all_items, "code", $desc = false);
 
 foreach ($all_surveys as $survey)
 {
@@ -59,6 +69,7 @@ $tablevars['headers'][] = array("text" => FN_Translate("updated by"));
 $tablevars['headers'][] = array("text" => FN_Translate("date updated"));
 $tablevars['headers'][] = array("text" => FN_Translate("visible to"));
 $tablevars['headers'][] = array("text" => FN_Translate("Documents"));
+$tablevars['headers'][] = array("text" => FN_Translate("Status"));
 
 
 $tablevars['rows'] = array();
@@ -179,6 +190,10 @@ foreach ($all_items as $item)
     $tmp_col[] = array("text" => "{$report_items['visible']}");
     $tmp_col[] = array("text" => "{$report_items['documents']}");
 
+    
+    
+   $tmp_col[] =  array("text" => FN_Translate($item['status']));
+
 
     $tmp_row['cols'] = $tmp_col;
     $tablevars['rows'][] = $tmp_row;
@@ -189,5 +204,31 @@ foreach ($all_items as $item)
     }
 }
 $vars['table'] = $tablevars;
-echo FN_TPL_ApplyTplFile("sections/reports/table.tp.html", $vars);
-?>
+
+// Handle CSV download functionality
+if (isset($_GET['download']) && $_GET['download'] == 'csv') {
+    // Define CSV headers
+    $csv_headers = array();
+    foreach ($tablevars['headers'] as $header) {
+        $csv_headers[] = strip_tags($header['text']);
+    }
+    
+    // Write headers to CSV
+    fputcsv($output, $csv_headers);
+    
+    // Process rows for CSV
+    foreach ($tablevars['rows'] as $row) {
+        $csv_row = array();
+        foreach ($row['cols'] as $col) {
+            // Remove HTML tags for clean CSV output
+            $csv_row[] = strip_tags($col['text']);
+        }
+        fputcsv($output, $csv_row);
+    }
+    
+    // End script execution after CSV output
+    exit();
+} else {
+    // Normal HTML output
+    echo FN_TPL_ApplyTplFile("sections/reports/table.tp.html", $vars);
+}

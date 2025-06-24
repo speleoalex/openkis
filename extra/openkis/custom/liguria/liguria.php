@@ -28,7 +28,7 @@ function GeneraNumeroArtificials($values)
     }
 
 //inizializza la variabile oggetto che punta alla tabella
-    $table = FN_XmlTable("ctl_artificials");
+    $table = FN_XMDBTable("ctl_artificials");
 //recupera i campi "id" e "code" di tutte le grotte (code corrisponde al numero di catasto) 
     $grotte = $table->GetRecords(false, false, false, false, false, "id|code");
     $max = 0; //variabile che conterrà il primo numero libero
@@ -80,7 +80,7 @@ function GeneraNumero($values)
     }
 
 //inizializza la variabile oggetto che punta alla tabella
-    $table = FN_XmlTable("ctl_caves");
+    $table = FN_XMDBTable("ctl_caves");
 //recupera i campi "id" e "code" di tutte le grotte (code corrisponde al numero di catasto) 
     $grotte = $table->GetRecords(false, false, false, false, false, "id|code");
     $max = 0; //variabile che conterrà il primo numero libero
@@ -126,7 +126,7 @@ function GeneraNumero($values)
 function InizializzaDB()
 {
 //inizializza a PIEMONTE la regione di default durante l'inserimento
-    $TableFRM = FN_XmlForm("ctl_caves");
+    $TableFRM = FN_XMDBForm("ctl_caves");
 //dprint_r($TableFRM ->formvals['regione']['frm_default']);
     $TableFRM->formvals['country']['frm_default'] = "ITALIA";
     $TableFRM->formvals['regione']['frm_default'] = "LIGURIA";

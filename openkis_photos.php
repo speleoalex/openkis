@@ -1,5 +1,5 @@
 <?php
-require_once "include/flatnux.php";
+require_once "loadfinis.php";
 header('cache-control: no-cache,no-store,must-revalidate'); 
 header('pragma: no-cache'); 
 header('expires: 0');
@@ -25,7 +25,7 @@ else
 
 $_GET['mod']=$mod;
 
-require_once "include/flatnux.php";
+require_once "loadfinis.php";
 
 
 header('cache-control: no-cache,no-store,must-revalidate');
@@ -40,7 +40,7 @@ if ($_FN['user']== "")
 }
 if ($id)
 {
-    $table=FN_XmlTable($t);
+    $table=FN_XMDBTable($t);
     $values=$table->GetRecordByPrimaryKey($id);
     $code = $values['code'];
   // dprint_r($values);

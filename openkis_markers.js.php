@@ -2,8 +2,8 @@
 
 ob_start();
 global $_FN;
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 FN_LoadMessagesFolder("extra/openkis");
 $exclude=FN_GetParam("exclude",$_GET,"flat");
 $minimal=FN_GetParam("minimal",$_GET,"flat");

@@ -2,8 +2,8 @@
 
 ob_start();
 global $_FN;
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 
 //Liguria: https://www.catastogrotte.net/liguria/openkis_wish.php?mod=caves
 
@@ -33,7 +33,7 @@ $config = FN_LoadConfig("modules/dbview/config.php", $mod);
 
 $dbview = new FNDBVIEW($config);
 $tablename = $config['tables'];
-$table = FN_XmlTable($tablename);
+$table = FN_XMDBTable($tablename);
 //https://www.catastogrotte.net/liguria/openkis_wish.php?mod=artificials&debug=1
 
 $fields = array();

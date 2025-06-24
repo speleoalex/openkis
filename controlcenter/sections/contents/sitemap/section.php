@@ -139,7 +139,7 @@ else
 //          dprint_r("qui 0a:" . FN_GetExecuteTimer());  //1 sec
         FNCC_UpdateSections();
 //          dprint_r("qui 0b:" . FN_GetExecuteTimer()); //8sec
-        $table=FN_XmlForm("fn_sections");
+        $table=FN_XMDBForm("fn_sections");
 //($section="", $recursive=false, $onlyreadable = true, $hidden = false, $onlyenabled=true)
         $sections=FN_GetSections("",true,false,true,false,true);
         $sections=FN_ArraySortByKey($sections,"position");
@@ -445,7 +445,7 @@ var syncdiv = function (id)
     if (!$newsection)
     {
         // dprint_r("qui 1:" . FN_GetExecuteTimer());
-        $table=FN_XmlForm("fn_sections");
+        $table=FN_XMDBForm("fn_sections");
         $table->formvals['id']['frm_show']=1;
         $table->formvals['position']['frm_show']=0;
 
@@ -472,10 +472,10 @@ var syncdiv = function (id)
                 else
                 {
                     //rename parents ----->
-                    $sectionstorenameparent=FN_XMLQuery("SELECT * FROM fn_sections WHERE parent LIKE '$pk___xdb_fn_sections'");
+                    $sectionstorenameparent=FN_XMDBQuery("SELECT * FROM fn_sections WHERE parent LIKE '$pk___xdb_fn_sections'");
                     if (is_array($sectionstorenameparent))
                     {
-                        $tb=FN_XmlTable("fn_sections");
+                        $tb=FN_XMDBTable("fn_sections");
                         foreach($sectionstorenameparent as $sectiontorenameparent)
                         {
                             $sectiontorenameparent['parent']=$id;
@@ -524,7 +524,7 @@ var syncdiv = function (id)
                     $sectiontype=$currentSectionType;
                 if ($sectiontype!= "" && file_exists("modules/$sectiontype/config.php") && file_exists("sections/{$mod}"))
                 {
-                    $t=FN_XmlForm("fn_sectionstypes");
+                    $t=FN_XMDBForm("fn_sectionstypes");
                     $values=$t->GetRecordTranslatedByPrimarykey("$sectiontype");
                     $title=isset($values['title']) ? $values['title'] : $sectiontype;
                     echo "<h2>$title</h2>";
@@ -567,7 +567,7 @@ var syncdiv = function (id)
         }
         else
         {
-            $forminsert=FN_XmlForm("fn_sections");
+            $forminsert=FN_XMDBForm("fn_sections");
             if (file_exists("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html"))
                 $forminsert->SetlayoutTemplate(file_get_contents("controlcenter/themes/{$_FN['controlcenter_theme']}/form.tp.html"));
 
@@ -821,7 +821,7 @@ function FNCC_print_section($section,$level)
 function FNCC_UpdateSections()
 {
     global $_FN;
-    $table=FN_XmlForm("fn_sections");
+    $table=FN_XMDBForm("fn_sections");
     $sectionstring=FN_GetParam("sectionstring",$_POST);
     $i=1;
     $sects=array();

@@ -412,7 +412,7 @@ function html_BlocksEditor()
 //----------------aggiornamento posizioni-------------------------------------->
     if (isset($_POST['list_blocks-top']))
     {
-        $table=FN_XmlTable("fn_blocks");
+        $table=FN_XMDBTable("fn_blocks");
         $allblocksTmp=$table->GetRecords();
         $allblocks=array();
         foreach($allblocksTmp as $block)

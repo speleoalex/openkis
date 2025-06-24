@@ -3,19 +3,19 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>speleologia_glaciale</parent>
-	<position>200</position>
+	<position>20</position>
 	<title>Ghiacciai</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
-	<hidden>0</hidden>
+	<hidden></hidden>
 	<accesskey></accesskey>
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
-	<level>10</level>
+	<level></level>
 	<group_view></group_view>
-	<group_edit></group_edit>
+	<group_edit>w_artificials,w_caves</group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
 	<title_it>Ghiacciai</title_it>
@@ -56,11 +56,12 @@
 	<permissions_records_groups>dbview_rw,dbview_ro</permissions_records_groups>
 	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
 	<enable_history>0</enable_history>
-	<enable_export>0</enable_export>
+	<enable_export>1</enable_export>
 	<enable_delete>0</enable_delete>
 	<hide_on_delete>1</hide_on_delete>
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
 </fncf_dbview>

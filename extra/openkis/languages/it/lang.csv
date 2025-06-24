@@ -49,5 +49,9 @@
 "yes","si"
 "no","no"
 "partially","parzialmente"
-
+"data status","stato dei dati"
+"draft","bozza"
+"rejected","rifiutato"
+"validated","validato"
+"verify","verificare"
 

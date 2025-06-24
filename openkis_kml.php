@@ -1,8 +1,8 @@
 <?php
 ob_start();
 global $_FN;
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 FN_LoadMessagesFolder("extra/openkis");
 $_FN['enable_compress_gzip']=1;
 
@@ -31,7 +31,7 @@ if (!file_exists("sections/$mod"))
 $config=FN_LoadConfig("modules/dbview/config.php",$mod);
 $dbview=new FNDBVIEW($config);
 $tablename=$config['tables'];
-$table=FN_XmlTable($tablename);
+$table=FN_XMDBTable($tablename);
 $fields_to_read=explode(",","code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total,meteorology,fauna,hydrology,closed,photo1,xxx");
 foreach($fields_to_read as $field)
 {

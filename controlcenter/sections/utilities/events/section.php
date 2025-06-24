@@ -9,7 +9,7 @@
 defined('_FNEXEC') or die('Restricted access');
 global $_FN;
 $tablename = "fn_log";
-$tablefrm= FN_XmlForm($tablename);
+$tablefrm= FN_XMDBForm($tablename);
 $opt = FN_GetParam("opt", $_GET, "html");
 
 

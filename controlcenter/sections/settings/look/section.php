@@ -70,7 +70,7 @@ else
     }
     if ($theme!= "" && file_exists("themes/$theme"))
     {
-        $t=FN_XmlTable("fn_settings");
+        $t=FN_XMDBTable("fn_settings");
         $t->UpdateRecord(array("varname"=>"theme","varvalue"=>$theme));
     }
     echo "

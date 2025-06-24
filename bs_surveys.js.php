@@ -1,9 +1,9 @@
 <?php
 ob_start();
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 /*
-  $Tablerilievi=FN_XmlForm("ctl_surveys");
+  $Tablerilievi=FN_XMDBForm("ctl_surveys");
   $rilievi=$Tablerilievi->xmltable->GetRecords();
  */
 $params = array();
@@ -26,7 +26,7 @@ if (!empty($_GET['t']) && $_GET['t'] == "areas")
     $table_link = "code";
 }
 
-$Tablerilievi = FN_XmlForm($tablename);
+$Tablerilievi = FN_XMDBForm($tablename);
 $config = FN_LoadConfig("modules/dbview/config.php", "$mod_survey");
 $dbview = new FNDBVIEW($config);
 $params['fields'] = "id,filekml,$table_link";

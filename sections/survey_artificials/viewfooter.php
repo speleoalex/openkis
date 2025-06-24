@@ -19,7 +19,7 @@ if (isset($cave['longitude']) && isset($cave['latitude']) && $cave['longitude']!
 }
 //    echo "<iframe frameborder=\"0\" height=\"520\" width=\"480\" src=\"{$_FN['siteurl']}bs_map.php?num={$row['NUMCAVE']}\" ></iframe>";
 echo "<br /><a href=\"".FN_RewriteLink("index.php?mod=Navigator&op=view&id=$id")."\">Vai alla scheda completa della grotta</a>";
-$altri=FN_XMLQuery("SELECT * FROM ctl_CART WHERE NUMCAVE LIKE '{$row['NUMCAVE']}' ORDER BY NAME");
+$altri=FN_XMETADBQuery("SELECT * FROM ctl_CART WHERE NUMCAVE LIKE '{$row['NUMCAVE']}' ORDER BY NAME");
 //dprint_r($altri);
 if (count($altri) > 1)
 {

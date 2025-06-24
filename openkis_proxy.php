@@ -2,7 +2,7 @@
 ob_start();
 global $is_gzip;
 global $_FN;
-require_once "include/flatnux.php";
+require_once "loadfinis.php";
 $REQUEST_URI=$_SERVER['REQUEST_URI'];
 //$_FN['enable_compress_gzip']=0;
 $url=explode("openkis_proxy.php/",$REQUEST_URI);
