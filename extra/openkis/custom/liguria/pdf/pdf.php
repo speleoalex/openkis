@@ -1,8 +1,7 @@
 <?php
 
 global $_FN;
-require_once "./include/flatnux.php";
-require_once "./include/html2pdf4/html2pdf.class.php";
+require_once "{$_FN['src_finis']}/include/html2pdf4/html2pdf.class.php";
 require_once __DIR__ . "/pdf_functions.php";
 
 $num = FN_GetParam("id", $_GET, "flat");
@@ -10,7 +9,6 @@ $num = FN_GetParam("id", $_GET, "flat");
 $html = get_html_pdf($num);
 if (isset($_GET["debug"]))
 {
-    FN_SaveFile($filecontents, $filename);
     dprint_xml($html);
     echo $html;
 }
@@ -38,4 +36,3 @@ else
     ob_get_clean();
     $html2pdf->Output($filename);
 }
-?>

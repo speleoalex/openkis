@@ -10,10 +10,10 @@ class CS_DB
 
     /**
      * 
-     * @global type $xmldb_mysqldatabase
-     * @global type $xmldb_mysqlusername
-     * @global type $xmldb_mysqlpassword
-     * @global type $xmldb_mysqlhost
+     * @global type $xmetadb_mysqldatabase
+     * @global type $xmetadb_mysqlusername
+     * @global type $xmetadb_mysqlpassword
+     * @global type $xmetadb_mysqlhost
      * @param type $database
      * @param type $host
      * @param type $username
@@ -21,11 +21,11 @@ class CS_DB
      */
     function __construct($database="",$host="",$username="",$password="")
     {
-        global $xmldb_mysqldatabase,$xmldb_mysqlusername,$xmldb_mysqlpassword,$xmldb_mysqlhost;
-        $this->database=($database=== "") ? $xmldb_mysqldatabase : "$database";
-        $this->host=($host=== "") ? $xmldb_mysqlhost : "$host";
-        $this->password=($password=== "") ? $xmldb_mysqlpassword : "$password";
-        $this->username=($username=== "") ? $xmldb_mysqlusername : "$username";
+        global $xmetadb_mysqldatabase,$xmetadb_mysqlusername,$xmetadb_mysqlpassword,$xmetadb_mysqlhost;
+        $this->database=($database=== "") ? $xmetadb_mysqldatabase : "$database";
+        $this->host=($host=== "") ? $xmetadb_mysqlhost : "$host";
+        $this->password=($password=== "") ? $xmetadb_mysqlpassword : "$password";
+        $this->username=($username=== "") ? $xmetadb_mysqlusername : "$username";
     }
 
     /**
@@ -208,5 +208,3 @@ class Database_Exception extends Exception
     }
 
 }
-
-?>

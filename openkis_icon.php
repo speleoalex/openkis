@@ -1,7 +1,7 @@
 <?php
 global $_FN;
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 FN_LoadMessagesFolder("extra/openkis");
 
 $mod="caves";

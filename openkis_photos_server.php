@@ -19,8 +19,8 @@ else
     $t_photos="ctl_photos";
 }
 $_GET['mod']=$mod;
-require_once "include/flatnux.php";
-$table_photos=FN_XmlTable("$t_photos");
+require_once "loadfinis.php";
+$table_photos=FN_XMDBTable("$t_photos");
 
 header('cache-control: no-cache,no-store,must-revalidate');
 header('pragma: no-cache');

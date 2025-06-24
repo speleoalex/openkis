@@ -1,3 +1,3 @@
 <?php
-FN_XmltableEditor("ctl_coordinatestypes")
-?>;
+FN_XMETATableEditor("ctl_coordinatestypes")
+?>

@@ -1,3 +1,2 @@
 <?php
-FN_XmltableEditor("ctl_geologicalformations")
-?>
+FN_XMETATableEditor("ctl_geologicalformations");

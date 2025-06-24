@@ -287,7 +287,7 @@ if (isset($_GET['op___xdb_'])&&$_GET['op___xdb_']=="del")
 if ($save==1)
 {
     $xml=file_get_contents("{$_FN['datadir']}/{$_FN['database']}/fn_users_tmp.php");
-    $tableusers=FN_XmlForm("fn_users_tmp");
+    $tableusers=FN_XMDBForm("fn_users_tmp");
     $formvals=$tableusers->formvals;
     $errors=false;
     if (!isset($formvals['username']))

@@ -216,7 +216,7 @@ $dislivelloTot=round($dislivelloTot);
 if ($row['lenght_total']!= $sviluppo || $row['depth_total']!= $dislivelloTot)
 {
     $id=FN_GetParam("id",$_GET,"html");
-    $TableSystem=FN_XmlTable($tablename);
+    $TableSystem=FN_XMDBTable($tablename);
     $snewvalues=$TableSystem->GetRecordByPrimaryKey($id);
     $snewvalues['lenght_total']=$sviluppo;
     $snewvalues['depth_total']=$dislivelloTot;

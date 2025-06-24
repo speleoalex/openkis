@@ -323,7 +323,7 @@ function DBMYSQL_InitTimezones()
         $allzones = array();
         $DateTimeZoneUTC = new DateTimeZone("UTC");
         $DateTimeUTC = new DateTime("2012-01-01 00:00:00", $DateTimeZoneUTC);
-        $t = FN_XmlTable("fn_timezones");
+        $t = FN_XMDBTable("fn_timezones");
         $zones = timezone_identifiers_list();
         foreach ($zones as $k => $zone)
         {

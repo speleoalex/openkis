@@ -3,19 +3,19 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>speleologia_glaciale</parent>
-	<position>170</position>
+	<position>17</position>
 	<title>Cavit&agrave; glaciali</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
-	<hidden>0</hidden>
+	<hidden></hidden>
 	<accesskey></accesskey>
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
-	<level>10</level>
+	<level></level>
 	<group_view></group_view>
-	<group_edit></group_edit>
+	<group_edit>w_artificials,w_caves</group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
 	<title_it>Cavit&agrave; glaciali</title_it>
@@ -65,4 +65,5 @@
 	<enable_offlineform>1</enable_offlineform>
 	<fncf_dbview>
 </fncf_dbview>
+	<documents_folder></documents_folder>
 </fncf_dbview>

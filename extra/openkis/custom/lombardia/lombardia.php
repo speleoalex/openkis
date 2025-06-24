@@ -29,7 +29,7 @@ function GeneraNumeroArtificials($values)
     }
 
 //inizializza la variabile oggetto che punta alla tabella
-    $table=FN_XmlTable("ctl_artificials");
+    $table=FN_XMDBTable("ctl_artificials");
 //recupera i campi "id" e "code" di tutte le grotte (code corrisponde al numero di catasto) 
     $grotte=$table->GetRecords(false,false,false,false,false,"id|code");
     $max=0; //variabile che conterrà il primo numero libero
@@ -80,7 +80,7 @@ function GeneraNumero($values)
         return $values;
     }
 //inizializza la variabile oggetto che punta alla tabella
-    $table=FN_XmlTable("ctl_caves");
+    $table=FN_XMDBTable("ctl_caves");
 //recupera i campi "id" e "code" di tutte le grotte (code corrisponde al numero di catasto) 
     $grotte=$table->GetRecords(false,false,false,false,false,"id|code");
     $max=0; //variabile che conterrà il primo numero libero
@@ -184,7 +184,7 @@ function cglombardia_checkprovincia($prov)
         return true;
     }
 
-    $table=FN_XmlTable("ctl_caves");
+    $table=FN_XMDBTable("ctl_caves");
     $id=FN_GetParam("id",$_GET);
     if ($id)
     {
@@ -210,7 +210,7 @@ function cglombardia_checkprovincia($prov)
 function GeneraCodiciFSLO($silent=false)
 {
     global $_FN;
-    $table =FN_XmlTable("ctl_caves");
+    $table =FN_XMDBTable("ctl_caves");
     $all=$table->GetRecords();
     if (FN_IsAdmin())
     {

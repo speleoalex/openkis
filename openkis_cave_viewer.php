@@ -1,6 +1,6 @@
 <?php
 global $_FN;
-include ("include/flatnux.php");
+include ("loadfinis.php");
 $filelox = FN_GetParam("f", $_GET);
 ?><!DOCTYPE html>
 <html>

@@ -1,3 +1,3 @@
 <?php
-FN_XmltableEditor("ctl_licenses")
+FN_XMETATableEditor("ctl_licenses")
 ?>;

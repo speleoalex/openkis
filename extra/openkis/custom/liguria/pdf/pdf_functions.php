@@ -5,7 +5,8 @@ function fix_charset($text)
 {
     global $_FN;
     $text = htmlentities($text, ENT_QUOTES | ENT_IGNORE, $_FN['charset_page']);
-    $text = utf8_decode($text);
+//    $text = utf8_decode($text);
+    mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1'); 
     $text = str_replace("&npsp;", " ", $text);
     return $text;
 }
@@ -47,23 +48,16 @@ function get_html2($x, $y, $text, $style = "")
 function get_html_pdf($id)
 {
     global $_FN;
-    $databasename = "fndatabase";
     $tablename = "ctl_caves";
-    $pathdatabase = "misc";
-    $Table = xmldb_frm($databasename, $tablename, $pathdatabase, $_FN['lang'], $_FN['languages']);
+    $Table =  FN_XMDBForm( $tablename);
     $record = $Table->xmltable->GetRecord(array("id" => $id));
-
-//dprint_r($record);
-//
-//
-//
     //calcolo il numero di pagine della scheda -------------------------------->
     $numeropagina = 1;
     $totalepagine = 2;
-    $tablerilievi = new XMLTable("fndatabase", "ctl_surveys", $_FN['datadir']);
+    $tablerilievi = FN_XMDBTable("ctl_surveys");
     $rilievi = $tablerilievi->GetRecords(array("codecave" => $record['code']));
 
-    $table = new XMLTable("fndatabase", "ctl_bibliograpy", $_FN['datadir']);
+    $table = FN_XMDBTable ( "ctl_bibliograpy");
     $bibliografia = $table->GetRecords(array("codecaves" => '%' . ",{$record['code']}," . '%'));
 
     $totalepagine += count($rilievi);
@@ -88,7 +82,7 @@ function get_html_pdf($id)
     {
         $totalepagine++;
     }
-    if (!empty($record['associations']) || $record['fauna'] != "" || $record[chronology] != "")
+    if (!empty($record['associations']) || $record['fauna'] != "" || $record["chronology"] != "")
     {
         $totalepagine++;
     }
@@ -98,7 +92,7 @@ function get_html_pdf($id)
     }
     if (isset($record['photo1']) && $record['photo1'] != "")
     {
-        $photo1 = "misc/fndatabase/ctl_caves/{$record['id']}/photo1/{$record['photo1']}";
+        $photo1 = "{$_FN['datadir']}/fndatabase/ctl_caves/{$record['id']}/photo1/{$record['photo1']}";
         if (file_exists($photo1))
         {
             $totalepagine++;
@@ -151,11 +145,11 @@ div {
     $d = strtotime($record['recordupdate']);
     $html .= get_html(625, 255, date("d/m/Y", $d));
 //$html .= get_html(60,748,$record['code'],"");
-    $tmpt = xmldb_frm($databasename, "ctl_areas", $pathdatabase, $_FN['lang'], $_FN['languages']);
+    $tmpt = xmetadb_frm($databasename, "ctl_areas", $pathdatabase, $_FN['lang'], $_FN['languages']);
     $rec = $tmpt->xmltable->GetRecord(array("code" => $record['code']));
     if (isset($rec['name']))
         $html .= get_html(60, 748, $rec['code'] . " - " . $rec['name'], "");
-    $tmpt = xmldb_frm($databasename, "ctl_geologicalformations", $pathdatabase, $_FN['lang'], $_FN['languages']);
+    $tmpt = xmetadb_frm($databasename, "ctl_geologicalformations", $pathdatabase, $_FN['lang'], $_FN['languages']);
     $html .= get_html(60, 810, $record['geologicalformation'], "");
     $rec = $tmpt->xmltable->GetRecord(array("geologicalformation" => $record['geologicalformation']));
     if (isset($rec['FM']))
@@ -257,7 +251,7 @@ div {
         $html .= "</div>\n</page>";
 //---------Scheda catasto PAGINA 4---------------<
     }
-    if (!empty($record['associations']) || $record['fauna'] != "" || $record[chronology] != "")
+    if (!empty($record['associations']) || $record['fauna'] != "" || $record["chronology"] != "")
     {
 //---------Scheda catasto PAGINA 5--------------->
         $html .= "\n<page><div style=\"text-align: justify;position:absolute;top:0px;left:0px;height:1124px;width:826px;background-image:url({$_FN['siteurl']}/extra/openkis/custom/liguria/pdf/scheda5.png)\">";
@@ -272,7 +266,7 @@ div {
     
 //---------------mappa--------------------------->
 
-    if (isset($record['longitude']) && isset($record['latitude']) && $record['longitude'] != "" && $record['latitude'] != "")
+    if (false && isset($record['longitude']) && isset($record['latitude']) && $record['longitude'] != "" && $record['latitude'] != "")
     {
         $projection = "EPSG%3A4326";
         $SRS = "EPSG%3A4326";
@@ -297,7 +291,7 @@ div {
         }
         else
         {
-            $wms_base = "http://www.cartografiarl.regione.liguria.it/MapServer/mapserv.exe?MAP=E:\\Progetti\\mapfiles\\repertoriocartografico\\CARTE_TECNICHE\\1238GC.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&";
+            $wms_base = "http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/CARTE_TECNICHE/1238.asp?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&";
             $layer = "M1238";
             $offset = 0.005;
             $h = "900";
@@ -326,20 +320,17 @@ div {
 //---------------mappa---------------------------<
         $fname = md5($url) . ".jpg";
 //dprint_xml($html);
-        if (!file_exists("misc/_cache/_THUMBS/"))
+        if (!file_exists("{$_FN['datadir']}/_cache/_THUMBS/"))
         {
-            mkdir("misc/_cache/_THUMBS/");
+            mkdir("{$_FN['datadir']}/_cache/_THUMBS/");
         }
-        if (!file_exists("misc/_cache/_THUMBS/$fname") || @!getimagesize("misc/_cache/_THUMBS/$fname"))
+        if (!file_exists("{$_FN['datadir']}/_cache/_THUMBS/$fname") || @!getimagesize("{$_FN['datadir']}/_cache/_THUMBS/$fname"))
         {
             $tmpstr=getWebPage($url);
 
-            FN_Write($tmpstr, "misc/_cache/_THUMBS/$fname");
+            FN_Write($tmpstr, "{$_FN['datadir']}/_cache/_THUMBS/$fname");
         }
-
-
-
-        $html .= "<page><br /><br /><br /><br /><div style=\"position:relative;margin-left:40px\"><img style=\"position:absolute;top:0px;left:0px;\" src=\"{$_FN['siteurl']}/misc/_cache/_THUMBS/$fname\" />
+        $html .= "<page><br /><br /><br /><br /><div style=\"position:relative;margin-left:40px\"><img style=\"position:absolute;top:0px;left:0px;\" src=\"{$_FN['siteurl']}/{$_FN['datadir']}/_cache/_THUMBS/$fname\" />
 	<div style=\"position:absolute;top:450px;left:350px;color:red;font-size:20px;\">o</div>
 	</div>";
         $html .= get_html(40, 30, "Cartografia:");
@@ -359,7 +350,7 @@ div {
 
     if (isset($record['photo1']) && $record['photo1'] != "")
     {
-        $photo1 = "misc/fndatabase/ctl_caves/{$record['id']}/photo1/{$record['photo1']}";
+        $photo1 = "{$_FN['datadir']}/fndatabase/ctl_caves/{$record['id']}/photo1/{$record['photo1']}";
         if (file_exists($photo1))
         {
             $html .= "<page><br /><br /><br /><br /><div style=\"position:relative;margin-left:40px\"><img style=\"position:absolute;top:0px;left:0px;width:600px;\" src=\"$photo1\" />
@@ -381,7 +372,7 @@ div {
             {
                 if (isset($rilievo['photo1']))
                 {
-                    $filename = "misc/fndatabase/ctl_surveys/{$rilievo['id']}/photo1/{$rilievo['photo1']}";
+                    $filename = "{$_FN['datadir']}/fndatabase/ctl_surveys/{$rilievo['id']}/photo1/{$rilievo['photo1']}";
                     if (file_exists($filename) && !is_dir($filename))
                     {
                         //gestione cambio orientamento pagina ---->
@@ -510,5 +501,3 @@ function getWebPage($url)
     $header['content'] = $content;   //il contenuto della pagina quello che ci interessa
     return $header['content'];
 }
-
-?>

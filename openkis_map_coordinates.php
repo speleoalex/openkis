@@ -13,12 +13,12 @@
  */
 ob_start();
 global $_FN;
-require_once "include/flatnux.php";
+require_once "loadfinis.php";
 $lat=FN_GetParam("lat",$_GET);
 $lon=FN_GetParam("lon",$_GET);
 $coordtype=FN_GetParam("coordinates_type",$_GET);
 
-$t=FN_XmlTable("ctl_coordinatestypes");
+$t=FN_XMDBTable("ctl_coordinatestypes");
 $rec_coordinates_type=$t->GetRecord(array("coordinates_type"=>$coordtype));
 $proj=isset($rec_coordinates_type['proj4'])?$rec_coordinates_type['proj4']:"";
 $geo=new openkis_geoconverter($lat,$lon,$coordtype,$proj);

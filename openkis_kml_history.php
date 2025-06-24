@@ -2,8 +2,8 @@
 
 ob_start();
 global $_FN;
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 FN_LoadMessagesFolder("extra/openkis");
 
 $history=FN_GetParam("history",$_GET,"flat");
@@ -23,7 +23,7 @@ if (!file_exists("sections/$mod"))
 $config=FN_LoadConfig("modules/dbview/config.php",$mod);
 $dbview=new FNDBVIEW($config);
 $tablename=$config['tables'];
-$table=FN_XmlTable($tablename);
+$table=FN_XMDBTable($tablename);
 $fields_to_read=explode(",","code,latitude,longitude,elevation,name,synonyms,depth_total,lenght_total,latitude_txt,longitude_txt,coordinates_type,userupdate");
 $filename="history_{$mod}_{$tablename}_{$history}.kml";
 foreach($fields_to_read as $field)
@@ -42,7 +42,7 @@ if (!$results)
     die("not authorized");
 }
 
-$table_versions=FN_XmlTable($tablename."_versions");
+$table_versions=FN_XMDBTable($tablename."_versions");
 $items=$table_versions->GetRecords(array("id"=>$results[0]['id']));
 
 

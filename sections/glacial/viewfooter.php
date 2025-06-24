@@ -28,7 +28,7 @@ else
         {
             $baselayer="IGM 1:25000";
         }
-        echo "<div>Coordinate wgs84:<input class=\"form-input\" value=\"{$row['latitude']},{$row['longitude']}\" onclick=\"this.select();\"></div>";
+        echo "<div>Coordinate wgs84:<input class=\"form-input\" value=\"{$row['latitude']},{$row['longitude_txt']}\" onclick=\"this.select();\"></div>";
         echo "<iframe style=\"border:0px;width:100%;height:400px;\" src=\"{$_FN['siteurl']}bs_map.htm?mod={$_FN['mod']}&baselayer={$baselayer}&point=circle&lat={$row['latitude']}&lon={$row['longitude']}&zoom=$zoom&history={$row['id']}\"></iframe>";
         $gmap_link="//www.google.it/maps/dir//".$row['latitude'].",".$row['longitude']."/@".$row['latitude'].",".$row['longitude'].",18z";
         echo "<div class=\"alert alert-info\">";

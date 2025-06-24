@@ -8,8 +8,8 @@
  */
 //ob_start();
 global $_FN;
-require_once "include/flatnux.php";
-require_once "modules/dbview/FNDBVIEW.php";
+require_once "loadfinis.php";
+require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
 $op=FN_GetParam("op",$_REQUEST);
 switch($op)
 {
@@ -19,7 +19,7 @@ switch($op)
     default:
         $config=FN_LoadConfig("modules/dbview/config.php",$_FN['mod']);
         $dbview=new FNDBVIEW($config);
-        $table=FN_XmlTable($config['tables']);
+        $table=FN_XMDBTable($config['tables']);
         $params=$_REQUEST;
         if (empty($params['fields']))
         {

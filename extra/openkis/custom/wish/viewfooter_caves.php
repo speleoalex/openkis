@@ -1,7 +1,7 @@
 <?php
 
 $icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
-$t_wish = FN_XmlTable("ctl_wishregioni");
+$t_wish = FN_XMDBTable("ctl_wishregioni");
 $regione = $t_wish->GetRecord(array("id"=>$row['id_regione']));
 //dprint_r($row);
 //dprint_r($regione);

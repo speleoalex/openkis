@@ -1,8 +1,8 @@
 <?php
 
 global $_FN;
-require_once "include/flatnux.php";
-require_once "extra/geolocation.inc.php";
+require_once "loadfinis.php";
+//require_once "extra/geolocation.inc.php";
 
 $str = file_get_contents(__DIR__ . "/bs_map.tp.html");
 if (!file_exists("bs_map.htm") || filemtime("bs_map.tp.html") > filemtime("bs_map.htm") || filemtime("openkis_config.local.php") > filemtime("bs_map.htm") )
@@ -19,4 +19,3 @@ else
     die("/*{$_FN['openkis_custom']} already updated*/");
     
 }
-?>

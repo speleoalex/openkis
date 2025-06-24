@@ -13,7 +13,6 @@
         <frm_help_i18n>leave blank for self assignment</frm_help_i18n>
         <unique>1</unique>
     </field>
-
     <field>
         <name>name</name>
         <frm_it>Nome</frm_it>
@@ -270,6 +269,8 @@
         <frm_endgroup>entrance location</frm_endgroup>
         <view_endgroup>entrance location</view_endgroup>
     </field>
+    
+    
     <field>
         <name>archeological</name>
         <frm_group_i18n>references to special censuses</frm_group_i18n>
@@ -330,7 +331,9 @@
         <name>check</name>
         <frm_it>Posizione verificata sul campo da curatore</frm_it>
         <frm_help>Attenzione !! Il campo deve essere compilato dopo che la grotta è stata ritrovata successivamente la messa a catasto</frm_help>
+        <frm_type>check</frm_type>
         <type>varchar</type>
+        
         <frm_show>1</frm_show>
     </field>    
     <field>
@@ -554,7 +557,6 @@
         <frm_setonlyadmin>1</frm_setonlyadmin>
         <frm_allowupdate>onlyadmin</frm_allowupdate>
     </field>    
-
     <field>
         <name>latitude</name>
         <type>float</type>
@@ -570,17 +572,6 @@
         <frm_show>0</frm_show>
     </field>
     <field>
-        <name>to_check</name>
-        <default>1</default>
-        <frm_default>y</frm_default>
-        <type>varchar</type>
-        <frm_type>check</frm_type>
-        <frm_show>1</frm_show>
-        <frm_i18n>data to be verified</frm_i18n>
-        <frm_options>Y,N</frm_options>
-        <frm_options_i18n>yes,no</frm_options_i18n>
-    </field>
-    <field>
         <name>recorddeleted</name>
         <type>bool</type>
         <frm_show>0</frm_show>
@@ -593,6 +584,19 @@
         <fk_show_field>groupname</fk_show_field>
         <frm_type>multicheck</frm_type>
         <type>string</type>
+    </field>
+    <field>
+        <name>status</name>
+        <frm_i18n>data status</frm_i18n>
+        <frm_help_i18n></frm_help_i18n>
+        <type>radio</type>
+        <frm_show>1</frm_show>
+        <frm_options>draft,verify,validated,rejected</frm_options>
+        <frm_options_i18n>draft,verify,validated,rejected</frm_options_i18n>
+        <view_show>1</view_show>
+        <frm_showinlist>1</frm_showinlist>
+        <frm_default>draft</frm_default>
+        <default>draft</default>
     </field>
     <field>
         <name>xxx</name>

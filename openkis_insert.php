@@ -1,5 +1,5 @@
 <?php
-require_once "include/flatnux.php";
+require_once "loadfinis.php";
 header('cache-control: no-cache,no-store,must-revalidate');
 header('pragma: no-cache');
 header('expires: 0');
