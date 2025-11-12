@@ -12,7 +12,7 @@ $table = FN_XMDBForm("fn_cc_users");
 $table->formvals['ccsections']['options'] = FNCC_GetMenuItemsLinks();
 $table->formvals['default']['options'] = FNCC_GetMenuItemsLinks();
 
-FNCC_xmltableeditor($table);
+FNCC_XMETATableEditor($table);
 /**
  *
  * @global global $_FN
@@ -50,7 +50,7 @@ function FNCC_GetMenuItemsLinks()
 				foreach ($dirsconf as $_section)
 				{
 					$item['title'] = $_section['title'];
-					$item['value'] = "fnc_ccnf_config_plugin_{$_section['id']}";
+					$item['value'] = "rnt_ccnf_config_plugin_{$_section['id']}";
 					$ret[] = $item;
 				}
 				//plugins configs----<
@@ -72,7 +72,7 @@ function FNCC_GetMenuItemsLinks()
 	$dirs = FNCC_GetPluginsSettings();
 	foreach ($dirs as $section)
 	{
-		$item['value'] = "fnc_ccnf_plugin_{$section['id']}";
+		$item['value'] = "rnt_ccnf_plugin_{$section['id']}";
 		$item['title'] = $section['title'];
 		$ret[] = $item;
 	}

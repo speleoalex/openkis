@@ -18,4 +18,9 @@
         <type>text</type>
         <frm_type>fn_cron_text</frm_type>
     </field>
+    <field>
+      <name>last_execution</name>
+      <frm_i18n>last_execution</frm_i18n>
+      <type>datetime</type>
+  </field>
 </tables>

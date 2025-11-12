@@ -18,16 +18,13 @@ function FN_HtmlAdminOnOff()
     $html = "";
     $stout = "";
     //tasto editmode ON/OFF---------------------------------------------------->
-    if (FN_IsAdmin() || FN_CanModify($_FN['user'], "{$_FN['src_application']}/sections/{$_FN['mod']}"))
-    {
+    if (FN_IsAdmin() || FN_CanModify($_FN['user'], "{$_FN['src_application']}/sections/{$_FN['mod']}")) {
         $img = FN_GetUserImage($_FN['user']);
         $stout .= "<div id=\"fn_adminonoff\" style=\"\" class=\"fn_admin\"><span class=\"fn_admin_username\"><img src=\"$img\"  /> " . " {$_FN['user']}";
         $stout .= " <a href=\"{$_FN['siteurl']}?fnlogin=logout\">" . FN_Translate("logout") . "</a></span>";
-        if (!empty($_FN['maintenance']))
-        {
+        if (!empty($_FN['maintenance'])) {
             $stout .= "<span style=\"\">" . FN_Translate("site in maintenance") . "</span> ";
-        }
-        {
+        } {
             $stout .= "<a class=\"fn_admin_ccicon\" style=\"cursor:pointer\" title=\"" . FN_Translate("control center") . "\"  href=\"{$_FN['siteurl']}index.php?fnapp=controlcenter\" >&#x1F6E0;</a>";
         }
         $stout .= "<select  title=\"" . FN_Translate("edit mode") . "\" style=\"vertical-align:middle\" onchange=\"window.location=this.options[this.selectedIndex].value\" >";
@@ -71,109 +68,89 @@ function FN_HtmlAdminOptions()
         return "";
     $html = FN_FtmlAdminCSS();
     $html .= FN_HtmlAdminOnOff();
-    if (FN_IsAdmin())
-    {
+    if (FN_IsAdmin()) {
         $filetodel = FN_GetParam("filetodel", $_POST, "html");
-        if (file_exists($filetodel))
-        {
+        if (file_exists($filetodel)) {
             FN_BackupFile($filetodel);
-            if (unlink($filetodel))
-            {
+            if (unlink($filetodel)) {
                 $html .= FN_HtmlAlert(FN_Translate("the content has been deleted"));
-            }
-            else
-            {
+            } else {
                 $html .= FN_Translate("permissions error");
             }
         }
     }
-    if ($_FN['fneditmode'] && FN_CanModify($_FN['user'], "{$_FN['src_application']}/sections/{$_FN['mod']}"))
-    {
+    if ($_FN['fneditmode'] && FN_CanModify($_FN['user'], "{$_FN['src_application']}/sections/{$_FN['mod']}")) {
         //check if section is empty --->
         $SectionIsEmpty = true;
         if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.php"))
             $SectionIsEmpty = false;
-        foreach ($_FN['listlanguages'] as $l)
-        {
-            if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$_FN['lang']}.html"))
-            {
+        foreach ($_FN['listlanguages'] as $l) {
+            if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$_FN['lang']}.html")) {
                 $SectionIsEmpty = false;
             }
         }
         //check if section is empty ---<
         $html .= "<div id=\"fn_adminoptions\" class=\"fn_admin\">";
         //------SECTION.PHP, SECTION.XX.HTML ECC. ------------------------->
-        if (FN_UserCanEditFolder("{$_FN['src_application']}/sections/{$_FN['mod']}"))
-        {
+        if (FN_UserCanEditFolder("{$_FN['src_application']}/sections/{$_FN['mod']}")) {
             $html .= FN_OpenAdminSection(FN_Translate("page contents"), true);
-            if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.php"))
-            {
+            if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.php")) {
                 $html .= "<button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.php'\">" . FN_Translate("modify") . "</button><br />";
             }
             //----------------section.xx.html------------------------------>
             //----------------settings button---------------------------------->
             $html .= "<table>";
             $title_admin = $_FN['sectionvalues']['title'] . " (" . FN_Translate("page like", "Aa") . " " . FN_GetFolderTitle("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}") . ")";
-            if (!empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}/controlcenter/settings.php"))
-            {
-                $html .= "<tr><td>&#x1F527;</td><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=fnc_ccnf_section_{$_FN['mod']}'\">" .
-                        FN_Translate("administration tools") . " $title_admin" .
-                        "</button></td></tr>";
+            if (!empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}/controlcenter/settings.php")) {
+                $html .= "<tr><td>&#x1F527;</td><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=rnt_ccnf_section_{$_FN['mod']}'\">" .
+                    FN_Translate("administration tools") . " $title_admin" .
+                    "</button></td></tr>";
             }
-            if (empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/controlcenter/settings.php"))
-            {
-                $html .= "<tr><td>&#x1F527;</td><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=fnc_ccnf_section_{$_FN['mod']}'\">" .
-                        FN_Translate("administration tools") . $title_admin .
-                        "</button></td></tr>";
+            if (empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/controlcenter/settings.php")) {
+                $html .= "<tr><td>&#x1F527;</td><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=rnt_ccnf_section_{$_FN['mod']}'\">" .
+                    FN_Translate("administration tools") . $title_admin .
+                    "</button></td></tr>";
             }
             //----------------settings button----------------------------------<
             //------------------config button---------------------------------->
-            if (FN_IsAdmin())
-            {
-                if (!empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}/config.php"))
-                {
+            if (FN_IsAdmin()) {
+                if (!empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}/config.php")) {
                     $html .= "<tr><td>&#x1F6E0;</td><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=modules/{$_FN['sectionvalues']['type']}/config.php'\">" .
-                            FN_Translate("advanced settings") . " $title_admin" .
-                            "</button></td></tr>";
+                        FN_Translate("advanced settings") . " $title_admin" .
+                        "</button></td></tr>";
                 }
-                if (empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/config.php"))
-                {
+                if (empty($_FN['sectionvalues']['type']) && file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/config.php")) {
                     $html .= "<tr><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/config.php'\">" .
-                            FN_Translate("advanced settings") . " " . $_FN['sectionvalues']['title'] .
-                            "</button></td></tr>";
+                        FN_Translate("advanced settings") . " " . $_FN['sectionvalues']['title'] .
+                        "</button></td></tr>";
                 }
             }
             //------------------config button----------------------------------<
             //----------------section.xx.html----------------------------------<
-            foreach ($_FN['listlanguages'] as $l)
-            {
-                if (FN_UserCanEditFile("{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$l}.html"))
-                {
-                    if (!file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$l}.html"))
-                    {
+            foreach ($_FN['listlanguages'] as $l) {
+                if (FN_UserCanEditFile("{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$l}.html")) {
+                    if (!file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$l}.html")) {
                         $html .= "\n<tr><td><span style=\"border:1px solid #ff0000;\" >" .
-                                FN_getCountryFlag($l) . "</span> " .
-                                "</td><td><button onclick=\"window.location='" .
-                                FN_RewriteLink("index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.{$l}.html", "&") . "'\" >" .
-                                FN_Translate("create a text content in") . " " . FN_GetFolderTitle(FN_FinisPathToApplicationPath("{$_FN['src_finis']}/languages/$l")) . "" .
-                                "</button>";
-                    }
-                    else
-                    {
+                            FN_getCountryFlag($l) . "</span> " .
+                            "</td><td><button onclick=\"window.location='" .
+                            FN_RewriteLink("index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.{$l}.html", "&") . "'\" >" .
+                            FN_Translate("create a text content in") . " " . FN_GetFolderTitle(FN_FinisPathToApplicationPath("{$_FN['src_finis']}/languages/$l")) . "" .
+                            "</button>";
+                    } else {
                         $html .= "\n<tr><td><span style=\"border:1px solid #00ff00;\">" .
-                                FN_getCountryFlag($l) . "</span> " .
-                                "</td><td><button onclick=\"window.location='" .
-                                FN_RewriteLink("index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.{$l}.html", "&") . "'\" >" .
-                                FN_Translate("modify") .
-                                "</button>
+                            FN_getCountryFlag($l) . "</span> " .
+                            "</td><td><button onclick=\"window.location='" .
+                            FN_RewriteLink("index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.{$l}.html", "&") . "'\" >" .
+                            FN_Translate("modify") .
+                            "</button>
 <form style=\"display:inline\" method=\"post\" action=\"" . FN_RewriteLink("index.php?mod={$_FN['mod']}") . "\">
 <input type=\"hidden\" name=\"filetodel\" value=\"{$_FN['src_application']}/sections/{$_FN['mod']}/section.{$l}.html\" />    
 <button type=\"submit\" onclick=\"if(!confirm ('" . FN_Translate('are you sure you want to delete this content?') . "')){return false;}\" >" . FN_Translate("delete") . "</button></form>";
                     }
                     $html .= "    <button onclick=\"window.location='" .
-                            FN_RewriteLink("index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.{$l}.html&mode=versions", "&") . "'\" >" .
-                            FN_Translate("old versions") .
-                            "</button>";
+                        FN_RewriteLink("index.php?mod={$_FN['mod']}&opt=sections/{$_FN['mod']}/section.{$l}.html&mode=versions", "&") . "'\" >" .
+                        FN_Translate("old versions") .
+                        "</button>";
                     $html .= "</td></tr>";
                 }
             }
@@ -182,8 +159,7 @@ function FN_HtmlAdminOptions()
             $html .= FN_CloseAdminSection();
             //------SECTION.PHP, SECTION.XX.HTML ECC. -------------------------<
         }
-        if (FN_IsAdmin())
-        {
+        if (FN_IsAdmin()) {
             //update section--------------------------------------------------->
             $html .= FN_OpenAdminSection(FN_Translate("page properties"), isset($_REQUEST['updatesection']));
             $html .= "<form class=\"fn_adminform\" method=\"post\" action=\"" . FN_RewriteLink("index.php?mod={$_FN['mod']}") . "\"><div>";
@@ -195,11 +171,9 @@ function FN_HtmlAdminOptions()
             $newvalues = isset($_POST['updatesection']) ? $form->GetByPost() : array();
             $newvalues['id'] = $_FN['mod'];
             $errors = array();
-            if (isset($_POST['updatesection']))
-            {
+            if (isset($_POST['updatesection'])) {
                 $errors = $form->VerifyUpdate($newvalues);
-                if (count($errors) == 0)
-                {
+                if (count($errors) == 0) {
                     $form->UpdateRecord($newvalues);
                     $html .= FN_HtmlAlert("the data were successfully updated");
                     $html .= "<script language=\"javascript\">\nwindow.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&updatesection=1'\n</script>";
@@ -234,11 +208,9 @@ function FN_HtmlAdminOptions()
             $html .= FN_CloseAdminSection();
         }
         //update section---------------------------------------------------<
-        if (FN_IsAdmin())
-        {
+        if (FN_IsAdmin()) {
             //new section------------------------------------------------------>
-            if (FN_IsWritable("{$_FN['src_application']}/sections"))
-            {
+            if (FN_IsWritable("{$_FN['src_application']}/sections")) {
                 $forminsert = FN_XMDBForm("fn_sections");
                 $newvalues = isset($_POST['newsection']) ? $forminsert->GetByPost() : array();
                 $errors = array();
@@ -250,13 +222,11 @@ function FN_HtmlAdminOptions()
                 $forminsert->formvals['parent']['frm_show'] = "0";
                 $forminsert->formvals['position']['frm_show'] = "0";
                 $sections = FN_GetSections("", true);
-                if (!isset($newvalues['status']))
-                {
+                if (!isset($newvalues['status'])) {
                     $newvalues['status'] = "1";
                 }
                 $html .= FNADMIN_HtmlSectionsTree();
-                if (isset($_POST['newsection']))
-                {
+                if (isset($_POST['newsection'])) {
                     if (isset($newvalues['title']))
                         $newvalues['id'] = FN_MakeSectionId($newvalues['title']);
                     $before_after = FN_GetParam("before_after", $_POST);
@@ -266,35 +236,25 @@ function FN_HtmlAdminOptions()
                     //dprint_r($_POST);
                     //dprint_r($newvalues);
                     $errors = $forminsert->VerifyInsert($newvalues);
-                    if (count($errors) == 0)
-                    {
-                        if ($newvalues['type'] != "" && file_exists("{$_FN['src_finis']}/modules/{$newvalues['type']}/section_template"))
-                        {
+                    if (count($errors) == 0) {
+                        if ($newvalues['type'] != "" && file_exists("{$_FN['src_finis']}/modules/{$newvalues['type']}/section_template")) {
                             $r = FN_CopyDir("{$_FN['src_finis']}/modules/{$newvalues['type']}/section_template", "{$_FN['src_application']}/sections/{$newvalues['id']}", false);
-                        }
-                        else
-                        {
+                        } else {
                             $r = FN_MkDir("{$_FN['src_application']}/sections/{$newvalues['id']}");
                         }
-                        if ($r)
-                        {
+                        if ($r) {
                             //fix position --------->
                             $i = 1;
                             $newsections = array();
-                            foreach ($sections as $k => $section)
-                            {
+                            foreach ($sections as $k => $section) {
                                 $newsections[$k] = $section;
                                 $newsections[$k]['position'] = $i;
-                                if ($k == $before_after_section)
-                                {
-                                    if ($before_after == "before")
-                                    {
+                                if ($k == $before_after_section) {
+                                    if ($before_after == "before") {
                                         $newvalues['position'] = $i;
                                         $i++;
                                         $newsections[$k]['position'] = $i;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         $i++;
                                         $newvalues['position'] = $i;
                                     }
@@ -303,10 +263,8 @@ function FN_HtmlAdminOptions()
                             }
                             if ($before_after == "inside")
                                 $newvalues['parent'] = $before_after_section;
-                            foreach ($newsections as $k => $newsection)
-                            {
-                                if ($newsections[$k]['position'] != $sections[$k]['position'])
-                                {
+                            foreach ($newsections as $k => $newsection) {
+                                if ($newsections[$k]['position'] != $sections[$k]['position']) {
                                     $forminsert->UpdateRecord(array("id" => $newsections[$k]['id'], "position" => $newsections[$k]['position']));
                                 }
                             }
@@ -364,15 +322,12 @@ function FNCC_SortSectionsByTree($parent, $sections)
 {
     static $list = array();
     static $retval = array();
-    if ($parent == "")
-    {
+    if ($parent == "") {
         $list = array();
         $retval = array();
     }
-    foreach ($sections as $section)
-    {
-        if ($section['parent'] == $parent)
-        {
+    foreach ($sections as $section) {
+        if ($section['parent'] == $parent) {
             if (in_array($section['id'], $list))
                 return;
             $list[] = $section['id'];
@@ -401,21 +356,18 @@ function FNADMIN_HtmlSectionsTree()
 
     $html .= "<select name = \"before_after_section\" >";
     $sections = FN_GetSections(false, true, true, true);
-//sort sections --------------------------------------------------------------->
+    //sort sections --------------------------------------------------------------->
     $sections = FNCC_SortSectionsByTree("", $sections);
-//sort sections ---------------------------------------------------------------<
-    foreach ($sections as $section)
-    {
+    //sort sections ---------------------------------------------------------------<
+    foreach ($sections as $section) {
         $s = isset($_POST['before_after_section']) && $_POST['before_after_section'] == $section['id'] ? "selected=\"selected\"" : "";
         $style = "";
-        if ($section['hidden'])
-        {
+        if ($section['hidden']) {
             $style = "style=\"text-decoration: line-through\"";
         }
         $padding = "";
         $margin = count($section['path']);
-        for ($i = 0; $i < $margin; $i++)
-        {
+        for ($i = 0; $i < $margin; $i++) {
             $padding .= "&nbsp;&nbsp;";
         }
         $html .= "<option $style $s  value=\"{$section['id']}\" >$padding" . htmlspecialchars($section['title']) . "</option>";
@@ -460,25 +412,16 @@ function FN_CloseAdminSection()
 function FN_HtmlEditSection($section)
 {
     ob_start();
-    $sectionvalues = FN_GetSectionValues($section);
-    {
-        if (!empty($sectionvalues['type']))
-        {
-            if (file_exists("{$_FN['src_finis']}/modules/{$sectionvalues['type']}/controlcenter/settings.php"))
-            {
+    $sectionvalues = FN_GetSectionValues($section); {
+        if (!empty($sectionvalues['type'])) {
+            if (file_exists("{$_FN['src_finis']}/modules/{$sectionvalues['type']}/controlcenter/settings.php")) {
                 include "{$_FN['src_finis']}/modules/{$sectionvalues['type']}/controlcenter/settings.php";
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        elseif (file_exists("{$_FN['src_application']}/sections/$section/controlcenter/settings.php"))
-        {
+        } elseif (file_exists("{$_FN['src_application']}/sections/$section/controlcenter/settings.php")) {
             include "{$_FN['src_application']}/sections/$section/controlcenter/settings.php";
-        }
-        else
-        {
+        } else {
             return false;
         }
         $html = ob_get_clean();
@@ -499,13 +442,11 @@ function FN_FtmlAdminCSS()
 
 function FN_HtmlOnlineAdmin($modcont)
 {
-
     global $_FN;
     $mode = FN_GetParam("mode", $_GET, "flat");
     $t_exit = "<button onclick=\"window.location='" . FN_RewriteLink("index.php?mod={$_FN['mod']}", "&") . "';return false;\">&larr; " . FN_Translate("back to") . " \"{$_FN['sectionvalues']['title']}\"</button>";
     $html = FN_FtmlAdminCSS();
-    if ($mode == "versions")
-    {
+    if ($mode == "versions") {
 
         $html .= "FILE: <b>$modcont</b><br />";
         $html .= "" . FN_Translate("versions") . ":<br />";
@@ -513,19 +454,15 @@ function FN_HtmlOnlineAdmin($modcont)
         $files = glob("$modcont.*");
         usort($files, "FN_UsortFilemtime");
         $bk_user = "";
-        foreach ($files as $file)
-        {
+        foreach ($files as $file) {
             $html .= "<tr>";
             $attr = explode(".", basename($file));
             $date = DateTime::createFromFormat('YmdHis', $attr[count($attr) - 3]);
             $dateFile = $attr[count($attr) - 4];
 
-            if (is_numeric($dateFile))
-            {
+            if (is_numeric($dateFile)) {
                 $dateFile = FN_FormatDate($dateFile);
-            }
-            else
-            {
+            } else {
                 $dateFile = "unknown";
             }
             $bk_date = $date->getTimestamp();
@@ -536,60 +473,54 @@ function FN_HtmlOnlineAdmin($modcont)
             $html .= "<td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=$modcont&restore=$file'\">" . FN_Translate("restore") . "</button></td>";
             $html .= "</tr>";
         }
-        if (file_exists($modcont))
-        {
+        if (file_exists($modcont)) {
             $html .= "<tr><td>" . FN_FormatDate(filemtime($modcont)) . "</td><td>$bk_user</td><td>-</td><td>-</td><td><button onclick=\"window.location='{$_FN['siteurl']}index.php?mod={$_FN['mod']}&opt=$modcont'\">" . FN_Translate("edit") . "</button>" . "</td></tr>";
-            
         }
         $html .= "</table>";
         $linkcancel = FN_RewriteLink("index.php?mod={$_FN['mod']}");
         $html .= "<br /><button onclick=\"window.location='$linkcancel';\">" . FN_Translate("cancel") . "</button>";
         return "<div class=\"fn_admin\"><h4>" . FN_Translate("administration tools") . " $title $t_exit</h4>" . $html . "</div>";
-    }
-    else
-    {
+    } else {
 
         $title = $_FN['sectionvalues']['title'];
-        if (FN_erg('config.php$', $modcont))
+        if (FN_erg('config.php$', $modcont)) {
+
             $title = FN_Translate("advanced settings", "Aa") . " $title";
+            if (!file_exists($modcont) && file_exists($_FN['src_finis'] . "/" . $modcont)) {
+                $modcont = $_FN['src_finis'] . "/" . $modcont;
+            }
+        }
         if ($_FN['sectionvalues']['type'] != "" && is_dir("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}"))
             $title .= " (" . FN_Translate("page like", "Aa") . " " . FN_GetFolderTitle("{$_FN['src_finis']}/modules/{$_FN['sectionvalues']['type']}") . ")";
 
         //try edit module------------------------------------------------------>
-        if ($modcont == "fnc_ccnf_section_{$_FN['mod']}")
-        {
-            if (FN_UserCanEditSection() && false !== ($html = FN_HtmlEditSection($_FN['mod'])))
-            {
+        if ($modcont == "rnt_ccnf_section_{$_FN['mod']}") {
+            if (FN_UserCanEditSection() && false !== ($html = FN_HtmlEditSection($_FN['mod']))) {
                 return "<div class=\"fn_admin\"><h4>" . FN_Translate("administration tools") . " $title $t_exit</h4>" . $html . "</div>";
             }
         }
         //try edit module------------------------------------------------------<
         //try edit file-------------------------------------------------------->
-        elseif (is_dir(dirname($modcont)) && !is_dir($modcont) && FN_CanModifyFile($_FN['user'], $modcont))
-        {
+        elseif (is_dir(dirname($modcont)) && !is_dir($modcont) && FN_CanModifyFile($_FN['user'], $modcont)) {
             $editor_params = array();
             $linkcancel = FN_RewriteLink("index.php?mod={$_FN['mod']}");
             $linkform = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;opt=$modcont");
-            if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/style.css"))
-            {
+            if (file_exists("{$_FN['src_application']}/sections/{$_FN['mod']}/style.css")) {
                 $editor_params['css_file'] = "{$_FN['src_application']}/sections/{$_FN['mod']}/style.css";
             }
             $_FN['editor_folder'] = "{$_FN['src_application']}/sections/{$_FN['mod']}";
             $file_restore = FN_GetParam("restore", $_GET);
-            if (!empty($file_restore) && file_exists($file_restore) && FN_GetFileExtension($file_restore) == "bak~")
-            {
+            if (!empty($file_restore) && file_exists($file_restore) && FN_GetFileExtension($file_restore) == "bak~") {
                 $editor_params['force_value'] = file_get_contents($file_restore);
                 $linkcancel = $linkcancel = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;opt=$modcont&amp;mode=versions");
                 $editor_params['text_save'] = FN_Translate("restore");
             }
             $html = FN_HtmlEditContent($modcont, $linkform, $linkcancel, $editor_params);
-            if (!empty($_POST['savefileconfig']))
-            {
+            if (!empty($_POST['savefileconfig'])) {
                 FN_UpdateDefaultXML(FN_GetSectionValues($_FN['mod'], false));
             }
             $html = FN_FtmlAdminCSS() . $html;
-            if ($html !== false)
-            {
+            if ($html !== false) {
                 return "<div class=\"fn_admin\"><h4>$title $t_exit</h4>" . $html . "</div>";
             }
         }

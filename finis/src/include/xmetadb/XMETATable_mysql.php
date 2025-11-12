@@ -213,7 +213,7 @@ class XMETATable_mysql extends stdClass
 
             if ($result)
             {
-                // dprint_r($result);
+                //dprint_r($result);
                 foreach ($result as $tmp)
                 {
                     if (empty($tmp['Tables_in_' . $this->mysqldatabasename]))

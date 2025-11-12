@@ -474,7 +474,7 @@ function xmetadb_removexmlcomments($data)
  *
  *
  * -- ESEMPIO : --
- * $fields[0]['name']="unirecid";
+ * $fields[0]['name']="id";
  * $fields[0]['primarykey']=1;
  * $fields[0]['defaultvalue']=null;
  * $fields[0]['type']="varchar";
@@ -490,7 +490,7 @@ function createxmltable($databasename, $tablename, $fields, $path = ".", $single
 }
 
 /**
- * XMetadb::createMetadbDatabase
+ * XMETATable::createMetadbDatabase
  * crea un database
  *
  * @param string $databasename
@@ -499,11 +499,11 @@ function createxmltable($databasename, $tablename, $fields, $path = ".", $single
  */
 function createxmldatabase($databasename, $path = ".")
 {
-    return XMetadb::createMetadbDatabase($databasename, $path);
+    return XMETATable::createMetadbDatabase($databasename, $path);
 }
 
 /**
- * XMetadb::meteDatabaseExists
+ * XMETATable::meteDatabaseExists
  * verifica se un database esiste
  *
  * @param string $databasename
@@ -511,12 +511,12 @@ function createxmldatabase($databasename, $path = ".")
  */
 function xmldatabaseexists($databasename, $path = ".", $conn = false)
 {
-    return XMetadb::meteDatabaseExists($databasename, $path, $conn);
+    return XMETATable::meteDatabaseExists($databasename, $path, $conn);
 }
 
 function xmltableexists($databasename, $tablename, $path = ".")
 {
-    return XMetadb::metaTableExists($databasename, $tablename, $path);
+    return XMETATable::metaTableExists($databasename, $tablename, $path);
 }
 
 /**

@@ -291,7 +291,7 @@ function FN_Unlink($filename)
  */
 function FN_AbsolutePath($path)
 {
-    // dprint_r($path);
+    //dprint_r($path);
     $out=array();
     foreach(explode('/',$path) as $i=> $fold)
     {

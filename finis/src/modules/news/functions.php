@@ -92,7 +92,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
 <?php exit(0);?>
 <tables>
 	<field>
-		<name>unirecid</name>
+		<name>id</name>
 		<primarykey>1</primarykey>
 		<extra>autoincrement</extra>
 		<frm_show>0</frm_show>
@@ -247,7 +247,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
 <?php exit(0);?>
 <tables>
 	<field>
-		<name>unirecid</name>
+		<name>id</name>
 		<primarykey>1</primarykey>
 		<extra>autoincrement</extra>
 		<frm_show>0</frm_show>
@@ -283,7 +283,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
 <?php exit(0);?>
 <tables>
 	<field>
-		<name>unirecid</name>
+		<name>id</name>
 		<primarykey>1</primarykey>
 		<extra>autoincrement</extra>
 		<frm_show>0</frm_show>
@@ -400,7 +400,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             $item['txt_MODIFY'] = FN_Translate("modify");
             if ($this->IsNewsAdministrator())
             {
-                $item['link_MODIFY'] = FN_RewriteLink("index.php?opt=fnc_ccnf_section_{$_FN['mod']}&amp;mod={$_FN['mod']}&amp;mode=edit&amp;pk___xdb_{$this->tablename}={$item['unirecid']}&amp;op___xdb_{$this->tablename}=insnew");
+                $item['link_MODIFY'] = FN_RewriteLink("index.php?opt=rnt_ccnf_section_{$_FN['mod']}&amp;mod={$_FN['mod']}&amp;mode=edit&amp;pk___xdb_{$this->tablename}={$item['id']}&amp;op___xdb_{$this->tablename}=insnew");
             }
             //modify news----<
 
@@ -412,7 +412,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             $item['news_BODY'] = FN_Tag2Html(str_replace("\r", "", str_replace("\n", "", ($item['body']))));
 
             $item['news_TITLE'] = htmlentities($item['title'], ENT_QUOTES, $_FN['charset_page']);
-            $view = $this->GetNewsStat($tablename, $item, "unirecid");
+            $view = $this->GetNewsStat($tablename, $item, "id");
             $item['news_VIEWS'] = $view;
             $item['txt_VIEWS'] = FN_Translate("read") . " " . $view . " " . FN_Translate("times");
             $item['img_argument'] = "";
@@ -433,8 +433,8 @@ if (!defined("FNNEWS_FUNCTIONS"))
                 {
                     $item['argument_values'] = $argvalues;
 
-                    $item['img_argument'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argvalues['unirecid']}/icon/" . $argvalues['icon'];
-                    $item['img_argument_thumb'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argvalues['unirecid']}/icon/thumbs/" . $argvalues['icon'] . ".jpg";
+                    $item['img_argument'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argvalues['id']}/icon/" . $argvalues['icon'];
+                    $item['img_argument_thumb'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argvalues['id']}/icon/thumbs/" . $argvalues['icon'] . ".jpg";
                 }
                 else
                 {
@@ -446,8 +446,8 @@ if (!defined("FNNEWS_FUNCTIONS"))
             $item['img_news_thumb'] = "";
             if ($item['photo1'] != "")
             {
-                $item['img_news'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/$tablename/{$item['unirecid']}/photo1/" . $item['photo1'];
-                $item['img_news_thumb'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/$tablename/{$item['unirecid']}/photo1/thumbs/" . $item['photo1'] . ".jpg";
+                $item['img_news'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/$tablename/{$item['id']}/photo1/" . $item['photo1'];
+                $item['img_news_thumb'] = "{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/$tablename/{$item['id']}/photo1/thumbs/" . $item['photo1'] . ".jpg";
             }
             
             if ($this->config['enablecomments'])
@@ -595,7 +595,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
         {
 
             global $_FN;
-            $unirecid = $newsvalues['unirecid'];
+            $unirecid = $newsvalues['id'];
             $txtid = $newsvalues['txtid'];
             if ($_FN['user'] == "" && !$this->config['guestcomment'])
             {
@@ -712,9 +712,9 @@ if (!defined("FNNEWS_FUNCTIONS"))
             global $_FN;
             $tablelinks = FN_XMDBForm( $this->config['tablename'] . "_comments");
 
-            $idnews = $newsvalues['unirecid'];
+            $idnews = $newsvalues['id'];
             $r['unirecidrecord'] = $idnews;
-            $comments = $tablelinks->xmltable->GetRecords($r, false, false, "unirecid", false);
+            $comments = $tablelinks->xmltable->GetRecords($r, false, false, "id", false);
             foreach ($comments as $k => $comment)
             {
                 $comments[$k]['txt_FROM'] = FN_Translate("unknown");
@@ -739,7 +739,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
                 $comments[$k]['txt_DATE'] = FN_Translate("date");
                 $comments[$k]['html_DATE'] = FN_GetDateTime($comment['insert']);
                 $comments[$k]['html_COMMENT'] = FN_Tag2Html($comment['comment']);
-                $unirecidrecord = $comment['unirecid'];
+                $unirecidrecord = $comment['id'];
                 $dellink = FN_RewriteLink("index.php?mod={$_FN['mod']}&mode=DelNewsComment&op={$newsvalues['txtid']}&unirecidrecord=$unirecidrecord", "&");
                 $comments[$k]['html_DELCOMMENT'] = "<a href=\"javascript:check('$dellink')\" >" . FN_Translate("delete") . "</a>";
             }
@@ -989,10 +989,10 @@ if (!defined("FNNEWS_FUNCTIONS"))
                                 break;
                             if ($item['locktop'])
                             {
-                                $locktop[] = $this->GetNewsContents($item['unirecid']);
+                                $locktop[] = $this->GetNewsContents($item['id']);
                             }
                             else
-                                $newstoprint[] = $this->GetNewsContents($item['unirecid']);
+                                $newstoprint[] = $this->GetNewsContents($item['id']);
 
                             $i++;
                         }
@@ -1066,7 +1066,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
                 $textid = $text . $acc;
                 $rec = $table->xmltable->GetRecord(array("txtid" => $textid));
                 $acc = intval($acc) + 1;
-            } while (isset($rec['unirecid']));
+            } while (isset($rec['id']));
             return $textid;
         }
 
@@ -1130,11 +1130,11 @@ if (!defined("FNNEWS_FUNCTIONS"))
                                 break;
                             if ($item['locktop'])
                             {
-                                $locktop[] = $this->GetNewsContents($item['unirecid']);
+                                $locktop[] = $this->GetNewsContents($item['id']);
                             }
                             else
                             {
-                                $newstoprint[] = $this->GetNewsContents($item['unirecid']);
+                                $newstoprint[] = $this->GetNewsContents($item['id']);
                             }
                             $i++;
                         }
@@ -1250,18 +1250,18 @@ if (!defined("FNNEWS_FUNCTIONS"))
         {
             global $_FN;
             $tablename = $this->tablename;
-            $pkf = "unirecid";
+            $pkf = "id";
 //-------statistiche---------------------->>
             if (!file_exists("{$_FN['datadir']}/fndatabase/$tablename" . "_stat"))
             {
                 $sfields = array();
-                $sfields[0]['name'] = "unirecid";
+                $sfields[0]['name'] = "id";
                 $sfields[0]['primarykey'] = "1";
                 $sfields[1]['name'] = "view";
                 echo createxmltable("fndatabase", $tablename . "_stat", $sfields, $_FN['datadir']);
             }
             $tbtmp = FN_XMDBTable($tablename . "_stat");
-            $tmprow['unirecid'] = $row[$pkf];
+            $tmprow['id'] = $row[$pkf];
             if (($oldview = $tbtmp->GetRecordByPrimaryKey($row[$pkf])) == false)
             {
                 $tmprow['view'] = 1;
@@ -1283,7 +1283,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
          * @param <type> $pkf
          * @return <type>
          */
-        function GetNewsStat($tablename, $row, $pkf = "unirecid")
+        function GetNewsStat($tablename, $row, $pkf = "id")
         {
             global $_FN;
             if (!file_exists("{$_FN['datadir']}/fndatabase/$tablename" . "_stat"))
@@ -1291,7 +1291,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
                 return 0;
             }
             $tbtmp = FN_XMDBTable($tablename . "_stat");
-            $tmprow['unirecid'] = $row[$pkf];
+            $tmprow['id'] = $row[$pkf];
             if (($oldview = $tbtmp->GetRecordByPrimaryKey($row[$pkf])) == false)
             {
                 return 0;
@@ -1467,7 +1467,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             {
                 $Tablenews = FN_XMDBForm($tablename);
                 $itemnews = $Tablenews->xmltable->GetRecordByPrimarykey($pubnewsid);
-                if (!empty($itemnews['unirecid']))
+                if (!empty($itemnews['id']))
                 {
                     $itemnews['status'] = 1;
 
@@ -1490,7 +1490,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             {
                 $Tablenews = FN_XMDBForm( $tablename);
                 $itemnews = $Tablenews->xmltable->GetRecordByPrimarykey($pubnewsid);
-                if (!empty($itemnews['unirecid']))
+                if (!empty($itemnews['id']))
                 {
                     $itemnews['status'] = "0";
                     $itemnews = $Tablenews->xmltable->UpdateRecord($itemnews);
@@ -1507,7 +1507,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             }
 //hide news----<
             $params = array();
-            $link = "opt=opt=fnc_ccnf_section_{$_FN['mod']}&amp;mod={$_FN['mod']}&amp;mode=$mode&amp;$gopt$sig";
+            $link = "opt=opt=rnt_ccnf_section_{$_FN['mod']}&amp;mod={$_FN['mod']}&amp;mode=$mode&amp;$gopt$sig";
             $params['link'] = $link;
 //$params['fields'] = "title|status|date|startdate|enddate|username|guestnews|$this->PubNews()";
             $params['fields'] = "title|argument|status|date|username|PubNews()";
@@ -1525,7 +1525,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             if (isset($_POST['title_' . $_FN['lang_default']]))
             {
                 $generate_id = true;
-                $pkid = FN_GetParam("unirecid", $_POST, "html");
+                $pkid = FN_GetParam("id", $_POST, "html");
                 if ($pkid != "")
                 {
                     $Table = FN_XMDBForm($this->config['tablename']);
@@ -1605,7 +1605,7 @@ if (!defined("FNNEWS_FUNCTIONS"))
             ob_start();
             if (basename($_FN['self']) == "controlcenter.php")
             {
-                FNCC_XmlTableEditor($tablename, $params);
+                FNCC_XMETATableEditor($tablename, $params);
             }
             else
             {

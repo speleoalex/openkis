@@ -10,7 +10,7 @@ defined('_FNEXEC') or die('Restricted access');
 
 $params = false;
 FN_InitTables();
-FNCC_xmltableeditor("fn_oauth_providers");
+FNCC_XMETATableEditor("fn_oauth_providers");
 
 
 ?>

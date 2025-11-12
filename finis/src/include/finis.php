@@ -23,8 +23,7 @@ $_FN['src_finis'] = !empty($_FN['src_finis']) ? $_FN['src_finis'] : realpath(__D
 $_FN['src_application'] = !empty($_FN['src_application']) ? $_FN['src_application'] : ".";
 $_FN['oauth_providers'] = !empty($_FN['oauth_providers']) ? $_FN['oauth_providers'] : array();
 $_FN['display_errors'] = !empty($_FN['display_errors']) ? $_FN['oauth_providers'] : "off";
-$_FN['datadir'] = !empty($_FN['datadir']) ? $_FN['datadir'] :"{$_FN['src_application']}/mi"
-. "sc";
+$_FN['datadir'] = !empty($_FN['datadir']) ? $_FN['datadir'] :"{$_FN['src_application']}/misc";
 
 
 //-------- -global variables shared between config.php and flatnux.php -------->
@@ -36,7 +35,6 @@ $_FN['default_section_type'] = "finis";
 require_once __DIR__ . "/config.vars.php";
 if (file_exists($_FN['src_application'] . "/config.vars.local.php"))
     require_once $_FN['src_application'] . "/config.vars.local.php";
-
 
 
 $_FN = array_merge($FN_IsSet,$_FN);
@@ -96,6 +94,10 @@ foreach ($files as $file)
     include_once $file;
 }
 //------------------------------files in cms ----------------------------------<
+
+
+
+
 //--------------------------------   xmetadb ------------------------------------>
 require_once "{$_FN['src_finis']}/include/xmetadb.php";
 require_once "{$_FN['src_finis']}/include/xmetadb_frm.php";
@@ -106,6 +108,7 @@ if (file_exists($_FN['src_application'] . "/include/auth/{$_FN['default_auth_met
     require_once $_FN['src_application'] . "/include/auth/{$_FN['default_auth_method']}.php";
 else
     require_once "{$_FN['src_finis']}/include/auth/{$_FN['default_auth_method']}.php";
+
 
 include "{$_FN['src_finis']}/config.php";
 if ($_FN['consolemode'])
@@ -147,6 +150,8 @@ $configvars = array(
 );
 $ignore = array("script_path", "datadir", "return", "timestart", "consolemode", "filesystempath", "charset_lang", "default_database_driver", "section_header_footer", "FN_SendMail", "frameworkmode", "selfscript");
 FN_LoadVarsFromTable($_FN, "fn_settings", $configvars, $ignore);
+
+
 //----------------------------------timezone----------------------------------->
 if (function_exists("date_default_timezone_get"))
 {
@@ -178,6 +183,8 @@ $_FN['block'] = "";
 $_FN['mod'] = $mod;
 $php_self = FN_GetParam("PHP_SELF", $_SERVER);
 $SCRIPT_NAME = FN_GetParam("SCRIPT_NAME", $_SERVER);
+//die("xx2");
+
 
 $_FN ['self'] = $php_self;
 //--------------------------site url ------------------------------------------>

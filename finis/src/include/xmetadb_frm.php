@@ -1252,7 +1252,7 @@ $frm_endgroupfooter
                 $primarykey = $k;
         }
         //if primarykey is missing I force viewing
-        // dprint_r($this->templateviewobjects);
+        //dprint_r($this->templateviewobjects);
         $htmlitems = "";
         $gtitle = "";
         foreach ($this->formvals as $fieldform_valuesk => $fieldform_values)
@@ -2190,7 +2190,7 @@ function XMETADB_ConvertEncoding($str, $charsetFrom, $charsetTo)
 
     if (function_exists("mb_convert_encoding"))
     {
-        // dprint_r("$charsetTo,$charsetFrom");
+        //dprint_r("$charsetTo,$charsetFrom");
         $str = mb_convert_encoding($str, $charsetTo, $charsetFrom);
         return $str;
     }

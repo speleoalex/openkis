@@ -12,12 +12,10 @@ function XMETADB_editor_mergelink($link1, $link2)
     $vars = array();
     //dprint_r("1)$link1\n2)$link2","","red");
 
-    if ($link1 && false == strstr($link1, "?") && false !== strstr($link1, "&"))
-    {
+    if ($link1 && false == strstr($link1, "?") && false !== strstr($link1, "&")) {
         $link1 = "?$link1";
     }
-    if ($link2 && false == strstr($link2, "?") && false !== strstr($link2, "&"))
-    {
+    if ($link2 && false == strstr($link2, "?") && false !== strstr($link2, "&")) {
         $link2 = "?$link2";
     }
     if ($link1 == "?" || $link1 == "&")
@@ -25,43 +23,34 @@ function XMETADB_editor_mergelink($link1, $link2)
     if ($link2 == "?" || $link2 == "&")
         $link2 = "";
 
-    if (preg_match('/^http(s?)\:\/\//i', $link1) && preg_match('/^http(s?)\:\/\//i', $link2))
-    {
+    if (preg_match('/^http(s?)\:\/\//i', $link1) && preg_match('/^http(s?)\:\/\//i', $link2)) {
         $link2 = explode("?", $link2);
         $link2 = isset($link2[1]) ? $link2[1] : "";
     }
-    if ($link1 == "")
-    {
+    if ($link1 == "") {
         return XMETADB_editor_cleanLink($link2);
     }
-    if ($link2 == "")
-    {
+    if ($link2 == "") {
         return XMETADB_editor_cleanLink($link1);
     }
-    if (preg_match('/^http(s?)\:\/\//i', $link1) && !preg_match('/^http(s?)\:\/\//i', $link2))
-    {
+    if (preg_match('/^http(s?)\:\/\//i', $link1) && !preg_match('/^http(s?)\:\/\//i', $link2)) {
         $tmp = $link1;
         $link1 = $link2;
         $link2 = $tmp;
     }
-    if (!preg_match('/^http(s?)\:\/\//i', $link1) && preg_match('/^http(s?)\:\/\//i', $link2))
-    {
+    if (!preg_match('/^http(s?)\:\/\//i', $link1) && preg_match('/^http(s?)\:\/\//i', $link2)) {
 
         $tmplink1 = explode("?", $link1);
-        if (isset($tmplink1[1]))
-        {
+        if (isset($tmplink1[1])) {
             $base1 = $tmplink1[0];
             $tmplink1 = $tmplink1[1];
-        }
-        else
-        {
+        } else {
             $base1 = "";
             $tmplink1 = $tmplink1[0];
         }
 
         $_sep = "&amp;";
-        if (false === strstr($link2, "?"))
-        {
+        if (false === strstr($link2, "?")) {
             $_sep = "?";
         }
 
@@ -69,28 +58,21 @@ function XMETADB_editor_mergelink($link1, $link2)
         //dprint_r($_final_link);
         return XMETADB_editor_cleanLink($_final_link);
     }
-    if (!preg_match('/^http(s?)\:\/\//i', $link1) && !preg_match('/^http(s?)\:\/\//i', $link2))
-    {
+    if (!preg_match('/^http(s?)\:\/\//i', $link1) && !preg_match('/^http(s?)\:\/\//i', $link2)) {
         $tmplink1 = explode("?", $link1);
-        if (isset($tmplink1[1]))
-        {
+        if (isset($tmplink1[1])) {
             $base1 = $tmplink1[0];
             $tmplink1 = $tmplink1[1];
-        }
-        else
-        {
+        } else {
             $base1 = "";
             $tmplink1 = $tmplink1[0];
         }
 
         $tmplink2 = explode("?", $link2);
-        if (isset($tmplink2[1]))
-        {
+        if (isset($tmplink2[1])) {
             $base2 = $tmplink2[0];
             $tmplink2 = $tmplink2[1];
-        }
-        else
-        {
+        } else {
             $base2 = "";
             $tmplink2 = $tmplink2[0];
         }
@@ -109,18 +91,14 @@ function XMETADB_editor_cleanLink($link)
 {
 
     $link1 = explode("?", $link);
-    if (!isset($link1[1]))
-    {
+    if (!isset($link1[1])) {
         return $link;
-    }
-    else
-    {
+    } else {
         $querystring = $link1[1];
         $base = $link1[0];
     }
     $sep = "&";
-    if (false !== stristr($querystring, "&amp;"))
-    {
+    if (false !== stristr($querystring, "&amp;")) {
         $sep = "&amp;";
         $querystring = str_replace("&amp;", "&", $querystring);
     }
@@ -142,76 +120,104 @@ function XMETADB_editor_cleanLink($link)
  */
 function XMETADB_editor($tablename, $params = array())
 {
+
     
+    if (is_array($tablename)) {
+        if (isset($tablename['tablename'])) {
+            $tname = $tablename['tablename'];
+            $tablename = $tname;
+        } else {
+            die("tablename is not set");
+        }
+    }
+    elseif (is_object($tablename)) {
+            $params['table'] = $tablename;
+            $tablename = $tablename->tablename;
+            $tname = $tablename;
+    }else{
+        $tname = $tablename;
+    }
+
     $dbname = isset($params['xmldatabase']) ? $params['xmldatabase'] : "xmldatabase";
     //--parametri ---->
     $bgcolorover = isset($params['bgcolorover']) ? $params['bgcolorover'] : "#ffff00";
     $defaultsParams = array(
         "charset_page" => "UTF-8" //charset page
-        , "echo" => true           //print output
-        , "table" => $tablename
-        , "path" => ""
-        , "lang" => "en"
-        , "languages" => "en"
-        , "restr" => false
-        , "filters" => null
-        , "fields" => false
-        , "functionsview" => false
-        , "show_translations" => false
-        , "bkrow" => "#ffffff"
-        , "bkrow2" => "#dfdfdf"
-        , "bgcolorover" => "#ffff00"
-        , "bkheader" => "#dfdfdf"
-        , "bordercolor" => "#d8d8d8"
-        , "textcolor" => "#000000"
-        , "linkcolor" => "#000000"
-        , "link" => ""
-        , "link_listmode" => null
-        , "enableview" => false
-        , "enabledelete" => true
-        , "enableedit" => true
-        , "enablenew" => true
-        , "enableexport" => false
-        , "defaultorder" => false
-        , "defaultorderdesc" => false
-        , "isadmin" => null
-        , "functioninsert" => ""
-        , "oninsert" => false  //html on insert
-        , "onupdate" => false  //html on update 
-        , "function_on_insert" => ""
-        , "function_on_update" => ""
-        , "function_on_delete" => ""
-        , "htmlgrid" => ""
-        , "recordset" => false // force records
-        , "function_grid" => "" // function grid
-        , "forcevalues" => false       //force alwais
-        , "forcefieldvalues" => ""     //force alias forcevalues
-        , "forcevaluesinsert" => ""
-        , "forcevaluesupdate" => ""
-        , "forcenewvalues" => ""       //force if not set
-        , "forceupdatevalues" => ""    //force if not set
-        , "edit_single_record" => ""    //edit single record
-        , "recordsperpage" => isset($params['recordsperpage']) ? $params['recordsperpage'] : ""
-        , "requiredfieldsymbol" => "*"
-        , "textrequiredfields" => XMETADB_i18n("required fields")
-        , "textsave" => XMETADB_i18n("save")
-        , "textnorecord" => XMETADB_i18n("no records found")
-        , "textcancel" => XMETADB_i18n("cancel")
-        , "textnew" => "[ new ]"
-        , "textinsertok" => XMETADB_i18n("the data were successfully inserted")
-        , "textupdateok" => XMETADB_i18n("the data were successfully updated")
-        , "textinsertfail" => XMETADB_i18n("error insert record")
-        , "textupdatefail" => XMETADB_i18n("error update record")
-        , "textviewlist" => "&lt;&lt;&nbsp;" . "back" . ""
-        , "textpages" => "Pages :"
-        , "textview" => "view"
-        , "textmodify" => XMETADB_i18n("modify")
-        , "textdelete" => XMETADB_i18n("delete")
-        , "textexitwithoutsaving" => XMETADB_i18n("want to exit without saving?")
-        , "list_onsave" => 1
-        , "list_oninsert" => ""
-        , "list_onupdate" => ""
-        , "html_template_grid" => "
+        ,
+        "echo" => true           //print output
+        ,
+        "table" => $tablename,
+        "path" => "",
+        "lang" => "en",
+        "languages" => "en",
+        "restr" => false,
+        "filters" => null,
+        "fields" => false,
+        "functionsview" => false,
+        "show_translations" => false,
+        "bkrow" => "#ffffff",
+        "bkrow2" => "#dfdfdf",
+        "bgcolorover" => "#ffff00",
+        "bkheader" => "#dfdfdf",
+        "bordercolor" => "#d8d8d8",
+        "textcolor" => "#000000",
+        "linkcolor" => "#000000",
+        "link" => "",
+        "link_listmode" => null,
+        "enableview" => false,
+        "enabledelete" => true,
+        "enableedit" => true,
+        "enablenew" => true,
+        "enableexport" => false,
+        "defaultorder" => false,
+        "defaultorderdesc" => false,
+        "isadmin" => null,
+        "functioninsert" => "",
+        "oninsert" => false  //html on insert
+        ,
+        "onupdate" => false  //html on update 
+        ,
+        "function_on_insert" => "",
+        "function_on_update" => "",
+        "function_on_delete" => "",
+        "htmlgrid" => "",
+        "recordset" => false // force records
+        ,
+        "function_grid" => "" // function grid
+        ,
+        "forcevalues" => false       //force alwais
+        ,
+        "forcefieldvalues" => ""     //force alias forcevalues
+        ,
+        "forcevaluesinsert" => "",
+        "forcevaluesupdate" => "",
+        "forcenewvalues" => ""       //force if not set
+        ,
+        "forceupdatevalues" => ""    //force if not set
+        ,
+        "edit_single_record" => ""    //edit single record
+        ,
+        "recordsperpage" => isset($params['recordsperpage']) ? $params['recordsperpage'] : "",
+        "requiredfieldsymbol" => "*",
+        "textrequiredfields" => XMETADB_i18n("required fields"),
+        "textsave" => XMETADB_i18n("save"),
+        "textnorecord" => XMETADB_i18n("no records found"),
+        "textcancel" => XMETADB_i18n("cancel"),
+        "textnew" => "[ new ]",
+        "textinsertok" => XMETADB_i18n("the data were successfully inserted"),
+        "textupdateok" => XMETADB_i18n("the data were successfully updated"),
+        "textinsertfail" => XMETADB_i18n("error insert record"),
+        "textupdatefail" => XMETADB_i18n("error update record"),
+        "textviewlist" => "&lt;&lt;&nbsp;" . "back" . "",
+        "textpages" => "Pages :",
+        "textview" => "view",
+        "textmodify" => XMETADB_i18n("modify"),
+        "textdelete" => XMETADB_i18n("delete"),
+        "textexitwithoutsaving" => XMETADB_i18n("want to exit without saving?"),
+        "list_onsave" => 1,
+        "list_oninsert" => "",
+        "list_onupdate" => "",
+        "html_template_grid" => "
 <script type=\"text/javascript\">
 trh = function (over,elem){
     var old;
@@ -251,11 +257,11 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
  <a href=\"{urlnewrecord}\">{textnew}</a>
 <!-- end insertnew -->
             
-            "
-        , "maxrows" => false
-        , 'max_cell_text_lenght' => 40
-        , "textexport" => XMETADB_i18n("export")
-        , "urlexport" => ""
+            ",
+        "maxrows" => false,
+        'max_cell_text_lenght' => 40,
+        "textexport" => XMETADB_i18n("export"),
+        "urlexport" => ""
     );
 
     //dprint_r($params);
@@ -284,25 +290,21 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     $urlexport = isset($params['urlexport']) ? $params['urlexport'] : "";
 
     $html = "";
+    /*
     $tname = $tablename;
-    if (is_array($tablename))
-    {
-        if (isset($tablename['tablename']))
-        {
+    if (is_array($tablename)) {
+        if (isset($tablename['tablename'])) {
             $tname = $tablename['tablename'];
-        }
-        else
-        {
+        } else {
             die("tablename is not set");
         }
-    }
-    elseif (is_object($tablename))
-    {
+    } elseif (is_object($tablename)) {
         $params['table'] = $tablename;
         $tablename = $tname = $tablename->tablename;
     }
-    foreach ($defaultsParams as $key => $param)
-    {
+        */
+
+    foreach ($defaultsParams as $key => $param) {
         $params[$key] = isset($params[$key]) ? $params[$key] : $defaultsParams[$key];
     }
 
@@ -337,7 +339,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     $reverse = isset($params['defaultorderdesc']) ? $params['defaultorderdesc'] : false;
     $limit = isset($params['limit']) ? $params['limit'] : false;
     $min = isset($params['limit']) ? 0 : false;
-    
+
     $maxpages = isset($params['maxpages']) ? $params['maxpages'] : 100;
     //dprint_r($params);
     if (!isset($params['isadmin']))
@@ -349,7 +351,7 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     $onupdate = isset($params['onupdate']) ? $params['onupdate'] : "";
     //function on insert form
     $function_on_insert = isset($params['function_on_insert']) ? $params['function_on_insert'] : "";
- 
+
     $function_on_update = isset($params['function_on_update']) ? $params['function_on_update'] : "";
     $function_on_delete = isset($params['function_on_delete']) ? $params['function_on_delete'] : "";
 
@@ -402,11 +404,9 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     //--parametri ----<
     //-----variabili da get --------->
 
-
     $opmod = isset($_GET["op_$postgetkey"]) ? htmlspecialchars($_GET["op_$postgetkey"]) : "";
     $pk = isset($_GET["pk_$postgetkey"]) ? ($_GET["pk_$postgetkey"]) : "";
-    if (!empty($params['edit_single_record']))
-    {
+    if (!empty($params['edit_single_record'])) {
         $opmod = "insnew";
         $pk = $params['edit_single_record'];
     }
@@ -416,71 +416,70 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
 
     $order = isset($_GET["order_$postgetkey"]) ? htmlspecialchars($_GET["order_$postgetkey"]) : "";
 
-    if ($order != "")
-    {
+    if ($order != "") {
         $reverse = isset($_GET["desc_$postgetkey"]) ? htmlspecialchars($_GET["desc_$postgetkey"]) : "";
     }
     //-----variabili da get ---------<
     $tlink = "";
     $mlink = "?";
-    if ($page > 1)
-    {
+    if ($page > 1) {
         $mlink = "?page_$postgetkey=$page";
     }
     if (is_array($forcevalues))
-        foreach ($forcevalues as $key => $value)
-        {
+        foreach ($forcevalues as $key => $value) {
             $tlink .= "&amp;" . $key . "=" . $value;
             $mlink .= "&amp;" . $key . "=" . $value;
         }
-    if ($flink != "")
-    {
+    if ($flink != "") {
         $tlink = XMETADB_editor_mergelink($tlink, $flink);
         $mlink = XMETADB_editor_mergelink($mlink, $flink);
     }
 
 
     //-----tabella --------->
-    if (!is_object($table))
-    {
+    if ( !is_object($table)) {
         $paramsFRM = array();
         $paramsFRM['siteurl'] = isset($params['siteurl']) ? $params['siteurl'] : "";
         if (isset($params['charset_storage']))
             $paramsFRM['charset_storage'] = $params['charset_storage'];
         else
             $paramsFRM['charset_storage'] = "UTF-8";
-
-        foreach ($params as $k => $v)
-        {
-            if (is_string($v) && !isset($paramsFRM[$k]) /*&& false !== strstr($k, "xmetadb") */)
-            {
+        foreach ($params as $k => $v) {
+            if (is_string($v) && !isset($paramsFRM[$k]) /*&& false !== strstr($k, "xmetadb") */) {
                 $paramsFRM[$k] = $v;
             }
         }
+        unset($paramsFRM['fields']); // crea problemi
         $table = new FieldFrm("$dbname", $tablename, $path, $lang, $languages, $paramsFRM);
     }
+    else{
+        foreach ($params as $k=>$v)
+        {
+            if (!isset($table->tableparams[$k]))
+            {
+                $table->tableparams[$k] = $params[$k];
+            }
+        }
+    }
+
+
     $siteurl = "";
-    if (isset($params['siteurl']))
-    {
+    if (isset($params['siteurl'])) {
         $siteurl = $params['siteurl'];
     }
     $table->charset_page = isset($param['charset_page']) ? $param['charset_page'] : "";
-    if (isset($params['layout']))
-    {
+    if (isset($params['layout'])) {
         $table->SetLayout($params['layout']);
     }
     $layout_template = "";
-    
-    if (!empty($params['html_template_form']))
-    {
+
+    if (!empty($params['html_template_form'])) {
         $params['layout_template'] = $params['html_template_form'];
     }
-    if (!empty($params['layout_template']))
-    {
+    if (!empty($params['layout_template'])) {
 
         $layout_template = $params['layout_template'];
-        if (false !== strstr($layout_template, "<form") && false !== strstr($layout_template, "<!-- contents -->"))
-        {
+        if (false !== strstr($layout_template, "<form") && false !== strstr($layout_template, "<!-- contents -->")) {
             $layout_template = $params['layout_template'];
             $params['layout_template'] = TPL_GetHtmlPart("contents", $layout_template);
         }
@@ -489,24 +488,17 @@ Pages : <!-- start pages --><!-- start page --><a href=\"{pagelink}\">{pagetitle
     }
 
     //filtro sulle foreignkey---->
-    if (!empty($params['restrfk']))
-    {
-        if (is_array($params['restrfk']))
-        {
-            foreach ($params['restrfk'] as $k => $v)
-            {
+    if (!empty($params['restrfk'])) {
+        if (is_array($params['restrfk'])) {
+            foreach ($params['restrfk'] as $k => $v) {
                 // if (isset($table->formvals[$k]))
                 {
                     $table->formvals[$k]['fk_filter_field'] = $v;
                 }
             }
-        }
-        else
-        {
-            foreach ($table->formvals as $k => $v)
-            {
-                if (!empty($table->formvals[$k]['foreignkey']))
-                {
+        } else {
+            foreach ($table->formvals as $k => $v) {
+                if (!empty($table->formvals[$k]['foreignkey'])) {
                     $table->formvals[$k]['fk_filter_field'] = $params['restrfk'];
                 }
             }
@@ -546,8 +538,7 @@ function confirm_exitnosave()
 }
 </script>
 	";
-    if (isset($_POST['__NOSAVE']))
-    {
+    if (isset($_POST['__NOSAVE'])) {
         $scriptOnExit .= "
 <script type=\"text/javascript\">
 set_changed();
@@ -558,21 +549,16 @@ set_changed();
     //-----tabella --------->
     $toupdate = false;
     //----eliminazione del record
-    if ($enabledelete && $opmod == "del")
-    {
+    if ($enabledelete && $opmod == "del") {
         $oldvalues = $table->xmltable->GetRecordByPk($pk);
         //insert record
-        if ($function_delete)
-        {
+        if ($function_delete) {
             ob_start();
             $function_delete($pk);
             $html .= ob_get_clean();
-        }
-        else
-        {
+        } else {
 
-            if ($function_on_delete && function_exists($function_on_delete))
-            {
+            if ($function_on_delete && function_exists($function_on_delete)) {
                 ob_start();
                 $function_on_delete($oldvalues);
                 $html .= ob_get_clean();
@@ -581,42 +567,49 @@ set_changed();
         }
     }
     $endloop = false;
+
+
+
     $num_records = $table->xmltable->GetNumRecords($restr);
-    if ($params['maxrows'] && $params['maxrows'] <= $num_records)
-    {
+    if ($params['maxrows'] && $params['maxrows'] <= $num_records) {
         $enablenew = false;
     }
     //------filters------------------------------------------------------------>
     $filters_by_post = array();
     $fields_filters = isset($params['fields_filters']) ? $params['fields_filters'] : array();
     $fields_filters_names = array();
-    foreach ($fields_filters as $k => $fields_filter)
-    {
-        $fields_filters_names[$k] = str_replace("%", "", $fields_filter);
+    foreach ($fields_filters as $k => $fields_filter) {
+        $fields_filters_names[$k] = str_replace(array("%", "<>", "><"), "", $fields_filter);
     }
     $filters_post_exists = false;
-    foreach ($table->formvals as $k => $v)
-    {
-        if (in_array($k, $fields_filters_names))
-        {
-            if (isset($_POST["search{$postgetkey}_" . $k]))
-            {
+    foreach ($table->formvals as $k => $v) {
+        if (in_array($k, $fields_filters_names)) {
+            // Check if this is a range filter with _min and _max fields
+            $min_field = "search{$postgetkey}_{$k}_min";
+            $max_field = "search{$postgetkey}_{$k}_max";
+
+            if (isset($_POST[$min_field]) || isset($_POST[$max_field])) {
                 $filters_post_exists = true;
-            }
-            if (!empty($_POST["search{$postgetkey}_" . $k]))
-            {
-                $filters_by_post[$k] = FN_GetParam("search{$postgetkey}_" . $k, $_POST, "html");
+                $min_val = FN_GetParam($min_field, $_POST, "flat");
+                $max_val = FN_GetParam($max_field, $_POST, "flat");
+
+                // Combine min and max into min|max format
+                if (!empty($min_val) || !empty($max_val)) {
+                    $filters_by_post[$k] = $min_val . "|" . $max_val;
+                }
+            } elseif (isset($_POST["search{$postgetkey}_" . $k])) {
+                $filters_post_exists = true;
+                if (!empty($_POST["search{$postgetkey}_" . $k])) {
+                    $filters_by_post[$k] = FN_GetParam("search{$postgetkey}_" . $k, $_POST, "flat");
+                }
             }
         }
     }
     $filters_by_get = json_decode(FN_GetParam("filter{$postgetkey}", $_GET, "flat"), JSON_OBJECT_AS_ARRAY);
 
-    if (is_array($filters_by_get) && $filters_post_exists == false)
-    {
+    if (is_array($filters_by_get) && $filters_post_exists == false) {
         $array_filters = array_merge($filters_by_get, $filters_by_post);
-    }
-    else
-    {
+    } else {
         $array_filters = $filters_by_post;
     }
     //------filters------------------------------------------------------------<
@@ -626,12 +619,10 @@ set_changed();
     $tplvars['textviewlist'] = $textviewlist;
     $is_error = false;
     $newvalues_insert = array();
-    while ($endloop == false)
-    {
-        switch ($opmod)
-        {
+    while ($endloop == false) {
+        switch ($opmod) {
             //-------inserimento/aggiornamento record  --------->
-            case "insnew" :
+            case "insnew":
 
                 $tplvars = array();
                 $tplvars['text_on_insert_fail'] = "";
@@ -646,31 +637,24 @@ set_changed();
                 $html .= "" . $scriptOnExit;
                 $newvalues = $table->getbypost();
 
-                if (is_array($forcevalues))
-                {
-                    foreach ($forcevalues as $k => $v)
-                    {
+                if (is_array($forcevalues)) {
+                    foreach ($forcevalues as $k => $v) {
                         $newvalues[$k] = $v;
                     }
                 }
 
-                if (is_array($pk) && count($pk) > 0 || $pk != "")
-                {
+                if (is_array($pk) && count($pk) > 0 || $pk != "") {
                     $oldvalues = $table->xmltable->GetRecordByPk($pk);
                     $toupdate = true; //se esiste la chiave primaria il record ï¿½ da aggiornare
                 }
 
-                if ($toupdate && is_array($forcevaluesupdate))
-                {
-                    foreach ($forcevaluesupdate as $k => $v)
-                    {
+                if ($toupdate && is_array($forcevaluesupdate)) {
+                    foreach ($forcevaluesupdate as $k => $v) {
                         $newvalues[$k] = $v;
                     }
                 }
-                if (!$toupdate && is_array($forcevaluesinsert))
-                {
-                    foreach ($forcevaluesinsert as $k => $v)
-                    {
+                if (!$toupdate && is_array($forcevaluesinsert)) {
+                    foreach ($forcevaluesinsert as $k => $v) {
                         $newvalues[$k] = $v;
                     }
                 }
@@ -680,115 +664,83 @@ set_changed();
                     break;
                 if (!$toupdate && !$enablenew)
                     break;
-                if (isset($_POST["save_$postgetkey"]) && !isset($_POST["__NOSAVE"]))
-                {
-                    if (is_array($table->xmltable->primarykey))
-                    {
+                if (isset($_POST["save_$postgetkey"]) && !isset($_POST["__NOSAVE"])) {
+                    if (is_array($table->xmltable->primarykey)) {
                         if ($pk) // arriva da un'altra insert
                         {
                             $pknewvalues = array();
-                            foreach ($table->xmltable->primarykey as $pkk)
-                            {
+                            foreach ($table->xmltable->primarykey as $pkk) {
                                 $pknewvalues[$pkk] = $_POST[$pkk];
                             }
-                            if ($table->xmltable->GetRecordByPk($pknewvalues))
-                            {
+                            if ($table->xmltable->GetRecordByPk($pknewvalues)) {
                                 $toupdate = true;
                             }
                         }
-                    }
-                    elseif (isset($_POST[$table->xmltable->primarykey]) && $pk)
-                    {
-                        if ($oldvalues_verify = $table->xmltable->GetRecordByPk($_POST[$table->xmltable->primarykey]))
-                        {
+                    } elseif (isset($_POST[$table->xmltable->primarykey]) && $pk) {
+                        if ($oldvalues_verify = $table->xmltable->GetRecordByPk($_POST[$table->xmltable->primarykey])) {
                             $toupdate = true;
                         }
                     }
-                    if ($toupdate && isset($oldvalues_verify) && is_array($oldvalues_verify))
-                    {
+                    if ($toupdate && isset($oldvalues_verify) && is_array($oldvalues_verify)) {
                         $newvalues_verify = array_merge($oldvalues_verify, $newvalues);
                         $errors = $table->Verify($newvalues_verify, true);
-                    }
-                    else
-                    {
+                    } else {
                         $errors = $table->Verify($newvalues, $toupdate);
                     }
-                    if (count($errors) == 0)
-                    {
-                        if ($toupdate)
-                        {
-                            if ($function_update)
-                            {
+                    if (count($errors) == 0) {
+                        if ($toupdate) {
+                            if ($function_update) {
                                 $newvalues = $function_update($newvalues, $pk);
-                            }
-                            else
+                            } else
                                 $newvalues = $table->UpdateRecord($newvalues, $pk);
 
-                            if (!is_array($newvalues))
-                            {
+                            if (!is_array($newvalues)) {
                                 $is_error = true;
                                 $newvalues = $oldvalues;
                             }
-                            if (is_array($table->xmltable->primarykey))
-                            {
+                            if (is_array($table->xmltable->primarykey)) {
                                 $pk = array();
-                                foreach ($table->xmltable->primarykey as $pkv)
-                                {
+                                foreach ($table->xmltable->primarykey as $pkv) {
                                     $pk[$pkv] = $newvalues[$pkv];
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 $pk = $newvalues[$table->xmltable->primarykey];
                             }
-                            if ($onupdate != "")
-                            {
+                            if ($onupdate != "") {
                                 break;
                             }
-                            if ($is_error == false && is_array($newvalues))
-                            {
-                                if ($function_on_update && function_exists($function_on_update))
-                                {
+                            if ($is_error == false && is_array($newvalues)) {
+                                if ($function_on_update && function_exists($function_on_update)) {
                                     ob_start();
                                     $function_on_update($newvalues, $oldvalues);
                                     $html .= ob_get_clean();
                                 }
                                 $tplvars['text_on_update_ok'] = $textupdateok;
                                 $html = XMLDBEDITOR_HtmlAlert($textupdateok) . $html;
-                                if ($list_onupdate)
-                                {
+                                if ($list_onupdate) {
                                     $endloop = false;
                                     $opmod = "";
                                     break;
                                 }
-                            }
-                            else
-                            {
+                            } else {
 
                                 $tplvars['text_on_update_fail'] = $textupdatefail;
                                 $html = XMLDBEDITOR_HtmlAlert($textupdatefail) . $html;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             //insert record
-                            if ($function_insert)
-                            {
+                            if ($function_insert) {
 
                                 $newvalues_insert = $function_insert($newvalues);
-                            }
-                            else
-                            {
+                            } else {
 
                                 $newvalues_insert = $table->InsertRecord($newvalues);
                             }
 
-                            if (is_array($newvalues_insert) && count($newvalues_insert) > 0)
-                            {
+                            if (is_array($newvalues_insert) && count($newvalues_insert) > 0) {
                                 $oldvalues = $newvalues_insert;
                                 $pk = $newvalues_insert[$table->xmltable->primarykey];
-                                if ($function_on_insert && function_exists($function_on_insert))
-                                {
+                                if ($function_on_insert && function_exists($function_on_insert)) {
 
                                     ob_start();
                                     $function_on_insert($newvalues_insert);
@@ -796,8 +748,7 @@ set_changed();
                                     $html .= $tmp_html;
                                     $tplvars['html_on_insert'] = $tmp_html;
                                 }
-                                if ($oninsert != "")
-                                {
+                                if ($oninsert != "") {
                                     $html .= $oninsert;
                                     $tplvars['oninsert'] = $oninsert;
                                     break;
@@ -805,21 +756,17 @@ set_changed();
                                 $html = XMLDBEDITOR_HtmlAlert($textinsertok) . $html;
                                 $tplvars['text_on_insert_ok'] = $textinsertok;
                                 $toupdate = true;
-                                if (!$enableedit)
-                                {
+                                if (!$enableedit) {
                                     $list_oninsert = true;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 $html = XMLDBEDITOR_HtmlAlert($textinsertfail) . $html;
                                 $tplvars['text_on_insert_fail'] = $textinsertfail;
 
                                 $toupdate = false;
                                 // break;
                             }
-                            if ($list_oninsert)
-                            {
+                            if ($list_oninsert) {
                                 $endloop = false;
                                 $opmod = "";
                                 break;
@@ -838,17 +785,13 @@ set_changed();
 
                 //---------- $httpqueryparams ins new-->
                 $httpqueryparams = array();
-                if (is_array($table->xmltable->primarykey))
-                {
+                if (is_array($table->xmltable->primarykey)) {
                     $httpqueryparams["pk_{$postgetkey}"] = array();
-                    foreach ($table->xmltable->primarykey as $pkfield)
-                    {
+                    foreach ($table->xmltable->primarykey as $pkfield) {
                         if (isset($oldvalues[$pkfield]))
-                            $httpqueryparams["pk_{$postgetkey}"] [$pkfield] = $oldvalues[$pkfield];
+                            $httpqueryparams["pk_{$postgetkey}"][$pkfield] = $oldvalues[$pkfield];
                     }
-                }
-                else
-                {
+                } else {
                     if (isset($oldvalues[$table->xmltable->primarykey]))
                         $httpqueryparams["pk_{$postgetkey}"] = $oldvalues[$table->xmltable->primarykey];
                 }
@@ -862,17 +805,14 @@ set_changed();
                 $link_ = XMETADB_editor_mergelink($tlink, "$urlquery&amp;op_$postgetkey=insnew");
                 $tplvars['action'] = $link_;
                 $tplvars['form_onchange'] = "set_changed()";
-//
+                //
                 $html .= "<form onchange=\"set_changed()\" enctype=\"multipart/form-data\" action=\"$link_\" method=\"post\"><div>\n";
-                if ($toupdate)
-                {
+                if ($toupdate) {
                     $html .= "";
 
                     if (is_array($forceupdatevalues))
-                        foreach ($forceupdatevalues as $fok => $fov)
-                        {
-                            if (!isset($_POST[$fok]))
-                            {
+                        foreach ($forceupdatevalues as $fok => $fov) {
+                            if (!isset($_POST[$fok])) {
                                 $newvalues[$fok] = $fov;
                             }
                         }
@@ -880,15 +820,11 @@ set_changed();
                     $htmlform = $table->HtmlShowUpdateForm($pk, $params['isadmin'], $newvalues, $errors);
                     $tplvars['htmlform'] = $htmlform;
                     $html .= $htmlform;
-                }
-                else
-                {
+                } else {
 
                     if (is_array($forcenewvalues))
-                        foreach ($forcenewvalues as $fok => $fov)
-                        {
-                            if (!isset($_POST[$fok]))
-                            {
+                        foreach ($forcenewvalues as $fok => $fov) {
+                            if (!isset($_POST[$fok])) {
                                 $newvalues[$fok] = $fov;
                             }
                         }
@@ -899,8 +835,7 @@ set_changed();
                     $tplvars['htmlform'] = $htmlform;
                 }
                 $tplvars['html_on_insert'] = "";
-                if ($functioninsert != "" && function_exists($functioninsert))
-                {
+                if ($functioninsert != "" && function_exists($functioninsert)) {
                     ob_start();
                     $functioninsert($newvalues);
                     $tmp_html = ob_get_clean();
@@ -914,23 +849,19 @@ set_changed();
                 $link_modify = "";
                 $link_view = "";
 
-                if ($enableedit)
-                {
+                if ($enableedit) {
                     $link_modify = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
                 }
-                if ($enableview)
-                {
+                if ($enableview) {
                     $link_view = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
                 }
 
                 $tplvars['link_modify'] = $link_modify;
                 $tplvars['link_view'] = $link_view;
 
-                if ($textcancel != "")
-                {
+                if ($textcancel != "") {
                     $link_ = XMETADB_editor_mergelink("", $mlink);
-                    if ($flink_linkcancel)
-                    {
+                    if ($flink_linkcancel) {
                         $link_ = XMETADB_editor_mergelink("", $flink_linkcancel);
                     }
                     $link_ .= $flink_linkanchor;
@@ -940,31 +871,26 @@ set_changed();
                 }
                 $html .= "\n</div></form>";
 
-                if ($textviewlist)
-                {
+                if ($textviewlist) {
                     $link_textviewlist = XMETADB_editor_mergelink($flink_listmode, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
                     $html .= "<br /><a  href=\"$link_textviewlist$flink_linkanchor\">$textviewlist</a> ";
                 }
 
-                if (false !== strstr($layout_template, "<form"))
-                {
+                if (false !== strstr($layout_template, "<form")) {
                     $layout_template = TPL_ReplaceHtmlPart("contents", "{htmlform}$hiddenfield", $layout_template);
                     $html = TPL_ApplyTplString($layout_template, $tplvars, "", $params);
                 }
                 $return = $params;
                 break;
             //-------inserimento/aggiornamento record  ---------<
-            case "view" :
+            case "view":
                 $endloop = true;
-                if (isset($params['layout_view']))
-                {
+                if (isset($params['layout_view'])) {
                     $table->SetLayoutView($params['layout_view']);
                 }
                 $basepath_template_dir = "";
-                if (isset($params['html_template_view']))
-                {
-                    if (strlen($params['html_template_view']) < 255 && file_exists($params['html_template_view']))
-                    {
+                if (isset($params['html_template_view'])) {
+                    if (strlen($params['html_template_view']) < 255 && file_exists($params['html_template_view'])) {
                         $basepath_template_dir = dirname($params['html_template_view']);
                         $params['html_template_view'] = file_get_contents($params['html_template_view']);
                     }
@@ -984,22 +910,18 @@ set_changed();
                 $httpqueryparams["desc_"] = $reverse;
                 $httpqueryparams["order_$postgetkey"] = $order;
                 $urlquery = (http_build_query($httpqueryparams));
-                if ($enableedit)
-                {
+                if ($enableedit) {
                     $link_modify = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
                 }
-                if ($enableview)
-                {
+                if ($enableview) {
                     $link_view = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
                 }
                 $tplvars['link_modify'] = $link_modify;
                 $tplvars['link_view'] = $link_view;
-                
-                if (isset($params['html_template_view']) && false !== strstr($params['html_template_view'], "<!-- if "))
-                {
+
+                if (isset($params['html_template_view']) && false !== strstr($params['html_template_view'], "<!-- if ")) {
                     $layout_template_view = $params['html_template_view'];
-                    if (false !== strstr($params['html_template_view'], "<!-- contents -->"))
-                    {
+                    if (false !== strstr($params['html_template_view'], "<!-- contents -->")) {
                         $table->SetlayoutTemplateView(TPL_GetHtmlPart("contents", $params['html_template_view']));
                         $layout_template_view = TPL_ReplaceHtmlPart("contents", $table->HtmlShowView($table->GetRecordTranslatedByPrimarykey($pk)), $layout_template_view);
                     }
@@ -1008,51 +930,144 @@ set_changed();
                 $return = $params;
 
                 break;
-            default :
+            default:
                 $tplvars = array();
                 //---------------------------GRID------------------------------>
                 $endloop = true;
-                if (!empty($params['function_grid']) && function_exists($params['function_grid']))
-                {
+                if (!empty($params['function_grid']) && function_exists($params['function_grid'])) {
                     $params['function_grid']();
                     break;
                 }
                 //---------------------template grid--------------------------------------->
                 //----filters by get and post---------------------------------------------->
-                if (isset($params['html_template_grid']))
-                {
-                    if (strlen($params['html_template_grid']) < 255 && file_exists($params['html_template_grid']))
-                    {
+                $table->tableparams['html_template_grid'] = isset($table->tableparams['html_template_grid']) ? $table->tableparams['html_template_grid'] : "";
+                if (isset($params['html_template_grid'])) {
+                    if (strlen($params['html_template_grid']) < 255 && file_exists($params['html_template_grid'])) {
                         if (empty($params['template_path']))
                             $params['template_path'] = dirname($params['html_template_grid']);
                         $params['html_template_grid'] = file_get_contents($params['html_template_grid']);
+                        $table->tableparams['html_template_grid'] = $params['html_template_grid'];
                     }
                 }
-                
+
 
                 $tplvars['filters'] = array();
+                //dprint_r($params);
                 //dprint_r($array_filters);
                 //dprint_r($fields_filters);
                 //dprint_r($fields_filters_names);
-
-                foreach ($table->formvals as $k => $v)
-                {
+                // template filter item -->
+                $html_filters = TPL_GetHtmlPart("foreach {filters}", $table->tableparams['html_template_grid']);
+                $htmlattributes = "";
+                if (strpos($html_filters, "inputattributes:") !== false) {
+                    $t = preg_match("/<!-- inputattributes:([^>]*)-->/is", $html_filters, $matches);
+                    if (!empty($matches[1])) {
+                        $htmlattributes = $matches[1];
+                    }
+                }
+                // template filter item --<
+                $restr_formtovalue = array();
+                foreach ($table->formvals as $k => $v) {
                     $itemfilter = array();
-                    if (in_array($k, $fields_filters_names))
-                    {
+                    if (in_array($k, $fields_filters_names)) {
+                        // Check if this field is a range filter
+                        $is_range_filter = false;
+                        $original_filter = "";
+                        foreach ($fields_filters as $filter_def) {
+                            $clean_name = str_replace(array("%", "<>", "><"), "", $filter_def);
+                            if ($clean_name == $k && (strpos($filter_def, "<>") !== false || strpos($filter_def, "><") !== false)) {
+                                $is_range_filter = true;
+                                $original_filter = $filter_def;
+                                break;
+                            }
+                        }
+
                         $itemfilter['title'] = $table->formvals[$k]['title'];
                         $itemfilter['name'] = "search{$postgetkey}_$k";
-                        $itemfilter['value'] = isset($array_filters[$k]) ? $array_filters[$k] : "";
+                        $itemfilter['value'] = isset($array_filters[$k]) ? ($array_filters[$k]) : "";
                         $itemfilter['type_text'] = true;
                         $itemfilter['type_select'] = false;
-                        if (is_array($v['options']))
-                        {
+                        $itemfilter['type_datetime'] = false;
+                        $itemfilter['frm_type'] = $table->formvals[$k]['frm_type'];
 
-                            foreach ($v['options'] as $ko => $vo)
-                            {
+                        if ($is_range_filter) {
+                            // Parse existing value if in min|max format
+                            $min_value = "";
+                            $max_value = "";
+                            if ($itemfilter['value'] && strpos($itemfilter['value'], '|') !== false) {
+                                $parts = explode('|', $itemfilter['value'], 2);
+                                $min_value = $parts[0];
+                                $max_value = $parts[1];
+                            }
+
+                            // Create two separate filter items: one for min and one for max
+
+                            // Min field
+                            $itemfilter_min = array();
+                            $itemfilter_min['title'] =  $table->formvals[$k]['title']. " ". FN_Translate("greater than");
+                            $itemfilter_min['name'] = "search{$postgetkey}_{$k}_min";
+                            $itemfilter_min['value'] = $min_value;
+                            $itemfilter_min['type_text'] = true;
+                            $itemfilter_min['type_select'] = false;
+                            $itemfilter_min['type_datetime'] = false;
+                            $itemfilter_min['frm_type'] = $table->formvals[$k]['frm_type'];
+
+                            if (method_exists($table->formclass[$k], "htmlfilter")) {
+                                $itemfilter_min['htmlattributes'] = $htmlattributes;
+                                $Classfield = $table->formclass[$k];
+                                $itemfilter_min['frm_help'] = "";
+                                $itemfilter_min_merged = array_merge($table->formvals[$k], $itemfilter_min);
+                                $itemfilter_min['input'] = $Classfield->htmlfilter($itemfilter_min_merged);
+                            } else {
+                                $itemfilter_min['input'] = "<input type=\"text\" name=\"search{$postgetkey}_{$k}_min\" value=\"" . htmlspecialchars($min_value) . "\" />";
+                            }
+
+                            // Max field
+                            $itemfilter_max = array();
+                            $itemfilter_max['title'] =  $table->formvals[$k]['title']." ". FN_Translate("less than");
+                            $itemfilter_max['name'] = "search{$postgetkey}_{$k}_max";
+                            $itemfilter_max['value'] = $max_value;
+                            $itemfilter_max['type_text'] = true;
+                            $itemfilter_max['type_select'] = false;
+                            $itemfilter_max['type_datetime'] = false;
+                            $itemfilter_max['frm_type'] = $table->formvals[$k]['frm_type'];
+
+                            if (method_exists($table->formclass[$k], "htmlfilter")) {
+                                $itemfilter_max['htmlattributes'] = $htmlattributes;
+                                $Classfield = $table->formclass[$k];
+                                $itemfilter_max['frm_help'] = "";
+                                $itemfilter_max_merged = array_merge($table->formvals[$k], $itemfilter_max);
+                                $itemfilter_max['input'] = $Classfield->htmlfilter($itemfilter_max_merged);
+                            } else {
+                                $itemfilter_max['input'] = "<input type=\"text\" name=\"search{$postgetkey}_{$k}_max\" value=\"" . htmlspecialchars($max_value) . "\" />";
+                            }
+
+                            // Add both filters to the array
+                            $tplvars['filters'][] = $itemfilter_min;
+                            $tplvars['filters'][] = $itemfilter_max;
+
+                            // Skip adding itemfilter at the end since we already added both
+                            continue;
+                        } else {
+                            // Normal single field filter
+                            if (method_exists($table->formclass[$k], "htmlfilter")) {
+                                $itemfilter['htmlattributes'] = $htmlattributes;
+                                $Classfield = new xmetadbfrm_field_datetime();
+                                $Classfield = $table->formclass[$k];
+                                $itemfilter['frm_help'] = "";
+                                $itemfilter = array_merge($table->formvals[$k], $itemfilter);
+                                $itemfilter['input'] = $Classfield->htmlfilter($itemfilter);
+                                if ($itemfilter['value']) {
+                                    $restr_formtovalue[$k] = $Classfield->formtovalue($itemfilter['value'], $itemfilter);
+                                }
+                            }
+                        }
+
+                        if (is_array($v['options'])) {
+
+                            foreach ($v['options'] as $ko => $vo) {
                                 $v['options'][$ko]['selected'] = false;
-                                if ($vo['value'] == $itemfilter['value'])
-                                {
+                                if ($vo['value'] == $itemfilter['value']) {
                                     $v['options'][$ko]['selected'] = true;
                                 }
                             }
@@ -1061,57 +1076,117 @@ set_changed();
                         $tplvars['filters'][] = $itemfilter;
                     }
                 }
-                if (is_array($array_filters))
-                {
-                    foreach ($array_filters as $filter_name => $v)
-                    {
-                        foreach ($fields_filters_names as $keyid => $val)
-                        {
+                // Build SQL conditions for range filters
+                $range_conditions = array();
 
-                            if ($val == $filter_name)
-                            {
+                if (is_array($array_filters)) {
+                    foreach ($array_filters as $filter_name => $v) {
+                        foreach ($fields_filters_names as $keyid => $val) {
+
+                            if ($val == $filter_name) {
                                 $v = $fields_filters[$keyid];
                                 $tosearch = $array_filters[$filter_name];
-                                if ($v[0] == "%" && $v[strlen($v) - 1] == "%")
-                                {
-                                    $array_filters[$filter_name] = "%{$tosearch}%";
-                                }
-                                elseif ($v[0] != "%" && $v[strlen($v) - 1] == "%")
-                                {
-                                    $array_filters[$filter_name] = "{$tosearch}%";
-                                }
-                                elseif ($v[0] == "%" && $v[strlen($v) - 1] != "%")
-                                {
-                                    $array_filters[$filter_name] = "%{$tosearch}";
-                                }
-                                else
-                                {
-                                    $array_filters[$filter_name] = $tosearch;
+
+                                // Check if this is a range filter (ends with >< or <>)
+                                if (substr($v, -2) == "><" || substr($v, -2) == "<>") {
+                                    // Remove >< or <> from field name
+                                    $field_name = str_replace("><", "", $v);
+                                    $field_name = str_replace("<>", "", $field_name);
+                                    $field_name = str_replace("%", "", $field_name);
+
+                                    // Parse min|max format
+                                    if (strpos($tosearch, '|') !== false) {
+                                        $range_parts = explode('|', $tosearch, 2);
+                                        $range_min = trim($range_parts[0]);
+                                        $range_max = trim($range_parts[1]);
+
+                                        // Convert values using the field's formtovalue method if available
+                                        if (isset($table->formclass[$filter_name]) && method_exists($table->formclass[$filter_name], 'formtovalue')) {
+                                            $field_params = isset($table->formvals[$filter_name]) ? $table->formvals[$filter_name] : array();
+                                            if ($range_min !== '') {
+                                                $range_min = $table->formclass[$filter_name]->formtovalue($range_min, $field_params);
+                                            }
+                                            if ($range_max !== '') {
+                                                $range_max = $table->formclass[$filter_name]->formtovalue($range_max, $field_params);
+                                            }
+                                        }
+
+                                        if ($range_min !== '' && $range_max !== '') {
+                                            $range_conditions[] = "(`$field_name` >= '" . addslashes($range_min) . "' AND `$field_name` <= '" . addslashes($range_max) . "')";
+                                        } elseif ($range_min !== '') {
+                                            $range_conditions[] = "`$field_name` >= '" . addslashes($range_min) . "'";
+                                        } elseif ($range_max !== '') {
+                                            $range_conditions[] = "`$field_name` <= '" . addslashes($range_max) . "'";
+                                        }
+                                    }
+
+                                    // Remove this filter from array_filters as we handled it
+                                    unset($array_filters[$filter_name]);
+                                } else {
+                                    // Normal filter with % patterns
+                                    if ($v[0] == "%" && $v[strlen($v) - 1] == "%") {
+                                        $array_filters[$filter_name] = "%{$tosearch}%";
+                                    } elseif ($v[0] != "%" && $v[strlen($v) - 1] == "%") {
+                                        $array_filters[$filter_name] = "{$tosearch}%";
+                                    } elseif ($v[0] == "%" && $v[strlen($v) - 1] != "%") {
+                                        $array_filters[$filter_name] = "%{$tosearch}";
+                                    } else {
+                                        $array_filters[$filter_name] = $tosearch;
+                                    }
                                 }
                             }
                         }
                     }
-                    if (is_array($restr))
-                    {
+
+                    // Merge normal filters
+                    if (is_array($restr)) {
                         $restr = array_merge($restr, $array_filters);
-                    }
-                    else
-                    {
+                    } else {
                         $restr = $array_filters;
+                    }
+
+                    // Add range conditions if any
+                    if (!empty($range_conditions)) {
+                        // Convert existing array filters to SQL conditions
+                        $sql_conditions = array();
+                        if (is_array($restr) && !empty($restr)) {
+                            foreach ($restr as $field => $value) {
+                                $sql_conditions[] = "`$field` LIKE '" . addslashes($value) . "'";
+                            }
+                        }
+
+                        // Add restr_formtovalue to SQL conditions
+                        if (is_array($restr_formtovalue) && !empty($restr_formtovalue)) {
+                            foreach ($restr_formtovalue as $field => $value) {
+                                $sql_conditions[] = "`$field` LIKE '" . addslashes($value) . "'";
+                            }
+                        }
+
+                        // Combine all conditions
+                        $all_conditions = array_merge($sql_conditions, $range_conditions);
+                        $restr = implode(' AND ', $all_conditions);
+                    } else {
+                        // No range conditions, use normal array merge
+                        $restr = array_merge($restr, $restr_formtovalue);
+                    }
+                } else {
+                    // No filters, just use restr_formtovalue
+                    if (is_array($restr)) {
+                        $restr = array_merge($restr, $restr_formtovalue);
                     }
                 }
                 $tplvars['urlreset'] = XMETADB_editor_mergelink($mlink, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;filter{$postgetkey}=");
                 $tplvars['actionfilters'] = XMETADB_editor_mergelink($mlink, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;filter{$postgetkey}=");
 
-//----filters by get and post----------------------------------------------<
+                //----filters by get and post----------------------------------------------<
+
 
 
 
                 preg_match('/(<!-- start insertnew -->)(.*)(<!-- end insertnew -->)/is', $params['html_template_grid'], $out);
                 $template_insertnew = empty($out[2]) ? "" : $out[2];
                 $htmlnewrecord = "";
-                if ($enablenew)
-                {
+                if ($enablenew) {
                     $link_newrecord = XMETADB_editor_mergelink($mlink, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;op_{$postgetkey}=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
                     $tplvars['urlnewrecord'] = $link_newrecord;
                     $htmlnewrecord = str_replace("{urlnewrecord}", "$link_newrecord", $template_insertnew);
@@ -1122,8 +1197,7 @@ set_changed();
                 preg_match('/(<!-- start export -->)(.*)(<!-- end export -->)/is', $params['html_template_grid'], $out);
                 $template_export = empty($out[2]) ? "" : $out[2];
                 $htmlexport = "";
-                if ($enableexport)
-                {
+                if ($enableexport) {
                     $urlexport = !empty($urlexport) ? $urlexport : XMETADB_editor_mergelink($mlink, "?page_$postgetkey=$page&amp;order_$postgetkey=$order&amp;desc_$postgetkey=$reverse&amp;op_{$postgetkey}=export&amp;filter{$postgetkey}=$link_FiltersEncoded");
                     $htmlexport = str_replace("{urlexport}", "$urlexport", $template_export);
                     $htmlexport = str_replace("{textexport}", "$textexport", $htmlexport);
@@ -1166,33 +1240,25 @@ set_changed();
 
                 if ($htmlgrid)
                     $html .= $htmlgrid;
-                else
-                {
+                else {
                     $fieldstoread = $__fieldstoread = array();
                     $fields_extra = array();
-                    if ($fields != false && !is_array($fields))
-                    {
+                    if ($fields != false && !is_array($fields)) {
                         $fields = explode("|", $fields);
-                        if (!empty($params['fields_extra']))
-                        {
+                        if (!empty($params['fields_extra'])) {
                             $fields_extra = explode("|", $params['fields_extra']);
                         }
                         $__fieldstoread = $fields;
-                        if (!isset($__fieldstoread[$table->xmltable->primarykey]))
-                        {
+                        if (!isset($__fieldstoread[$table->xmltable->primarykey])) {
                             $__fieldstoread[] = $table->xmltable->primarykey;
                         }
-
                     }
-                    if ($__fieldstoread)
-                    {
-                        $__fieldstoread = array_merge($__fieldstoread,$fields_extra);
+                    if ($__fieldstoread) {
+                        $__fieldstoread = array_merge($__fieldstoread, $fields_extra);
                         $__fieldstoread = array_unique($__fieldstoread);
-                        foreach ($__fieldstoread as $fieldname)
-                        {
+                        foreach ($__fieldstoread as $fieldname) {
                             $fieldname = preg_replace("/\[.*\]/s", "", $fieldname);
-                            if (isset($table->xmltable->fields[$fieldname]))
-                            {
+                            if (isset($table->xmltable->fields[$fieldname])) {
                                 $fieldstoread[] = $fieldname;
                             }
                         }
@@ -1200,74 +1266,53 @@ set_changed();
                     //dprint_r($fields);
                     if ($params['defaultorder'] == false)
                         $params['defaultorder'] = is_array($table->xmltable->primarykey) ? $table->xmltable->primarykey[0] : $table->xmltable->primarykey;
-                    if ($order == false)
-                    {
+                    if ($order == false) {
                         $order = $params['defaultorder'];
                         //$reverse = isset($params['defaultorderdesc']) ? $params['defaultorderdesc'] : false;
                     }
                     $order = preg_replace("/\[.*\]/s", "", $order);
                     $numPages = 1;
                     $all = false;
-                    if (isset($params['recordset']) && is_array($params['recordset']))
-                    {
+                    if (isset($params['recordset']) && is_array($params['recordset'])) {
                         $all_nofilters = $params['recordset'];
-                        if ($restr)
-                        {
+                        if ($restr) {
                             $all = array();
-                            foreach ($all_nofilters as $item_nofilters)
-                            {
-                                foreach ($restr as $fileldname => $fieldrestr)
-                                {
-                                    if (xmetadb_strlike($item_nofilters[$fileldname], $fieldrestr))
-                                    {
+                            foreach ($all_nofilters as $item_nofilters) {
+                                foreach ($restr as $fileldname => $fieldrestr) {
+                                    if (xmetadb_strlike($item_nofilters[$fileldname], $fieldrestr)) {
                                         $all[] = $item_nofilters;
                                         break;
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
+                        } else {
                             $all = $params['recordset'];
                         }
                         $num_records = count($all);
+                    } else {
+                        $num_records = $table->xmltable->GetNumRecords($restr, $min, $limit);
                     }
-                    else
-                    {
-                        $num_records = $table->xmltable->GetNumRecords($restr,$min, $limit);
+                    if ($all === false) {
+
+                        $all = $table->xmltable->GetRecords($restr, $min, $limit, false, false, $fieldstoread);
+                        $num_records = $all ? count($all) : 0;
                     }
-                    if ($all === false)
-                    {
-                        
-                        $all = $table->xmltable->GetRecords ($restr, $min, $limit, false, false, $fieldstoread);
-                        $num_records = $all?count($all):0;
-                    }
-                    if (intval($recordsperpage) != false)
-                    {
+                    if (intval($recordsperpage) != false) {
                         $numPages = ceil($num_records / $recordsperpage);
                         if ($page > $numPages)
                             $page = $numPages;
                         $start = ($page * $recordsperpage - $recordsperpage) + 1;
                         $end = $start + $recordsperpage - 1;
                         $end = min($end, $num_records);
-                        
-                        
-                    }
-                    else
-                    {
+                    } else {
                         $start = 1;
                         $end = $num_records;
                     }
-                    
-                    if ($opmod == "export")
-                    {  
-                        if (isset($function_export) && function_exists($function_export))
-                        {
+
+                    if ($opmod == "export") {
+                        if (isset($function_export) && function_exists($function_export)) {
                             $function_export($all);
-                            
-                        }
-                        else
-                        {
+                        } else {
                             xmetadb_export_csv($all, $export_filename);
                         }
                     }
@@ -1279,20 +1324,16 @@ set_changed();
                     $link_prevpage = "";
                     $link_nextpage = "";
                     $cp = false;
-                    if ($recordsperpage && $numPages > 1)
-                    {
+                    if ($recordsperpage && $numPages > 1) {
                         $page_display_first = 1;
-                        if ($numPages > $maxpages && $page > 1)
-                        {
+                        if ($numPages > $maxpages && $page > 1) {
                             $page_display_first = $page;
-                            if (($numPages - $maxpages) > 0 && ($numPages - $maxpages) < $page_display_first)
-                            {
+                            if (($numPages - $maxpages) > 0 && ($numPages - $maxpages) < $page_display_first) {
                                 $page_display_first = $numPages - $maxpages + 1;
                             }
                         }
                         $cp = 1;
-                        if ($page_display_first > 1)
-                        {
+                        if ($page_display_first > 1) {
                             //first page --->
                             $s = array("{pagelink}", "{pagetitle}");
                             $r = array();
@@ -1314,8 +1355,7 @@ set_changed();
                             $tplvars['nav_page_prev'] = array("title" => $r['pagetitle'], "link" => $r['pagelink']);
                             //end prev page ---<
                         }
-                        for ($i = $page_display_first; $i <= $numPages; $i++)
-                        {
+                        for ($i = $page_display_first; $i <= $numPages; $i++) {
                             $s = array("{pagelink}", "{pagetitle}");
                             $r = array();
                             $link_ = XMETADB_editor_mergelink($flink_listmode, "?page_{$postgetkey}=$i&amp;order_{$postgetkey}=$order&amp;desc_{$postgetkey}=$reverse&amp;filter{$postgetkey}=$link_FiltersEncoded");
@@ -1325,16 +1365,13 @@ set_changed();
                             $tmp_nav_page['link'] = $link_;
                             $tmp_nav_page['title'] = $i;
                             $tmp_nav_page['current'] = false;
-                            if ($page == $i)
-                            {
+                            if ($page == $i) {
                                 $tmp_nav_page['current'] = true;
                                 $htmlpages .= str_replace($s, $r, $template_currentpage);
                                 $tplvars['nav_page_current'] = array("title" => $r['pagetitle'], "link" => $r['pagelink']);
-                            }
-                            else
+                            } else
                                 $htmlpages .= str_replace($s, $r, $template_page);
-                            if ($cp > $maxpages)
-                            {
+                            if ($cp > $maxpages) {
                                 break;
                             }
                             $cp++;
@@ -1342,8 +1379,7 @@ set_changed();
                         }
                     }
                     $tplvars['nav_pages'] = $tmp_nav_pages;
-                    if ($numPages > $maxpages && $page < $numPages)
-                    {
+                    if ($numPages > $maxpages && $page < $numPages) {
                         //next page --->
                         $s = array("{pagelink}", "{pagetitle}");
                         $r = array();
@@ -1371,25 +1407,19 @@ set_changed();
                         dprint_xml($htmlpages_full);
                         die($htmlpages);
                     }
-                       */ 
+                       */
                     //----------------------header----------------------------->
                     $html_GridHeader = "";
                     $orderfield = array();
 
-                    if ($fields)
-                    {
-                        foreach ($fields as $ofield)
-                        {
+                    if ($fields) {
+                        foreach ($fields as $ofield) {
                             //$ofield=preg_replace("/\[.*\]/s","",$ofield);
-                            if (isset($table->formvals[$ofield]))
-                            {
+                            if (isset($table->formvals[$ofield])) {
                                 $orderfield[$ofield] = $table->formvals[$ofield];
-                            }
-                            else
-                            {
+                            } else {
                                 $tf = "";
-                                if (strstr($ofield, "]"))
-                                {
+                                if (strstr($ofield, "]")) {
                                     $tf = explode("]", $ofield);
                                     $__ofield = $tf[1];
                                     $orderfield[$__ofield] = array();
@@ -1397,49 +1427,38 @@ set_changed();
                                     $tf = $tf[0];
                                     $tf = str_replace("[", "", $tf);
                                     $orderfield[$__ofield]['title'] = $tf;
-                                }
-                                else
+                                } else
                                     $orderfield[$ofield] = "";
                             }
                         }
-                    }
-                    else
+                    } else
                         $orderfield = $table->formvals;
                     $numcols = 0;
 
                     $tplvars['headers'] = array();
                     $numcol = 0;
-                    foreach ($orderfield as $key => $value)
-                    {
+                    foreach ($orderfield as $key => $value) {
                         $numcol++;
                         $tmp_header = is_array($value) ? $value : array("title" => "", "value" => $value);
                         $tmp_header['id'] = $key;
                         $tmp_header['arrow'] = "";
-                        if ($fields && !isset($orderfield[$key]))
-                        {
+                        if ($fields && !isset($orderfield[$key])) {
                             continue;
                         }
-                        if ($show_translations == true || !isset($table->formvals[$key]['frm_multilanguage']) || $table->formvals[$key]['frm_multilanguage'] != "1")
-                        {
+                        if ($show_translations == true || !isset($table->formvals[$key]['frm_multilanguage']) || $table->formvals[$key]['frm_multilanguage'] != "1") {
                             $numcols++;
                             $key = preg_replace("/\[.*\]/s", "", $key);
-                            if (isset($value['title']))
-                            {
+                            if (isset($value['title'])) {
                                 $rev = "";
                                 $t = "";
                                 $desclink = "";
-                                if ($order == $key)
-                                {
-                                    if (false === strstr("<", $value['title']))
-                                    {
-                                        if ($reverse)
-                                        {
-                                            $t = "<img style=\"vertical-align:middle;float:right\" src=\"{$siteurl}images/fn_up.png\" alt=\"\" />";
+                                if ($order == $key) {
+                                    if (false === strstr("<", $value['title'])) {
+                                        if ($reverse) {
+                                            $t = "&#9650;";
                                             $desclink = "";
-                                        }
-                                        else
-                                        {
-                                            $t = "<img style=\"vertical-align:middle;float:right\" src=\"{$siteurl}images/fn_down.png\" alt=\"\" />";
+                                        } else {
+                                            $t = "&#9660;";
                                             $desclink = "&amp;desc_{$postgetkey}=$key";
                                         }
                                     }
@@ -1447,8 +1466,7 @@ set_changed();
                                 $tmp_html = str_replace("{fieldvalue}", "" . $value['title'], $template_gridheader_gridrow_gridfield);
                                 $link_ = XMETADB_editor_mergelink("$tlink", "?order_{$postgetkey}=$key{$desclink}&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                 $link_ .= $flink_linkanchor;
-                                if (false !== strstr("<", $value['title']))
-                                {
+                                if (false !== strstr("<", $value['title'])) {
                                     $link_ = "#";
                                 }
 
@@ -1461,9 +1479,7 @@ set_changed();
                                 $tmp_header['numcols'] = $numcols;
                                 $tmp_header['numcol'] = $numcol;
                                 $tmp_header['arrow'] = $t;
-                            }
-                            else
-                            {
+                            } else {
                                 $tmp_html = str_replace("{fieldvalue}", "", $template_gridheader_gridrow_gridfield);
                                 $tmp_html = str_replace("{arrow}", "", $tmp_html);
 
@@ -1488,68 +1504,53 @@ set_changed();
                     $tplvars['rows'] = array();
 
                     //----order------------------------------------------------>
-                    if (is_array($all) && count($all) > 0)
-                    {
-                        foreach ($all as $idk => $row)
-                        {
-                            foreach ($orderfield as $key => $field)
-                            {
+                    if (is_array($all) && count($all) > 0) {
+                        foreach ($all as $idk => $row) {
+                            foreach ($orderfield as $key => $field) {
 
                                 $kfunction = (false !== strpos($key, "()")) ? str_replace("()", "", $key) : false;
-                                if (false !== strpos($kfunction, "]"))
-                                {
+                                if (false !== strpos($kfunction, "]")) {
                                     $kfunction = explode("]", $kfunction);
                                     $kfunction = $kfunction[1];
                                 }
-                                if (function_exists($kfunction))
-                                {
+                                if (function_exists($kfunction)) {
                                     $value = $kfunction($row[$table->xmltable->primarykey], $table, $row);
                                     $all[$idk][$kfunction] = ($value);
                                 }
                             }
                         }
                     }
-                    if ($order != false)
-                    {
-                        if (is_array($all))
-                        {
+                    if ($order != false) {
+                        if (is_array($all)) {
                             $order = str_replace("()", "", $order);
                             $all = xmetadb_array_natsort_by_key($all, str_replace("{$postgetkey}", "", $order));
                         }
                     }
-                    if ($reverse == true && is_array($all))
-                    {
+                    if ($reverse == true && is_array($all)) {
                         $all = array_reverse($all);
                     }
                     //----order------------------------------------------------<
 
-                    if (is_array($all) && count($all) > 0)
-                    {
+                    if (is_array($all) && count($all) > 0) {
 
-                        foreach ($all as $idk => $row)
-                        {
+                        foreach ($all as $idk => $row) {
 
                             $tmp_row = array();
 
                             $html_gridrow = "";
                             $backgroundcolor = ($i % 2 == 0) ? $bgcolor : $bgcolor2;
                             //start - end --->
-                            if ($i >= $start && $i <= $end)
-                            {
+                            if ($i >= $start && $i <= $end) {
                                 //dprint_r("($i >= $start && $i <= $end)");
                                 //start -end ---<
                                 $html_gridfields = "";
                                 $httpqueryparams = array();
-                                if (is_array($table->xmltable->primarykey))
-                                {
+                                if (is_array($table->xmltable->primarykey)) {
                                     $httpqueryparams["pk_{$postgetkey}"] = array();
-                                    foreach ($table->xmltable->primarykey as $pkfield)
-                                    {
-                                        $httpqueryparams["pk_{$postgetkey}"] [$pkfield] = $row[$pkfield];
+                                    foreach ($table->xmltable->primarykey as $pkfield) {
+                                        $httpqueryparams["pk_{$postgetkey}"][$pkfield] = $row[$pkfield];
                                     }
-                                }
-                                else
-                                {
+                                } else {
                                     $httpqueryparams["pk_{$postgetkey}"] = $row[$table->xmltable->primarykey];
                                 }
                                 $httpqueryparams["page_$postgetkey"] = $page;
@@ -1562,24 +1563,21 @@ set_changed();
                                 $tmp_row['idrow'] = $idk;
 
                                 $tmp_row['action_view'] = array();
-                                if ($enableview)
-                                {
+                                if ($enableview) {
                                     $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                     $link_ .= $flink_linkanchor;
                                     $tmp_row['action_view']['link'] = $link_;
                                     $tmp_row['action_view']['html'] = $textview;
                                     $tmp_row['action_view']['text'] = strip_tags($textview);
                                 }
-                                if ($enableedit)
-                                {
+                                if ($enableedit) {
                                     $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                     $link_ .= $flink_linkanchor;
                                     $tmp_row['action_edit']['link'] = $link_;
                                     $tmp_row['action_edit']['html'] = $textmodify;
                                     $tmp_row['action_edit']['text'] = strip_tags($textmodify);
                                 }
-                                if ($enabledelete)
-                                {
+                                if ($enabledelete) {
                                     $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&op_$postgetkey=del&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                     $link_ .= $flink_linkanchor;
                                     $tmp_row['action_delete']['link'] = $link_;
@@ -1588,28 +1586,23 @@ set_changed();
                                 }
 
 
-                                if (!empty($params['actions_before_fields']))
-                                {
-                                    if ($enableview && $numcols++)
-                                    {
+                                if (!empty($params['actions_before_fields'])) {
+                                    if ($enableview && $numcols++) {
                                         $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                         $html_gridfields .= str_replace("{fieldvalue}", "<a href=\"$link_\">" . $textview . "</a>", $template_gridbody_gridrow_gridfield);
                                     }
-                                    if ($enableedit && $numcols++)
-                                    {
+                                    if ($enableedit && $numcols++) {
                                         $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                         $html_gridfields .= str_replace("{fieldvalue}", "<a href=\"$link_\">" . $textmodify . "</a>", $template_gridbody_gridrow_gridfield);
                                     }
-                                    if ($enabledelete && $numcols++)
-                                    {
+                                    if ($enabledelete && $numcols++) {
                                         $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&op_$postgetkey=del&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                         $html_gridfields .= str_replace("{fieldvalue}", "<a href=\"javascript:check('$link_');\">" . $textdelete . "</a>", $template_gridbody_gridrow_gridfield);
                                     }
                                 }
                                 $tmp_row['cols'] = array();
                                 $numcol = 0;
-                                foreach ($orderfield as $key => $field)
-                                {
+                                foreach ($orderfield as $key => $field) {
 
                                     $tmp_col = array();
                                     $tmp_col['fieldvalue'] = "";
@@ -1619,8 +1612,7 @@ set_changed();
                                     $tmp_col['action_view'] = $tmp_row['action_view'];
 
                                     $kfunction = (false !== strpos($key, "()")) ? str_replace("()", "", $key) : false;
-                                    if (false !== strpos($kfunction, "]"))
-                                    {
+                                    if (false !== strpos($kfunction, "]")) {
                                         $kfunction = explode("]", $kfunction);
                                         $kfunction = $kfunction[1];
                                     }
@@ -1631,50 +1623,35 @@ set_changed();
                                     $vimage = "";
                                     $numcol++;
 
-                                    if ($show_translations == true || !isset($table->formvals[$key]['frm_multilanguage']) || $table->formvals[$key]['frm_multilanguage'] != "1")
-                                    {
-                                        if (isset($functionsview[$key]))
-                                        {
+                                    if ($show_translations == true || !isset($table->formvals[$key]['frm_multilanguage']) || $table->formvals[$key]['frm_multilanguage'] != "1") {
+                                        if (isset($functionsview[$key])) {
                                             $value = $functionsview[$key]($row[$field['name']]);
-                                        }
-                                        elseif (function_exists($kfunction))
-                                        {
+                                        } elseif (function_exists($kfunction)) {
                                             $value = $all[$idk][$kfunction];
-                                        }
-                                        elseif (!isset($field['name']))
-                                        {
+                                        } elseif (!isset($field['name'])) {
                                             $value = "";
-                                        }
-                                        elseif (($field['frm_type'] == "datetime") && method_exists($table->formclass[$field['name']], "view"))
-                                        {
+                                        } elseif (($field['frm_type'] == "datetime") && method_exists($table->formclass[$field['name']], "view")) {
                                             $tparams = $field;
                                             $tparams['name'] = $field['name'];
                                             $tparams['value'] = $row[$field['name']];
                                             $tparams['values'] = $row;
                                             $tparams['fieldform'] = $table;
                                             $value = $table->formclass[$field['name']]->view($tparams);
-                                        }
-                                        elseif (method_exists($table->formclass[$field['name']], "gridview"))
-                                        {
+                                        } elseif (method_exists($table->formclass[$field['name']], "gridview")) {
                                             $tparams = $field;
                                             $tparams['name'] = $field['name'];
                                             $tparams['value'] = $row[$field['name']];
                                             $tparams['values'] = $row;
                                             $tparams['fieldform'] = $table;
                                             $value = $table->formclass[$field['name']]->gridview($tparams);
-                                        }                                        
-                                        else
-                                        {
+                                        } else {
                                             $value = $row[$field['name']];
 
-                                            if ($field['frm_type'] == "image")
-                                            {
+                                            if ($field['frm_type'] == "image") {
                                                 $image = $table->xmltable->get_file($row, $field['name']);
-                                                if ($image != "")
-                                                {
+                                                if ($image != "") {
                                                     $himage = 16;
-                                                    if (isset($params['imagesize']))
-                                                    {
+                                                    if (isset($params['imagesize'])) {
                                                         $himage = $params['imagesize'];
                                                     }
                                                     $image = dirname($image) . "/thumbs/" . basename($image) . ".jpg";
@@ -1682,20 +1659,18 @@ set_changed();
                                                     $value = "";
                                                 }
                                             }
-                                            if (!empty($field['foreignkey']) && !empty($field['fk_show_field']))
-                                            {
+                                            if (!empty($field['foreignkey']) && !empty($field['fk_show_field'])) {
                                                 $r = array();
-                                                
+
                                                 if (function_exists("FN_XMDBTable"))
                                                     $tfk[$field['fk_link_field']] = FN_XMDBTable($field['foreignkey']);
                                                 else
-                                                    $tfk[$field['fk_link_field']] = XMETATable::xmetadbTable($dbname, $field['foreignkey'], $path,$params);
+                                                    $tfk[$field['fk_link_field']] = XMETATable::xmetadbTable($dbname, $field['foreignkey'], $path, $params);
 
 
                                                 $tablefk = $tfk[$field['fk_link_field']];
                                                 $f = $field['fk_link_field'];
-                                                if ($field['fk_link_field'] != $field['fk_show_field'])
-                                                {
+                                                if ($field['fk_link_field'] != $field['fk_show_field']) {
                                                     $f .= "|" . $field['fk_show_field'];
                                                 }
                                                 if (isset($tfk[$field['fk_link_field']]->fields[$field['fk_link_field'] . "_{$lang}"]))
@@ -1708,10 +1683,8 @@ set_changed();
 
                                                 $fname_tmp_array = $row[$field['name']];
                                                 $fname_tmp_array = explode(",", $fname_tmp_array);
-                                                foreach ($fname_tmp_array as $fname_tmp)
-                                                {
-                                                    foreach ($showfields as $showfield)
-                                                    {
+                                                foreach ($fname_tmp_array as $fname_tmp) {
+                                                    foreach ($showfields as $showfield) {
                                                         $tvalue = $tablefk->GetRecord(array($field['fk_link_field'] => $fname_tmp));
                                                         if (isset($tvalue["{$showfield}_{$lang}"]) && $tvalue["{$showfield}_{$lang}"] != "")
                                                             $value .= $sep . $tvalue["{$showfield}_{$lang}"];
@@ -1723,13 +1696,9 @@ set_changed();
                                                     }
                                                     $sep = "-";
                                                 }
-                                            }
-                                            else
-                                            {
-                                                if (isset($field['options']) && is_array($field['options']))
-                                                {
-                                                    foreach ($field['options'] as $opt)
-                                                    {
+                                            } else {
+                                                if (isset($field['options']) && is_array($field['options'])) {
+                                                    foreach ($field['options'] as $opt) {
                                                         if ($row[$field['name']] == $opt['value'])
                                                             $value = $opt['title'];
                                                     }
@@ -1754,22 +1723,18 @@ set_changed();
                                 }
                                 //---------- $httpqueryparams actions-->
 
-                                if (empty($params['actions_before_fields']))
-                                {
-                                    if ($enableview && $numcols++)
-                                    {
+                                if (empty($params['actions_before_fields'])) {
+                                    if ($enableview && $numcols++) {
                                         $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=view&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                         $link_ = $link_ . $flink_linkanchor;
                                         $html_gridfields .= str_replace("{fieldtitle}", "", str_replace("{fieldvalue}", "<a href=\"$link_\">" . $textview . "</a>", $template_gridbody_gridrow_gridfield));
                                     }
-                                    if ($enableedit && $numcols++)
-                                    {
+                                    if ($enableedit && $numcols++) {
                                         $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&amp;op_$postgetkey=insnew&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                         $link_ = $link_ . $flink_linkanchor;
                                         $html_gridfields .= str_replace("{fieldtitle}", "", str_replace("{fieldvalue}", "<a href=\"$link_\">" . $textmodify . "</a>", $template_gridbody_gridrow_gridfield));
                                     }
-                                    if ($enabledelete && $numcols++)
-                                    {
+                                    if ($enabledelete && $numcols++) {
 
                                         $link_ = XMETADB_editor_mergelink($mlink, "$urlquery&op_$postgetkey=del&amp;filter{$postgetkey}=$link_FiltersEncoded");
                                         $link_ = $link_ . $flink_linkanchor;
@@ -1784,11 +1749,9 @@ set_changed();
                             }
                             $i++;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         //$html = "<table border=\"\" style=\"background-color:$bordercolor\" cellpadding=\"2\" cellspacing=\"1\" >";
-//                        $html_gridbody .= "$textnorecord";
+                        //                        $html_gridbody .= "$textnorecord";
                     }
 
 
@@ -1797,8 +1760,7 @@ set_changed();
                     $tplvars['start'] = $start;
                     $tplvars['end'] = $end;
                     $tplvars['num_records'] = $num_records;
-                    if (false !== strstr($params['html_template_grid'], "<!-- start table -->"))
-                    {
+                    if (false !== strstr($params['html_template_grid'], "<!-- start table -->")) {
                         $params['html_template_grid'] = str_replace("{txt_num_records}", "$txt_num_records", $params['html_template_grid']);
                         $params['html_template_grid'] = str_replace("{start}", "$start", $params['html_template_grid']);
                         $params['html_template_grid'] = str_replace("{end}", "$end", $params['html_template_grid']);
@@ -1807,16 +1769,13 @@ set_changed();
                         $html = preg_replace('/(<!-- start gridheader -->)(.*)(<!-- end gridheader -->)/is', xmetadb_encode_preg_replace2nd($html_GridHeader), $params['html_template_grid']);
                         $html = preg_replace('/(<!-- start gridbody -->)(.*)(<!-- end gridbody -->)/is', xmetadb_encode_preg_replace2nd($html_gridbody), $html);
                         $html = preg_replace('/(<!-- start pages -->)(.*)(<!-- end pages -->)/is', xmetadb_encode_preg_replace2nd($htmlpages_full), $html);
-                    }
-                    else
-                    {
+                    } else {
                         unset($params['filters']);
                         $tplvars['method'] = "post";
                         $params['template_path'] = isset($params['template_path']) ? $params['template_path'] : "";
 
-                        if (FN_IsAdmin())
-                        {
-                          //  dprint_r($tplvars);
+                        if (FN_IsAdmin()) {
+                            //dprint_r($tplvars);
                         }
                         $html = TPL_ApplyTplString($params['html_template_grid'], $tplvars, $params['template_path'], $params);
                     }
@@ -1829,11 +1788,9 @@ set_changed();
     }
     if ($params['echo'] == true)
         echo $html;
-    if (!empty("return_params"))
-    {
+    if (!empty($params["return_params"])) {
         return $return;
     }
-    //dprint_r($_POST);
     return $html;
 }
 
@@ -1916,7 +1873,7 @@ function xmetadb_view($unirecid, $tablename, $databasename, $path, $lang, $langu
         $params['isadmin'] = XMLDBEDITOR_IsAdmin();
     $Table = new FieldFrm("$databasename", $tablename, $path, $lang, $languages, $params);
     $row = $Table->xmltable->GetRecordByPrimaryKey($unirecid);
-    $unirecid = isset($row['unirecid']) ? $row['unirecid'] : false;
+    $unirecid = isset($row['id']) ? $row['id'] : false;
     $htmlout = $Table->ShowView($row);
     return $htmlout;
 }
@@ -1937,8 +1894,7 @@ function xmetadb_go_download($file, $databasename, $tablename, $pathdatabase, $t
     //  if (stristr($file,".."))
     //      die(fn_i18n("operation is not permitted"));
     // se il file non esiste lo crea
-    if (!file_exists("$pathdatabase/$databasename/$tablename" . "_download_stat.php"))
-    {
+    if (!file_exists("$pathdatabase/$databasename/$tablename" . "_download_stat.php")) {
         //echo "<br>creazione statistiche $tablename";
         $sfields = array();
         $sfields[1]['name'] = "filename";
@@ -1950,13 +1906,10 @@ function xmetadb_go_download($file, $databasename, $tablename, $pathdatabase, $t
     $stat = new XMETATable($databasename, $tablename . "_download_stat", $pathdatabase);
     $oldval = $stat->GetRecordByPrimaryKey($file);
     $r['filename'] = $file;
-    if ($oldval == null)
-    {
+    if ($oldval == null) {
         $r['numdownload'] = 1;
         $stat->InsertRecord($r);
-    }
-    else
-    {
+    } else {
         //incrementa download
         $r['numdownload'] = $oldval['numdownload'] + 1;
         $stat->UpdateRecord($r);
@@ -1965,8 +1918,7 @@ function xmetadb_go_download($file, $databasename, $tablename, $pathdatabase, $t
     $file = "$pathdatabase/$databasename/$tablepath/$file";
 
     //First, see if the file exists
-    if (!is_file($file))
-    {
+    if (!is_file($file)) {
         die("<b>$file 404 File not found!</b>");
     }
 
@@ -1975,68 +1927,65 @@ function xmetadb_go_download($file, $databasename, $tablename, $pathdatabase, $t
     $filename = basename($file);
     $file_extension = strtolower(substr(strrchr($filename, "."), 1));
     //This will set the Content-Type to the appropriate setting for the file
-    switch ($file_extension)
-    {
-        case "pdf" :
+    switch ($file_extension) {
+        case "pdf":
             $ctype = "application/pdf";
             break;
-        case "exe" :
+        case "exe":
             $ctype = "application/octet-stream";
             break;
-        case "zip" :
+        case "zip":
             $ctype = "application/zip";
             break;
-        case "doc" :
+        case "doc":
             $ctype = "application/msword";
             break;
-        case "xls" :
+        case "xls":
             $ctype = "application/vnd.ms-excel";
             break;
-        case "ppt" :
+        case "ppt":
             $ctype = "application/vnd.ms-powerpoint";
             break;
-        case "gif" :
+        case "gif":
             $ctype = "image/gif";
             break;
-        case "png" :
+        case "png":
             $ctype = "image/png";
             break;
-        case "jpeg" :
-        case "jpg" :
+        case "jpeg":
+        case "jpg":
             $ctype = "image/jpg";
             break;
-        case "mp3" :
+        case "mp3":
             $ctype = "audio/mpeg";
             break;
-        case "wav" :
+        case "wav":
             $ctype = "audio/x-wav";
             break;
-        case "mpeg" :
-        case "mpg" :
-        case "mpe" :
+        case "mpeg":
+        case "mpg":
+        case "mpe":
             $ctype = "video/mpeg";
             break;
-        case "mov" :
+        case "mov":
             $ctype = "video/quicktime";
             break;
-        case "avi" :
+        case "avi":
             $ctype = "video/x-msvideo";
             break;
 
         //The following are for extensions that shouldn't be downloaded (sensitive stuff, like php files)
-        case "php" :
-        case "htm" :
-        case "html" :
-        case "txt" :
+        case "php":
+        case "htm":
+        case "html":
+        case "txt":
             $ctype = "application/force-download";
             break;
 
-        default :
+        default:
             $ctype = "application/force-download";
     }
-    while (@ob_end_clean())
-    {
-        
+    while (@ob_end_clean()) {
     };
     //die("x");
     //Begin writing headers
@@ -2065,10 +2014,8 @@ function xmetadb_go_download($file, $databasename, $tablename, $pathdatabase, $t
 function xmetadb_viewlink($row, $path, $databasename, $tablename, $field, $title, $value, $st, $et)
 {
     $htmlout = "$st";
-    if ($value != "")
-    {
-        if (!preg_match("/^http:\\/\\//si", $value))
-        {
+    if ($value != "") {
+        if (!preg_match("/^http:\\/\\//si", $value)) {
             $value = htmlspecialchars($value);
             $value = "http://$value";
         }
@@ -2089,18 +2036,15 @@ function xmetadb_viewlink($row, $path, $databasename, $tablename, $field, $title
 function xmetadb_viewswf($row, $path, $databasename, $tablename, $field, $title, $value, $st, $et)
 {
     $htmlout = "$st";
-    if (preg_match('/\.swf/is', $row[$field['name']]))
-    {
-        $fileflash = isset($row['unirecid']) ? "$path/$databasename/$tablename/" . $row['unirecid'] . "/" . $field['name'] . "/" . $row[$field['name']] : "";
+    if (preg_match('/\.swf/is', $row[$field['name']])) {
+        $fileflash = isset($row['id']) ? "$path/$databasename/$tablename/" . $row['id'] . "/" . $field['name'] . "/" . $row[$field['name']] : "";
         $htmlout .= "\n$st$title ";
         $htmlout .= "\n<object width=\"550\" height=\"400\">
 <param name=\"movie\" value=\"$fileflash\">
 <embed src=\"$fileflash\" width=\"550\" height=\"400\">
 </embed>
 </object>$et";
-    }
-    else
-    {
+    } else {
         $htmlout = "$st$et";
     }
     return $htmlout;
@@ -2119,24 +2063,20 @@ function xmetadb_viewyoutubelink($row, $path, $databasename, $tablename, $field,
     $htmlout = "$st";
     $html = "";
     $codes = explode(",", $value);
-    foreach ($codes as $value)
-    {
+    foreach ($codes as $value) {
         $c = "v";
         $code = explode("/v/", $value);
         if (!isset($code[1]))
             $code = explode("?v=", $value);
-        if (!isset($code[1]))
-        {
+        if (!isset($code[1])) {
             $code = explode("/p/", $value);
             $c = "p";
         }
-        if (!isset($code[1]))
-        {
+        if (!isset($code[1])) {
             $code = explode("?p=", $value);
             $c = "p";
         }
-        if (isset($code[1]))
-        {
+        if (isset($code[1])) {
             $h = 344;
             $w = 425;
             $code = $code[1];
@@ -2144,8 +2084,7 @@ function xmetadb_viewyoutubelink($row, $path, $databasename, $tablename, $field,
                 $code = substr($code, 0, strpos($code, "&"));
             if (false !== strstr($code, "?"))
                 $code = substr($code, 0, strpos($code, "?"));
-            if ($code != "")
-            {
+            if ($code != "") {
                 $code = "http://www.youtube.com/$c/$code&amp;autoplay=0&amp;rel=0";
                 $html .= "<div style=\"height:$h;width:$w;overflow:auto\">";
                 //$html .= "<center>";
@@ -2156,9 +2095,7 @@ function xmetadb_viewyoutubelink($row, $path, $databasename, $tablename, $field,
 					<embed src=\"$code\" type=\"application/x-shockwave-flash\" enablejsapi=\"1\" allowfullscreen=\"true\" width=\"$w\" height=\"$h\"></embed></object>";
                 //$html .= "</center>";
                 $html .= "</div>";
-            }
-            else
-            {
+            } else {
                 $html .= htmlentities($value);
             }
         }
@@ -2167,24 +2104,20 @@ function xmetadb_viewyoutubelink($row, $path, $databasename, $tablename, $field,
     return $htmlout;
 }
 
-if (!function_exists("XMLDBEDITOR_HtmlAlert"))
-{
+if (!function_exists("XMLDBEDITOR_HtmlAlert")) {
 
     function XMLDBEDITOR_HtmlAlert($textupdateok)
     {
         $textupdateok = addslashes($textupdateok);
         return "<script>alert('$textupdateok');</script>";
     }
-
 }
-if (!function_exists("XMLDBEDITOR_IsAdmin"))
-{
+if (!function_exists("XMLDBEDITOR_IsAdmin")) {
 
     function XMLDBEDITOR_IsAdmin()
     {
         return false;
     }
-
 }
 
 /**
@@ -2196,28 +2129,22 @@ function xmetadb_strlike($string, $like)
 {
     $compare = str_replace("%", "", $like);
     $likelen = strlen($like);
-    if ($like == "" && $string == "")
-    {
+    if ($like == "" && $string == "") {
         return true;
     }
-    if ($like == "%")
-    {
+    if ($like == "%") {
         return true;
     }
-    if ($likelen > 0 && $like[0] != "%" && $like[$likelen - 1] != "%")
-    {
+    if ($likelen > 0 && $like[0] != "%" && $like[$likelen - 1] != "%") {
         return $string == $compare;
     }
-    if ($likelen > 0 && $like[0] == "%" && $like[$likelen - 1] == "%")
-    {
+    if ($likelen > 0 && $like[0] == "%" && $like[$likelen - 1] == "%") {
         return (false !== strpos($string, $compare));
     }
-    if ($likelen > 0 && $like[0] == "%" && $like[$likelen - 1] != "%")
-    {
+    if ($likelen > 0 && $like[0] == "%" && $like[$likelen - 1] != "%") {
         return (strpos($string, $compare) === 0);
     }
-    if ($likelen > 0 && $like[0] != "%" && $like[$likelen - 1] == "%")
-    {
+    if ($likelen > 0 && $like[0] != "%" && $like[$likelen - 1] == "%") {
         return substr($string, -strlen($compare)) == $compare;
     }
     return false;
@@ -2230,36 +2157,31 @@ function xmetadb_strlike($string, $like)
  */
 function xmetadb_export_csv($data, $filename = "")
 {
-    if (!$filename)
-    {
+    if (!$filename) {
         $filename = "export.csv";
     }
     $headers = true;
     $sep = ",";
     $str = "";
-    foreach ($data as $row)
-    {
-        if ($headers)
-        {
+    foreach ($data as $row) {
+        if ($headers) {
             $arraycols = array();
-            foreach ($row as $k => $v)
-            {
+            foreach ($row as $k => $v) {
                 $arraycols[] = "\"" . str_replace("\"", "\"\"", $k) . "\"";
             }
             $str .= implode($sep, $arraycols) . "\n";
             $headers = false;
         }
         $arraycols = array();
-        foreach ($row as $cell)
-        {
+        foreach ($row as $cell) {
             $arraycols[] = "\"" . str_replace("\"", "\"\"", $cell) . "\"";
         }
         $str .= implode($sep, $arraycols) . "\n";
     }
-    while (false !== @ob_end_clean()
+    while (
+        false !== @ob_end_clean()
     );
-    if (!$filename)
-    {
+    if (!$filename) {
         $filename = "esportazione.xls";
     }
     header("Content-Type: application/vnd.ms-excel");
@@ -2267,5 +2189,3 @@ function xmetadb_export_csv($data, $filename = "")
     echo "$str";
     die();
 }
-
-?>

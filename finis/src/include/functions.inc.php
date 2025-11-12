@@ -647,7 +647,7 @@ function FN_UserInGroup($user, $group)
             $groups = explode(",", $group);
             foreach ($groups as $group) {
                 if (in_array($group, $usergroups)) {
-                    // dprint_r(" $user, $group true");
+                    //dprint_r(" $user, $group true");
                     return true;
                 }
             }
@@ -1554,7 +1554,7 @@ function FN_GetOpenAuthProviders()
     if ($recs) {
         foreach ($recs as $k => $rec) {
             $recs[$k]['urlimage'] = $table->getFilePath($rec, "avatar");
-            $recs[$k]['url'] = $_FN['siteurl'] . "?fnloginprovider=" . $rec['id'];
+            $recs[$k]['url'] = $_FN['siteurl'] . "{$_FN['selfscript']}?fnloginprovider=" . $rec['id'];
         }
     }
     return $recs ? $recs : array();

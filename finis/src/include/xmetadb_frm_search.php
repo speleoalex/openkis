@@ -39,6 +39,7 @@ class xmetadb_searchform
 
     function HtmlSearchForm($oldvalues=false,$isadmin=false)
     {
+        
         $html="";
         $lang=$this->xmetadb_frm->lang;
         foreach($this->xmetadb_frm->formvals as $k=> $fv)

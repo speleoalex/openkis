@@ -13,11 +13,14 @@ if (!defined("FN_AUTH_METHOD"))
     }
 }
 
-function FN_LoginInitUrl()
+function FN_LoginInitUrl($script="")
 {
     global $_FN;
     $loginmod = "login";
-
+    if (!$script)
+    {
+        $script = "index.php";
+    }
     if (isset($_FN['mod']) && isset($_FN['sections']) && isset($_FN['sections'][$_FN['mod']]['type']) && $_FN['sections'][$_FN['mod']]['type'] == "login")
     {
         $loginmod = $_FN['mod'];
@@ -35,16 +38,16 @@ function FN_LoginInitUrl()
             }
         }
     }
-    $_FN['urlregister'] = FN_RewriteLink("index.php?mod=$loginmod&amp;op=register", "&amp;", true);
-    $_FN['urlprofile'] = FN_RewriteLink("index.php?mod=$loginmod&amp;op=profile", "&amp;", true);
-    $_FN['urleditprofile'] = FN_RewriteLink("index.php?mod=$loginmod&amp;op=editreg", "&amp;", true);
-    $_FN['urllogin'] = FN_RewriteLink("index.php?mod=$loginmod", "&amp;", true);
-    $_FN['urlloginform'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&fnlogin=login", "&amp;", true);
-    $_FN['urllogout'] = FN_RewriteLink("index.php?fnlogin=logout", "&amp;", true);
-    $_FN['urlpasswordrecovery'] = FN_RewriteLink("index.php?mod=$loginmod&op=recovery", "&amp;", true);
+    $_FN['urlregister'] = FN_RewriteLink("$script?mod=$loginmod&amp;op=register", "&amp;", true);
+    $_FN['urlprofile'] = FN_RewriteLink("$script?mod=$loginmod&amp;op=profile", "&amp;", true);
+    $_FN['urleditprofile'] = FN_RewriteLink("$script?mod=$loginmod&amp;op=editreg", "&amp;", true);
+    $_FN['urllogin'] = FN_RewriteLink("$script?mod=$loginmod", "&amp;", true);
+    $_FN['urlloginform'] = FN_RewriteLink("$script?mod={$_FN['mod']}&fnlogin=login", "&amp;", true);
+    $_FN['urllogout'] = FN_RewriteLink("$script?fnlogin=logout", "&amp;", true);
+    $_FN['urlpasswordrecovery'] = FN_RewriteLink("$script?mod=$loginmod&op=recovery", "&amp;", true);
     $_FN['urlresendcode'] = false;
     if ($_FN['registration_by_email'])
-        $_FN['urlresendcode'] = FN_RewriteLink("index.php?mod=$loginmod&op=send_code", "&amp;", true);
+        $_FN['urlresendcode'] = FN_RewriteLink("$script?mod=$loginmod&op=send_code", "&amp;", true);
 }
 
 /**
@@ -73,11 +76,12 @@ function FN_GetUserForm()
         $op = FN_GetParam("op", $_GET, "html");
         $pk___xdb_fn_users = FN_GetParam("pk___xdb_fn_users", $_GET, "html");
         if ($op == "editreg" || $pk___xdb_fn_users != "")
-            $form->formvals['passwd']['frm_required'] = "false";
+            $form->formvals['passwd']['frm_required'] = false;
         $form->LoadFieldsClasses();
         $form->fieldname_active = "active";
         $form->fieldname_user = "username";
         $form->fieldname_password = "passwd";
+
     }
     return $form;
 }
@@ -457,16 +461,19 @@ function FN_Logout()
 {
 //---------------------url cookie---------------------------------------------->
     global $_FN;
-    if (empty($_FN['urlcookie']))
+    $forcelogout = true;
+    if ($forcelogout)
     {
-        die ("coockeempty");
         $urlcookie = FN_GetParam("PHP_SELF", $_SERVER);
         $path = pathinfo($urlcookie);
         $urlcookie = $path["dirname"] . "/";
         $urlcookie = str_replace("\\", "/", $urlcookie);
         if ($urlcookie == "" || $urlcookie == "\\" || $urlcookie == "//")
             $urlcookie = "/";
-        $_FN['urlcookie'] = $urlcookie;
+        setcookie("secid", "", 0, $urlcookie);
+        setcookie("fnuser", "", 0, $urlcookie);
+        setcookie("secid", "", 0, "/");
+        setcookie("fnuser", "", 0, "/");
     }
 //---------------------url cookie----------------------------------------------<
 
@@ -674,7 +681,9 @@ function FN_ManageLoginWithOpenAuthentication()
         return;
     }
     $providerId = FN_GetParam("fnloginprovider", $_GET);
-    $redirectUri = $_FN['siteurl'] . "?fnloginprovider=$providerId";
+    //$redirectUri = $_FN['siteurl'] . "?fnloginprovider=$providerId";
+    $redirectUri = $_FN['siteurl'] . "{$_FN['selfscript']}?fnloginprovider=$providerId";
+//dprint_r($redirectUri);
     $found_provider = false;
     foreach ($providers as $provider)
     {

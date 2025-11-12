@@ -241,12 +241,12 @@ if (isset($invert_to['position']) && isset($invert_from['position']))
     $invert_to['position'] = $invert_from['position'];
     $invert_from['position'] = $tmp;
 
-//    dprint_r($invert_from);
-//    dprint_r($invert_to);
+//dprint_r($invert_from);
+//dprint_r($invert_to);
     $r = $metaform->xmltable->UpdateRecord($invert_from);
-//    dprint_r($r);
+//dprint_r($r);
     $r = $metaform->xmltable->UpdateRecord($invert_to);
-//    dprint_r($r);
+//dprint_r($r);
 }
 $records = $metaform->xmltable->GetRecords(false, false, false, "position");
 //-----------------change position---------------------------------------------<
@@ -385,7 +385,7 @@ function edit_struct_table($tablename, $path, $databasename)
     $params ['link'] = "fnapp=controlcenter&op=edit&amp;opt=$opt&amp;t=$tablename";
     $params ['textnew'] = FN_Translate("new field");
     $params ['xmldatabase'] = "tables";
-    FNCC_xmltableeditor(false, $params);
+    FNCC_XMETATableEditor(false, $params);
     //fix position---->
     if (!empty($_GET['moveup']) || !empty($_GET['movedown']))
     {

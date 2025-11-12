@@ -64,7 +64,7 @@ class xmetadbfrm_field_image
             $hh = $field['thumbsize_h'];
         }
         //if (file_exists ( "thumb.php" ))
-        //	$filethumb = isset ( $row ['unirecid'] ) ? "thumb.php?d=$databasename&amp;t=$tablename&amp;i=" . $row ['unirecid'] . "&amp;h=$hh&amp;w=$ww&amp;c=" . $field ['name'] : "";
+        //	$filethumb = isset ( $row ['id'] ) ? "thumb.php?d=$databasename&amp;t=$tablename&amp;i=" . $row ['id'] . "&amp;h=$hh&amp;w=$ww&amp;c=" . $field ['name'] : "";
         if ($fileimage != "" && file_exists($fileimage))
         {
             $htmlout .= "\n<a href=\"{$params['fieldform']->siteurl}$fileimage\" onclick=\"window.open(this.href);return false;\" ><img alt=\"\" title=\"";

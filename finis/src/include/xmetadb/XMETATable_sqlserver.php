@@ -549,7 +549,7 @@ class XMETATable_sqlserver extends stdClass
         $res=$this->dbQuery($query);
         if (!is_array($res))
         {
-            //  dprint_r($query);
+            //dprint_r($query);
         }
         if ($res && is_array($res) && $min!== false)
         {
@@ -648,8 +648,8 @@ class XMETATable_sqlserver extends stdClass
         // se i dati sono su database --->
         $query="SELECT * FROM {$this->sqltablename} WHERE ".$this->MakeQueryPk($pvalue);
 
-//        dprint_r($pvalue);
-//        dprint_r($query);
+//dprint_r($pvalue);
+//dprint_r($query);
 //        die();
         $result=$this->dbQuery($query);
         if (!isset($result[0]))
@@ -738,7 +738,7 @@ class XMETATable_sqlserver extends stdClass
         if ($this->conn)
         {
             $seldb=true;
-            // dprint_r($this->fields[$this->primarykey]);
+            //dprint_r($this->fields[$this->primarykey]);
             $query="INSERT INTO ".$this->sqltablename." (";
             if (!is_array($this->primarykey) && !isset($values[$this->primarykey]) && empty($this->fields[$this->primarykey]->autoincrement_db_side))
                 $values[$this->primarykey]="";
@@ -1203,7 +1203,7 @@ function xmetadb_sqlserver_dbQuery($query,$assoc_numeric=false)
 
             while(false!== ($row=sqlsrv_fetch_array($result,$assoc)))
             {
-                //            dprint_r($row);
+                //dprint_r($row);
                 if (is_array($row) && count($row))
                     $rows[]=$row;
             }

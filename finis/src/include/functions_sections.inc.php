@@ -476,7 +476,9 @@ function FN_HtmlSection($section = "")
             )
     {
         $modcont = false;
+        
     }
+    
     // Generate HTML based on the modcont parameter
     $html = $modcont ? FN_HtmlOnlineAdmin($modcont) : FN_RunSection($section, true) . $htmlconfig;
     $sectioncontents = $html;
@@ -1056,7 +1058,7 @@ function FN_GetBlocks($where, $onlyreadable = true, $onlyenabled = true)
             $blockvalues['title'] = "";
         $ret_blocks[$blockvalues['id']] = $blockvalues;
     }
-    // dprint_r($ret_blocks);
+    //dprint_r($ret_blocks);
 
     return $ret_blocks;
 }

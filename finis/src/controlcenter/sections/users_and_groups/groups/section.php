@@ -9,7 +9,7 @@
 defined('_FNEXEC') or die('Restricted access');
 
 $params = false;
-FNCC_xmltableeditor("fn_groups");
+FNCC_XMETATableEditor("fn_groups");
 
 
 ?>

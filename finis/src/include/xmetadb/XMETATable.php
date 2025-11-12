@@ -19,7 +19,7 @@ include_once __DIR__ . "/XMETAField.php";
  * <?php exit(0);?>
  * <tables>
  * <field>
- * <name>unirecid</name>
+ * <name>id</name>
  * <type>string</type>
  * </field>
  * <field>
@@ -336,7 +336,7 @@ class XMETATable extends stdClass
 
     function sendFileToClient()
     {
-        $unirecid = FN_GetParam("unirecid", $_REQUEST);
+        $unirecid = FN_GetParam("id", $_REQUEST);
         $recordkey = FN_GetParam("recordkey", $_REQUEST);
         $uid = FN_GetParam("uid", $_REQUEST);
         $xmetadbgetfile = FN_GetParam("xmetadbgetfile", $_REQUEST);
@@ -397,7 +397,7 @@ class XMETATable extends stdClass
                 $uid = md5($recordvalues[$recordkey . "_base64data"]);
                 return "?xmetadbgetfile=1&unirecid=$unirecid&recordkey=$recordkey&uid=$uid";
             }
-            // dprint_r($this->path . "/$databasename/$tablepath/$unirecid/$recordkey/" . $value);
+            //dprint_r($this->path . "/$databasename/$tablepath/$unirecid/$recordkey/" . $value);
             return $this->path . "/$databasename/$tablepath/$unirecid/$recordkey/" . $value;
         }
         return false;

@@ -138,12 +138,16 @@ function resizeThumb(w,h){
 
         echo "</div>";
     }
-    if (file_exists("themes/$themetoedit/config.php"))
+    $filetoedit = "themes/$themetoedit/config.php";
+    if (file_exists("{$_FN['src_finis']}/themes/$themetoedit/config.php"))
+    {
+        $filetoedit = "{$_FN['src_finis']}/themes/$themetoedit/config.php" ;
+    }
+    if ($filetoedit)
     {
         echo "\n<fieldset>";
         echo "<legend>" . FN_Translate("settings") . " '$themetoedit'</legend>";
-        echo FNCC_HtmlEditConfFile("themes/{$theme}/config.php", "?fnapp=controlcenter&mod={$_FN['mod']}&amp;opt=$opt&amp;themetoedit=$themetoedit", ""
-        );
+        echo FNCC_HtmlEditConfFile($filetoedit, "?fnapp=controlcenter&mod={$_FN['mod']}&amp;opt=$opt&amp;themetoedit=$themetoedit", "");
         echo "</fieldset>";
     }
 

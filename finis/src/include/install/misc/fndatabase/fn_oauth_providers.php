@@ -19,5 +19,8 @@
     <field>
         <name>redirect_uri</name>
     </field>
+    <field>
+        <name>enabled</name>
+    </field>    
 </tables>
 

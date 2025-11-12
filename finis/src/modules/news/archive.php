@@ -74,7 +74,7 @@ if (count($AllnewsByArguments) > 0)
         $argumentvalues=$tableArguments->GetRecordTranslated($argumentvalues);
         $title=$argumentvalues['title'];
         if (!empty($argumentvalues['icon']))
-            $icon="<img style=\"border:0px;\" src=\"{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argumentvalues['unirecid']}/icon/{$argumentvalues['icon']}\" alt=\"$title\" title=\"$title\"/>";
+            $icon="<img style=\"border:0px;\" src=\"{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argumentvalues['id']}/icon/{$argumentvalues['icon']}\" alt=\"$title\" title=\"$title\"/>";
         else
             $icon="";
         $my="";
@@ -121,7 +121,7 @@ function FN_NARC_PrintAllByArg($argument)
     {
         $argument_values=$TableArgument->xmltable->GetRecordByPrimaryKey($argument);
         $argument_values=$TableArgument->GetRecordTranslated($argument_values);
-        echo "<img alt=\"\" border=\"0\" src=\"{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argument_values['unirecid']}/icon/{$argument_values['icon']}\" />";
+        echo "<img alt=\"\" border=\"0\" src=\"{$_FN['siteurl']}{$_FN['datadir']}/fndatabase/{$tablename}_arguments/{$argument_values['id']}/icon/{$argument_values['icon']}\" />";
         $title=$argument_values['title'];
         echo "$title<br /><br />";
         FN_NARC_PrintList($all);

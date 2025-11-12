@@ -217,9 +217,9 @@ function FN_TPL_tp_create_ccsection()
     //----edit file on filesystem-----<
     //----edit config.php-----<
     $fileconfig_to_edit = false;
-    if (FN_erg("^fnc_ccnf_config_section_", $opt))
+    if (FN_erg("^rnt_ccnf_config_section_", $opt))
     {
-        $section_to_edit_config = FN_erg_replace("^fnc_ccnf_config_section_", "", $opt);
+        $section_to_edit_config = FN_erg_replace("^rnt_ccnf_config_section_", "", $opt);
         $sectionvalues = FN_GetSectionValues($section_to_edit_config);
         $configsection = $_FN['mod'] = $sectionvalues['id'];
         $_FN['sectionvalues'] = FN_GetSectionValues($_FN['mod']);
@@ -228,9 +228,9 @@ function FN_TPL_tp_create_ccsection()
         else
             $fileconfig_to_edit = "{$_FN['src_finis']}/modules/{$sectionvalues['type']}/config.php";
     }
-    if (FN_erg("^fnc_ccnf_config_block_", $opt))
+    if (FN_erg("^rnt_ccnf_config_block_", $opt))
     {
-        $section_to_edit_config = FN_erg_replace("^fnc_ccnf_config_block_", "", $opt);
+        $section_to_edit_config = FN_erg_replace("^rnt_ccnf_config_block_", "", $opt);
         $sectionvalues = FN_GetBlockValues($section_to_edit_config);
         $configsection = $_FN['block'] = $sectionvalues['id'];
         $_FN['sectionvalues'] = FN_GetBlockValues($sectionvalues['id']);
@@ -241,9 +241,9 @@ function FN_TPL_tp_create_ccsection()
     }
 
 
-    if (FN_erg("^fnc_ccnf_config_plugin_", $opt))
+    if (FN_erg("^rnt_ccnf_config_plugin_", $opt))
     {
-        $plugin_to_edit_config = FN_erg_replace("^fnc_ccnf_config_plugin_", "", $opt);
+        $plugin_to_edit_config = FN_erg_replace("^rnt_ccnf_config_plugin_", "", $opt);
         $fileconfig_to_edit = "plugins/$plugin_to_edit_config/config.php";
     }
     //editor
@@ -256,9 +256,9 @@ function FN_TPL_tp_create_ccsection()
     //----edit config.php-----<
     //----settings.php-----<
     $filetoinclude = false;
-    if (FN_erg("^fnc_ccnf_section_", $opt))
+    if (FN_erg("^rnt_ccnf_section_", $opt))
     {
-        $sect = FN_erg_replace("^fnc_ccnf_section_", "", $opt);
+        $sect = FN_erg_replace("^rnt_ccnf_section_", "", $opt);
         $sectionvalues = FN_GetSectionValues($sect);
         $_FN['mod'] = $sect;
         $_FN['sectionvalues'] = $sectionvalues;
@@ -271,9 +271,9 @@ function FN_TPL_tp_create_ccsection()
             $filetoinclude = "{$_FN['src_finis']}/modules/{$sectionvalues['type']}/controlcenter/settings.php";
         }
     }
-    if (FN_erg("^fnc_ccnf_block_", $opt))
+    if (FN_erg("^rnt_ccnf_block_", $opt))
     {
-        $sect = FN_erg_replace("^fnc_ccnf_block_", "", $opt);
+        $sect = FN_erg_replace("^rnt_ccnf_block_", "", $opt);
         $_FN['block'] = $sect;
         $sectionvalues = FN_GetBlockValues($sect);
 
@@ -287,30 +287,30 @@ function FN_TPL_tp_create_ccsection()
             $filetoinclude = "{$_FN['src_finis']}/modules/{$sectionvalues['type']}/controlcenter/settings.php";
         }
     }
-    if (FN_erg("^fnc_ccnf_plugin_", $opt))
+    if (FN_erg("^rnt_ccnf_plugin_", $opt))
     {
         $filetoinclude = false;
-        $sect = FN_erg_replace("^fnc_ccnf_plugin_", "", $opt);
+        $sect = FN_erg_replace("^rnt_ccnf_plugin_", "", $opt);
         $filetoinclude = "plugins/{$sect}/controlcenter/settings.php";
     }
     if ($filetoinclude)
     {
-        if (FN_erg("^fnc_ccnf_section_", $opt))
+        if (FN_erg("^rnt_ccnf_section_", $opt))
         {
-            $t = str_replace("fnc_ccnf_section_", "", $opt);
+            $t = str_replace("rnt_ccnf_section_", "", $opt);
             $s = FN_GetSectionValues($t);
-            $configsection = $sect = FN_erg_replace("^fnc_ccnf_section_", "", $opt);
+            $configsection = $sect = FN_erg_replace("^rnt_ccnf_section_", "", $opt);
             $_FN['mod'] = $sect;
         }
-        if (FN_erg("^fnc_ccnf_block_", $opt))
+        if (FN_erg("^rnt_ccnf_block_", $opt))
         {
-            $t = str_replace("fnc_ccnf_block_", "", $opt);
+            $t = str_replace("rnt_ccnf_block_", "", $opt);
             $s = FN_GetBlockValues($t);
-            $configsection = $sect = FN_erg_replace("^fnc_ccnf_block_", "", $opt);
+            $configsection = $sect = FN_erg_replace("^rnt_ccnf_block_", "", $opt);
         }
-        if (FN_erg("^fnc_ccnf_plugin_", $opt))
+        if (FN_erg("^rnt_ccnf_plugin_", $opt))
         {
-            $t = str_replace("fnc_ccnf_plugin_", "", $opt);
+            $t = str_replace("rnt_ccnf_plugin_", "", $opt);
             $s['title'] = $t;
         }
         $title = $s['title'];
@@ -345,7 +345,7 @@ function FNCC_GetSectionsConfigs()
     $configs = array();
     foreach ($sections as $section)
     {
-        $section['opt'] = "fnc_ccnf_config_section_" . $section['id'];
+        $section['opt'] = "rnt_ccnf_config_section_" . $section['id'];
         $section['description'] = " ";
         if (!empty($section['type']) && (file_exists("{$_FN['src_finis']}/modules/{$section['type']}/config.php") /* || file_exists("{$_FN['src_finis']}/modules/{$section['type']}/controlcenter/settings.php") */))
         {
@@ -367,7 +367,7 @@ function FNCC_GetSectionsConfigs()
     }
     foreach ($blocks as $section)
     {
-        $section['opt'] = "fnc_ccnf_config_block_" . $section['id'];
+        $section['opt'] = "rnt_ccnf_config_block_" . $section['id'];
         $section['description'] = " ";
         if (!empty($section['type']) && (file_exists("{$_FN['src_finis']}/modules/{$section['type']}/config.php") /* || file_exists("{$_FN['src_finis']}/modules/{$section['type']}/controlcenter/settings.php") */))
         {
@@ -403,7 +403,7 @@ function FNCC_GetSectionsSettings()
     $configs = array();
     foreach ($sections as $section)
     {
-        $section['opt'] = "fnc_ccnf_section_{$section['id']}";
+        $section['opt'] = "rnt_ccnf_section_{$section['id']}";
         $ttype = ucfirst(FN_GetFolderTitle($_FN['src_finis'] . "/modules/{$section['type']}"));
         if ($section['type'] == "")
             $section['title'] = $section['title'];
@@ -428,7 +428,7 @@ function FNCC_GetSectionsSettings()
     }
     foreach ($blocks as $section)
     {
-        $section['opt'] = "fnc_ccnf_block_{$section['id']}";
+        $section['opt'] = "rnt_ccnf_block_{$section['id']}";
         $section['description'] = " ";
 
         if (!empty($section['type']) && file_exists("{$_FN['src_finis']}/modules/{$section['type']}/controlcenter/settings.php"))
@@ -734,8 +734,8 @@ function FNCC_GetMenuItems()
             foreach ($dirsconf as $_section)
             {
                 $item['active'] = false;
-                $item['opt'] = "fnc_ccnf_config_plugin_{$_section['id']}";
-                $item['id'] = "$sectiongroup/fnc_ccnf_config_plugin_{$_section['id']}";
+                $item['opt'] = "rnt_ccnf_config_plugin_{$_section['id']}";
+                $item['id'] = "$sectiongroup/rnt_ccnf_config_plugin_{$_section['id']}";
                 $item['description'] = "";
 
                 if (is_array($toShow) && !in_array($item['opt'], $toShow))
@@ -807,12 +807,12 @@ function FNCC_GetMenuItems()
 
 
 //---------------get settings.php in plugins and sections --------------------->
-    $menu['fnc_ccnf_plugin']['description'] = "";
-    $menu['fnc_ccnf_plugin']['link'] = "";
-    $menu['fnc_ccnf_plugin']['opt'] = "fnc_ccnf_plugin_";
-    $menu['fnc_ccnf_plugin']['id'] = "fnc_ccnf_plugin_";
-    $menu['fnc_ccnf_plugin']['title'] = FN_Translate("plugins");
-    $menu['fnc_ccnf_plugin']['sections'] = $sectionsIngroup;
+    $menu['rnt_ccnf_plugin']['description'] = "";
+    $menu['rnt_ccnf_plugin']['link'] = "";
+    $menu['rnt_ccnf_plugin']['opt'] = "rnt_ccnf_plugin_";
+    $menu['rnt_ccnf_plugin']['id'] = "rnt_ccnf_plugin_";
+    $menu['rnt_ccnf_plugin']['title'] = FN_Translate("plugins");
+    $menu['rnt_ccnf_plugin']['sections'] = $sectionsIngroup;
     //customs configs config---->
 
     $sectionsIngroup = array();
@@ -822,13 +822,13 @@ function FNCC_GetMenuItems()
     $dirs = FNCC_GetPluginsSettings();
     foreach ($dirs as $section)
     {
-        $item['opt'] = "fnc_ccnf_plugin_{$section['id']}";
+        $item['opt'] = "rnt_ccnf_plugin_{$section['id']}";
         $item['active'] = ( $opt == $item['opt']) ? true : false;
         if ($item['active'])
         {
-            $menu['fnc_ccnf_plugin']['active'] = true;
+            $menu['rnt_ccnf_plugin']['active'] = true;
         }
-        $item['id'] = "fnc_ccnf_plugin_{$section['id']}";
+        $item['id'] = "rnt_ccnf_plugin_{$section['id']}";
         $item['description'] = "";
 
         if (is_array($toShow) && !in_array($item['opt'], $toShow))
@@ -841,9 +841,9 @@ function FNCC_GetMenuItems()
         $sectionsIngroup[] = $item;
     }
 //---------------get settings.php in plugins and sections ---------------------<		
-    $menu['fnc_ccnf_plugin']['sections'] = $sectionsIngroup;
+    $menu['rnt_ccnf_plugin']['sections'] = $sectionsIngroup;
     if (count($sectionsIngroup) == 0)
-        unset($menu['fnc_ccnf_plugin']);
+        unset($menu['rnt_ccnf_plugin']);
 
     return $menu;
 }
@@ -1033,15 +1033,15 @@ function FN_TPL_tp_create_ccmenu($str)
         //dprint_r($sectionvalues);
         $sectionvalues['accesskey'] = "";
         $htmlmenuitem = "";
-        if (FN_erg("^fnc_ccnf_config_section", $opt) || FN_erg("^fnc_ccnf_config_block", $opt))
+        if (FN_erg("^rnt_ccnf_config_section", $opt) || FN_erg("^rnt_ccnf_config_block", $opt))
         {
             $opt = "settings/$opt";
         }
-        elseif (FN_erg("^fnc_ccnf_config", $opt))
+        elseif (FN_erg("^rnt_ccnf_config", $opt))
         {
             $opt = "settings/$opt";
         }
-        elseif (FN_erg("^fnc_ccnf_section", $opt) || FN_erg("^fnc_ccnf_block", $opt)) //nc_ccnf_block
+        elseif (FN_erg("^rnt_ccnf_section", $opt) || FN_erg("^rnt_ccnf_block", $opt)) //nc_ccnf_block
         {
             $opt = "contents/$opt";
         }
@@ -1084,7 +1084,7 @@ function FN_TPL_tp_create_ccsubmenu_($str, $sections)
         return "";
     if (!is_array($sections))
     {
-        // dprint_r($sections);
+        //dprint_r($sections);
         return "";
     }
     preg_match('/<!-- submenuitems -->(.*)<!-- endsubmenuitems -->/is', $str, $out);
@@ -1151,7 +1151,7 @@ function FN_TPL_tp_create_ccsubmenu_($str, $sections)
  * @param type $tablename
  * @param type $vars
  */
-function FNCC_XmltableEditor($tablename, $params = array())
+function FNCC_XMETATableEditor($tablename, $params = array())
 {
     global $_FN;
     $params = array_merge($_FN,$params);

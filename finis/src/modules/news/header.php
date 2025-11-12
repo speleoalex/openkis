@@ -28,7 +28,7 @@ if ($op != "")
 
 	$CLASS_NEWS = new FNNEWS($config);
 	$news_contents = $CLASS_NEWS->GetNewsContents(false,$op);
-	if (isset($news_contents['unirecid']))
+	if (isset($news_contents['id']))
 	{
 		if (isset($news_contents['status']) && $news_contents['status'] == 1)
 		{

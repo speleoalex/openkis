@@ -12,6 +12,6 @@ if (!file_exists("{$_FN['datadir']}/google_analytics.php"))
 }
 $opt = FN_GetParam("opt", $_GET);
 echo FN_Translate("put google analytics code here");
-FN_EditContent("{$_FN['datadir']}/google_analytics.php","?opt=$opt","?opt=$opt");
+FN_EditContent("{$_FN['datadir']}/google_analytics.php","?fnapp=controlcenter&opt=$opt","?fnapp=controlcenter&opt=$opt");
 echo "<br /><br /><a target=\"_blank\" href=\"https://www.google.com/analytics/\">".FN_Translate("go to google analytics")."</a>";
 ?>

@@ -12,5 +12,5 @@ if (!file_exists("{$_FN['datadir']}/header_append.php"))
 }
 $opt = FN_GetParam("opt", $_GET);
 echo FN_Translate("put header code here");
-FN_EditContent("{$_FN['datadir']}/header_append.php","?opt=$opt","?opt=$opt");
+FN_EditContent("{$_FN['datadir']}/header_append.php","?fnapp=controlcenter&opt=$opt","?fnapp=controlcenter&opt=$opt");
 ?>

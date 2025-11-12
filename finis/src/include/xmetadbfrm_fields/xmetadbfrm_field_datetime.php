@@ -2,7 +2,10 @@
 //---------datetime-------------------------------------------->
 class xmetadbfrm_field_datetime
 {
-
+    function htmlfilter($params)
+    {
+        return $this->show($params);
+    }
     function show($params)
     {
         global $_FN;
@@ -92,9 +95,6 @@ if (window.addEventListener) {
         $jscal="DateSeparator='$DateSeparator';return NewCssCal('$idInput', '$dateformat_js','$Navigation_pattern',$Display_time_in_calendar,$Time_mode,$Show_Seconds)";
         //closewin("$idInput"); stopSpin();
         $html.="<input onblur=\"checkclosewin('$idInput');\" onchange=\"dropwin('$idInput');\" $attributes autocomplete=\"off\" onclick=\"$jscal\" $toltips name=\"".$params['name']."\" id=\"xmetadb_bcalendar_".$params['name']."$idcalendar\" value=\"".$val."\" />";
-//        $html.="<button id=\"xmetadb_bcalendar_btn_".$params['name']."$idcalendar\" onclick=\"$jscal\" type=\"button\" ><img style=\"border:0px;vertical-align:middle\" alt = \"\" src=\"".FN_FromTheme("images/calendar.png")."\" /></button>";
-//        $html.="<button id=\"xmetadb_bcalendar_btn_".$params['name']."$idcalendar\" onclick=\"document.getElementById('$idInput').click();\" type=\"button\" ><img style=\"border:0px;vertical-align:middle\" alt = \"\" src=\"".FN_FromTheme("images/calendar.png")."\" /></button>";
-//        $html.="<img style=\"border:0px;vertical-align:middle\" alt = \"\" src=\"".FN_FromTheme("images/calendar.png")."\" />";
         return $html;
     }
 

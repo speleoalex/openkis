@@ -4,6 +4,8 @@ global $_FN;
 $data = array();
 $data['siteurl'] = $_FN['siteurl'];
 $data['user'] = $_FN['user'];
+$_FN['getvars']=$_GET;
+$_FN['postvars']=$_POST;
 $jsonData = json_encode($_FN);
 
 // Command to execute the Python script, passing the JSON as an argument
