@@ -605,19 +605,19 @@ RenderCssCal = function (bNewCal)
     {
         if (UseImageFiles)
         {
-            vCalHeader += "<td><img onmousedown='javascript:Cal.DecYear();RenderCssCal();' src='" + imageFilesPath + "fn_fastreverse.png' width='13px' height='9' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td>\n";//Year scroller (decrease 1 year)
-            vCalHeader += "<td><img onmousedown='javascript:Cal.DecMonth();RenderCssCal();' src='" + imageFilesPath + "fn_left.png' width='13px' height='9' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td>\n"; //Month scroller (decrease 1 month)
+            vCalHeader += "<td><span onmousedown='javascript:Cal.DecYear();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none;' title='Anno precedente'>&laquo;</span></td>\n";//Year scroller (decrease 1 year)
+            vCalHeader += "<td><span onmousedown='javascript:Cal.DecMonth();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none;' title='Mese precedente'>&lsaquo;</span></td>\n"; //Month scroller (decrease 1 month)
             vCalHeader += "<td width='70%' class='calR' style='color:" + YrSelColor + "'>" + Cal.GetMonthName(ShowLongMonth) + " " + Cal.Year + "</td>"; //Month and Year
-            vCalHeader += "<td><img onmousedown='javascript:Cal.IncMonth();RenderCssCal();' src='" + imageFilesPath + "fn_right.png' width='13px' height='9' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td>\n"; //Month scroller (increase 1 month)
-            vCalHeader += "<td><img onmousedown='javascript:Cal.IncYear();RenderCssCal();' src='" + imageFilesPath + "fn_fastforward.png' width='13px' height='9' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td>\n"; //Year scroller (increase 1 year)
+            vCalHeader += "<td><span onmousedown='javascript:Cal.IncMonth();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none;' title='Mese successivo'>&rsaquo;</span></td>\n"; //Month scroller (increase 1 month)
+            vCalHeader += "<td><span onmousedown='javascript:Cal.IncYear();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none;' title='Anno successivo'>&raquo;</span></td>\n"; //Year scroller (increase 1 year)
             calHeight += 22;
         } else
         {
-            vCalHeader += "<td><span id='dec_year' title='reverse year' onmousedown='javascript:Cal.DecYear();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; color:" + YrSelColor + "'>-</span></td>";//Year scroller (decrease 1 year)
-            vCalHeader += "<td><span id='dec_month' title='reverse month' onmousedown='javascript:Cal.DecMonth();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'>&lt;</span></td>\n";//Month scroller (decrease 1 month)
+            vCalHeader += "<td><span id='dec_year' title='reverse year' onmousedown='javascript:Cal.DecYear();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; color:" + YrSelColor + "; cursor:pointer; padding:2px 5px; user-select:none;'>&laquo;</span></td>";//Year scroller (decrease 1 year)
+            vCalHeader += "<td><span id='dec_month' title='reverse month' onmousedown='javascript:Cal.DecMonth();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none;'>&lsaquo;</span></td>\n";//Month scroller (decrease 1 month)
             vCalHeader += "<td width='70%' class='calR' style='color:" + YrSelColor + "'>" + Cal.GetMonthName(ShowLongMonth) + " " + Cal.Year + "</td>\n"; //Month and Year
-            vCalHeader += "<td><span id='inc_month' title='forward month' onmousedown='javascript:Cal.IncMonth();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'>&gt;</span></td>\n";//Month scroller (increase 1 month)
-            vCalHeader += "<td><span id='inc_year' title='forward year' onmousedown='javascript:Cal.IncYear();RenderCssCal();'  onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; color:" + YrSelColor + "'>+</span></td>\n";//Year scroller (increase 1 year)
+            vCalHeader += "<td><span id='inc_month' title='forward month' onmousedown='javascript:Cal.IncMonth();RenderCssCal();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none;'>&rsaquo;</span></td>\n";//Month scroller (increase 1 month)
+            vCalHeader += "<td><span id='inc_year' title='forward year' onmousedown='javascript:Cal.IncYear();RenderCssCal();'  onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; color:" + YrSelColor + "; cursor:pointer; padding:2px 5px; user-select:none;'>&raquo;</span></td>\n";//Year scroller (increase 1 year)
             calHeight += 22;
         }
     }
@@ -767,9 +767,9 @@ RenderCssCal = function (bNewCal)
 
         vCalTime = "<tr><td colspan='7' style=\"text-align:center;\"><table style='margin:auto' border='0' cellpadding='0' cellspacing='0'><tbody><tr><td></td>";
 
-        if (ShowArrows && UseImageFiles) //this is where the up and down arrow control the hour.
+        if (ShowArrows) //this is where the up and down arrow control the hour.
         {
-            vCalTime += "<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;'><tr><td style='text-align:center;'><img onclick='nextStep(\"Hour\", \"plus\");' onmousedown='startSpin(\"Hour\", \"plus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "fn_up.png' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr><tr><td style='text-align:center;'><img onclick='nextStep(\"Hour\", \"minus\");' onmousedown='startSpin(\"Hour\", \"minus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "fn_down.png' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr></table></td>\n";
+            vCalTime += "<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;'><tr><td style='text-align:center;'><span onclick='nextStep(\"Hour\", \"plus\");' onmousedown='startSpin(\"Hour\", \"plus\");' onmouseup='stopSpin();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; user-select:none; display:inline-block; width:16px;' title='Aumenta ora'>&uarr;</span></td></tr><tr><td style='text-align:center;'><span onclick='nextStep(\"Hour\", \"minus\");' onmousedown='startSpin(\"Hour\", \"minus\");' onmouseup='stopSpin();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; user-select:none; display:inline-block; width:16px;' title='Diminuisci ora'>&darr;</span></td></tr></table></td>\n";
         }
 
         vCalTime += "<td ><input type='text' name='hour' maxlength='2' size='2'  value=" + showHour + " onkeyup=\"javascript:Cal.SetHour(this.value)\">";
@@ -794,9 +794,9 @@ RenderCssCal = function (bNewCal)
             vCalTime += "</select>";
         }
 
-        if (ShowArrows && UseImageFiles) //this is where the up and down arrow to change the "Minute".
+        if (ShowArrows) //this is where the up and down arrow to change the "Minute".
         {
-            vCalTime += "</td>\n<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;width:100%'><tr><td style='text-align:center;'><img onclick='nextStep(\"Minute\", \"plus\");' onmousedown='startSpin(\"Minute\", \"plus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "fn_up.png' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr><tr><td style='text-align:center;'><img onmousedown='startSpin(\"Minute\", \"minus\");' onmouseup='stopSpin();' onclick='nextStep(\"Minute\",\"minus\");' src='" + imageFilesPath + "fn_down.png' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr></table>";
+            vCalTime += "</td>\n<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;width:100%'><tr><td style='text-align:center;'><span onclick='nextStep(\"Minute\", \"plus\");' onmousedown='startSpin(\"Minute\", \"plus\");' onmouseup='stopSpin();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; user-select:none; display:inline-block; width:16px;' title='Aumenta minuto'>&uarr;</span></td></tr><tr><td style='text-align:center;'><span onmousedown='startSpin(\"Minute\", \"minus\");' onmouseup='stopSpin();' onclick='nextStep(\"Minute\",\"minus\");' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; user-select:none; display:inline-block; width:16px;' title='Diminuisci minuto'>&darr;</span></td></tr></table>";
         }
 
         vCalTime += "</td>\n<td></td></tr>";
@@ -806,9 +806,9 @@ RenderCssCal = function (bNewCal)
         vCalTime += "\n<tr>\n<td colspan='7' style=\"text-align:right;\">";
         //close button
         if (UseImageFiles) {
-            vCalClosing += "<img onmousedown='javascript:closewin(\"" + Cal.Ctrl + "\"); stopSpin();' src='" + imageFilesPath + "fn_close.png' width='16px' height='14px' onmouseover='changeBorder(this,0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td>";
+            vCalClosing += "<span onmousedown='javascript:closewin(\"" + Cal.Ctrl + "\"); stopSpin();' onmouseover='changeBorder(this,0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; cursor:pointer; padding:2px 5px; user-select:none; font-weight:bold;' title='Chiudi'>&times;</span></td>";
         } else {
-            vCalClosing += "<span id='close_cal' title='close'onmousedown='javascript:closewin(\"" + Cal.Ctrl + "\");stopSpin();' onmouseover='changeBorder(this, 0)'onmouseout='changeBorder(this, 1)' style='border:1px solid white; font-family: Arial;font-size: 10pt;'>x</span></td>";
+            vCalClosing += "<span id='close_cal' title='close' onmousedown='javascript:closewin(\"" + Cal.Ctrl + "\");stopSpin();' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white; font-family: Arial; font-size: 10pt; cursor:pointer; padding:2px 5px; user-select:none; font-weight:bold;'>&times;</span></td>";
         }
         vCalClosing += "</tr>";
     }
@@ -826,7 +826,7 @@ RenderCssCal = function (bNewCal)
     funcCalback += " CalId.value+=' '+Cal.getShowHour()+':'+Cal.Minutes;";
     funcCalback += " if (Cal.ShowSeconds)  CalId.value+=':'+Cal.Seconds;";
     funcCalback += " if (TimeMode === 12)  CalId.value+=''+Cal.getShowAMorPM();";
-    funcCalback += "}if(CalId.onchange!=undefined) CalId.onchange(); CalId.focus(); winCal.style.visibility='hidden';}";
+    funcCalback += "}if(CalId.onchange!=undefined) CalId.onchange(); var evt = new Event('change', {bubbles: true, cancelable: true}); CalId.dispatchEvent(evt); CalId.focus(); winCal.style.visibility='hidden';}";
 
     // determines if there is enough space to open the cal above the position where it is called
 

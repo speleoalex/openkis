@@ -390,7 +390,7 @@ else
         } catch (e)
         {
         }
-        div.innerHTML = "<div style=\"color:#ffffff;margin-top:" + getScrollY() + "px\" ><br />loading...<br /><br /><img  src='<?php echo "{$_FN['siteurl']}modules/dbview/" ?>loading.gif' /><br /><br /></div>";
+        div.innerHTML = "<div style=\"color:#ffffff;margin-top:" + getScrollY() + "px\" ><br />loading...<br /><br /><img  src='<?php echo FN_PathSite( "modules/dbview/loading.gif") ?>' /><br /><br /></div>";
         document.getElementsByTagName('body')[0].appendChild(div);
     }
 </script>

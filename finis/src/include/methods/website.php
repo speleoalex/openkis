@@ -3,7 +3,7 @@ $str = "";
 FN_InitSections();
 ob_start();
 global $_FN;
-if ($_FN['enable_mod_rewrite'] > 0)
+//if ($_FN['enable_mod_rewrite'] > 0)
 {
     header("Cache-Control: no-cache");
     header("Pragma: no-cache");

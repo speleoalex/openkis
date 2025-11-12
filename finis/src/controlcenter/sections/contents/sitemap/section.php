@@ -11,8 +11,9 @@ defined('_FNEXEC') or die('Restricted access');
 
 
 //echo FN_HtmlSectionEditor();
-
 global $_FN;
+require_once ("{$_FN['src_finis']}/include/admin.php");
+
 global $currentSectionType;
 $currentSectionType=null;
 $opt=FN_GetParam("opt",$_GET);
@@ -136,9 +137,9 @@ else
         if (empty($_GET["pk___xdb_fn_sections"]))
             echo "$img <a href=\"?fnapp=controlcenter&mod={$_FN['mod']}&amp;opt=$opt&amp;newsection=1\">".FN_i18n("create a new page")."</a>";
         $htmlgrid="";
-//          dprint_r("qui 0a:" . FN_GetExecuteTimer());  //1 sec
+//dprint_r("qui 0a:" . FN_GetExecuteTimer());  //1 sec
         FNCC_UpdateSections();
-//          dprint_r("qui 0b:" . FN_GetExecuteTimer()); //8sec
+//dprint_r("qui 0b:" . FN_GetExecuteTimer()); //8sec
         $table=FNCC_XmlForm("fn_sections");
 //($section="", $recursive=false, $onlyreadable = true, $hidden = false, $onlyenabled=true)
         $sections=FN_GetSections("",true,false,true,false,true);
@@ -444,7 +445,7 @@ var syncdiv = function (id)
 //-------section grid---------------------------------------------------------->
     if (!$newsection)
     {
-        // dprint_r("qui 1:" . FN_GetExecuteTimer());
+        //dprint_r("qui 1:" . FN_GetExecuteTimer());
         $table=FNCC_XmlForm("fn_sections");
         $table->formvals['id']['frm_show']=1;
         $table->formvals['position']['frm_show']=0;
@@ -508,7 +509,7 @@ var syncdiv = function (id)
                 echo "<h2>".FN_Translate("page")."</h2><div style=\"padding:5px;border:1px solid #dadada\">";
             }
            
-            FNCC_XmltableEditor("fn_sections",$params); //editor
+            FNCC_XMETATableEditor("fn_sections",$params); //editor
             $sectionvalues=FN_GetSectionValues($mod,false);
 
             if (!empty($mod))
@@ -635,7 +636,7 @@ var syncdiv = function (id)
                         {
                             if ($newsections[$k]['position']!= $sections[$k]['position'])
                             {
-                                // dprint_r("update {$newsections[$k]['position']} != {$sections[$k]['position']}");
+                                //dprint_r("update {$newsections[$k]['position']} != {$sections[$k]['position']}");
                                 $nv=$forminsert->UpdateRecord(array("id"=>$newsections[$k]['id'],"position"=>$newsections[$k]['position']));
                                 FNCC_UpdateDefaultXML($nv);
                             }
@@ -661,7 +662,7 @@ var syncdiv = function (id)
                 }
             }
             $html="";
-            $html.="<form method=\"post\" action=\""."{$_FN['controlcenter']}?fnapp=controlcenter&mod={$_FN['mod']}&amp;opt=$opt&amp;newsection=1"."\">ssss";
+            $html.="<form method=\"post\" action=\""."{$_FN['controlcenter']}?fnapp=controlcenter&mod={$_FN['mod']}&amp;opt=$opt&amp;newsection=1"."\">";
             $html.="<input type=\"hidden\" name=\"newsection\" value=\"1\"/>";
             $html.=FNADMIN_HtmlSectionsTree();
             $html.=$forminsert->HtmlShowInsertForm(false,$newvalues,$errors);

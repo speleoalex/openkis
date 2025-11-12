@@ -39,14 +39,16 @@ $loopManager = array();
 foreach ($items as $nrecord => $item) {
     $nrecord++;
     $lines = explode("\n", $item['cron_lines']);
-    foreach ($lines as $nLine=> $line) {
+    foreach ($lines as $nLine => $line) {
         $nLine++;
         $line = str_replace("\r", "", trim(ltrim($line)));
         if ($line != "") {
             if ($item['operation'] && FN_LoopManager::validateTimerString($line)) {
                 echo ("\nExecution schedule manager ($nrecord-$nLine):$line");
                 $loopManager[$i] = new FN_LoopManager($item['operation'], $line, $debugFile);
-                $loopManager[$i]->run();
+                $loopManager[$i]->run(function() use ($tablefn_cron, $item) {
+                    $tablefn_cron->UpdateRecord(array("last_execution" => FN_Now()), $item['id']);
+                });
                 $i++;
             } else {
                 echo ("\nsyntax error item $nrecord on line $nLine:" . $line);

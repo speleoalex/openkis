@@ -199,3 +199,10 @@ a.active:hover  {
 .bg-dark .dropdown-item {
     color: var(--bs-dark);
 }
+
+
+.table>:not(caption)>*>* { 
+/*    color: var(--bs-table-color-state, var(--bs-table-color-type, var(--bs-table-color))); */
+    background-color: inherit;
+}
+

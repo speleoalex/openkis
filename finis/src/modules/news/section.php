@@ -99,9 +99,9 @@ switch ($mode)
             
             echo FN_HtmlOpenTable();
             $news_contents = $CLASS_NEWS->GetNewsContents(false, $op);
-            if (isset($news_contents['unirecid']))
+            if (isset($news_contents['id']))
             {
-                $CLASS_NEWS->GestDelNewsComment($news_contents['unirecid']);
+                $CLASS_NEWS->GestDelNewsComment($news_contents['id']);
                 if (isset($news_contents['status']) && $news_contents['status'] == 1)
                 {
 
@@ -154,8 +154,8 @@ switch ($mode)
             if ($CLASS_NEWS->IsNewsAdministrator())
             {
                 echo FN_HtmlOpenTable();
-                echo "$imgnew<a href=\"" . FN_RewriteLink("?mod={$_FN['mod']}&amp;mode=edit&amp;op___xdb_{$CLASS_NEWS->tablename}=insnew&amp;opt=fnc_ccnf_section_{$_FN['mod']}") . "\">" . FN_Translate("add news") . "</a><br />\n";
-                echo "$imgedit&nbsp;<a href=\"" . FN_RewriteLink("?mod={$_FN['mod']}&amp;mode=edit&amp;opt=fnc_ccnf_section_{$_FN['mod']}") . "\">" . FN_Translate("edit news") . "</a><br />\n";
+                echo "$imgnew<a href=\"" . FN_RewriteLink("?mod={$_FN['mod']}&amp;mode=edit&amp;op___xdb_{$CLASS_NEWS->tablename}=insnew&amp;opt=rnt_ccnf_section_{$_FN['mod']}") . "\">" . FN_Translate("add news") . "</a><br />\n";
+                echo "$imgedit&nbsp;<a href=\"" . FN_RewriteLink("?mod={$_FN['mod']}&amp;mode=edit&amp;opt=rnt_ccnf_section_{$_FN['mod']}") . "\">" . FN_Translate("edit news") . "</a><br />\n";
                 echo FN_HtmlCloseTable();
             }
             elseif ($signews)

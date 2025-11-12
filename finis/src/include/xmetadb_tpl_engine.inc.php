@@ -385,6 +385,7 @@ function TPL_ApplyTplString($str, $vars, $basepath = false, $config = array())
             $listparams .= "$key = " . htmlentities($value) . "\n";
             $strout = str_replace("_startvar_" . $key . "_endvar_", "{" . $key . "}", $strout);
             $strout = str_replace("{" . $key . "}", TPL_encode($value), $strout);
+            
         }
     }
     $listparams .= "</pre>";

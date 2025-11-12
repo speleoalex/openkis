@@ -264,6 +264,10 @@ function FNREG_ManageEditRegister($user = "")
         $user = $_FN['user'];
     $oldvalues = FN_GetUser($user);
     $newvalues = $oldvalues;
+    if (!$newvalues)
+    {
+        return;
+    }
     $_FN['return']['fields'] = $form->formvals;
     $_FN['return']['uservalues'] = $newvalues;
     $reg_ok = false;

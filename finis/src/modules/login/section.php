@@ -9,19 +9,19 @@ global $_FN;
  */
 defined('_FNEXEC') or die('Restricted access');
 require_once("{$_FN['src_finis']}/modules/login/functions_login.php");
-global $_FN;
+if ($_FN['mod'] && file_exists("sections/{$_FN['mod']}/section.php")) {
+    include "sections/{$_FN['mod']}/section.php";
+}
 $op = FN_GetParam("op", $_GET);
 $username = FN_GetParam("user", $_GET);
 if (!FN_IsAdmin())
     $username = $_FN['user'];
 
-switch ($op)
-{
+switch ($op) {
     case "register":
     case "end_reg":
     case "send_code":
-        if (!empty($_FN['enable_registration']))
-        {
+        if (!empty($_FN['enable_registration'])) {
             FNREG_ManageRegister();
         }
         break;
@@ -39,18 +39,14 @@ switch ($op)
         $_FN['return'] = FN_GetUser($_FN['user']);
         break;
     default:
-        if ($_FN['user'] == "")
-        {
+        if ($_FN['user'] == "") {
             $templateForm = false;
             $tppath = FN_FromTheme("{$_FN['src_finis']}/modules/login/login.tp.html", false);
-            if (file_exists($tppath))
-            {
+            if (file_exists($tppath)) {
                 $templateForm = file_get_contents(FN_FromTheme("{$_FN['src_finis']}/modules/login/login.tp.html", false));
             }
             FN_LoginForm($templateForm);
-        }
-        else
-        {
+        } else {
             PrintUserProfile();
         }
         break;
@@ -64,22 +60,17 @@ function PrintUserProfile()
     if (!FN_IsAdmin())
         $username = $_FN['user'];
 
-    if (empty($op))
-    {
+    if (empty($op)) {
         echo FN_HtmlContent("{$_FN['src_application']}/sections/{$_FN['mod']}");
     }
-    if ($_FN['user'] == "")
-    {
+    if ($_FN['user'] == "") {
         $templateForm = false;
         $tppath = FN_FromTheme("{$_FN['src_finis']}/modules/login/login.tp.html", false);
-        if (file_exists($tppath))
-        {
+        if (file_exists($tppath)) {
             $templateForm = file_get_contents(FN_FromTheme("{$_FN['src_finis']}/modules/login/login.tp.html", false));
         }
         FN_LoginForm($templateForm);
-    }
-    else
-    {
+    } else {
         $templateStr = file_get_contents(FN_FromTheme("{$_FN['src_finis']}/modules/login/profile.tp.html", false));
         $tplbasepath = dirname(FN_FromTheme("{$_FN['src_finis']}/modules/login/profile.tp.html", false)) . "/";
         $tplvars = FN_GetUser($_FN['user']);
@@ -90,31 +81,24 @@ function PrintUserProfile()
         $uservalues = FN_GetUser($_FN['user']);
         $todisplay = array();
         $form = FN_GetUserForm();
-        foreach ($uservalues as $k => $v)
-        {
-            if (!isset($form->formvals[$k]))
-            {
+        foreach ($uservalues as $k => $v) {
+            if (!isset($form->formvals[$k])) {
                 continue;
             }
             //dprint_r($form->formvals[$k]);
-            if (isset($form->formvals[$k]['frm_show']) && $form->formvals[$k]['frm_show'] == false)
-            {
+            if (isset($form->formvals[$k]['frm_show']) && $form->formvals[$k]['frm_show'] == false) {
                 continue;
             }
-            if (isset($form->formvals[$k]['view_show']) && $form->formvals[$k]['view_show'] == false)
-            {
+            if (isset($form->formvals[$k]['view_show']) && $form->formvals[$k]['view_show'] == false) {
                 continue;
             }
-            if (isset($form->formvals[$k]['showinprofile']) && $form->formvals[$k]['showinprofile'] == false)
-            {
+            if (isset($form->formvals[$k]['showinprofile']) && $form->formvals[$k]['showinprofile'] == false) {
                 continue;
             }
-            if (isset($form->formvals[$k]['frm_allowupdate']) && $form->formvals[$k]['frm_allowupdate'] != true)
-            {
+            if (isset($form->formvals[$k]['frm_allowupdate']) && $form->formvals[$k]['frm_allowupdate'] != true) {
                 continue;
             }
-            if ($form->formvals[$k]['frm_type'] == "password" || strstr($form->formvals[$k]['frm_type'], "passwd") !== false)
-            {
+            if ($form->formvals[$k]['frm_type'] == "password" || strstr($form->formvals[$k]['frm_type'], "passwd") !== false) {
                 continue;
             }
             $todisplay_item = array();
@@ -124,8 +108,7 @@ function PrintUserProfile()
             $todisplay[] = $todisplay_item;
         }
         $tplvars['uservalues'] = $todisplay;
-        foreach ($tplvars as $k => $var)
-        {
+        foreach ($tplvars as $k => $var) {
             if ($k != "password")
                 $_FN['return'][$k] = $var;
         }

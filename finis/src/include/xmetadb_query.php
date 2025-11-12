@@ -17,7 +17,7 @@ class XMETADatabase
         $this->databasename = $databasename;
         $this->path = $path;
         $this->params = $params;
-       // dprint_r($this->params);
+       //dprint_r($this->params);
         
     }
     function encode_preg($str)
@@ -551,7 +551,7 @@ class XMETADatabase
         $where2 = preg_replace('/(\w+)[\040]+(<>)[\040]+([\'])%([^\']*?)%([\'])/i', '!preg_match(\'/\'.XMETADatabase::encode_preg(\'${4}\').\'/i\',(\$item[\'${1}\']))', $where2);
         //dprint_r($where2);
         $where2 = str_replace("$apice", "\\'", $where2);
-        // dprint_r("w2=$where2");
+        //dprint_r("w2=$where2");
         return $where2;
     }
 

@@ -199,6 +199,7 @@ function fn_loading(_div)
         div.style.backgroundColor='#000000';
         div.style.color='#ffffff';
         div.style.display='block';
+        div.style.zIndex=999;
         div.style.position='absolute';
         div.style.width=oWidth;
         div.style.height = oHeight;
@@ -214,7 +215,7 @@ function fn_loading(_div)
     {
 		
     }
-    div.innerHTML = "<div id=\"fnajloading\" style=\"color:#ffffff;margin-top:"+fn_getScrollY()+"px\" ><br />Loading...<br /><br /><img  src='"+fn_to_ajaxFilesPath+"../../images/loading.gif' /><br /><br /></div>";
+    div.innerHTML = "<div id=\"fnajloading\" style=\"z-index:999;color:#ffffff;margin-top:"+fn_getScrollY()+"px\" ><br />Loading...<br /><br /><img  src='"+fn_to_ajaxFilesPath+"../../images/loading.gif' /><br /><br /></div>";
     var listdivs = _div.split(',');
     try{
         if (!document.getElementById("fnajloading"))

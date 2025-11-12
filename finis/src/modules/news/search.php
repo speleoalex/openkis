@@ -33,7 +33,7 @@ function FNSEARCH_module_news($tosearch_array, $method, $sectionvalues,$maxres)
 	$tmpmethod = "";
 	foreach ($Table->fields as $fieldstoread => $fieldvalues)
 	{
-		if ($fieldstoread != "insert" && $fieldstoread != "update" && $fieldstoread != "unirecid" && $fieldvalues->type != "check")
+		if ($fieldstoread != "insert" && $fieldstoread != "update" && $fieldstoread != "id" && $fieldvalues->type != "check")
 		{
 			foreach ($tosearch_array as $f)
 			{

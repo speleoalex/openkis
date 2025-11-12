@@ -32,7 +32,7 @@ class FNDBVIEW
         $htmlLog = "";
         if (!file_exists("{$_FN['datadir']}/fndatabase/fieldusers")) {
             $sfields = array();
-            $sfields[0]['name'] = "unirecid";
+            $sfields[0]['name'] = "id";
             $sfields[0]['primarykey'] = "1";
             $sfields[0]['extra'] = "autoincrement";
             $sfields[1]['name'] = "username";
@@ -75,7 +75,7 @@ class FNDBVIEW
             if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}" . "_stat") || !file_exists("{$_FN['datadir']}/{$_FN['database']}/{$tablename}" . "_stat.php")) {
                 //$htmlLog.= "<br>creazione statistiche $tablename";
                 $sfields = array();
-                $sfields[0]['name'] = "unirecid";
+                $sfields[0]['name'] = "id";
                 $sfields[0]['primarykey'] = "1";
                 $sfields[1]['name'] = "view";
                 $htmlLog .= XMETATable::createMetadbTable($_FN['database'], $tablename . "_stat", $sfields, $_FN['datadir']);
@@ -84,7 +84,7 @@ class FNDBVIEW
         //------------------- tabella permessi tabelle -------------------------
         if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/fieldusers")) {
             $sfields = array();
-            $sfields[0]['name'] = "unirecid";
+            $sfields[0]['name'] = "id";
             $sfields[0]['primarykey'] = "1";
             $sfields[0]['extra'] = "autoincrement";
             $sfields[1]['name'] = "username";
@@ -254,7 +254,7 @@ class FNDBVIEW
         $findtextquery = "";
         $tmpmethod = "";
         foreach ($t->xmltable->fields as $fieldstoread => $fieldvalues) {
-            if ($fieldstoread != "insert" && $fieldstoread != "update" && $fieldstoread != "unirecid" && $fieldstoread != "unirecid" && $fieldvalues->type != "check") {
+            if ($fieldstoread != "insert" && $fieldstoread != "update" && $fieldstoread != "id" && $fieldstoread != "id" && $fieldvalues->type != "check") {
                 foreach ($listfind as $f) {
                     if ($f != "") {
                         if (isset($fieldvalues->foreignkey) && isset($fieldvalues->fk_link_field)) {
@@ -455,7 +455,7 @@ class FNDBVIEW
                 dprint_r("nocache");
             }
         } elseif (!$cache && isset($_GET['debug'])) {
-            // dprint_r(__FILE__ . " " . __LINE__ . " : EMPTY CACHE in\n $query\n" . FN_GetExecuteTimer());
+            //dprint_r(__FILE__ . " " . __LINE__ . " : EMPTY CACHE in\n $query\n" . FN_GetExecuteTimer());
         }
         //$query = "SELECT * FROM $tablename";
         if (!empty($config['search_query_native_mysql'])) {
@@ -469,7 +469,7 @@ class FNDBVIEW
         FN_SetGlobalVarValue("results_updated" . $idresult, time());
 
 
-        // dprint_r($query);
+        //dprint_r($query);
         //DEBUG: print query
         if (isset($_GET['debug'])) {
             dprint_r($query);
@@ -500,7 +500,7 @@ class FNDBVIEW
             $this->SaveToCSV($csvres, "export.csv");
         }
         //----------------export------------------------------------------------------->		
-        //  dprint_r(__LINE__." : ".FN_GetExecuteTimer());
+        //dprint_r(__LINE__." : ".FN_GetExecuteTimer());
 
         return $res;
     }
@@ -583,10 +583,10 @@ class FNDBVIEW
             return $_FN['siteurl'] . str_replace($blank, "", $link);
 
         $link = str_replace($blank, "", $link);
-        // dprint_r($params);
-        // dprint_r($link);
+        //dprint_r($params);
+        //dprint_r($link);
         $link = FN_RewriteLink($link, $sep, true);
-        //  dprint_r($link);
+        //dprint_r($link);
         return $link;
     }
 
@@ -810,8 +810,8 @@ class FNDBVIEW
         $html = "";
         $tablelinks = FN_XMDBForm("$tablename" . "_comments");
         if (FN_IsAdmin() && isset($_GET['unirecidrecord']) && $_GET['unirecidrecord'] != "") {
-            $r['unirecid'] = $_GET['unirecidrecord'];
-            $tablelinks->xmltable->DelRecord($r['unirecid']);
+            $r['id'] = $_GET['unirecidrecord'];
+            $tablelinks->xmltable->DelRecord($r['id']);
             $html .= FN_Translate("the comment was deleted") . "<br />";
             FN_Log("{$_FN['mod']}", $_SERVER['REMOTE_ADDR'] . "||" . $_FN['user'] . "||Table $tablename delete comments in record $id_record");
             $Table = FN_XMDBForm($_FN['database']);
@@ -1232,7 +1232,7 @@ class FNDBVIEW
             return false;
         $t = FN_XMDBTable($tablename);
         $restr = array();
-        //    dprint_r($row);
+        //dprint_r($row);
         $restr['table_unirecid'] = $row[$t->primarykey];
         $restr['tablename'] = $tablename;
         $restr['username'] = $user;
@@ -1630,10 +1630,7 @@ class FNDBVIEW
         }
 
 
-        /*
-          dprint_xml($templateString);
-          dprint_r($tplvars['items']);
-          ob_end_flush(); */
+
 
         //dprint_xml($templateString);
         if (isset($_GET['debug'])) {
@@ -1769,21 +1766,21 @@ class FNDBVIEW
                 $Table2 = FN_XMDBTable($tablename);
                 $ff = array();
                 $ff['view'] = $id_record;
-                $ff['unirecid'] = $id_record;
+                $ff['id'] = $id_record;
                 //dprint_r($ff);
                 $Table2->UpdateRecord($ff);
                 $row = $Table2->GetRecordByPrimaryKey($id_record);
             }
             if (!file_exists("{$_FN['datadir']}/{$_FN['database']}/$tablename" . "_stat")) {
                 $sfields = array();
-                $sfields[0]['name'] = "unirecid";
+                $sfields[0]['name'] = "id";
                 $sfields[0]['primarykey'] = "1";
                 $sfields[1]['name'] = "view";
                 XMETATable::createMetadbTable($_FN['database'], $tablename . "_stat", $sfields, $_FN['datadir']);
             }
             $tbtmp = FN_XMDBTable($tablename . "_stat");
 
-            $tmprow['unirecid'] = $row[$t->xmltable->primarykey];
+            $tmprow['id'] = $row[$t->xmltable->primarykey];
             if (($oldview = $tbtmp->GetRecordByPrimaryKey($row[$t->xmltable->primarykey])) == false) {
                 $tmprow['view'] = 1;
                 $rowtmp = $tbtmp->InsertRecord($tmprow);
@@ -1897,7 +1894,7 @@ class FNDBVIEW
         //------------------------------ INNER TABLES----------------------------------<
         //xdprint_r($tpvars);
         //        dprint_xml($template);
-        //        dprint_r($tpvars['navigationbar']);
+        //dprint_r($tpvars['navigationbar']);
         $template = FN_TPL_ApplyTplString($template, $tpvars);
         //        dprint_xml($template);
         //        @ob_end_flush();
@@ -2251,7 +2248,7 @@ select_allcke = function(el){
 
                 addxmltablefield($Table->databasename, $Table->tablename, $tfield, $Table->path);
             }
-            $newvalues = array("unirecid" => $id_record, "recorddeleted" => 1);
+            $newvalues = array("id" => $id_record, "recorddeleted" => 1);
             FN_SetGlobalVarValue($tablename . "updated", time());
             $Table->UpdateRecord($newvalues);
         }
@@ -2267,7 +2264,7 @@ select_allcke = function(el){
             $list_field = $listusers->GetRecords($restr);
             if (is_array($list_field)) {
                 foreach ($list_field as $field) {
-                    $listusers->DelRecord($field['unirecid']);
+                    $listusers->DelRecord($field['id']);
                 }
             }
             $Table->DelRecord($id_record);
@@ -2748,7 +2745,7 @@ set_changed();
             // $data['rules']=array();
         }
 
-        //    dprint_r($data);
+        //dprint_r($data);
         //-------------------------rules------------------------------------------->
         //----------------------search exact phrase-------------------------------->
         $search_fields_items = array();

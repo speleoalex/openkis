@@ -38,4 +38,4 @@ if (is_array($array_filters))
 
 
 
-FNCC_XmltableEditor($tablename, $params);
+FNCC_XMETATableEditor($tablename, $params);

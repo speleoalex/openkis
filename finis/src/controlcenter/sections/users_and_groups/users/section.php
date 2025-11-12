@@ -32,7 +32,7 @@ if ($userid)
     }
     else
     {
-        require_once 'modules/login/functions_login.php';
+        require_once $_FN['src_finis'].'/modules/login/functions_login.php';
         $uservalues = FN_UpdateUser($userid, array("{$form->fieldname_active}" => $active));
         if ($uservalues && $active && $sendwelcomemessage)
         {
@@ -159,7 +159,7 @@ if (empty($params['html_template_grid']))
 }
 //----------------------------       tabs             -------------------------<
 $params['tabs_restrictions']=$tabs_restrictions;
-FNCC_xmltableeditor($form, $params);
+FNCC_XMETATableEditor($form, $params);
 
 /**
  * 

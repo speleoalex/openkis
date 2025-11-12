@@ -1,28 +1,32 @@
-<div class="container-fluid" >
+<div class="container-fluid">
     <h3>{i18n:Login}</h3>
-    <form role="form"  action="{formaction}" method="post" name="login" >
-        <input class="form-control" placeholder="{i18n:Username}" name="username" type="text" >
-        <input  class="form-control" name="password" type="password" placeholder="Password">
+    <form role="form" action="{formaction}" method="post" name="login">
+        <input class="form-control" placeholder="{i18n:Username}" name="username" type="text">
+        <input class="form-control" name="password" type="password" placeholder="Password">
         <!-- captcha -->
         {i18n:Enter this security code}:<br />
         {htmlcaptcha}
         <!-- end captcha -->
-        
+        <!-- if {remember_login} -->
+        <div><input type="checkbox" name="rememberlogin" value="1" />&nbsp;{i18n:Stay connected}</div>
+        <!-- end if {remember_login} -->
         <br />
         <button type="submit" class="btn btn-primary">{i18n:Login}</button>
-    <!-- register --> 
-    <a class="btn btn-primary" href="{urlregister}">{i18n:Register}</a>
-    <!-- end register --> 
+        <!-- register -->
+        <a class="btn btn-primary" href="{urlregister}">{i18n:Register}</a>
+        <!-- end register -->
         <!-- passwordrecovery -->
-        <a href="{urlpasswordrecovery}" >{i18n:Password recovery}</a>
+        <a href="{urlpasswordrecovery}">{i18n:Password recovery}</a>
         <!-- end passwordrecovery -->
-        <!-- loginerror --><br /><br /><div class="alert alert-danger" >{login_error}</div><!-- end loginerror -->
+        <!-- loginerror --><br /><br />
+        <div class="alert alert-danger">{login_error}</div><!-- end loginerror -->
     </form>
-    
+
     <!-- if {oauth_providers} -->
     <hr />
     <!-- end if {oauth_providers} -->
     <!-- foreach {oauth_providers} -->
-    <a class="btn btn-outline-secondary" href="{url}"><!-- if {urlimage} --><img style="max-height:30px;" src="{urlimage}" /> <!-- end if {urlimage} -->{i18n:Continue width}: {name}</a> 
+    <a class="btn btn-outline-secondary" href="{url}"><!-- if {urlimage} --><img style="max-height:30px;"
+            src="{urlimage}" /> <!-- end if {urlimage} -->{i18n:Continue width}: {name}</a>
     <!-- end foreach {oauth_providers} -->
 </div>

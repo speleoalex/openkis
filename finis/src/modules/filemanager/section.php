@@ -204,7 +204,7 @@ if (FN_IsAdmin() || $_FN['user'] != "")
             if ($table != "" && $id != "" && $field != "")
             {
                 $tb = new XMETATable("$d", $table, $_FN['datadir']);
-                $filename = $tb->get_file(array("unirecid" => $id), "$field");
+                $filename = $tb->get_file(array("id" => $id), "$field");
                 $filename = str_replace($_FN['siteurl'], "", $filename);
             }
             if ($maxh == "" && $maxw == "")
@@ -931,7 +931,7 @@ function fm_Browse($dir)
             }
         }
     }
-    // dprint_r($listfiles);
+    //dprint_r($listfiles);
     $listdir = xmetadb_array_natsort_by_key($listdir, $order);
     $listfiles = xmetadb_array_natsort_by_key($listfiles, $order);
     if ($viewmode == "")
@@ -1375,7 +1375,7 @@ function fm_MimeContentType($f)
  */
 function fm_absolutepath($path)
 {
-    // dprint_r($path);
+    //dprint_r($path);
     $out = array();
     foreach (explode('/', $path) as $i => $fold)
     {
@@ -1387,7 +1387,7 @@ function fm_absolutepath($path)
             $out[] = $fold;
     }
     $path = ($path[0] == '/' ? '/' : '') . join('/', $out);
-    // dprint_r($path);
+    //dprint_r($path);
     return $path;
 }
 
