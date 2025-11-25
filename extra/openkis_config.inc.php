@@ -1,9 +1,9 @@
 <?php
-global $xmetadb_mysqlhost,$xmetadb_mysqldatabase,$xmetadb_mysqlusername,$xmetadb_mysqlpassword,$_FN_default_database_driver;
-$xmetadb_mysqlhost="localhost";
-$xmetadb_mysqldatabase="openkis_example";
-$xmetadb_mysqlusername="root";
-$xmetadb_mysqlpassword="";
+global $_FN;
+$_FN['xmetadb_mysqlhost']="localhost";
+$_FN['xmetadb_mysqldatabase']="openkis_example";
+$_FN['xmetadb_mysqlusername']="root";
+$_FN['xmetadb_mysqlpassword']="";
 
 
 $_FN['openkis_custom']="default"; //region identifier, used to load custom functions in extra/openkis/custom
