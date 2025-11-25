@@ -6,6 +6,7 @@ class xmetadbfrm_field_regione
 
     function show($params)
     {
+        static $htmljs="...";
         $comuni=FN_ReadCsvDatabase(__DIR__."/comuni.csv",",");
         foreach($comuni as $comune)
         {
@@ -23,13 +24,11 @@ class xmetadbfrm_field_regione
         }
         $regioni=FN_ArraySortByKey($regioni,"name");
         // dprint_r($regioni);
-        $toltips=($params['frm_help']!= "") ? "title=\"".$params['frm_help']."\"" : "";
-        $size=isset($params['frm_size']) ? $params['frm_size'] : 30;
-        static $htmljs=true;
         if ($htmljs)
         {
             $htmljs="<script>".file_get_contents(__DIR__."/update_comuniprovince.js")."</script>";
             $htmljs.="\n<script type=\"text/javascript\">
+                console.log(\"xmetadbfrm_field_regione\");
                 var regioni=".json_encode($regioni)."	
 		</script>";
         }

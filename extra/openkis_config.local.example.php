@@ -1,11 +1,11 @@
 <?php
-global $xmldb_mysqlhost,$xmldb_mysqldatabase,$xmldb_mysqlusername,$xmldb_mysqlpassword,$_FN_default_database_driver;
+global $_FN;
 
-$xmldb_mysqlhost = 'localhost';
-$xmldb_mysqldatabase = 'dbcave';
-$xmldb_mysqlusername = 'root';
-$xmldb_mysqlpassword = '';
-if ($xmldb_mysqldatabase == "")
+$_FN['xmetadb_mysqlhost'] = 'localhost';
+$_FN['xmetadb_mysqldatabase'] = 'dbcave';
+$_FN['xmetadb_mysqlusername'] = 'root';
+$_FN['xmetadb_mysqlpassword'] = '';
+if ($_FN['xmetadb_mysqldatabase'] == "")
 {
 	die("insert db config in ".__FILE__);
 }

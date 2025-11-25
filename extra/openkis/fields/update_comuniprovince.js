@@ -29,7 +29,11 @@ updateProvince = function () {
 window.addEventListener('load', (event) => {
     var regione = document.getElementById("select_regione").value;
     var provincia = document.getElementById("select_provincia").value;
-    if (regione !== "" && provincia === null) {
+    console.log("regione="+regione);
+    console.log("provincia="+provincia);
+    if (regione !== "" && provincia == "" ) {
         updateProvince();
     }
 });
+
+//console.log("comuni");

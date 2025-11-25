@@ -1,7 +1,7 @@
 <?php
 
 global $_FN;
-include ("include/flatnux.php");
+include ("loadfinis.php");
 $lat=FN_GetParam("lat",$_GET);
 $lon=FN_GetParam("lon",$_GET);
 $address=FN_GetParam("address",$_GET);

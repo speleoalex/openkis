@@ -339,7 +339,6 @@
     <field>
         <name>check_date</name>
         <frm_it>Data ultima verifica sul campo</frm_it>
-        <type>string</type>
         <type>datetime</type>
         <frm_show>1</frm_show>
         <frm_dateformat>y-mm-dd</frm_dateformat>
@@ -519,7 +518,7 @@
         <view_group_i18n>Dati compilazione</view_group_i18n>
         <frm_it>Data importazione</frm_it>
         <type>datetime</type>
-        <view_dateformat>dd/mm/y</view_dateformat>
+        <view_dateformat>dd/mm/y</view_dateformat>        
         <frm_show>0</frm_show>
         <view_show>1</view_show>
     </field>
@@ -603,6 +602,8 @@
         <frm_it>Data curatore</frm_it>
         <frm_help_i18n>field reserved for curator</frm_help_i18n>
         <type>datetime</type>
+        <frm_show>1</frm_show>
+        <frm_dateformat>y-mm-dd</frm_dateformat>
         <frm_show>1</frm_show>
         <frm_dateformat>y-mm-dd</frm_dateformat>
         <view_dateformat>dd/mm/y</view_dateformat>

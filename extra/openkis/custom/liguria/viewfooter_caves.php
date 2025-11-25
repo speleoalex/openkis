@@ -212,7 +212,7 @@ if (file_exists("../nextcloud/data/catasto/files/schede_dsl/"))
         echo "<h3>Documentazione Delegazione Speleologica Ligure</h3>";
         echo "<div class=\"alert alert-warning\">";
         echo "<div class=\"card-columns row\">";
-        if (FN_IsAdmin() || FN_UserInGroup($_FN['user'], "catastoscrittura"))
+        if (FN_IsAdmin() || FN_UserInGroup($_FN['user'], "w_caves"))
         {
             foreach ($list as $item)
             {

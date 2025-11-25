@@ -9,17 +9,17 @@
 	<fn_settings>
 		<varname>sitename</varname>
 		<varvalue>dbcave</varvalue>
-		<defaultvalue>Flatnux-NEXT</defaultvalue>
+		<defaultvalue>Finis</defaultvalue>
 	</fn_settings>
 	<fn_settings>
 		<varname>site_title</varname>
 		<varvalue>Portale Speleo</varvalue>
-		<defaultvalue>Flatnux CMS</defaultvalue>
+		<defaultvalue>Finis CMS</defaultvalue>
 	</fn_settings>
 	<fn_settings>
 		<varname>site_subtitle</varname>
 		<varvalue>www.flatnux.org</varvalue>
-		<defaultvalue>www.flatnux.org</defaultvalue>
+		<defaultvalue>f.i.n.i.s.</defaultvalue>
 	</fn_settings>
 	<fn_settings>
 		<varname>keywords</varname>
@@ -134,7 +134,7 @@
 	<fn_settings>
 		<varname>credits</varname>
 		<varvalue>Powered by &lt;a href='http://www.flatnux.org'&gt;Flatnux&lt;/a&gt;</varvalue>
-		<defaultvalue>Powered by &lt;a href='http://www.flatnux.org'&gt;Flatnux&lt;/a&gt;</defaultvalue>
+		<defaultvalue>Powered by Finis</defaultvalue>
 	</fn_settings>
 	<fn_settings>
 		<varname>maintenance</varname>
@@ -144,7 +144,7 @@
 	<fn_settings>
 		<varname>url_update</varname>
 		<varvalue>http://www.flatnux.altervista.org/updates/FLATNUXSTABLE</varvalue>
-		<defaultvalue>http://www.flatnux.altervista.org/updates/FLATNUXSTABLE</defaultvalue>
+		<defaultvalue></defaultvalue>
 	</fn_settings>
 	<fn_settings>
 		<varname>use_cache</varname>
