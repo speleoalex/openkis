@@ -194,9 +194,9 @@ window.setTimeout(function () {
             $.each(strs, function (i, str) {
                 OPS_Map.getKmlPoints();
                 $.each(OPS_Map.KmlPoints, function (ii, str) {
-                    var name = OPS_Map.KmlPoints[ii]['name'].toString();
+                    var name = decodeHtml(OPS_Map.KmlPoints[ii]['name'].toString());
                     if (substrRegex.test(name)) {
-                        matches.push((name));
+                        matches.push(name);
                     }
                 });
             });

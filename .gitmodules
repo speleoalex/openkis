@@ -1,0 +1,3 @@
+[submodule "finis"]
+	path = finis
+	url = https://github.com/speleoalex/finis.git
