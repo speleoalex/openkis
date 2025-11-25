@@ -1,0 +1,24 @@
+extra/openkis_config.local.php
+wms_download.php
+
+# Framework generated files (daemon user)
+.htaccess
+controlcenter/
+images/
+include/
+languages/
+modules/
+themes/default/
+misc/_cache/
+misc/openkis_icons/
+sitemap-*.xml
+misc/fndatabase/fn_*/
+misc/fndatabase/fn_*.php
+misc/fndatabase/fncf_*/
+misc/fndatabase/fncf_*.php
+misc/fndatabase/themes_s_*/
+misc/fndatabase/themes_s_*.php
+misc/fndatabase/fieldusers.php
+misc/fndatabase/fieldusers/
+misc/fndatabase/ctl_*/
+CLAUDE.md
