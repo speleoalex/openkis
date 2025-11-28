@@ -16,5 +16,4 @@ foreach($results as $item)
 {
     $icon=openkis_GetIcon($item,$mod);
 }
-die("ss");
 ?>

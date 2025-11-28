@@ -186,12 +186,12 @@ function openkis_GetIcon($itemvalues, $mod)
     $iconparams = array();
     $iconparams['mod'] = $mod;
     //discendente
-    if (isset($itemvalues['depth_negative']) && $itemvalues['depth_negative'] !== "" && abs($itemvalues['depth_negative']) >= $itemvalues['depth_positive'])
+    if (isset($itemvalues['depth_negative']) && $itemvalues['depth_negative'] !== "" && abs(intval($itemvalues['depth_negative'])) >= intval($itemvalues['depth_positive']))
     {
         $iconparams['trend'] = "desc";
     }
     //ascendente
-    elseif (isset($itemvalues['depth_positive']) && $itemvalues['depth_positive'] !== "" && abs($itemvalues['depth_positive']) >= $itemvalues['depth_negative'])
+    elseif (isset($itemvalues['depth_positive']) && $itemvalues['depth_positive'] !== "" && abs(intval($itemvalues['depth_positive'])) >= intval($itemvalues['depth_negative']))
     {
         $iconparams['trend'] = "asc";
     }
