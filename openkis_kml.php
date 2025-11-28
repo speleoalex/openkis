@@ -3,6 +3,7 @@ ob_start();
 global $_FN;
 require_once "loadfinis.php";
 require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+@ini_set("memory_limit", "912M");
 FN_LoadMessagesFolder("extra/openkis");
 $_FN['enable_compress_gzip']=1;
 
@@ -69,6 +70,7 @@ else
 }
 
 $results=$dbview->GetResults(false,$params,$idresult);
+
 //evita di ricalcolare tutto se non è cambiato niente nel db o in questo file-->
 $idcache="$idresult$minimal$big_icons$absolute$iconsize";
 if ($_FN['enable_compress_gzip'])
@@ -189,15 +191,7 @@ foreach($results as $item)
             $siteurl=str_replace("https://","//",$_FN['siteurl']);
             $siteurl=str_replace("http://","//",$siteurl);
         }
-        //$siteurl=$_FN['siteurl'];
-        
         $icon=$siteurl.openkis_GetIcon($item,$mod);
-        
-       // dprint_r($icon);
-        
-//        die();
-//        $icon=$_FN['siteurl'].openkis_GetIcon($item,$mod);
-        /* 88x128 */
         if ($elevation== "")
         {
             $elevation="0";
@@ -214,6 +208,9 @@ foreach($results as $item)
         $cx++;
     }
 }
+//dprint_r($tplvars);
+//die();
+
 if (isset($_GET['debug']))
 {
     dprint_r(__FILE__." ".__LINE__." : pre tpl ".FN_GetExecuteTimer());
@@ -237,6 +234,8 @@ if ("$idresult")
         dprint_r(__FILE__." ".__LINE__." : FN_SetGlobalVarValue  ".FN_GetExecuteTimer());
     }
 }
+
+
 PrintKml($str,$filename);
 
 /**

@@ -1,46 +1,212 @@
-<script type="text/javascript">
-    trh = function (over, elem) {
-        var old;
-        if (over) {
-            this.old = elem.style.backgroundColor;
-            elem.style.backgroundColor = '#dadada';
-        } else {
-            elem.style.backgroundColor = this.old;
-        }
-    }
-</script>            
-    <!-- start grid --><ul class="pagination"><!-- start pages -->
-    <!-- start page --><li class="page-item"><a class="page-link" href="{pagelink}">{pagetitle}</a></li> <!-- end page -->
-    <!-- start currentpage --><li class="page-item active" ><a class="page-link" href="{pagelink}">{pagetitle}</a></li> <!-- end currentpage --> 
-    <!-- end pages --></ul>
-    <!-- start table -->
-<div class="table-responsive">
-    <table id="keywords" class="table table-striped table-hover table-responsive text-left">
-        <thead>
-            <!-- start gridheader -->
-            <!-- start gridrow -->
-            <tr>
-                <!-- start gridfields -->
-                <!-- start gridfield --><th>{fieldvalue}</th><!-- end gridfield -->
-                <!-- end gridfields -->
-                <th colspan="{numactions}"> </th>
-            </tr><!-- end gridrow -->
-            <!-- end gridheader -->
-        </thead>
-        <tbody>
-            <!-- start gridbody -->
-            <!-- start gridrow -->
-            <tr>
-                <!-- start gridfields -->
-                <!-- start gridfield --><td>{fieldvalue}</td><!-- end gridfield -->
-                <!-- end gridfields -->
-            </tr>
-            <!-- end gridrow --> 
-            <!-- end gridbody -->
-        </tbody>           
-    </table>
+<!-- if {filters} -->
+<div class="card border-0 shadow-sm mb-4 grid-filter-card">
+    <div class="card-header bg-gradient-primary py-3">
+        <h6 class="card-title mb-0 text-white d-flex align-items-center">
+            <i class="fas fa-filter me-2"></i>
+            <span>{i18n:Filter}</span>
+        </h6>
+    </div>
+    <div class="card-body py-3 px-4">
+        <form onchange="return fn_FormToAjax(this,'xmetadbform,xmdbPagination')" onsubmit="return fn_FormToAjax(this,'xmetadbform,xmdbPagination')" method="{method}">
+            <div class="row g-3 align-items-end">
+                <!-- foreach {filters} -->
+                <!-- inputattributes:class="form-control"  -->
+                <!-- if not {options} -->
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <!-- if {input} -->
+                            {input}
+                        <!-- end if {input} -->
+                        <!-- if not {input} -->
+                        <input class="form-control" type="text" placeholder="{title}" id="filter_{name}"
+                            name="{name}" value="{value.addHtmlEntities()}" />
+                        <!-- end if not {input} -->
+                        <label for="filter_{name}" class="text-muted">{title}</label>
+                    </div>
+                </div>
+                <!-- end if not {options} -->
+                <!-- if {options} -->
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select class="form-select" name="{name}" id="filter_select_{name}"
+                            data-value="{value.addHtmlEntities()}">
+                            <option value="">-- {i18n:Select} --</option>
+                            <!-- foreach {options} -->
+                            <!-- if {selected} -->
+                            <option value="{value}" selected="selected">{title}</option>
+                            <!-- end if {selected} -->
+                            <!-- if not {selected} -->
+                            <option value="{value}">{title}</option>
+                            <!-- end if not {selected} -->
+                            <!-- end foreach {options} -->
+                        </select>
+                        <label for="filter_select_{name}" class="text-muted">{title}</label>
+                    </div>
+                </div>
+                <!-- end if {options} -->
+                <!-- end foreach {filters} -->
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-fill px-4 py-2 shadow-sm" type="submit">
+                            <i class="fas fa-search me-1"></i> {i18n:Search}
+                        </button>
+                        <button class="btn btn-outline-secondary px-3 py-2 shadow-sm" type="button"
+                            onclick="window.location = '{urlreset}'" title="Reset">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
-<br />
-<!-- end table --><!-- end grid --><!-- start insertnew -->
-<p><button  class="btn btn-primary" type="button" onclick="window.location = '{urlnewrecord}'">{textnew}</button></p>
-<!-- end insertnew -->
+<!-- end if {filters} -->
+<div id="xmetadbform" class="card border-0 shadow-sm modern-grid-card">
+    <div class="card-body p-0">
+        <div class="grid-toolbar d-flex gap-2 p-3 bg-light border-bottom">
+            <!-- if {enablenew} -->
+            <button type="button" onclick="window.location = '{urlnewrecord}'" class="btn btn-success shadow-sm px-4">
+                <i class="fas fa-plus me-2"></i> {textnew}
+            </button>
+            <!-- end if {enablenew} -->
+            <!-- if {enableexport} -->
+            <button type="button" onclick="window.location = '{urlexport}'" class="btn btn-warning shadow-sm px-4">
+                <i class="fas fa-download me-2"></i> {textexport}
+            </button>
+            <!-- end if {enableexport} -->
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
+            <div id="xmdbnum_records" class="text-muted small">
+                <i class="fas fa-list-ul me-1"></i>
+                <span id="recordCount">{txt_num_records}</span>
+            </div>
+            <div id="xmdbPagination" class="d-flex align-items-center overflow-auto">
+                <nav aria-label="Pagination">
+                    <ul class="pagination pagination-sm mb-0 flex-nowrap modern-pagination">
+                        <!-- if {nav_page_first} -->
+                        <li class="page-item flex-shrink-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="page-link" href="{link}" title="Prima pagina">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <!-- end if {nav_page_first} -->
+                        <!-- if not {nav_page_first} -->
+                        <li class="page-item flex-shrink-0">
+                            <a class="page-link disabled" href="#" title="Prima pagina">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <!-- end if not {nav_page_first} -->
+                        <!-- if {nav_page_prev} -->
+                        <li class="page-item flex-shrink-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="page-link" href="{link}" title="{i18n:previous page}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        <!-- end if {nav_page_prev} -->
+                        <!-- if not {nav_page_prev} -->
+                        <li class="page-item flex-shrink-0">
+                            <a class="page-link disabled" href="#" title="{previsius}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        <!-- end if not {nav_page_prev} -->
+                        <!-- foreach {nav_pages} -->
+                        <!-- if {current} -->
+                        <li style="display:none" class="page-item active flex-shrink-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="page-link" href="{link}">{title}</a>
+                        </li>
+                        <!-- end if {current} -->
+                        <!-- if not {current} -->
+                        <li style="display:none" class="page-item flex-shrink-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="page-link" href="{link}">{title}</a>
+                        </li>
+                        <!-- end if not {current} -->
+                        <!-- end foreach {nav_pages} -->
+                        <!-- if {nav_page_next} -->
+                        <li class="page-item flex-shrink-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="page-link" href="{link}" title="Pagina successiva">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <!-- end if {nav_page_next} -->
+                        <!-- if not {nav_page_next} -->
+                        <li class="page-item flex-shrink-0">
+                            <a class="page-link disabled" href="#" title="Pagina successiva">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <!-- end if not {nav_page_next} -->
+                        <!-- if {nav_page_last} -->
+                        <li class="page-item flex-shrink-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="page-link" href="{link}" title="Ultima pagina">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                        <!-- end if {nav_page_last} -->
+                        <!-- if not {nav_page_last} -->
+                        <li class="page-item flex-shrink-0">
+                            <a class="page-link disabled" href="#" title="Ultima pagina">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                        <!-- end if not {nav_page_last} -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div id="xmatadbresults" class="table-responsive">
+            <table class="table table-hover align-middle mb-0 modern-table">
+                <thead class="table-header-modern bg-dark">
+                    <tr>
+                        <!-- foreach {headers} -->
+                        <th scope="col" class="border-0">
+                            <a onclick="return fn_to_ajax(this,'xmdbnum_records,xmatadbresults,xmdbPagination')" class="text-decoration-none text-white fw-semibold" href="{link}">
+                                {title}{arrow}
+                            </a>
+                        </th>
+                        <!-- end foreach {headers} -->
+                        <th scope="col" class="text-center border-0 text-white fw-semibold" colspan="{numactions}">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- foreach {rows} -->
+                    <tr class="table-row-modern">
+                        <!-- foreach {cols} -->
+                        <td data-title="{fieldtitle}">{fieldvalue}</td>
+                        <!-- end foreach {cols} -->
+                        <!-- if {action_view} -->
+                        <td class="text-center action-cell">
+                            <a href="{link}" class="btn btn-sm btn-outline-info rounded-circle action-btn" title="{text}">
+                                👁
+                            </a>
+                        </td>
+                        <!-- end if {action_view} -->
+                        <!-- if {action_edit} -->
+                        <td class="text-center action-cell">
+                            <a href="{link}" class="btn btn-sm btn-outline-warning rounded-circle action-btn" title="{text}">
+                                ✏️
+                            </a>
+                        </td>
+                        <!-- end if {action_edit} -->
+                        <!-- if {action_delete} -->
+                        <td class="text-center action-cell">
+                            <a href="{link}" class="btn btn-sm btn-outline-danger rounded-circle action-btn" title="{text}" onclick="if (confirm('{i18n:are you sure you want to delete this content?}')) {
+                                   return fn_to_ajax(this,'xmetadbform,xmdbPagination');
+                               } else {
+                                   return false;
+                               }">
+                                🗑
+                            </a>
+                        </td>
+                        <!-- end if {action_delete} -->
+                    </tr>
+                    <!-- end foreach {rows} -->
+                </tbody>
+            </table>
+        </div>
+        <div id="customarea" class="p-3 bg-light border-top"></div>
+    </div>
+</div>

@@ -10,31 +10,34 @@ global $_FN;
 //dprint_r($_FN);
 /**
  *
- * @global string $xmldb_mysqldatabase
- * @global string $xmldb_mysqlusername
- * @global string $xmldb_mysqlpassword
- * @global string $xmldb_mysqlhost
  * @global array $_FN
  * @staticvar boolean $conn
  * @param string $query
  * @param bool $rollbackOnFail
  * @param bool $returnhandle
- * @return null|boolean|array 
+ * @return null|boolean|array
  */
 function DBMYSQL_Query($query, $rollbackOnFail = false, $returnhandle = false)
 {
     //DBMYSQL_Debug($query);
     //innodb_rollback_on_timeout
-    global $xmldb_mysqldatabase, $xmldb_mysqlusername, $xmldb_mysqlpassword, $xmldb_mysqlhost;
+    global $_FN;
     global $DBMYSQL_timezone;
     global $mysqlconn;
+
+    // Usa variabili $_FN con fallback a variabili globali legacy
+    $db_host = !empty($_FN['xmetadb_mysqlhost']) ? $_FN['xmetadb_mysqlhost'] : $GLOBALS['xmldb_mysqlhost'];
+    $db_user = !empty($_FN['xmetadb_mysqlusername']) ? $_FN['xmetadb_mysqlusername'] : $GLOBALS['xmldb_mysqlusername'];
+    $db_pass = isset($_FN['xmetadb_mysqlpassword']) ? $_FN['xmetadb_mysqlpassword'] : $GLOBALS['xmldb_mysqlpassword'];
+    $db_name = !empty($_FN['xmetadb_mysqldatabase']) ? $_FN['xmetadb_mysqldatabase'] : $GLOBALS['xmldb_mysqldatabase'];
+
     if (empty($DBMYSQL_timezone))
     {
         $DBMYSQL_timezone = "+2:00";
     }
     if (!is_object($mysqlconn))
     {
-        $mysqlconn = new mysqli("$xmldb_mysqlhost", "$xmldb_mysqlusername", "$xmldb_mysqlpassword", "$xmldb_mysqldatabase");
+        $mysqlconn = new mysqli($db_host, $db_user, $db_pass, $db_name);
         if (false === $mysqlconn)
         {
             return null;
