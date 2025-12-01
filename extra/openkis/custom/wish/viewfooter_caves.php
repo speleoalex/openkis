@@ -5,11 +5,11 @@ $t_wish = FN_XMDBTable("ctl_wishregioni");
 $regione = $t_wish->GetRecord(array("id"=>$row['id_regione']));
 //dprint_r($row);
 //dprint_r($regione);
-$img = $t_wish->getFilePath($regione, "photo1");
-$url = $regione['portal'];
+$img = $regione ? $t_wish->getFilePath($regione, "photo1") : '';
+$url = $regione['portal'] ?? '';
 $link = $row['link'];
 
-$title = $regione['title'];
+$title = $regione['title'] ?? '';
 
 echo "<div class=\"alert alert-info\">";
 if ($title)

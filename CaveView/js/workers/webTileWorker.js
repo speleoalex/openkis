@@ -3,77 +3,10 @@
 	factory();
 })((function () { 'use strict';
 
-	class HeightMapLoader {
+	const _lut = [ '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '1a', '1b', '1c', '1d', '1e', '1f', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '2a', '2b', '2c', '2d', '2e', '2f', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '3a', '3b', '3c', '3d', '3e', '3f', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '4a', '4b', '4c', '4d', '4e', '4f', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '5a', '5b', '5c', '5d', '5e', '5f', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '6a', '6b', '6c', '6d', '6e', '6f', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '7a', '7b', '7c', '7d', '7e', '7f', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '8a', '8b', '8c', '8d', '8e', '8f', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '9a', '9b', '9c', '9d', '9e', '9f', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'ba', 'bb', 'bc', 'bd', 'be', 'bf', 'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'ca', 'cb', 'cc', 'cd', 'ce', 'cf', 'd0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'da', 'db', 'dc', 'dd', 'de', 'df', 'e0', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6', 'e7', 'e8', 'e9', 'ea', 'eb', 'ec', 'ed', 'ee', 'ef', 'f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'fa', 'fb', 'fc', 'fd', 'fe', 'ff' ];
 
-		constructor ( tileSpec ) {
-
-			const tileSet = tileSpec.tileSet;
-			const clip = tileSpec.clip;
-
-			let x, y, z;
-
-			if ( tileSpec.z > tileSet.maxZoom ) {
-
-				const scale = Math.pow( 2, tileSpec.z - tileSet.maxZoom );
-
-				x = Math.floor( tileSpec.x / scale );
-				y = Math.floor( tileSpec.y / scale );
-				z = tileSet.maxZoom;
-
-				// calculate offset in terrain cells of covering DTM tile for this smaller image tile.
-
-				const divisions = tileSet.divisions;
-
-				const dtmOffsetX = ( divisions * ( tileSpec.x % scale ) ) / scale;
-				const dtmOffsetY = ( divisions + 1 ) * ( divisions * ( tileSpec.y % scale ) ) / scale;
-
-				clip.dtmOffset = dtmOffsetY + dtmOffsetX;
-				clip.dtmWidth = divisions + 1;
-
-			} else {
-
-				x = tileSpec.x;
-				y = tileSpec.y;
-				z = tileSpec.z;
-
-				clip.dtmOffset = 0;
-
-			}
-
-			const tileFile = tileSet.directory + '/' + z + '/DTM-' + x + '-' + y + '.bin';
-
-			return fetch( tileFile )
-				.then( response => {
-					if ( ! response.ok ) throw TypeError;
-					return response.arrayBuffer();
-				} );
-
-		}
-
-	}
-
-	//
-
-	const _lut = [];
-
-	for ( let i = 0; i < 256; i ++ ) {
-
-		_lut[ i ] = ( i < 16 ? '0' : '' ) + ( i ).toString( 16 );
-
-	}
-
-	const hasRandomUUID = typeof crypto !== 'undefined' && 'randomUUID' in crypto;
-
+	// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript/21963136#21963136
 	function generateUUID() {
-
-		if ( hasRandomUUID ) {
-
-			return crypto.randomUUID().toUpperCase();
-
-		}
-
-		// TODO Remove this code when crypto.randomUUID() is available everywhere
-		// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript/21963136#21963136
 
 		const d0 = Math.random() * 0xffffffff | 0;
 		const d1 = Math.random() * 0xffffffff | 0;
@@ -84,8 +17,8 @@
 				_lut[ d2 & 0x3f | 0x80 ] + _lut[ d2 >> 8 & 0xff ] + '-' + _lut[ d2 >> 16 & 0xff ] + _lut[ d2 >> 24 & 0xff ] +
 				_lut[ d3 & 0xff ] + _lut[ d3 >> 8 & 0xff ] + _lut[ d3 >> 16 & 0xff ] + _lut[ d3 >> 24 & 0xff ];
 
-		// .toUpperCase() here flattens concatenated strings to save heap memory space.
-		return uuid.toUpperCase();
+		// .toLowerCase() here flattens concatenated strings to save heap memory space.
+		return uuid.toLowerCase();
 
 	}
 
@@ -95,18 +28,83 @@
 
 	}
 
-	// compute euclidian modulo of m % n
-	// https://en.wikipedia.org/wiki/Modulo_operation
-	function euclideanModulo( n, m ) {
+	function denormalize( value, array ) {
 
-		return ( ( n % m ) + m ) % m;
+		switch ( array.constructor ) {
+
+			case Float32Array:
+
+				return value;
+
+			case Uint32Array:
+
+				return value / 4294967295.0;
+
+			case Uint16Array:
+
+				return value / 65535.0;
+
+			case Uint8Array:
+
+				return value / 255.0;
+
+			case Int32Array:
+
+				return Math.max( value / 2147483647.0, - 1.0 );
+
+			case Int16Array:
+
+				return Math.max( value / 32767.0, - 1.0 );
+
+			case Int8Array:
+
+				return Math.max( value / 127.0, - 1.0 );
+
+			default:
+
+				throw new Error( 'Invalid component type.' );
+
+		}
 
 	}
 
-	// https://en.wikipedia.org/wiki/Linear_interpolation
-	function lerp( x, y, t ) {
+	function normalize( value, array ) {
 
-		return ( 1 - t ) * x + t * y;
+		switch ( array.constructor ) {
+
+			case Float32Array:
+
+				return value;
+
+			case Uint32Array:
+
+				return Math.round( value * 4294967295.0 );
+
+			case Uint16Array:
+
+				return Math.round( value * 65535.0 );
+
+			case Uint8Array:
+
+				return Math.round( value * 255.0 );
+
+			case Int32Array:
+
+				return Math.round( value * 2147483647.0 );
+
+			case Int16Array:
+
+				return Math.round( value * 32767.0 );
+
+			case Int8Array:
+
+				return Math.round( value * 127.0 );
+
+			default:
+
+				throw new Error( 'Invalid component type.' );
+
+		}
 
 	}
 
@@ -114,17 +112,12 @@
 
 		constructor( x = 0, y = 0, z = 0, w = 1 ) {
 
+			this.isQuaternion = true;
+
 			this._x = x;
 			this._y = y;
 			this._z = z;
 			this._w = w;
-
-		}
-
-		static slerp( qa, qb, qm, t ) {
-
-			console.warn( 'THREE.Quaternion: Static .slerp() has been deprecated. Use qm.slerpQuaternions( qa, qb, t ) instead.' );
-			return qm.slerpQuaternions( qa, qb, t );
 
 		}
 
@@ -313,13 +306,7 @@
 
 		}
 
-		setFromEuler( euler, update ) {
-
-			if ( ! ( euler && euler.isEuler ) ) {
-
-				throw new Error( 'THREE.Quaternion: .setFromEuler() now expects an Euler rotation rather than a Vector3 and order.' );
-
-			}
+		setFromEuler( euler, update = true ) {
 
 			const x = euler._x, y = euler._y, z = euler._z, order = euler._order;
 
@@ -387,7 +374,7 @@
 
 			}
 
-			if ( update !== false ) this._onChangeCallback();
+			if ( update === true ) this._onChangeCallback();
 
 			return this;
 
@@ -605,14 +592,7 @@
 
 		}
 
-		multiply( q, p ) {
-
-			if ( p !== undefined ) {
-
-				console.warn( 'THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( a, b ) instead.' );
-				return this.multiplyQuaternions( q, p );
-
-			}
+		multiply( q ) {
 
 			return this.multiplyQuaternions( this, q );
 
@@ -689,8 +669,7 @@
 				this._y = s * y + t * this._y;
 				this._z = s * z + t * this._z;
 
-				this.normalize();
-				this._onChangeCallback();
+				this.normalize(); // normalize calls _onChangeCallback()
 
 				return this;
 
@@ -714,29 +693,30 @@
 
 		slerpQuaternions( qa, qb, t ) {
 
-			this.copy( qa ).slerp( qb, t );
+			return this.copy( qa ).slerp( qb, t );
 
 		}
 
 		random() {
 
-			// Derived from http://planning.cs.uiuc.edu/node198.html
-			// Note, this source uses w, x, y, z ordering,
-			// so we swap the order below.
+			// sets this quaternion to a uniform random unit quaternnion
 
-			const u1 = Math.random();
-			const sqrt1u1 = Math.sqrt( 1 - u1 );
-			const sqrtu1 = Math.sqrt( u1 );
+			// Ken Shoemake
+			// Uniform random rotations
+			// D. Kirk, editor, Graphics Gems III, pages 124-132. Academic Press, New York, 1992.
 
-			const u2 = 2 * Math.PI * Math.random();
+			const theta1 = 2 * Math.PI * Math.random();
+			const theta2 = 2 * Math.PI * Math.random();
 
-			const u3 = 2 * Math.PI * Math.random();
+			const x0 = Math.random();
+			const r1 = Math.sqrt( 1 - x0 );
+			const r2 = Math.sqrt( x0 );
 
 			return this.set(
-				sqrt1u1 * Math.cos( u2 ),
-				sqrtu1 * Math.sin( u3 ),
-				sqrtu1 * Math.cos( u3 ),
-				sqrt1u1 * Math.sin( u2 ),
+				r1 * Math.sin( theta1 ),
+				r1 * Math.cos( theta1 ),
+				r2 * Math.sin( theta2 ),
+				r2 * Math.cos( theta2 ),
 			);
 
 		}
@@ -778,7 +758,15 @@
 			this._z = attribute.getZ( index );
 			this._w = attribute.getW( index );
 
+			this._onChangeCallback();
+
 			return this;
+
+		}
+
+		toJSON() {
+
+			return this.toArray();
 
 		}
 
@@ -792,13 +780,22 @@
 
 		_onChangeCallback() {}
 
-	}
+		*[ Symbol.iterator ]() {
 
-	Quaternion.prototype.isQuaternion = true;
+			yield this._x;
+			yield this._y;
+			yield this._z;
+			yield this._w;
+
+		}
+
+	}
 
 	class Vector3 {
 
 		constructor( x = 0, y = 0, z = 0 ) {
+
+			Vector3.prototype.isVector3 = true;
 
 			this.x = x;
 			this.y = y;
@@ -896,14 +893,7 @@
 
 		}
 
-		add( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector3: .add() now only accepts one argument. Use .addVectors( a, b ) instead.' );
-				return this.addVectors( v, w );
-
-			}
+		add( v ) {
 
 			this.x += v.x;
 			this.y += v.y;
@@ -943,14 +933,7 @@
 
 		}
 
-		sub( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector3: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.' );
-				return this.subVectors( v, w );
-
-			}
+		sub( v ) {
 
 			this.x -= v.x;
 			this.y -= v.y;
@@ -980,14 +963,7 @@
 
 		}
 
-		multiply( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector3: .multiply() now only accepts one argument. Use .multiplyVectors( a, b ) instead.' );
-				return this.multiplyVectors( v, w );
-
-			}
+		multiply( v ) {
 
 			this.x *= v.x;
 			this.y *= v.y;
@@ -1018,12 +994,6 @@
 		}
 
 		applyEuler( euler ) {
-
-			if ( ! ( euler && euler.isEuler ) ) {
-
-				console.error( 'THREE.Vector3: .applyEuler() now expects an Euler rotation rather than a Vector3 and order.' );
-
-			}
 
 			return this.applyQuaternion( _quaternion$2.setFromEuler( euler ) );
 
@@ -1071,21 +1041,20 @@
 
 		applyQuaternion( q ) {
 
-			const x = this.x, y = this.y, z = this.z;
+			// quaternion q is assumed to have unit length
+
+			const vx = this.x, vy = this.y, vz = this.z;
 			const qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 
-			// calculate quat * vector
+			// t = 2 * cross( q.xyz, v );
+			const tx = 2 * ( qy * vz - qz * vy );
+			const ty = 2 * ( qz * vx - qx * vz );
+			const tz = 2 * ( qx * vy - qy * vx );
 
-			const ix = qw * x + qy * z - qz * y;
-			const iy = qw * y + qz * x - qx * z;
-			const iz = qw * z + qx * y - qy * x;
-			const iw = - qx * x - qy * y - qz * z;
-
-			// calculate result * inverse quat
-
-			this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
-			this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
-			this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+			// v + q.w * t + cross( q.xyz, t );
+			this.x = vx + qw * tx + qy * tz - qz * ty;
+			this.y = vy + qw * ty + qz * tx - qx * tz;
+			this.z = vz + qw * tz + qx * ty - qy * tx;
 
 			return this;
 
@@ -1159,9 +1128,9 @@
 
 			// assumes min < max, componentwise
 
-			this.x = Math.max( min.x, Math.min( max.x, this.x ) );
-			this.y = Math.max( min.y, Math.min( max.y, this.y ) );
-			this.z = Math.max( min.z, Math.min( max.z, this.z ) );
+			this.x = clamp( this.x, min.x, max.x );
+			this.y = clamp( this.y, min.y, max.y );
+			this.z = clamp( this.z, min.z, max.z );
 
 			return this;
 
@@ -1169,9 +1138,9 @@
 
 		clampScalar( minVal, maxVal ) {
 
-			this.x = Math.max( minVal, Math.min( maxVal, this.x ) );
-			this.y = Math.max( minVal, Math.min( maxVal, this.y ) );
-			this.z = Math.max( minVal, Math.min( maxVal, this.z ) );
+			this.x = clamp( this.x, minVal, maxVal );
+			this.y = clamp( this.y, minVal, maxVal );
+			this.z = clamp( this.z, minVal, maxVal );
 
 			return this;
 
@@ -1181,7 +1150,7 @@
 
 			const length = this.length();
 
-			return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
+			return this.divideScalar( length || 1 ).multiplyScalar( clamp( length, min, max ) );
 
 		}
 
@@ -1217,9 +1186,9 @@
 
 		roundToZero() {
 
-			this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
-			this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
-			this.z = ( this.z < 0 ) ? Math.ceil( this.z ) : Math.floor( this.z );
+			this.x = Math.trunc( this.x );
+			this.y = Math.trunc( this.y );
+			this.z = Math.trunc( this.z );
 
 			return this;
 
@@ -1293,14 +1262,7 @@
 
 		}
 
-		cross( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector3: .cross() now only accepts one argument. Use .crossVectors( a, b ) instead.' );
-				return this.crossVectors( v, w );
-
-			}
+		cross( v ) {
 
 			return this.crossVectors( this, v );
 
@@ -1454,6 +1416,26 @@
 
 		}
 
+		setFromEuler( e ) {
+
+			this.x = e._x;
+			this.y = e._y;
+			this.z = e._z;
+
+			return this;
+
+		}
+
+		setFromColor( c ) {
+
+			this.x = c.r;
+			this.y = c.g;
+			this.z = c.b;
+
+			return this;
+
+		}
+
 		equals( v ) {
 
 			return ( ( v.x === this.x ) && ( v.y === this.y ) && ( v.z === this.z ) );
@@ -1480,13 +1462,7 @@
 
 		}
 
-		fromBufferAttribute( attribute, index, offset ) {
-
-			if ( offset !== undefined ) {
-
-				console.warn( 'THREE.Vector3: offset has been removed from .fromBufferAttribute().' );
-
-			}
+		fromBufferAttribute( attribute, index ) {
 
 			this.x = attribute.getX( index );
 			this.y = attribute.getY( index );
@@ -1508,15 +1484,15 @@
 
 		randomDirection() {
 
-			// Derived from https://mathworld.wolfram.com/SpherePointPicking.html
+			// https://mathworld.wolfram.com/SpherePointPicking.html
 
-			const u = ( Math.random() - 0.5 ) * 2;
-			const t = Math.random() * Math.PI * 2;
-			const f = Math.sqrt( 1 - u ** 2 );
+			const theta = Math.random() * Math.PI * 2;
+			const u = Math.random() * 2 - 1;
+			const c = Math.sqrt( 1 - u * u );
 
-			this.x = f * Math.cos( t );
-			this.y = f * Math.sin( t );
-			this.z = u;
+			this.x = c * Math.cos( theta );
+			this.y = u;
+			this.z = c * Math.sin( theta );
 
 			return this;
 
@@ -1532,14 +1508,14 @@
 
 	}
 
-	Vector3.prototype.isVector3 = true;
-
 	const _vector$3 = /*@__PURE__*/ new Vector3();
 	const _quaternion$2 = /*@__PURE__*/ new Quaternion();
 
 	class Vector2 {
 
 		constructor( x = 0, y = 0 ) {
+
+			Vector2.prototype.isVector2 = true;
 
 			this.x = x;
 			this.y = y;
@@ -1645,14 +1621,7 @@
 
 		}
 
-		add( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector2: .add() now only accepts one argument. Use .addVectors( a, b ) instead.' );
-				return this.addVectors( v, w );
-
-			}
+		add( v ) {
 
 			this.x += v.x;
 			this.y += v.y;
@@ -1688,14 +1657,7 @@
 
 		}
 
-		sub( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector2: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.' );
-				return this.subVectors( v, w );
-
-			}
+		sub( v ) {
 
 			this.x -= v.x;
 			this.y -= v.y;
@@ -1789,8 +1751,8 @@
 
 			// assumes min < max, componentwise
 
-			this.x = Math.max( min.x, Math.min( max.x, this.x ) );
-			this.y = Math.max( min.y, Math.min( max.y, this.y ) );
+			this.x = clamp( this.x, min.x, max.x );
+			this.y = clamp( this.y, min.y, max.y );
 
 			return this;
 
@@ -1798,8 +1760,8 @@
 
 		clampScalar( minVal, maxVal ) {
 
-			this.x = Math.max( minVal, Math.min( maxVal, this.x ) );
-			this.y = Math.max( minVal, Math.min( maxVal, this.y ) );
+			this.x = clamp( this.x, minVal, maxVal );
+			this.y = clamp( this.y, minVal, maxVal );
 
 			return this;
 
@@ -1809,7 +1771,7 @@
 
 			const length = this.length();
 
-			return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
+			return this.divideScalar( length || 1 ).multiplyScalar( clamp( length, min, max ) );
 
 		}
 
@@ -1842,8 +1804,8 @@
 
 		roundToZero() {
 
-			this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
-			this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
+			this.x = Math.trunc( this.x );
+			this.y = Math.trunc( this.y );
 
 			return this;
 
@@ -1901,6 +1863,20 @@
 			const angle = Math.atan2( - this.y, - this.x ) + Math.PI;
 
 			return angle;
+
+		}
+
+		angleTo( v ) {
+
+			const denominator = Math.sqrt( this.lengthSq() * v.lengthSq() );
+
+			if ( denominator === 0 ) return Math.PI / 2;
+
+			const theta = this.dot( v ) / denominator;
+
+			// clamp, to handle numerical problems
+
+			return Math.acos( clamp( theta, - 1, 1 ) );
 
 		}
 
@@ -1971,13 +1947,7 @@
 
 		}
 
-		fromBufferAttribute( attribute, index, offset ) {
-
-			if ( offset !== undefined ) {
-
-				console.warn( 'THREE.Vector2: offset has been removed from .fromBufferAttribute().' );
-
-			}
+		fromBufferAttribute( attribute, index ) {
 
 			this.x = attribute.getX( index );
 			this.y = attribute.getY( index );
@@ -2018,11 +1988,11 @@
 
 	}
 
-	Vector2.prototype.isVector2 = true;
-
 	class Box3 {
 
 		constructor( min = new Vector3( + Infinity, + Infinity, + Infinity ), max = new Vector3( - Infinity, - Infinity, - Infinity ) ) {
+
+			this.isBox3 = true;
 
 			this.min = min;
 			this.max = max;
@@ -2040,32 +2010,13 @@
 
 		setFromArray( array ) {
 
-			let minX = + Infinity;
-			let minY = + Infinity;
-			let minZ = + Infinity;
+			this.makeEmpty();
 
-			let maxX = - Infinity;
-			let maxY = - Infinity;
-			let maxZ = - Infinity;
+			for ( let i = 0, il = array.length; i < il; i += 3 ) {
 
-			for ( let i = 0, l = array.length; i < l; i += 3 ) {
-
-				const x = array[ i ];
-				const y = array[ i + 1 ];
-				const z = array[ i + 2 ];
-
-				if ( x < minX ) minX = x;
-				if ( y < minY ) minY = y;
-				if ( z < minZ ) minZ = z;
-
-				if ( x > maxX ) maxX = x;
-				if ( y > maxY ) maxY = y;
-				if ( z > maxZ ) maxZ = z;
+				this.expandByPoint( _vector$2.fromArray( array, i ) );
 
 			}
-
-			this.min.set( minX, minY, minZ );
-			this.max.set( maxX, maxY, maxZ );
 
 			return this;
 
@@ -2073,32 +2024,13 @@
 
 		setFromBufferAttribute( attribute ) {
 
-			let minX = + Infinity;
-			let minY = + Infinity;
-			let minZ = + Infinity;
+			this.makeEmpty();
 
-			let maxX = - Infinity;
-			let maxY = - Infinity;
-			let maxZ = - Infinity;
+			for ( let i = 0, il = attribute.count; i < il; i ++ ) {
 
-			for ( let i = 0, l = attribute.count; i < l; i ++ ) {
-
-				const x = attribute.getX( i );
-				const y = attribute.getY( i );
-				const z = attribute.getZ( i );
-
-				if ( x < minX ) minX = x;
-				if ( y < minY ) minY = y;
-				if ( z < minZ ) minZ = z;
-
-				if ( x > maxX ) maxX = x;
-				if ( y > maxY ) maxY = y;
-				if ( z > maxZ ) maxZ = z;
+				this.expandByPoint( _vector$2.fromBufferAttribute( attribute, i ) );
 
 			}
-
-			this.min.set( minX, minY, minZ );
-			this.max.set( maxX, maxY, maxZ );
 
 			return this;
 
@@ -2129,11 +2061,11 @@
 
 		}
 
-		setFromObject( object ) {
+		setFromObject( object, precise = false ) {
 
 			this.makeEmpty();
 
-			return this.expandByObject( object );
+			return this.expandByObject( object, precise );
 
 		}
 
@@ -2208,7 +2140,7 @@
 
 		}
 
-		expandByObject( object ) {
+		expandByObject( object, precise = false ) {
 
 			// Computes the world-axis-aligned bounding box of an object (including its children),
 			// accounting for both the object's, and children's, world transforms
@@ -2219,16 +2151,64 @@
 
 			if ( geometry !== undefined ) {
 
-				if ( geometry.boundingBox === null ) {
+				const positionAttribute = geometry.getAttribute( 'position' );
 
-					geometry.computeBoundingBox();
+				// precise AABB computation based on vertex data requires at least a position attribute.
+				// instancing isn't supported so far and uses the normal (conservative) code path.
+
+				if ( precise === true && positionAttribute !== undefined && object.isInstancedMesh !== true ) {
+
+					for ( let i = 0, l = positionAttribute.count; i < l; i ++ ) {
+
+						if ( object.isMesh === true ) {
+
+							object.getVertexPosition( i, _vector$2 );
+
+						} else {
+
+							_vector$2.fromBufferAttribute( positionAttribute, i );
+
+						}
+
+						_vector$2.applyMatrix4( object.matrixWorld );
+						this.expandByPoint( _vector$2 );
+
+					}
+
+				} else {
+
+					if ( object.boundingBox !== undefined ) {
+
+						// object-level bounding box
+
+						if ( object.boundingBox === null ) {
+
+							object.computeBoundingBox();
+
+						}
+
+						_box$2.copy( object.boundingBox );
+
+
+					} else {
+
+						// geometry-level bounding box
+
+						if ( geometry.boundingBox === null ) {
+
+							geometry.computeBoundingBox();
+
+						}
+
+						_box$2.copy( geometry.boundingBox );
+
+					}
+
+					_box$2.applyMatrix4( object.matrixWorld );
+
+					this.union( _box$2 );
 
 				}
-
-				_box$2.copy( geometry.boundingBox );
-				_box$2.applyMatrix4( object.matrixWorld );
-
-				this.union( _box$2 );
 
 			}
 
@@ -2236,7 +2216,7 @@
 
 			for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-				this.expandByObject( children[ i ] );
+				this.expandByObject( children[ i ], precise );
 
 			}
 
@@ -2246,9 +2226,9 @@
 
 		containsPoint( point ) {
 
-			return point.x < this.min.x || point.x > this.max.x ||
-				point.y < this.min.y || point.y > this.max.y ||
-				point.z < this.min.z || point.z > this.max.z ? false : true;
+			return point.x >= this.min.x && point.x <= this.max.x &&
+				point.y >= this.min.y && point.y <= this.max.y &&
+				point.z >= this.min.z && point.z <= this.max.z;
 
 		}
 
@@ -2276,9 +2256,9 @@
 		intersectsBox( box ) {
 
 			// using 6 splitting planes to rule out intersections.
-			return box.max.x < this.min.x || box.min.x > this.max.x ||
-				box.max.y < this.min.y || box.min.y > this.max.y ||
-				box.max.z < this.min.z || box.min.z > this.max.z ? false : true;
+			return box.max.x >= this.min.x && box.min.x <= this.max.x &&
+				box.max.y >= this.min.y && box.min.y <= this.max.y &&
+				box.max.z >= this.min.z && box.min.z <= this.max.z;
 
 		}
 
@@ -2354,12 +2334,12 @@
 			// translate triangle to aabb origin
 			_v0.subVectors( triangle.a, _center );
 			_v1$3.subVectors( triangle.b, _center );
-			_v2.subVectors( triangle.c, _center );
+			_v2$1.subVectors( triangle.c, _center );
 
 			// compute edge vectors for triangle
 			_f0.subVectors( _v1$3, _v0 );
-			_f1.subVectors( _v2, _v1$3 );
-			_f2.subVectors( _v0, _v2 );
+			_f1.subVectors( _v2$1, _v1$3 );
+			_f2.subVectors( _v0, _v2$1 );
 
 			// test against axes that are given by cross product combinations of the edges of the triangle and the edges of the aabb
 			// make an axis testing of each of the 3 sides of the aabb against each of the 3 sides of the triangle = 9 axis of separation
@@ -2369,7 +2349,7 @@
 				_f0.z, 0, - _f0.x, _f1.z, 0, - _f1.x, _f2.z, 0, - _f2.x,
 				- _f0.y, _f0.x, 0, - _f1.y, _f1.x, 0, - _f2.y, _f2.x, 0
 			];
-			if ( ! satForAxes( axes, _v0, _v1$3, _v2, _extents ) ) {
+			if ( ! satForAxes( axes, _v0, _v1$3, _v2$1, _extents ) ) {
 
 				return false;
 
@@ -2377,7 +2357,7 @@
 
 			// test 3 face normals from the aabb
 			axes = [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ];
-			if ( ! satForAxes( axes, _v0, _v1$3, _v2, _extents ) ) {
+			if ( ! satForAxes( axes, _v0, _v1$3, _v2$1, _extents ) ) {
 
 				return false;
 
@@ -2388,7 +2368,7 @@
 			_triangleNormal.crossVectors( _f0, _f1 );
 			axes = [ _triangleNormal.x, _triangleNormal.y, _triangleNormal.z ];
 
-			return satForAxes( axes, _v0, _v1$3, _v2, _extents );
+			return satForAxes( axes, _v0, _v1$3, _v2$1, _extents );
 
 		}
 
@@ -2400,17 +2380,23 @@
 
 		distanceToPoint( point ) {
 
-			const clampedPoint = _vector$2.copy( point ).clamp( this.min, this.max );
-
-			return clampedPoint.sub( point ).length();
+			return this.clampPoint( point, _vector$2 ).distanceTo( point );
 
 		}
 
 		getBoundingSphere( target ) {
 
-			this.getCenter( target.center );
+			if ( this.isEmpty() ) {
 
-			target.radius = this.getSize( _vector$2 ).length() * 0.5;
+				target.makeEmpty();
+
+			} else {
+
+				this.getCenter( target.center );
+
+				target.radius = this.getSize( _vector$2 ).length() * 0.5;
+
+			}
 
 			return target;
 
@@ -2475,8 +2461,6 @@
 
 	}
 
-	Box3.prototype.isBox3 = true;
-
 	const _points = [
 		/*@__PURE__*/ new Vector3(),
 		/*@__PURE__*/ new Vector3(),
@@ -2496,7 +2480,7 @@
 
 	const _v0 = /*@__PURE__*/ new Vector3();
 	const _v1$3 = /*@__PURE__*/ new Vector3();
-	const _v2 = /*@__PURE__*/ new Vector3();
+	const _v2$1 = /*@__PURE__*/ new Vector3();
 
 	// triangle edge vectors
 
@@ -2514,9 +2498,9 @@
 		for ( let i = 0, j = axes.length - 3; i <= j; i += 3 ) {
 
 			_testAxis.fromArray( axes, i );
-			// project the aabb onto the seperating axis
+			// project the aabb onto the separating axis
 			const r = extents.x * Math.abs( _testAxis.x ) + extents.y * Math.abs( _testAxis.y ) + extents.z * Math.abs( _testAxis.z );
-			// project all 3 vertices of the triangle onto the seperating axis
+			// project all 3 vertices of the triangle onto the separating axis
 			const p0 = v0.dot( _testAxis );
 			const p1 = v1.dot( _testAxis );
 			const p2 = v2.dot( _testAxis );
@@ -2524,7 +2508,7 @@
 			if ( Math.max( - Math.max( p0, p1, p2 ), Math.min( p0, p1, p2 ) ) > r ) {
 
 				// points of the projected triangle are outside the projected half-length of the aabb
-				// the axis is seperating and we can exit
+				// the axis is separating and we can exit
 				return false;
 
 			}
@@ -2620,1278 +2604,19 @@
 
 	}
 
-	class Vector4 {
-
-		constructor( x = 0, y = 0, z = 0, w = 1 ) {
-
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.w = w;
-
-		}
-
-		get width() {
-
-			return this.z;
-
-		}
-
-		set width( value ) {
-
-			this.z = value;
-
-		}
-
-		get height() {
-
-			return this.w;
-
-		}
-
-		set height( value ) {
-
-			this.w = value;
-
-		}
-
-		set( x, y, z, w ) {
-
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.w = w;
-
-			return this;
-
-		}
-
-		setScalar( scalar ) {
-
-			this.x = scalar;
-			this.y = scalar;
-			this.z = scalar;
-			this.w = scalar;
-
-			return this;
-
-		}
-
-		setX( x ) {
-
-			this.x = x;
-
-			return this;
-
-		}
-
-		setY( y ) {
-
-			this.y = y;
-
-			return this;
-
-		}
-
-		setZ( z ) {
-
-			this.z = z;
-
-			return this;
-
-		}
-
-		setW( w ) {
-
-			this.w = w;
-
-			return this;
-
-		}
-
-		setComponent( index, value ) {
-
-			switch ( index ) {
-
-				case 0: this.x = value; break;
-				case 1: this.y = value; break;
-				case 2: this.z = value; break;
-				case 3: this.w = value; break;
-				default: throw new Error( 'index is out of range: ' + index );
-
-			}
-
-			return this;
-
-		}
-
-		getComponent( index ) {
-
-			switch ( index ) {
-
-				case 0: return this.x;
-				case 1: return this.y;
-				case 2: return this.z;
-				case 3: return this.w;
-				default: throw new Error( 'index is out of range: ' + index );
-
-			}
-
-		}
-
-		clone() {
-
-			return new this.constructor( this.x, this.y, this.z, this.w );
-
-		}
-
-		copy( v ) {
-
-			this.x = v.x;
-			this.y = v.y;
-			this.z = v.z;
-			this.w = ( v.w !== undefined ) ? v.w : 1;
-
-			return this;
-
-		}
-
-		add( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector4: .add() now only accepts one argument. Use .addVectors( a, b ) instead.' );
-				return this.addVectors( v, w );
-
-			}
-
-			this.x += v.x;
-			this.y += v.y;
-			this.z += v.z;
-			this.w += v.w;
-
-			return this;
-
-		}
-
-		addScalar( s ) {
-
-			this.x += s;
-			this.y += s;
-			this.z += s;
-			this.w += s;
-
-			return this;
-
-		}
-
-		addVectors( a, b ) {
-
-			this.x = a.x + b.x;
-			this.y = a.y + b.y;
-			this.z = a.z + b.z;
-			this.w = a.w + b.w;
-
-			return this;
-
-		}
-
-		addScaledVector( v, s ) {
-
-			this.x += v.x * s;
-			this.y += v.y * s;
-			this.z += v.z * s;
-			this.w += v.w * s;
-
-			return this;
-
-		}
-
-		sub( v, w ) {
-
-			if ( w !== undefined ) {
-
-				console.warn( 'THREE.Vector4: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.' );
-				return this.subVectors( v, w );
-
-			}
-
-			this.x -= v.x;
-			this.y -= v.y;
-			this.z -= v.z;
-			this.w -= v.w;
-
-			return this;
-
-		}
-
-		subScalar( s ) {
-
-			this.x -= s;
-			this.y -= s;
-			this.z -= s;
-			this.w -= s;
-
-			return this;
-
-		}
-
-		subVectors( a, b ) {
-
-			this.x = a.x - b.x;
-			this.y = a.y - b.y;
-			this.z = a.z - b.z;
-			this.w = a.w - b.w;
-
-			return this;
-
-		}
-
-		multiply( v ) {
-
-			this.x *= v.x;
-			this.y *= v.y;
-			this.z *= v.z;
-			this.w *= v.w;
-
-			return this;
-
-		}
-
-		multiplyScalar( scalar ) {
-
-			this.x *= scalar;
-			this.y *= scalar;
-			this.z *= scalar;
-			this.w *= scalar;
-
-			return this;
-
-		}
-
-		applyMatrix4( m ) {
-
-			const x = this.x, y = this.y, z = this.z, w = this.w;
-			const e = m.elements;
-
-			this.x = e[ 0 ] * x + e[ 4 ] * y + e[ 8 ] * z + e[ 12 ] * w;
-			this.y = e[ 1 ] * x + e[ 5 ] * y + e[ 9 ] * z + e[ 13 ] * w;
-			this.z = e[ 2 ] * x + e[ 6 ] * y + e[ 10 ] * z + e[ 14 ] * w;
-			this.w = e[ 3 ] * x + e[ 7 ] * y + e[ 11 ] * z + e[ 15 ] * w;
-
-			return this;
-
-		}
-
-		divideScalar( scalar ) {
-
-			return this.multiplyScalar( 1 / scalar );
-
-		}
-
-		setAxisAngleFromQuaternion( q ) {
-
-			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm
-
-			// q is assumed to be normalized
-
-			this.w = 2 * Math.acos( q.w );
-
-			const s = Math.sqrt( 1 - q.w * q.w );
-
-			if ( s < 0.0001 ) {
-
-				this.x = 1;
-				this.y = 0;
-				this.z = 0;
-
-			} else {
-
-				this.x = q.x / s;
-				this.y = q.y / s;
-				this.z = q.z / s;
-
-			}
-
-			return this;
-
-		}
-
-		setAxisAngleFromRotationMatrix( m ) {
-
-			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/index.htm
-
-			// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
-
-			let angle, x, y, z; // variables for result
-			const epsilon = 0.01,		// margin to allow for rounding errors
-				epsilon2 = 0.1,		// margin to distinguish between 0 and 180 degrees
-
-				te = m.elements,
-
-				m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ],
-				m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ],
-				m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ];
-
-			if ( ( Math.abs( m12 - m21 ) < epsilon ) &&
-			     ( Math.abs( m13 - m31 ) < epsilon ) &&
-			     ( Math.abs( m23 - m32 ) < epsilon ) ) {
-
-				// singularity found
-				// first check for identity matrix which must have +1 for all terms
-				// in leading diagonal and zero in other terms
-
-				if ( ( Math.abs( m12 + m21 ) < epsilon2 ) &&
-				     ( Math.abs( m13 + m31 ) < epsilon2 ) &&
-				     ( Math.abs( m23 + m32 ) < epsilon2 ) &&
-				     ( Math.abs( m11 + m22 + m33 - 3 ) < epsilon2 ) ) {
-
-					// this singularity is identity matrix so angle = 0
-
-					this.set( 1, 0, 0, 0 );
-
-					return this; // zero angle, arbitrary axis
-
-				}
-
-				// otherwise this singularity is angle = 180
-
-				angle = Math.PI;
-
-				const xx = ( m11 + 1 ) / 2;
-				const yy = ( m22 + 1 ) / 2;
-				const zz = ( m33 + 1 ) / 2;
-				const xy = ( m12 + m21 ) / 4;
-				const xz = ( m13 + m31 ) / 4;
-				const yz = ( m23 + m32 ) / 4;
-
-				if ( ( xx > yy ) && ( xx > zz ) ) {
-
-					// m11 is the largest diagonal term
-
-					if ( xx < epsilon ) {
-
-						x = 0;
-						y = 0.707106781;
-						z = 0.707106781;
-
-					} else {
-
-						x = Math.sqrt( xx );
-						y = xy / x;
-						z = xz / x;
-
-					}
-
-				} else if ( yy > zz ) {
-
-					// m22 is the largest diagonal term
-
-					if ( yy < epsilon ) {
-
-						x = 0.707106781;
-						y = 0;
-						z = 0.707106781;
-
-					} else {
-
-						y = Math.sqrt( yy );
-						x = xy / y;
-						z = yz / y;
-
-					}
-
-				} else {
-
-					// m33 is the largest diagonal term so base result on this
-
-					if ( zz < epsilon ) {
-
-						x = 0.707106781;
-						y = 0.707106781;
-						z = 0;
-
-					} else {
-
-						z = Math.sqrt( zz );
-						x = xz / z;
-						y = yz / z;
-
-					}
-
-				}
-
-				this.set( x, y, z, angle );
-
-				return this; // return 180 deg rotation
-
-			}
-
-			// as we have reached here there are no singularities so we can handle normally
-
-			let s = Math.sqrt( ( m32 - m23 ) * ( m32 - m23 ) +
-				( m13 - m31 ) * ( m13 - m31 ) +
-				( m21 - m12 ) * ( m21 - m12 ) ); // used to normalize
-
-			if ( Math.abs( s ) < 0.001 ) s = 1;
-
-			// prevent divide by zero, should not happen if matrix is orthogonal and should be
-			// caught by singularity test above, but I've left it in just in case
-
-			this.x = ( m32 - m23 ) / s;
-			this.y = ( m13 - m31 ) / s;
-			this.z = ( m21 - m12 ) / s;
-			this.w = Math.acos( ( m11 + m22 + m33 - 1 ) / 2 );
-
-			return this;
-
-		}
-
-		min( v ) {
-
-			this.x = Math.min( this.x, v.x );
-			this.y = Math.min( this.y, v.y );
-			this.z = Math.min( this.z, v.z );
-			this.w = Math.min( this.w, v.w );
-
-			return this;
-
-		}
-
-		max( v ) {
-
-			this.x = Math.max( this.x, v.x );
-			this.y = Math.max( this.y, v.y );
-			this.z = Math.max( this.z, v.z );
-			this.w = Math.max( this.w, v.w );
-
-			return this;
-
-		}
-
-		clamp( min, max ) {
-
-			// assumes min < max, componentwise
-
-			this.x = Math.max( min.x, Math.min( max.x, this.x ) );
-			this.y = Math.max( min.y, Math.min( max.y, this.y ) );
-			this.z = Math.max( min.z, Math.min( max.z, this.z ) );
-			this.w = Math.max( min.w, Math.min( max.w, this.w ) );
-
-			return this;
-
-		}
-
-		clampScalar( minVal, maxVal ) {
-
-			this.x = Math.max( minVal, Math.min( maxVal, this.x ) );
-			this.y = Math.max( minVal, Math.min( maxVal, this.y ) );
-			this.z = Math.max( minVal, Math.min( maxVal, this.z ) );
-			this.w = Math.max( minVal, Math.min( maxVal, this.w ) );
-
-			return this;
-
-		}
-
-		clampLength( min, max ) {
-
-			const length = this.length();
-
-			return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
-
-		}
-
-		floor() {
-
-			this.x = Math.floor( this.x );
-			this.y = Math.floor( this.y );
-			this.z = Math.floor( this.z );
-			this.w = Math.floor( this.w );
-
-			return this;
-
-		}
-
-		ceil() {
-
-			this.x = Math.ceil( this.x );
-			this.y = Math.ceil( this.y );
-			this.z = Math.ceil( this.z );
-			this.w = Math.ceil( this.w );
-
-			return this;
-
-		}
-
-		round() {
-
-			this.x = Math.round( this.x );
-			this.y = Math.round( this.y );
-			this.z = Math.round( this.z );
-			this.w = Math.round( this.w );
-
-			return this;
-
-		}
-
-		roundToZero() {
-
-			this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
-			this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
-			this.z = ( this.z < 0 ) ? Math.ceil( this.z ) : Math.floor( this.z );
-			this.w = ( this.w < 0 ) ? Math.ceil( this.w ) : Math.floor( this.w );
-
-			return this;
-
-		}
-
-		negate() {
-
-			this.x = - this.x;
-			this.y = - this.y;
-			this.z = - this.z;
-			this.w = - this.w;
-
-			return this;
-
-		}
-
-		dot( v ) {
-
-			return this.x * v.x + this.y * v.y + this.z * v.z + this.w * v.w;
-
-		}
-
-		lengthSq() {
-
-			return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
-
-		}
-
-		length() {
-
-			return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
-
-		}
-
-		manhattanLength() {
-
-			return Math.abs( this.x ) + Math.abs( this.y ) + Math.abs( this.z ) + Math.abs( this.w );
-
-		}
-
-		normalize() {
-
-			return this.divideScalar( this.length() || 1 );
-
-		}
-
-		setLength( length ) {
-
-			return this.normalize().multiplyScalar( length );
-
-		}
-
-		lerp( v, alpha ) {
-
-			this.x += ( v.x - this.x ) * alpha;
-			this.y += ( v.y - this.y ) * alpha;
-			this.z += ( v.z - this.z ) * alpha;
-			this.w += ( v.w - this.w ) * alpha;
-
-			return this;
-
-		}
-
-		lerpVectors( v1, v2, alpha ) {
-
-			this.x = v1.x + ( v2.x - v1.x ) * alpha;
-			this.y = v1.y + ( v2.y - v1.y ) * alpha;
-			this.z = v1.z + ( v2.z - v1.z ) * alpha;
-			this.w = v1.w + ( v2.w - v1.w ) * alpha;
-
-			return this;
-
-		}
-
-		equals( v ) {
-
-			return ( ( v.x === this.x ) && ( v.y === this.y ) && ( v.z === this.z ) && ( v.w === this.w ) );
-
-		}
-
-		fromArray( array, offset = 0 ) {
-
-			this.x = array[ offset ];
-			this.y = array[ offset + 1 ];
-			this.z = array[ offset + 2 ];
-			this.w = array[ offset + 3 ];
-
-			return this;
-
-		}
-
-		toArray( array = [], offset = 0 ) {
-
-			array[ offset ] = this.x;
-			array[ offset + 1 ] = this.y;
-			array[ offset + 2 ] = this.z;
-			array[ offset + 3 ] = this.w;
-
-			return array;
-
-		}
-
-		fromBufferAttribute( attribute, index, offset ) {
-
-			if ( offset !== undefined ) {
-
-				console.warn( 'THREE.Vector4: offset has been removed from .fromBufferAttribute().' );
-
-			}
-
-			this.x = attribute.getX( index );
-			this.y = attribute.getY( index );
-			this.z = attribute.getZ( index );
-			this.w = attribute.getW( index );
-
-			return this;
-
-		}
-
-		random() {
-
-			this.x = Math.random();
-			this.y = Math.random();
-			this.z = Math.random();
-			this.w = Math.random();
-
-			return this;
-
-		}
-
-		*[ Symbol.iterator ]() {
-
-			yield this.x;
-			yield this.y;
-			yield this.z;
-			yield this.w;
-
-		}
-
-	}
-
-	Vector4.prototype.isVector4 = true;
-
-	const _colorKeywords = { 'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0x00FFFF, 'aquamarine': 0x7FFFD4, 'azure': 0xF0FFFF,
-		'beige': 0xF5F5DC, 'bisque': 0xFFE4C4, 'black': 0x000000, 'blanchedalmond': 0xFFEBCD, 'blue': 0x0000FF, 'blueviolet': 0x8A2BE2,
-		'brown': 0xA52A2A, 'burlywood': 0xDEB887, 'cadetblue': 0x5F9EA0, 'chartreuse': 0x7FFF00, 'chocolate': 0xD2691E, 'coral': 0xFF7F50,
-		'cornflowerblue': 0x6495ED, 'cornsilk': 0xFFF8DC, 'crimson': 0xDC143C, 'cyan': 0x00FFFF, 'darkblue': 0x00008B, 'darkcyan': 0x008B8B,
-		'darkgoldenrod': 0xB8860B, 'darkgray': 0xA9A9A9, 'darkgreen': 0x006400, 'darkgrey': 0xA9A9A9, 'darkkhaki': 0xBDB76B, 'darkmagenta': 0x8B008B,
-		'darkolivegreen': 0x556B2F, 'darkorange': 0xFF8C00, 'darkorchid': 0x9932CC, 'darkred': 0x8B0000, 'darksalmon': 0xE9967A, 'darkseagreen': 0x8FBC8F,
-		'darkslateblue': 0x483D8B, 'darkslategray': 0x2F4F4F, 'darkslategrey': 0x2F4F4F, 'darkturquoise': 0x00CED1, 'darkviolet': 0x9400D3,
-		'deeppink': 0xFF1493, 'deepskyblue': 0x00BFFF, 'dimgray': 0x696969, 'dimgrey': 0x696969, 'dodgerblue': 0x1E90FF, 'firebrick': 0xB22222,
-		'floralwhite': 0xFFFAF0, 'forestgreen': 0x228B22, 'fuchsia': 0xFF00FF, 'gainsboro': 0xDCDCDC, 'ghostwhite': 0xF8F8FF, 'gold': 0xFFD700,
-		'goldenrod': 0xDAA520, 'gray': 0x808080, 'green': 0x008000, 'greenyellow': 0xADFF2F, 'grey': 0x808080, 'honeydew': 0xF0FFF0, 'hotpink': 0xFF69B4,
-		'indianred': 0xCD5C5C, 'indigo': 0x4B0082, 'ivory': 0xFFFFF0, 'khaki': 0xF0E68C, 'lavender': 0xE6E6FA, 'lavenderblush': 0xFFF0F5, 'lawngreen': 0x7CFC00,
-		'lemonchiffon': 0xFFFACD, 'lightblue': 0xADD8E6, 'lightcoral': 0xF08080, 'lightcyan': 0xE0FFFF, 'lightgoldenrodyellow': 0xFAFAD2, 'lightgray': 0xD3D3D3,
-		'lightgreen': 0x90EE90, 'lightgrey': 0xD3D3D3, 'lightpink': 0xFFB6C1, 'lightsalmon': 0xFFA07A, 'lightseagreen': 0x20B2AA, 'lightskyblue': 0x87CEFA,
-		'lightslategray': 0x778899, 'lightslategrey': 0x778899, 'lightsteelblue': 0xB0C4DE, 'lightyellow': 0xFFFFE0, 'lime': 0x00FF00, 'limegreen': 0x32CD32,
-		'linen': 0xFAF0E6, 'magenta': 0xFF00FF, 'maroon': 0x800000, 'mediumaquamarine': 0x66CDAA, 'mediumblue': 0x0000CD, 'mediumorchid': 0xBA55D3,
-		'mediumpurple': 0x9370DB, 'mediumseagreen': 0x3CB371, 'mediumslateblue': 0x7B68EE, 'mediumspringgreen': 0x00FA9A, 'mediumturquoise': 0x48D1CC,
-		'mediumvioletred': 0xC71585, 'midnightblue': 0x191970, 'mintcream': 0xF5FFFA, 'mistyrose': 0xFFE4E1, 'moccasin': 0xFFE4B5, 'navajowhite': 0xFFDEAD,
-		'navy': 0x000080, 'oldlace': 0xFDF5E6, 'olive': 0x808000, 'olivedrab': 0x6B8E23, 'orange': 0xFFA500, 'orangered': 0xFF4500, 'orchid': 0xDA70D6,
-		'palegoldenrod': 0xEEE8AA, 'palegreen': 0x98FB98, 'paleturquoise': 0xAFEEEE, 'palevioletred': 0xDB7093, 'papayawhip': 0xFFEFD5, 'peachpuff': 0xFFDAB9,
-		'peru': 0xCD853F, 'pink': 0xFFC0CB, 'plum': 0xDDA0DD, 'powderblue': 0xB0E0E6, 'purple': 0x800080, 'rebeccapurple': 0x663399, 'red': 0xFF0000, 'rosybrown': 0xBC8F8F,
-		'royalblue': 0x4169E1, 'saddlebrown': 0x8B4513, 'salmon': 0xFA8072, 'sandybrown': 0xF4A460, 'seagreen': 0x2E8B57, 'seashell': 0xFFF5EE,
-		'sienna': 0xA0522D, 'silver': 0xC0C0C0, 'skyblue': 0x87CEEB, 'slateblue': 0x6A5ACD, 'slategray': 0x708090, 'slategrey': 0x708090, 'snow': 0xFFFAFA,
-		'springgreen': 0x00FF7F, 'steelblue': 0x4682B4, 'tan': 0xD2B48C, 'teal': 0x008080, 'thistle': 0xD8BFD8, 'tomato': 0xFF6347, 'turquoise': 0x40E0D0,
-		'violet': 0xEE82EE, 'wheat': 0xF5DEB3, 'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32 };
-
-	const _hslA = { h: 0, s: 0, l: 0 };
-	const _hslB = { h: 0, s: 0, l: 0 };
-
-	function hue2rgb( p, q, t ) {
-
-		if ( t < 0 ) t += 1;
-		if ( t > 1 ) t -= 1;
-		if ( t < 1 / 6 ) return p + ( q - p ) * 6 * t;
-		if ( t < 1 / 2 ) return q;
-		if ( t < 2 / 3 ) return p + ( q - p ) * 6 * ( 2 / 3 - t );
-		return p;
-
-	}
-
-	function SRGBToLinear( c ) {
-
-		return ( c < 0.04045 ) ? c * 0.0773993808 : Math.pow( c * 0.9478672986 + 0.0521327014, 2.4 );
-
-	}
-
-	function LinearToSRGB( c ) {
-
-		return ( c < 0.0031308 ) ? c * 12.92 : 1.055 * ( Math.pow( c, 0.41666 ) ) - 0.055;
-
-	}
-
-	class Color {
-
-		constructor( r, g, b ) {
-
-			if ( g === undefined && b === undefined ) {
-
-				// r is THREE.Color, hex or string
-				return this.set( r );
-
-			}
-
-			return this.setRGB( r, g, b );
-
-		}
-
-		set( value ) {
-
-			if ( value && value.isColor ) {
-
-				this.copy( value );
-
-			} else if ( typeof value === 'number' ) {
-
-				this.setHex( value );
-
-			} else if ( typeof value === 'string' ) {
-
-				this.setStyle( value );
-
-			}
-
-			return this;
-
-		}
-
-		setScalar( scalar ) {
-
-			this.r = scalar;
-			this.g = scalar;
-			this.b = scalar;
-
-			return this;
-
-		}
-
-		setHex( hex ) {
-
-			hex = Math.floor( hex );
-
-			this.r = ( hex >> 16 & 255 ) / 255;
-			this.g = ( hex >> 8 & 255 ) / 255;
-			this.b = ( hex & 255 ) / 255;
-
-			return this;
-
-		}
-
-		setRGB( r, g, b ) {
-
-			this.r = r;
-			this.g = g;
-			this.b = b;
-
-			return this;
-
-		}
-
-		setHSL( h, s, l ) {
-
-			// h,s,l ranges are in 0.0 - 1.0
-			h = euclideanModulo( h, 1 );
-			s = clamp( s, 0, 1 );
-			l = clamp( l, 0, 1 );
-
-			if ( s === 0 ) {
-
-				this.r = this.g = this.b = l;
-
-			} else {
-
-				const p = l <= 0.5 ? l * ( 1 + s ) : l + s - ( l * s );
-				const q = ( 2 * l ) - p;
-
-				this.r = hue2rgb( q, p, h + 1 / 3 );
-				this.g = hue2rgb( q, p, h );
-				this.b = hue2rgb( q, p, h - 1 / 3 );
-
-			}
-
-			return this;
-
-		}
-
-		setStyle( style ) {
-
-			function handleAlpha( string ) {
-
-				if ( string === undefined ) return;
-
-				if ( parseFloat( string ) < 1 ) {
-
-					console.warn( 'THREE.Color: Alpha component of ' + style + ' will be ignored.' );
-
-				}
-
-			}
-
-
-			let m;
-
-			if ( m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec( style ) ) {
-
-				// rgb / hsl
-
-				let color;
-				const name = m[ 1 ];
-				const components = m[ 2 ];
-
-				switch ( name ) {
-
-					case 'rgb':
-					case 'rgba':
-
-						if ( color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
-
-							// rgb(255,0,0) rgba(255,0,0,0.5)
-							this.r = Math.min( 255, parseInt( color[ 1 ], 10 ) ) / 255;
-							this.g = Math.min( 255, parseInt( color[ 2 ], 10 ) ) / 255;
-							this.b = Math.min( 255, parseInt( color[ 3 ], 10 ) ) / 255;
-
-							handleAlpha( color[ 4 ] );
-
-							return this;
-
-						}
-
-						if ( color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
-
-							// rgb(100%,0%,0%) rgba(100%,0%,0%,0.5)
-							this.r = Math.min( 100, parseInt( color[ 1 ], 10 ) ) / 100;
-							this.g = Math.min( 100, parseInt( color[ 2 ], 10 ) ) / 100;
-							this.b = Math.min( 100, parseInt( color[ 3 ], 10 ) ) / 100;
-
-							handleAlpha( color[ 4 ] );
-
-							return this;
-
-						}
-
-						break;
-
-					case 'hsl':
-					case 'hsla':
-
-						if ( color = /^\s*(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec( components ) ) {
-
-							// hsl(120,50%,50%) hsla(120,50%,50%,0.5)
-							const h = parseFloat( color[ 1 ] ) / 360;
-							const s = parseInt( color[ 2 ], 10 ) / 100;
-							const l = parseInt( color[ 3 ], 10 ) / 100;
-
-							handleAlpha( color[ 4 ] );
-
-							return this.setHSL( h, s, l );
-
-						}
-
-						break;
-
-				}
-
-			} else if ( m = /^\#([A-Fa-f\d]+)$/.exec( style ) ) {
-
-				// hex color
-
-				const hex = m[ 1 ];
-				const size = hex.length;
-
-				if ( size === 3 ) {
-
-					// #ff0
-					this.r = parseInt( hex.charAt( 0 ) + hex.charAt( 0 ), 16 ) / 255;
-					this.g = parseInt( hex.charAt( 1 ) + hex.charAt( 1 ), 16 ) / 255;
-					this.b = parseInt( hex.charAt( 2 ) + hex.charAt( 2 ), 16 ) / 255;
-
-					return this;
-
-				} else if ( size === 6 ) {
-
-					// #ff0000
-					this.r = parseInt( hex.charAt( 0 ) + hex.charAt( 1 ), 16 ) / 255;
-					this.g = parseInt( hex.charAt( 2 ) + hex.charAt( 3 ), 16 ) / 255;
-					this.b = parseInt( hex.charAt( 4 ) + hex.charAt( 5 ), 16 ) / 255;
-
-					return this;
-
-				}
-
-			}
-
-			if ( style && style.length > 0 ) {
-
-				return this.setColorName( style );
-
-			}
-
-			return this;
-
-		}
-
-		setColorName( style ) {
-
-			// color keywords
-			const hex = _colorKeywords[ style.toLowerCase() ];
-
-			if ( hex !== undefined ) {
-
-				// red
-				this.setHex( hex );
-
-			} else {
-
-				// unknown color
-				console.warn( 'THREE.Color: Unknown color ' + style );
-
-			}
-
-			return this;
-
-		}
-
-		clone() {
-
-			return new this.constructor( this.r, this.g, this.b );
-
-		}
-
-		copy( color ) {
-
-			this.r = color.r;
-			this.g = color.g;
-			this.b = color.b;
-
-			return this;
-
-		}
-
-		copyGammaToLinear( color, gammaFactor = 2.0 ) {
-
-			this.r = Math.pow( color.r, gammaFactor );
-			this.g = Math.pow( color.g, gammaFactor );
-			this.b = Math.pow( color.b, gammaFactor );
-
-			return this;
-
-		}
-
-		copyLinearToGamma( color, gammaFactor = 2.0 ) {
-
-			const safeInverse = ( gammaFactor > 0 ) ? ( 1.0 / gammaFactor ) : 1.0;
-
-			this.r = Math.pow( color.r, safeInverse );
-			this.g = Math.pow( color.g, safeInverse );
-			this.b = Math.pow( color.b, safeInverse );
-
-			return this;
-
-		}
-
-		convertGammaToLinear( gammaFactor ) {
-
-			this.copyGammaToLinear( this, gammaFactor );
-
-			return this;
-
-		}
-
-		convertLinearToGamma( gammaFactor ) {
-
-			this.copyLinearToGamma( this, gammaFactor );
-
-			return this;
-
-		}
-
-		copySRGBToLinear( color ) {
-
-			this.r = SRGBToLinear( color.r );
-			this.g = SRGBToLinear( color.g );
-			this.b = SRGBToLinear( color.b );
-
-			return this;
-
-		}
-
-		copyLinearToSRGB( color ) {
-
-			this.r = LinearToSRGB( color.r );
-			this.g = LinearToSRGB( color.g );
-			this.b = LinearToSRGB( color.b );
-
-			return this;
-
-		}
-
-		convertSRGBToLinear() {
-
-			this.copySRGBToLinear( this );
-
-			return this;
-
-		}
-
-		convertLinearToSRGB() {
-
-			this.copyLinearToSRGB( this );
-
-			return this;
-
-		}
-
-		getHex() {
-
-			return ( this.r * 255 ) << 16 ^ ( this.g * 255 ) << 8 ^ ( this.b * 255 ) << 0;
-
-		}
-
-		getHexString() {
-
-			return ( '000000' + this.getHex().toString( 16 ) ).slice( - 6 );
-
-		}
-
-		getHSL( target ) {
-
-			// h,s,l ranges are in 0.0 - 1.0
-
-			const r = this.r, g = this.g, b = this.b;
-
-			const max = Math.max( r, g, b );
-			const min = Math.min( r, g, b );
-
-			let hue, saturation;
-			const lightness = ( min + max ) / 2.0;
-
-			if ( min === max ) {
-
-				hue = 0;
-				saturation = 0;
-
-			} else {
-
-				const delta = max - min;
-
-				saturation = lightness <= 0.5 ? delta / ( max + min ) : delta / ( 2 - max - min );
-
-				switch ( max ) {
-
-					case r: hue = ( g - b ) / delta + ( g < b ? 6 : 0 ); break;
-					case g: hue = ( b - r ) / delta + 2; break;
-					case b: hue = ( r - g ) / delta + 4; break;
-
-				}
-
-				hue /= 6;
-
-			}
-
-			target.h = hue;
-			target.s = saturation;
-			target.l = lightness;
-
-			return target;
-
-		}
-
-		getStyle() {
-
-			return 'rgb(' + ( ( this.r * 255 ) | 0 ) + ',' + ( ( this.g * 255 ) | 0 ) + ',' + ( ( this.b * 255 ) | 0 ) + ')';
-
-		}
-
-		offsetHSL( h, s, l ) {
-
-			this.getHSL( _hslA );
-
-			_hslA.h += h; _hslA.s += s; _hslA.l += l;
-
-			this.setHSL( _hslA.h, _hslA.s, _hslA.l );
-
-			return this;
-
-		}
-
-		add( color ) {
-
-			this.r += color.r;
-			this.g += color.g;
-			this.b += color.b;
-
-			return this;
-
-		}
-
-		addColors( color1, color2 ) {
-
-			this.r = color1.r + color2.r;
-			this.g = color1.g + color2.g;
-			this.b = color1.b + color2.b;
-
-			return this;
-
-		}
-
-		addScalar( s ) {
-
-			this.r += s;
-			this.g += s;
-			this.b += s;
-
-			return this;
-
-		}
-
-		sub( color ) {
-
-			this.r = Math.max( 0, this.r - color.r );
-			this.g = Math.max( 0, this.g - color.g );
-			this.b = Math.max( 0, this.b - color.b );
-
-			return this;
-
-		}
-
-		multiply( color ) {
-
-			this.r *= color.r;
-			this.g *= color.g;
-			this.b *= color.b;
-
-			return this;
-
-		}
-
-		multiplyScalar( s ) {
-
-			this.r *= s;
-			this.g *= s;
-			this.b *= s;
-
-			return this;
-
-		}
-
-		lerp( color, alpha ) {
-
-			this.r += ( color.r - this.r ) * alpha;
-			this.g += ( color.g - this.g ) * alpha;
-			this.b += ( color.b - this.b ) * alpha;
-
-			return this;
-
-		}
-
-		lerpColors( color1, color2, alpha ) {
-
-			this.r = color1.r + ( color2.r - color1.r ) * alpha;
-			this.g = color1.g + ( color2.g - color1.g ) * alpha;
-			this.b = color1.b + ( color2.b - color1.b ) * alpha;
-
-			return this;
-
-		}
-
-		lerpHSL( color, alpha ) {
-
-			this.getHSL( _hslA );
-			color.getHSL( _hslB );
-
-			const h = lerp( _hslA.h, _hslB.h, alpha );
-			const s = lerp( _hslA.s, _hslB.s, alpha );
-			const l = lerp( _hslA.l, _hslB.l, alpha );
-
-			this.setHSL( h, s, l );
-
-			return this;
-
-		}
-
-		equals( c ) {
-
-			return ( c.r === this.r ) && ( c.g === this.g ) && ( c.b === this.b );
-
-		}
-
-		fromArray( array, offset = 0 ) {
-
-			this.r = array[ offset ];
-			this.g = array[ offset + 1 ];
-			this.b = array[ offset + 2 ];
-
-			return this;
-
-		}
-
-		toArray( array = [], offset = 0 ) {
-
-			array[ offset ] = this.r;
-			array[ offset + 1 ] = this.g;
-			array[ offset + 2 ] = this.b;
-
-			return array;
-
-		}
-
-		fromBufferAttribute( attribute, index ) {
-
-			this.r = attribute.getX( index );
-			this.g = attribute.getY( index );
-			this.b = attribute.getZ( index );
-
-			if ( attribute.normalized === true ) {
-
-				// assuming Uint8Array
-
-				this.r /= 255;
-				this.g /= 255;
-				this.b /= 255;
-
-			}
-
-			return this;
-
-		}
-
-		toJSON() {
-
-			return this.getHex();
-
-		}
-
-	}
-
-	Color.NAMES = _colorKeywords;
-
-	Color.prototype.isColor = true;
-	Color.prototype.r = 1;
-	Color.prototype.g = 1;
-	Color.prototype.b = 1;
+	const FloatType = 1015;
 
 	const StaticDrawUsage = 35044;
+
+	const WebGLCoordinateSystem = 2000;
+	const WebGPUCoordinateSystem = 2001;
 
 	const _vector$1 = /*@__PURE__*/ new Vector3();
 	const _vector2 = /*@__PURE__*/ new Vector2();
 
 	class BufferAttribute {
 
-		constructor( array, itemSize, normalized ) {
+		constructor( array, itemSize, normalized = false ) {
 
 			if ( Array.isArray( array ) ) {
 
@@ -3899,15 +2624,18 @@
 
 			}
 
+			this.isBufferAttribute = true;
+
 			this.name = '';
 
 			this.array = array;
 			this.itemSize = itemSize;
 			this.count = array !== undefined ? array.length / itemSize : 0;
-			this.normalized = normalized === true;
+			this.normalized = normalized;
 
 			this.usage = StaticDrawUsage;
-			this.updateRange = { offset: 0, count: - 1 };
+			this.updateRanges = [];
+			this.gpuType = FloatType;
 
 			this.version = 0;
 
@@ -3929,6 +2657,18 @@
 
 		}
 
+		addUpdateRange( start, count ) {
+
+			this.updateRanges.push( { start, count } );
+
+		}
+
+		clearUpdateRanges() {
+
+			this.updateRanges.length = 0;
+
+		}
+
 		copy( source ) {
 
 			this.name = source.name;
@@ -3938,6 +2678,7 @@
 			this.normalized = source.normalized;
 
 			this.usage = source.usage;
+			this.gpuType = source.gpuType;
 
 			return this;
 
@@ -3961,110 +2702,6 @@
 		copyArray( array ) {
 
 			this.array.set( array );
-
-			return this;
-
-		}
-
-		copyColorsArray( colors ) {
-
-			const array = this.array;
-			let offset = 0;
-
-			for ( let i = 0, l = colors.length; i < l; i ++ ) {
-
-				let color = colors[ i ];
-
-				if ( color === undefined ) {
-
-					console.warn( 'THREE.BufferAttribute.copyColorsArray(): color is undefined', i );
-					color = new Color();
-
-				}
-
-				array[ offset ++ ] = color.r;
-				array[ offset ++ ] = color.g;
-				array[ offset ++ ] = color.b;
-
-			}
-
-			return this;
-
-		}
-
-		copyVector2sArray( vectors ) {
-
-			const array = this.array;
-			let offset = 0;
-
-			for ( let i = 0, l = vectors.length; i < l; i ++ ) {
-
-				let vector = vectors[ i ];
-
-				if ( vector === undefined ) {
-
-					console.warn( 'THREE.BufferAttribute.copyVector2sArray(): vector is undefined', i );
-					vector = new Vector2();
-
-				}
-
-				array[ offset ++ ] = vector.x;
-				array[ offset ++ ] = vector.y;
-
-			}
-
-			return this;
-
-		}
-
-		copyVector3sArray( vectors ) {
-
-			const array = this.array;
-			let offset = 0;
-
-			for ( let i = 0, l = vectors.length; i < l; i ++ ) {
-
-				let vector = vectors[ i ];
-
-				if ( vector === undefined ) {
-
-					console.warn( 'THREE.BufferAttribute.copyVector3sArray(): vector is undefined', i );
-					vector = new Vector3();
-
-				}
-
-				array[ offset ++ ] = vector.x;
-				array[ offset ++ ] = vector.y;
-				array[ offset ++ ] = vector.z;
-
-			}
-
-			return this;
-
-		}
-
-		copyVector4sArray( vectors ) {
-
-			const array = this.array;
-			let offset = 0;
-
-			for ( let i = 0, l = vectors.length; i < l; i ++ ) {
-
-				let vector = vectors[ i ];
-
-				if ( vector === undefined ) {
-
-					console.warn( 'THREE.BufferAttribute.copyVector4sArray(): vector is undefined', i );
-					vector = new Vector4();
-
-				}
-
-				array[ offset ++ ] = vector.x;
-				array[ offset ++ ] = vector.y;
-				array[ offset ++ ] = vector.z;
-				array[ offset ++ ] = vector.w;
-
-			}
 
 			return this;
 
@@ -4104,9 +2741,7 @@
 
 			for ( let i = 0, l = this.count; i < l; i ++ ) {
 
-				_vector$1.x = this.getX( i );
-				_vector$1.y = this.getY( i );
-				_vector$1.z = this.getZ( i );
+				_vector$1.fromBufferAttribute( this, i );
 
 				_vector$1.applyMatrix4( m );
 
@@ -4122,9 +2757,7 @@
 
 			for ( let i = 0, l = this.count; i < l; i ++ ) {
 
-				_vector$1.x = this.getX( i );
-				_vector$1.y = this.getY( i );
-				_vector$1.z = this.getZ( i );
+				_vector$1.fromBufferAttribute( this, i );
 
 				_vector$1.applyNormalMatrix( m );
 
@@ -4140,9 +2773,7 @@
 
 			for ( let i = 0, l = this.count; i < l; i ++ ) {
 
-				_vector$1.x = this.getX( i );
-				_vector$1.y = this.getY( i );
-				_vector$1.z = this.getZ( i );
+				_vector$1.fromBufferAttribute( this, i );
 
 				_vector$1.transformDirection( m );
 
@@ -4156,7 +2787,28 @@
 
 		set( value, offset = 0 ) {
 
+			// Matching BufferAttribute constructor, do not normalize the array.
 			this.array.set( value, offset );
+
+			return this;
+
+		}
+
+		getComponent( index, component ) {
+
+			let value = this.array[ index * this.itemSize + component ];
+
+			if ( this.normalized ) value = denormalize( value, this.array );
+
+			return value;
+
+		}
+
+		setComponent( index, component, value ) {
+
+			if ( this.normalized ) value = normalize( value, this.array );
+
+			this.array[ index * this.itemSize + component ] = value;
 
 			return this;
 
@@ -4164,11 +2816,17 @@
 
 		getX( index ) {
 
-			return this.array[ index * this.itemSize ];
+			let x = this.array[ index * this.itemSize ];
+
+			if ( this.normalized ) x = denormalize( x, this.array );
+
+			return x;
 
 		}
 
 		setX( index, x ) {
+
+			if ( this.normalized ) x = normalize( x, this.array );
 
 			this.array[ index * this.itemSize ] = x;
 
@@ -4178,11 +2836,17 @@
 
 		getY( index ) {
 
-			return this.array[ index * this.itemSize + 1 ];
+			let y = this.array[ index * this.itemSize + 1 ];
+
+			if ( this.normalized ) y = denormalize( y, this.array );
+
+			return y;
 
 		}
 
 		setY( index, y ) {
+
+			if ( this.normalized ) y = normalize( y, this.array );
 
 			this.array[ index * this.itemSize + 1 ] = y;
 
@@ -4192,11 +2856,17 @@
 
 		getZ( index ) {
 
-			return this.array[ index * this.itemSize + 2 ];
+			let z = this.array[ index * this.itemSize + 2 ];
+
+			if ( this.normalized ) z = denormalize( z, this.array );
+
+			return z;
 
 		}
 
 		setZ( index, z ) {
+
+			if ( this.normalized ) z = normalize( z, this.array );
 
 			this.array[ index * this.itemSize + 2 ] = z;
 
@@ -4206,11 +2876,17 @@
 
 		getW( index ) {
 
-			return this.array[ index * this.itemSize + 3 ];
+			let w = this.array[ index * this.itemSize + 3 ];
+
+			if ( this.normalized ) w = denormalize( w, this.array );
+
+			return w;
 
 		}
 
 		setW( index, w ) {
+
+			if ( this.normalized ) w = normalize( w, this.array );
 
 			this.array[ index * this.itemSize + 3 ] = w;
 
@@ -4221,6 +2897,13 @@
 		setXY( index, x, y ) {
 
 			index *= this.itemSize;
+
+			if ( this.normalized ) {
+
+				x = normalize( x, this.array );
+				y = normalize( y, this.array );
+
+			}
 
 			this.array[ index + 0 ] = x;
 			this.array[ index + 1 ] = y;
@@ -4233,6 +2916,14 @@
 
 			index *= this.itemSize;
 
+			if ( this.normalized ) {
+
+				x = normalize( x, this.array );
+				y = normalize( y, this.array );
+				z = normalize( z, this.array );
+
+			}
+
 			this.array[ index + 0 ] = x;
 			this.array[ index + 1 ] = y;
 			this.array[ index + 2 ] = z;
@@ -4244,6 +2935,15 @@
 		setXYZW( index, x, y, z, w ) {
 
 			index *= this.itemSize;
+
+			if ( this.normalized ) {
+
+				x = normalize( x, this.array );
+				y = normalize( y, this.array );
+				z = normalize( z, this.array );
+				w = normalize( w, this.array );
+
+			}
 
 			this.array[ index + 0 ] = x;
 			this.array[ index + 1 ] = y;
@@ -4273,21 +2973,18 @@
 			const data = {
 				itemSize: this.itemSize,
 				type: this.array.constructor.name,
-				array: Array.prototype.slice.call( this.array ),
+				array: Array.from( this.array ),
 				normalized: this.normalized
 			};
 
 			if ( this.name !== '' ) data.name = this.name;
 			if ( this.usage !== StaticDrawUsage ) data.usage = this.usage;
-			if ( this.updateRange.offset !== 0 || this.updateRange.count !== - 1 ) data.updateRange = this.updateRange;
 
 			return data;
 
 		}
 
 	}
-
-	BufferAttribute.prototype.isBufferAttribute = true;
 
 	class Uint16BufferAttribute extends BufferAttribute {
 
@@ -4309,17 +3006,6 @@
 
 	}
 
-	class Float16BufferAttribute extends BufferAttribute {
-
-		constructor( array, itemSize, normalized ) {
-
-			super( new Uint16Array( array ), itemSize, normalized );
-
-		}
-
-	}
-
-	Float16BufferAttribute.prototype.isFloat16BufferAttribute = true;
 
 	class Float32BufferAttribute extends BufferAttribute {
 
@@ -4333,12 +3019,13 @@
 
 	const _box$1 = /*@__PURE__*/ new Box3();
 	const _v1$2 = /*@__PURE__*/ new Vector3();
-	const _toFarthestPoint = /*@__PURE__*/ new Vector3();
-	const _toPoint = /*@__PURE__*/ new Vector3();
+	const _v2 = /*@__PURE__*/ new Vector3();
 
 	class Sphere {
 
 		constructor( center = new Vector3(), radius = - 1 ) {
+
+			this.isSphere = true;
 
 			this.center = center;
 			this.radius = radius;
@@ -4491,23 +3178,31 @@
 
 		expandByPoint( point ) {
 
-			// from https://github.com/juj/MathGeoLib/blob/2940b99b99cfe575dd45103ef20f4019dee15b54/src/Geometry/Sphere.cpp#L649-L671
+			if ( this.isEmpty() ) {
 
-			_toPoint.subVectors( point, this.center );
+				this.center.copy( point );
 
-			const lengthSq = _toPoint.lengthSq();
+				this.radius = 0;
+
+				return this;
+
+			}
+
+			_v1$2.subVectors( point, this.center );
+
+			const lengthSq = _v1$2.lengthSq();
 
 			if ( lengthSq > ( this.radius * this.radius ) ) {
 
+				// calculate the minimal sphere
+
 				const length = Math.sqrt( lengthSq );
-				const missingRadiusHalf = ( length - this.radius ) * 0.5;
 
-				// Nudge this sphere towards the target point. Add half the missing distance to radius,
-				// and the other half to position. This gives a tighter enclosure, instead of if
-				// the whole missing distance were just added to radius.
+				const delta = ( length - this.radius ) * 0.5;
 
-				this.center.add( _toPoint.multiplyScalar( missingRadiusHalf / length ) );
-				this.radius += missingRadiusHalf;
+				this.center.addScaledVector( _v1$2, delta / length );
+
+				this.radius += delta;
 
 			}
 
@@ -4517,16 +3212,33 @@
 
 		union( sphere ) {
 
-			// from https://github.com/juj/MathGeoLib/blob/2940b99b99cfe575dd45103ef20f4019dee15b54/src/Geometry/Sphere.cpp#L759-L769
+			if ( sphere.isEmpty() ) {
 
-			// To enclose another sphere into this sphere, we only need to enclose two points:
-			// 1) Enclose the farthest point on the other sphere into this sphere.
-			// 2) Enclose the opposite point of the farthest point into this sphere.
+				return this;
 
-			_toFarthestPoint.subVectors( sphere.center, this.center ).normalize().multiplyScalar( sphere.radius );
+			}
 
-			this.expandByPoint( _v1$2.copy( sphere.center ).add( _toFarthestPoint ) );
-			this.expandByPoint( _v1$2.copy( sphere.center ).sub( _toFarthestPoint ) );
+			if ( this.isEmpty() ) {
+
+				this.copy( sphere );
+
+				return this;
+
+			}
+
+			if ( this.center.equals( sphere.center ) === true ) {
+
+				 this.radius = Math.max( this.radius, sphere.radius );
+
+			} else {
+
+				_v2.subVectors( sphere.center, this.center ).setLength( sphere.radius );
+
+				this.expandByPoint( _v1$2.copy( sphere.center ).add( _v2 ) );
+
+				this.expandByPoint( _v1$2.copy( sphere.center ).sub( _v2 ) );
+
+			}
 
 			return this;
 
@@ -4548,7 +3260,9 @@
 
 	class Matrix4 {
 
-		constructor() {
+		constructor( n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44 ) {
+
+			Matrix4.prototype.isMatrix4 = true;
 
 			this.elements = [
 
@@ -4559,9 +3273,9 @@
 
 			];
 
-			if ( arguments.length > 0 ) {
+			if ( n11 !== undefined ) {
 
-				console.error( 'THREE.Matrix4: the constructor no longer reads arguments. use .set() instead.' );
+				this.set( n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44 );
 
 			}
 
@@ -4703,12 +3417,6 @@
 		}
 
 		makeRotationFromEuler( euler ) {
-
-			if ( ! ( euler && euler.isEuler ) ) {
-
-				console.error( 'THREE.Matrix4: .makeRotationFromEuler() now expects a Euler rotation rather than a Vector3 and order.' );
-
-			}
 
 			const te = this.elements;
 
@@ -4883,14 +3591,7 @@
 
 		}
 
-		multiply( m, n ) {
-
-			if ( n !== undefined ) {
-
-				console.warn( 'THREE.Matrix4: .multiply() now only accepts one argument. Use .multiplyMatrices( a, b ) instead.' );
-				return this.multiplyMatrices( m, n );
-
-			}
+		multiply( m ) {
 
 			return this.multiplyMatrices( this, m );
 
@@ -5117,14 +3818,29 @@
 
 		makeTranslation( x, y, z ) {
 
-			this.set(
+			if ( x.isVector3 ) {
 
-				1, 0, 0, x,
-				0, 1, 0, y,
-				0, 0, 1, z,
-				0, 0, 0, 1
+				this.set(
 
-			);
+					1, 0, 0, x.x,
+					0, 1, 0, x.y,
+					0, 0, 1, x.z,
+					0, 0, 0, 1
+
+				);
+
+			} else {
+
+				this.set(
+
+					1, 0, 0, x,
+					0, 1, 0, y,
+					0, 0, 1, z,
+					0, 0, 0, 1
+
+				);
+
+			}
 
 			return this;
 
@@ -5315,13 +4031,7 @@
 
 		}
 
-		makePerspective( left, right, top, bottom, near, far ) {
-
-			if ( far === undefined ) {
-
-				console.warn( 'THREE.Matrix4: .makePerspective() has been redefined and has a new signature. Please check the docs.' );
-
-			}
+		makePerspective( left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem ) {
 
 			const te = this.elements;
 			const x = 2 * near / ( right - left );
@@ -5329,19 +4039,35 @@
 
 			const a = ( right + left ) / ( right - left );
 			const b = ( top + bottom ) / ( top - bottom );
-			const c = - ( far + near ) / ( far - near );
-			const d = - 2 * far * near / ( far - near );
 
-			te[ 0 ] = x;	te[ 4 ] = 0;	te[ 8 ] = a;	te[ 12 ] = 0;
-			te[ 1 ] = 0;	te[ 5 ] = y;	te[ 9 ] = b;	te[ 13 ] = 0;
-			te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = c;	te[ 14 ] = d;
+			let c, d;
+
+			if ( coordinateSystem === WebGLCoordinateSystem ) {
+
+				c = - ( far + near ) / ( far - near );
+				d = ( - 2 * far * near ) / ( far - near );
+
+			} else if ( coordinateSystem === WebGPUCoordinateSystem ) {
+
+				c = - far / ( far - near );
+				d = ( - far * near ) / ( far - near );
+
+			} else {
+
+				throw new Error( 'THREE.Matrix4.makePerspective(): Invalid coordinate system: ' + coordinateSystem );
+
+			}
+
+			te[ 0 ] = x;	te[ 4 ] = 0;	te[ 8 ] = a; 	te[ 12 ] = 0;
+			te[ 1 ] = 0;	te[ 5 ] = y;	te[ 9 ] = b; 	te[ 13 ] = 0;
+			te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = c; 	te[ 14 ] = d;
 			te[ 3 ] = 0;	te[ 7 ] = 0;	te[ 11 ] = - 1;	te[ 15 ] = 0;
 
 			return this;
 
 		}
 
-		makeOrthographic( left, right, top, bottom, near, far ) {
+		makeOrthographic( left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem ) {
 
 			const te = this.elements;
 			const w = 1.0 / ( right - left );
@@ -5350,12 +4076,29 @@
 
 			const x = ( right + left ) * w;
 			const y = ( top + bottom ) * h;
-			const z = ( far + near ) * p;
 
-			te[ 0 ] = 2 * w;	te[ 4 ] = 0;	te[ 8 ] = 0;	te[ 12 ] = - x;
-			te[ 1 ] = 0;	te[ 5 ] = 2 * h;	te[ 9 ] = 0;	te[ 13 ] = - y;
-			te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = - 2 * p;	te[ 14 ] = - z;
-			te[ 3 ] = 0;	te[ 7 ] = 0;	te[ 11 ] = 0;	te[ 15 ] = 1;
+			let z, zInv;
+
+			if ( coordinateSystem === WebGLCoordinateSystem ) {
+
+				z = ( far + near ) * p;
+				zInv = - 2 * p;
+
+			} else if ( coordinateSystem === WebGPUCoordinateSystem ) {
+
+				z = near * p;
+				zInv = - 1 * p;
+
+			} else {
+
+				throw new Error( 'THREE.Matrix4.makeOrthographic(): Invalid coordinate system: ' + coordinateSystem );
+
+			}
+
+			te[ 0 ] = 2 * w;	te[ 4 ] = 0;		te[ 8 ] = 0; 		te[ 12 ] = - x;
+			te[ 1 ] = 0; 		te[ 5 ] = 2 * h;	te[ 9 ] = 0; 		te[ 13 ] = - y;
+			te[ 2 ] = 0; 		te[ 6 ] = 0;		te[ 10 ] = zInv;	te[ 14 ] = - z;
+			te[ 3 ] = 0; 		te[ 7 ] = 0;		te[ 11 ] = 0;		te[ 15 ] = 1;
 
 			return this;
 
@@ -5418,8 +4161,6 @@
 
 	}
 
-	Matrix4.prototype.isMatrix4 = true;
-
 	const _v1$1 = /*@__PURE__*/ new Vector3();
 	const _m1$2 = /*@__PURE__*/ new Matrix4();
 	const _zero = /*@__PURE__*/ new Vector3( 0, 0, 0 );
@@ -5433,7 +4174,9 @@
 
 	class Euler {
 
-		constructor( x = 0, y = 0, z = 0, order = Euler.DefaultOrder ) {
+		constructor( x = 0, y = 0, z = 0, order = Euler.DEFAULT_ORDER ) {
+
+			this.isEuler = true;
 
 			this._x = x;
 			this._y = y;
@@ -5713,20 +4456,6 @@
 
 		}
 
-		toVector3( optionalResult ) {
-
-			if ( optionalResult ) {
-
-				return optionalResult.set( this._x, this._y, this._z );
-
-			} else {
-
-				return new Vector3( this._x, this._y, this._z );
-
-			}
-
-		}
-
 		_onChange( callback ) {
 
 			this._onChangeCallback = callback;
@@ -5737,12 +4466,18 @@
 
 		_onChangeCallback() {}
 
+		*[ Symbol.iterator ]() {
+
+			yield this._x;
+			yield this._y;
+			yield this._z;
+			yield this._order;
+
+		}
+
 	}
 
-	Euler.prototype.isEuler = true;
-
-	Euler.DefaultOrder = 'XYZ';
-	Euler.RotationOrders = [ 'XYZ', 'YZX', 'ZXY', 'XZY', 'YXZ', 'ZYX' ];
+	Euler.DEFAULT_ORDER = 'XYZ';
 
 	class Layers {
 
@@ -5754,7 +4489,7 @@
 
 		set( channel ) {
 
-			this.mask = 1 << channel | 0;
+			this.mask = ( 1 << channel | 0 ) >>> 0;
 
 		}
 
@@ -5794,11 +4529,19 @@
 
 		}
 
+		isEnabled( channel ) {
+
+			return ( this.mask & ( 1 << channel | 0 ) ) !== 0;
+
+		}
+
 	}
 
 	class Matrix3 {
 
-		constructor() {
+		constructor( n11, n12, n13, n21, n22, n23, n31, n32, n33 ) {
+
+			Matrix3.prototype.isMatrix3 = true;
 
 			this.elements = [
 
@@ -5808,9 +4551,9 @@
 
 			];
 
-			if ( arguments.length > 0 ) {
+			if ( n11 !== undefined ) {
 
-				console.error( 'THREE.Matrix3: the constructor no longer reads arguments. use .set() instead.' );
+				this.set( n11, n12, n13, n21, n22, n23, n31, n32, n33 );
 
 			}
 
@@ -6033,12 +4776,11 @@
 
 		}
 
+		//
+
 		scale( sx, sy ) {
 
-			const te = this.elements;
-
-			te[ 0 ] *= sx; te[ 3 ] *= sx; te[ 6 ] *= sx;
-			te[ 1 ] *= sy; te[ 4 ] *= sy; te[ 7 ] *= sy;
+			this.premultiply( _m3.makeScale( sx, sy ) );
 
 			return this;
 
@@ -6046,21 +4788,7 @@
 
 		rotate( theta ) {
 
-			const c = Math.cos( theta );
-			const s = Math.sin( theta );
-
-			const te = this.elements;
-
-			const a11 = te[ 0 ], a12 = te[ 3 ], a13 = te[ 6 ];
-			const a21 = te[ 1 ], a22 = te[ 4 ], a23 = te[ 7 ];
-
-			te[ 0 ] = c * a11 + s * a21;
-			te[ 3 ] = c * a12 + s * a22;
-			te[ 6 ] = c * a13 + s * a23;
-
-			te[ 1 ] = - s * a11 + c * a21;
-			te[ 4 ] = - s * a12 + c * a22;
-			te[ 7 ] = - s * a13 + c * a23;
+			this.premultiply( _m3.makeRotation( - theta ) );
 
 			return this;
 
@@ -6068,14 +4796,76 @@
 
 		translate( tx, ty ) {
 
-			const te = this.elements;
-
-			te[ 0 ] += tx * te[ 2 ]; te[ 3 ] += tx * te[ 5 ]; te[ 6 ] += tx * te[ 8 ];
-			te[ 1 ] += ty * te[ 2 ]; te[ 4 ] += ty * te[ 5 ]; te[ 7 ] += ty * te[ 8 ];
+			this.premultiply( _m3.makeTranslation( tx, ty ) );
 
 			return this;
 
 		}
+
+		// for 2D Transforms
+
+		makeTranslation( x, y ) {
+
+			if ( x.isVector2 ) {
+
+				this.set(
+
+					1, 0, x.x,
+					0, 1, x.y,
+					0, 0, 1
+
+				);
+
+			} else {
+
+				this.set(
+
+					1, 0, x,
+					0, 1, y,
+					0, 0, 1
+
+				);
+
+			}
+
+			return this;
+
+		}
+
+		makeRotation( theta ) {
+
+			// counterclockwise
+
+			const c = Math.cos( theta );
+			const s = Math.sin( theta );
+
+			this.set(
+
+				c, - s, 0,
+				s, c, 0,
+				0, 0, 1
+
+			);
+
+			return this;
+
+		}
+
+		makeScale( x, y ) {
+
+			this.set(
+
+				x, 0, 0,
+				0, y, 0,
+				0, 0, 1
+
+			);
+
+			return this;
+
+		}
+
+		//
 
 		equals( matrix ) {
 
@@ -6132,7 +4922,7 @@
 
 	}
 
-	Matrix3.prototype.isMatrix3 = true;
+	const _m3 = /*@__PURE__*/ new Matrix3();
 
 	let _object3DId = 0;
 
@@ -6152,11 +4942,16 @@
 	const _addedEvent = { type: 'added' };
 	const _removedEvent = { type: 'removed' };
 
+	const _childaddedEvent = { type: 'childadded', child: null };
+	const _childremovedEvent = { type: 'childremoved', child: null };
+
 	class Object3D extends EventDispatcher {
 
 		constructor() {
 
 			super();
+
+			this.isObject3D = true;
 
 			Object.defineProperty( this, 'id', { value: _object3DId ++ } );
 
@@ -6168,7 +4963,7 @@
 			this.parent = null;
 			this.children = [];
 
-			this.up = Object3D.DefaultUp.clone();
+			this.up = Object3D.DEFAULT_UP.clone();
 
 			const position = new Vector3();
 			const rotation = new Euler();
@@ -6222,7 +5017,9 @@
 			this.matrix = new Matrix4();
 			this.matrixWorld = new Matrix4();
 
-			this.matrixAutoUpdate = Object3D.DefaultMatrixAutoUpdate;
+			this.matrixAutoUpdate = Object3D.DEFAULT_MATRIX_AUTO_UPDATE;
+
+			this.matrixWorldAutoUpdate = Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE; // checked by the renderer
 			this.matrixWorldNeedsUpdate = false;
 
 			this.layers = new Layers();
@@ -6239,6 +5036,10 @@
 			this.userData = {};
 
 		}
+
+		onBeforeShadow( /* renderer, object, camera, shadowCamera, geometry, depthMaterial, group */ ) {}
+
+		onAfterShadow( /* renderer, object, camera, shadowCamera, geometry, depthMaterial, group */ ) {}
 
 		onBeforeRender( /* renderer, scene, camera, geometry, material, group */ ) {}
 
@@ -6370,11 +5171,15 @@
 
 		localToWorld( vector ) {
 
+			this.updateWorldMatrix( true, false );
+
 			return vector.applyMatrix4( this.matrixWorld );
 
 		}
 
 		worldToLocal( vector ) {
+
+			this.updateWorldMatrix( true, false );
 
 			return vector.applyMatrix4( _m1$1.copy( this.matrixWorld ).invert() );
 
@@ -6445,16 +5250,15 @@
 
 			if ( object && object.isObject3D ) {
 
-				if ( object.parent !== null ) {
-
-					object.parent.remove( object );
-
-				}
-
+				object.removeFromParent();
 				object.parent = this;
 				this.children.push( object );
 
 				object.dispatchEvent( _addedEvent );
+
+				_childaddedEvent.child = object;
+				this.dispatchEvent( _childaddedEvent );
+				_childaddedEvent.child = null;
 
 			} else {
 
@@ -6489,6 +5293,10 @@
 
 				object.dispatchEvent( _removedEvent );
 
+				_childremovedEvent.child = object;
+				this.dispatchEvent( _childremovedEvent );
+				_childremovedEvent.child = null;
+
 			}
 
 			return this;
@@ -6511,26 +5319,15 @@
 
 		clear() {
 
-			for ( let i = 0; i < this.children.length; i ++ ) {
-
-				const object = this.children[ i ];
-
-				object.parent = null;
-
-				object.dispatchEvent( _removedEvent );
-
-			}
-
-			this.children.length = 0;
-
-			return this;
-
+			return this.remove( ... this.children );
 
 		}
 
 		attach( object ) {
 
 			// adds object as a child of this, while maintaining the object's world transform
+
+			// Note: This method does not support scene graphs having non-uniformly-scaled nodes(s)
 
 			this.updateWorldMatrix( true, false );
 
@@ -6546,9 +5343,17 @@
 
 			object.applyMatrix4( _m1$1 );
 
-			this.add( object );
+			object.removeFromParent();
+			object.parent = this;
+			this.children.push( object );
 
 			object.updateWorldMatrix( false, true );
+
+			object.dispatchEvent( _addedEvent );
+
+			_childaddedEvent.child = object;
+			this.dispatchEvent( _childaddedEvent );
+			_childaddedEvent.child = null;
 
 			return this;
 
@@ -6584,6 +5389,22 @@
 			}
 
 			return undefined;
+
+		}
+
+		getObjectsByProperty( name, value, result = [] ) {
+
+			if ( this[ name ] === value ) result.push( this );
+
+			const children = this.children;
+
+			for ( let i = 0, l = children.length; i < l; i ++ ) {
+
+				children[ i ].getObjectsByProperty( name, value, result );
+
+			}
+
+			return result;
 
 		}
 
@@ -6625,7 +5446,7 @@
 
 		}
 
-		raycast() {}
+		raycast( /* raycaster, intersects */ ) {}
 
 		traverse( callback ) {
 
@@ -6685,13 +5506,17 @@
 
 			if ( this.matrixWorldNeedsUpdate || force ) {
 
-				if ( this.parent === null ) {
+				if ( this.matrixWorldAutoUpdate === true ) {
 
-					this.matrixWorld.copy( this.matrix );
+					if ( this.parent === null ) {
 
-				} else {
+						this.matrixWorld.copy( this.matrix );
 
-					this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
+					} else {
+
+						this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
+
+					}
 
 				}
 
@@ -6701,13 +5526,15 @@
 
 			}
 
-			// update children
+			// make sure descendants are updated if required
 
 			const children = this.children;
 
 			for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-				children[ i ].updateMatrixWorld( force );
+				const child = children[ i ];
+
+				child.updateMatrixWorld( force );
 
 			}
 
@@ -6725,17 +5552,21 @@
 
 			if ( this.matrixAutoUpdate ) this.updateMatrix();
 
-			if ( this.parent === null ) {
+			if ( this.matrixWorldAutoUpdate === true ) {
 
-				this.matrixWorld.copy( this.matrix );
+				if ( this.parent === null ) {
 
-			} else {
+					this.matrixWorld.copy( this.matrix );
 
-				this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
+				} else {
+
+					this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
+
+				}
 
 			}
 
-			// update children
+			// make sure descendants are updated
 
 			if ( updateChildren === true ) {
 
@@ -6743,7 +5574,9 @@
 
 				for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-					children[ i ].updateWorldMatrix( false, true );
+					const child = children[ i ];
+
+					child.updateWorldMatrix( false, true );
 
 				}
 
@@ -6771,11 +5604,12 @@
 					images: {},
 					shapes: {},
 					skeletons: {},
-					animations: {}
+					animations: {},
+					nodes: {}
 				};
 
 				output.metadata = {
-					version: 4.5,
+					version: 4.6,
 					type: 'Object',
 					generator: 'Object3D.toJSON'
 				};
@@ -6795,10 +5629,11 @@
 			if ( this.visible === false ) object.visible = false;
 			if ( this.frustumCulled === false ) object.frustumCulled = false;
 			if ( this.renderOrder !== 0 ) object.renderOrder = this.renderOrder;
-			if ( JSON.stringify( this.userData ) !== '{}' ) object.userData = this.userData;
+			if ( Object.keys( this.userData ).length > 0 ) object.userData = this.userData;
 
 			object.layers = this.layers.mask;
 			object.matrix = this.matrix.toArray();
+			object.up = this.up.toArray();
 
 			if ( this.matrixAutoUpdate === false ) object.matrixAutoUpdate = false;
 
@@ -6810,6 +5645,58 @@
 				object.count = this.count;
 				object.instanceMatrix = this.instanceMatrix.toJSON();
 				if ( this.instanceColor !== null ) object.instanceColor = this.instanceColor.toJSON();
+
+			}
+
+			if ( this.isBatchedMesh ) {
+
+				object.type = 'BatchedMesh';
+				object.perObjectFrustumCulled = this.perObjectFrustumCulled;
+				object.sortObjects = this.sortObjects;
+
+				object.drawRanges = this._drawRanges;
+				object.reservedRanges = this._reservedRanges;
+
+				object.visibility = this._visibility;
+				object.active = this._active;
+				object.bounds = this._bounds.map( bound => ( {
+					boxInitialized: bound.boxInitialized,
+					boxMin: bound.box.min.toArray(),
+					boxMax: bound.box.max.toArray(),
+
+					sphereInitialized: bound.sphereInitialized,
+					sphereRadius: bound.sphere.radius,
+					sphereCenter: bound.sphere.center.toArray()
+				} ) );
+
+				object.maxInstanceCount = this._maxInstanceCount;
+				object.maxVertexCount = this._maxVertexCount;
+				object.maxIndexCount = this._maxIndexCount;
+
+				object.geometryInitialized = this._geometryInitialized;
+				object.geometryCount = this._geometryCount;
+
+				object.matricesTexture = this._matricesTexture.toJSON( meta );
+
+				if ( this._colorsTexture !== null ) object.colorsTexture = this._colorsTexture.toJSON( meta );
+
+				if ( this.boundingSphere !== null ) {
+
+					object.boundingSphere = {
+						center: object.boundingSphere.center.toArray(),
+						radius: object.boundingSphere.radius
+					};
+
+				}
+
+				if ( this.boundingBox !== null ) {
+
+					object.boundingBox = {
+						min: object.boundingBox.min.toArray(),
+						max: object.boundingBox.max.toArray()
+					};
+
+				}
 
 			}
 
@@ -6843,7 +5730,7 @@
 
 				}
 
-				if ( this.environment && this.environment.isTexture ) {
+				if ( this.environment && this.environment.isTexture && this.environment.isRenderTargetTexture !== true ) {
 
 					object.environment = this.environment.toJSON( meta ).uuid;
 
@@ -6955,6 +5842,7 @@
 				const shapes = extractFromCache( meta.shapes );
 				const skeletons = extractFromCache( meta.skeletons );
 				const animations = extractFromCache( meta.animations );
+				const nodes = extractFromCache( meta.nodes );
 
 				if ( geometries.length > 0 ) output.geometries = geometries;
 				if ( materials.length > 0 ) output.materials = materials;
@@ -6963,6 +5851,7 @@
 				if ( shapes.length > 0 ) output.shapes = shapes;
 				if ( skeletons.length > 0 ) output.skeletons = skeletons;
 				if ( animations.length > 0 ) output.animations = animations;
+				if ( nodes.length > 0 ) output.nodes = nodes;
 
 			}
 
@@ -7011,6 +5900,8 @@
 			this.matrixWorld.copy( source.matrixWorld );
 
 			this.matrixAutoUpdate = source.matrixAutoUpdate;
+
+			this.matrixWorldAutoUpdate = source.matrixWorldAutoUpdate;
 			this.matrixWorldNeedsUpdate = source.matrixWorldNeedsUpdate;
 
 			this.layers.mask = source.layers.mask;
@@ -7021,6 +5912,8 @@
 
 			this.frustumCulled = source.frustumCulled;
 			this.renderOrder = source.renderOrder;
+
+			this.animations = source.animations.slice();
 
 			this.userData = JSON.parse( JSON.stringify( source.userData ) );
 
@@ -7041,24 +5934,21 @@
 
 	}
 
-	Object3D.DefaultUp = new Vector3( 0, 1, 0 );
-	Object3D.DefaultMatrixAutoUpdate = true;
+	Object3D.DEFAULT_UP = /*@__PURE__*/ new Vector3( 0, 1, 0 );
+	Object3D.DEFAULT_MATRIX_AUTO_UPDATE = true;
+	Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = true;
 
-	Object3D.prototype.isObject3D = true;
+	function arrayNeedsUint32( array ) {
 
-	function arrayMax( array ) {
+		// assumes larger values usually on last
 
-		if ( array.length === 0 ) return - Infinity;
+		for ( let i = array.length - 1; i >= 0; -- i ) {
 
-		let max = array[ 0 ];
-
-		for ( let i = 1, l = array.length; i < l; ++ i ) {
-
-			if ( array[ i ] > max ) max = array[ i ];
+			if ( array[ i ] >= 65535 ) return true; // account for PRIMITIVE_RESTART_FIXED_INDEX, #24565
 
 		}
 
-		return max;
+		return false;
 
 	}
 
@@ -7077,6 +5967,8 @@
 
 			super();
 
+			this.isBufferGeometry = true;
+
 			Object.defineProperty( this, 'id', { value: _id ++ } );
 
 			this.uuid = generateUUID();
@@ -7085,6 +5977,7 @@
 			this.type = 'BufferGeometry';
 
 			this.index = null;
+			this.indirect = null;
 			this.attributes = {};
 
 			this.morphAttributes = {};
@@ -7111,7 +6004,7 @@
 
 			if ( Array.isArray( index ) ) {
 
-				this.index = new ( arrayMax( index ) > 65535 ? Uint32BufferAttribute : Uint16BufferAttribute )( index, 1 );
+				this.index = new ( arrayNeedsUint32( index ) ? Uint32BufferAttribute : Uint16BufferAttribute )( index, 1 );
 
 			} else {
 
@@ -7120,6 +6013,20 @@
 			}
 
 			return this;
+
+		}
+
+		setIndirect( indirect ) {
+
+			this.indirect = indirect;
+
+			return this;
+
+		}
+
+		getIndirect() {
+
+			return this.indirect;
 
 		}
 
@@ -7322,16 +6229,41 @@
 
 		setFromPoints( points ) {
 
-			const position = [];
+			const positionAttribute = this.getAttribute( 'position' );
 
-			for ( let i = 0, l = points.length; i < l; i ++ ) {
+			if ( positionAttribute === undefined ) {
 
-				const point = points[ i ];
-				position.push( point.x, point.y, point.z || 0 );
+				const position = [];
+
+				for ( let i = 0, l = points.length; i < l; i ++ ) {
+
+					const point = points[ i ];
+					position.push( point.x, point.y, point.z || 0 );
+
+				}
+
+				this.setAttribute( 'position', new Float32BufferAttribute( position, 3 ) );
+
+			} else {
+
+				const l = Math.min( points.length, positionAttribute.count ); // make sure data do not exceed buffer size
+
+				for ( let i = 0; i < l; i ++ ) {
+
+					const point = points[ i ];
+					positionAttribute.setXYZ( i, point.x, point.y, point.z || 0 );
+
+				}
+
+				if ( points.length > positionAttribute.count ) {
+
+					console.warn( 'THREE.BufferGeometry: Buffer size too small for points data. Use .dispose() and create a new geometry.' );
+
+				}
+
+				positionAttribute.needsUpdate = true;
 
 			}
-
-			this.setAttribute( 'position', new Float32BufferAttribute( position, 3 ) );
 
 			return this;
 
@@ -7350,7 +6282,7 @@
 
 			if ( position && position.isGLBufferAttribute ) {
 
-				console.error( 'THREE.BufferGeometry.computeBoundingBox(): GLBufferAttribute requires a manual bounding box. Alternatively set "mesh.frustumCulled" to "false".', this );
+				console.error( 'THREE.BufferGeometry.computeBoundingBox(): GLBufferAttribute requires a manual bounding box.', this );
 
 				this.boundingBox.set(
 					new Vector3( - Infinity, - Infinity, - Infinity ),
@@ -7420,7 +6352,7 @@
 
 			if ( position && position.isGLBufferAttribute ) {
 
-				console.error( 'THREE.BufferGeometry.computeBoundingSphere(): GLBufferAttribute requires a manual bounding sphere. Alternatively set "mesh.frustumCulled" to "false".', this );
+				console.error( 'THREE.BufferGeometry.computeBoundingSphere(): GLBufferAttribute requires a manual bounding sphere.', this );
 
 				this.boundingSphere.set( new Vector3(), Infinity );
 
@@ -7537,24 +6469,21 @@
 
 			}
 
-			const indices = index.array;
-			const positions = attributes.position.array;
-			const normals = attributes.normal.array;
-			const uvs = attributes.uv.array;
+			const positionAttribute = attributes.position;
+			const normalAttribute = attributes.normal;
+			const uvAttribute = attributes.uv;
 
-			const nVertices = positions.length / 3;
+			if ( this.hasAttribute( 'tangent' ) === false ) {
 
-			if ( attributes.tangent === undefined ) {
-
-				this.setAttribute( 'tangent', new BufferAttribute( new Float32Array( 4 * nVertices ), 4 ) );
+				this.setAttribute( 'tangent', new BufferAttribute( new Float32Array( 4 * positionAttribute.count ), 4 ) );
 
 			}
 
-			const tangents = attributes.tangent.array;
+			const tangentAttribute = this.getAttribute( 'tangent' );
 
 			const tan1 = [], tan2 = [];
 
-			for ( let i = 0; i < nVertices; i ++ ) {
+			for ( let i = 0; i < positionAttribute.count; i ++ ) {
 
 				tan1[ i ] = new Vector3();
 				tan2[ i ] = new Vector3();
@@ -7574,13 +6503,13 @@
 
 			function handleTriangle( a, b, c ) {
 
-				vA.fromArray( positions, a * 3 );
-				vB.fromArray( positions, b * 3 );
-				vC.fromArray( positions, c * 3 );
+				vA.fromBufferAttribute( positionAttribute, a );
+				vB.fromBufferAttribute( positionAttribute, b );
+				vC.fromBufferAttribute( positionAttribute, c );
 
-				uvA.fromArray( uvs, a * 2 );
-				uvB.fromArray( uvs, b * 2 );
-				uvC.fromArray( uvs, c * 2 );
+				uvA.fromBufferAttribute( uvAttribute, a );
+				uvB.fromBufferAttribute( uvAttribute, b );
+				uvC.fromBufferAttribute( uvAttribute, c );
 
 				vB.sub( vA );
 				vC.sub( vA );
@@ -7613,7 +6542,7 @@
 
 				groups = [ {
 					start: 0,
-					count: indices.length
+					count: index.count
 				} ];
 
 			}
@@ -7628,9 +6557,9 @@
 				for ( let j = start, jl = start + count; j < jl; j += 3 ) {
 
 					handleTriangle(
-						indices[ j + 0 ],
-						indices[ j + 1 ],
-						indices[ j + 2 ]
+						index.getX( j + 0 ),
+						index.getX( j + 1 ),
+						index.getX( j + 2 )
 					);
 
 				}
@@ -7642,7 +6571,7 @@
 
 			function handleVertex( v ) {
 
-				n.fromArray( normals, v * 3 );
+				n.fromBufferAttribute( normalAttribute, v );
 				n2.copy( n );
 
 				const t = tan1[ v ];
@@ -7658,10 +6587,7 @@
 				const test = tmp2.dot( tan2[ v ] );
 				const w = ( test < 0.0 ) ? - 1.0 : 1.0;
 
-				tangents[ v * 4 ] = tmp.x;
-				tangents[ v * 4 + 1 ] = tmp.y;
-				tangents[ v * 4 + 2 ] = tmp.z;
-				tangents[ v * 4 + 3 ] = w;
+				tangentAttribute.setXYZW( v, tmp.x, tmp.y, tmp.z, w );
 
 			}
 
@@ -7674,9 +6600,9 @@
 
 				for ( let j = start, jl = start + count; j < jl; j += 3 ) {
 
-					handleVertex( indices[ j + 0 ] );
-					handleVertex( indices[ j + 1 ] );
-					handleVertex( indices[ j + 2 ] );
+					handleVertex( index.getX( j + 0 ) );
+					handleVertex( index.getX( j + 1 ) );
+					handleVertex( index.getX( j + 2 ) );
 
 				}
 
@@ -7773,53 +6699,6 @@
 				normalAttribute.needsUpdate = true;
 
 			}
-
-		}
-
-		merge( geometry, offset ) {
-
-			if ( ! ( geometry && geometry.isBufferGeometry ) ) {
-
-				console.error( 'THREE.BufferGeometry.merge(): geometry not an instance of THREE.BufferGeometry.', geometry );
-				return;
-
-			}
-
-			if ( offset === undefined ) {
-
-				offset = 0;
-
-				console.warn(
-					'THREE.BufferGeometry.merge(): Overwriting original geometry, starting at offset=0. '
-					+ 'Use BufferGeometryUtils.mergeBufferGeometries() for lossless merge.'
-				);
-
-			}
-
-			const attributes = this.attributes;
-
-			for ( const key in attributes ) {
-
-				if ( geometry.attributes[ key ] === undefined ) continue;
-
-				const attribute1 = attributes[ key ];
-				const attributeArray1 = attribute1.array;
-
-				const attribute2 = geometry.attributes[ key ];
-				const attributeArray2 = attribute2.array;
-
-				const attributeOffset = attribute2.itemSize * offset;
-				const length = Math.min( attributeArray2.length, attributeArray1.length - attributeOffset );
-
-				for ( let i = 0, j = attributeOffset; i < length; i ++, j ++ ) {
-
-					attributeArray1[ j ] = attributeArray2[ i ];
-
-				}
-
-			}
-
-			return this;
 
 		}
 
@@ -7945,7 +6824,7 @@
 
 			const data = {
 				metadata: {
-					version: 4.5,
+					version: 4.6,
 					type: 'BufferGeometry',
 					generator: 'BufferGeometry.toJSON'
 				}
@@ -8056,7 +6935,7 @@
 
 		clone() {
 
-			 return new this.constructor().copy( this );
+			return new this.constructor().copy( this );
 
 		}
 
@@ -8161,10 +7040,6 @@
 
 			this.userData = source.userData;
 
-			// geometry generator parameters
-
-			if ( source.parameters !== undefined ) this.parameters = Object.assign( {}, source.parameters );
-
 			return this;
 
 		}
@@ -8177,7 +7052,104 @@
 
 	}
 
-	BufferGeometry.prototype.isBufferGeometry = true;
+	/**
+	 * @author Angus Sawyer
+	 * @author mrdoob / http://mrdoob.com/
+	 * @author Mugen87 / https://github.com/Mugen87
+	 *
+	 * based on http://papervision3d.googlecode.com/svn/trunk/as3/trunk/src/org/papervision3d/objects/primitives/Plane.as
+	 */
+
+
+	class FlatTileGeometry extends BufferGeometry {
+
+		constructor ( width, height, clip, offsets, flatZ ) {
+
+			super();
+
+			this.type = 'FlatTileGeometry';
+
+			// buffers
+
+			const vertices = [];
+			const uvs = [];
+
+			// generate vertices and uvs
+
+			vertices.push( offsets.x,         offsets.y - height, flatZ );
+			vertices.push( offsets.x,         offsets.y, flatZ );
+			vertices.push( offsets.x + width, offsets.y, flatZ );
+			vertices.push( offsets.x + width, offsets.y - height, flatZ );
+
+			uvs.push( clip.left / clip.terrainWidth,          clip.bottom / clip.terrainHeight );
+			uvs.push( clip.left / clip.terrainWidth,          1 - ( clip.top / clip.terrainHeight ) );
+			uvs.push( 1 - ( clip.right / clip.terrainWidth ), 1 - ( clip.top / clip.terrainHeight ) );
+			uvs.push( 1 - ( clip.right / clip.terrainWidth ), clip.bottom / clip.terrainHeight );
+
+			// avoid overhead of computeBoundingBox since we know x & y min and max values;
+
+			this.boundingBox = new Box3( new Vector3( offsets.x, offsets.y - height, 0 ), new Vector3( offsets.x + width, offsets.y, 0 ) );
+
+			// build geometry
+
+			this.setIndex( [ 0, 2, 1, 0, 3, 2 ] );
+			this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+			this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+			this.computeVertexNormals();
+
+		}
+
+	}
+
+	class HeightMapLoader {
+
+		constructor ( tileSpec ) {
+
+			const tileSet = tileSpec.tileSet;
+			const clip = tileSpec.clip;
+
+			let x, y, z;
+
+			if ( tileSpec.z > tileSet.maxZoom ) {
+
+				const scale = Math.pow( 2, tileSpec.z - tileSet.maxZoom );
+
+				x = Math.floor( tileSpec.x / scale );
+				y = Math.floor( tileSpec.y / scale );
+				z = tileSet.maxZoom;
+
+				// calculate offset in terrain cells of covering DTM tile for this smaller image tile.
+
+				const divisions = tileSet.divisions;
+
+				const dtmOffsetX = ( divisions * ( tileSpec.x % scale ) ) / scale;
+				const dtmOffsetY = ( divisions + 1 ) * ( divisions * ( tileSpec.y % scale ) ) / scale;
+
+				clip.dtmOffset = dtmOffsetY + dtmOffsetX;
+				clip.dtmWidth = divisions + 1;
+
+			} else {
+
+				x = tileSpec.x;
+				y = tileSpec.y;
+				z = tileSpec.z;
+
+				clip.dtmOffset = 0;
+
+			}
+
+			const tileFile = `${tileSet.directory}/${z}/DTM-${x}-${y}.bin`;
+
+			return fetch( tileFile )
+				.then( response => {
+					if ( ! response.ok ) throw TypeError;
+					return response.arrayBuffer();
+				} );
+
+		}
+
+	}
 
 	/**
 	 * @author Angus Sawyer
@@ -8186,6 +7158,7 @@
 	 *
 	 * based on http://papervision3d.googlecode.com/svn/trunk/as3/trunk/src/org/papervision3d/objects/primitives/Plane.as
 	 */
+
 
 	class TerrainTileGeometry extends BufferGeometry {
 
@@ -8310,57 +7283,8 @@
 
 	}
 
-	/**
-	 * @author Angus Sawyer
-	 * @author mrdoob / http://mrdoob.com/
-	 * @author Mugen87 / https://github.com/Mugen87
-	 *
-	 * based on http://papervision3d.googlecode.com/svn/trunk/as3/trunk/src/org/papervision3d/objects/primitives/Plane.as
-	 */
-
-	class FlatTileGeometry extends BufferGeometry {
-
-		constructor ( width, height, clip, offsets, flatZ ) {
-
-			super();
-
-			this.type = 'FlatTileGeometry';
-
-			// buffers
-
-			const vertices = [];
-			const uvs = [];
-
-			// generate vertices and uvs
-
-			vertices.push( offsets.x,         offsets.y - height, flatZ );
-			vertices.push( offsets.x,         offsets.y, flatZ );
-			vertices.push( offsets.x + width, offsets.y, flatZ );
-			vertices.push( offsets.x + width, offsets.y - height, flatZ );
-
-			uvs.push( clip.left / clip.terrainWidth,          clip.bottom / clip.terrainHeight );
-			uvs.push( clip.left / clip.terrainWidth,          1 - ( clip.top / clip.terrainHeight ) );
-			uvs.push( 1 - ( clip.right / clip.terrainWidth ), 1 - ( clip.top / clip.terrainHeight ) );
-			uvs.push( 1 - ( clip.right / clip.terrainWidth ), clip.bottom / clip.terrainHeight );
-
-			// avoid overhead of computeBoundingBox since we know x & y min and max values;
-
-			this.boundingBox = new Box3( new Vector3( offsets.x, offsets.y - height, 0 ), new Vector3( offsets.x + width, offsets.y, 0 ) );
-
-			// build geometry
-
-			this.setIndex( [ 0, 2, 1, 0, 3, 2 ] );
-			this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
-			this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
-
-			this.computeVertexNormals();
-
-		}
-
-	}
-
 	const halfMapExtent = 6378137 * Math.PI; // from EPSG:3875 definition
-	var tileSpec;
+	let tileSpec;
 
 	onmessage = onMessage;
 
@@ -8389,12 +7313,14 @@
 		const buffer = new Uint8Array( data );
 		const target = new Uint32Array( size );
 
+		const l = buffer.length;
+
 		// handle empty files.
-		if ( buffer.length === 4 ) return target;
+		if ( l === 4 ) return target;
 
 		let last = 0, outPos = 0;
 
-		for ( let i = 0; i < buffer.length; i++ ) {
+		for ( let i = 0; i < l; i++ ) {
 
 			let z = 0, shift = 0;
 			let b = buffer[ i ];
@@ -8535,27 +7461,22 @@
 
 		// support transferable objects where possible
 
-		const indexBuffer = terrainTile.index.array.buffer;
-		const attributes = {};
 		const transferable = [];
+		const attributes = terrainTile.attributes;
+		const index = terrainTile.index;
 
-		const srcAttributes = terrainTile.attributes;
+		for ( const attributeName in attributes ) {
 
-		for ( const attributeName in srcAttributes ) {
-
-			const attribute = srcAttributes[ attributeName ];
-			const arrayBuffer = attribute.array.buffer;
-
-			attributes[ attributeName ] = { array: arrayBuffer, itemSize: attribute.itemSize };
-
-			transferable.push( arrayBuffer );
+			transferable.push( attributes[ attributeName ].array.buffer );
 
 		}
+
+		transferable.push( index.array.buffer );
 
 		postMessage(
 			{
 				status: 'ok',
-				index: indexBuffer,
+				index: index,
 				attributes: attributes,
 				boundingBox: boundingBox,
 				canZoom: true

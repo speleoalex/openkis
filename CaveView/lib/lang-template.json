@@ -1,5 +1,6 @@
 {
 	"settings": {
+		"title": "Settings",
 		"survey": {
 			"header": "Survey",
 			"caption": "File"
@@ -9,7 +10,8 @@
 			"camera": {
 				"caption": "Camera type",
 				"orthographic": "Orthographic",
-				"perspective": "Perspective"
+				"perspective": "Perspective",
+				"anaglyph": "Anaglyph"
 			},
 			"viewpoints": {
 				"caption": "Viewpoint",
@@ -20,7 +22,9 @@
 				"elevation_e": "E Elevation",
 				"elevation_w": "W Elevation"
 			},
+			"eye_separation": "Eye Separation",
 			"vertical_scaling": "Vertical Scaling",
+			"linewidth": "Line width",
 			"autorotate": "Auto Rotate",
 			"rotation_speed": "Rotation Speed"
 		},
@@ -39,21 +43,58 @@
 			"distance": "distance",
 			"beck": "beck"
 		},
+		"selected_route": "Selected route",
+		"no_routes": "no routes defined",
 		"visibility": {
 			"header": "Visibility",
-			"entrances": "Entrances",
+			"legs": "Center lines",
+			"entrances": "Entrance labels",
+			"entrance_dots": "Entrance dots",
 			"stations": "Stations",
 			"labels": "Station Labels",
+			"comments": "Station Comments",
 			"walls": "Walls (LRUD)",
 			"scraps": "Scraps",
+			"model": "Model",
 			"splays": "Splay Legs",
+			"duplicates": "Duplicate Legs",
 			"traces": "Dye Traces",
+			"warnings": "Warnings",
 			"box": "Bounding box",
 			"hud": "Indicators",
-			"fog": "Fog"
+			"fog": "Fog",
+			"grid": "Grid"
+		},
+		"controls": {
+			"header": "Controls",
+			"svx_control_mode": "'Aven' controls",
+			"zoom_to_cursor": "Zoom to cursor",
+			"wheel_tilt": "Mouse wheel - tilt"
+		},
+		"ui": {
+			"selection_tree": "Use tree selection"
+		},
+		"default": {
+			"header": "Defaults",
+			"save": "Save default settings",
+			"reset": "Reset default settings"
+		},
+		"colors": {
+			"header": "Colours",
+			"background_color": "Background",
+			"entrance_text": "Entrance text",
+			"entrance_background": "Entrance background",
+			"entrance_marker": "Entrance marker",
+			"bounding_box": "Bounding box",
+			"legs_fixed": "Passage lines (fixed)",
+			"surface_fixed": "Surface lines (fixed)",
+			"duplicate_fixed": "Duplicate lines (fixed)",
+			"hud_text": "Scale text",
+			"defaults": "Restore default colours"
 		}
 	},
 	"surface": {
+		"title": "Surface",
 		"surface": {
 			"header": "Surface Features",
 			"legs": "Surface Legs",
@@ -79,33 +120,72 @@
 				"caption": "Overlay"
 			},
 			"opacity": "Opacity",
-			"datum_shift": "Vertical datum shift"
+			"datum_shift": "Apply datum shift",
+			"datum_shift_value": "Vertical datum shift",
+			"lighting": "Directional Lighting",
+			"lightingmode": "Lighting",
+			"lightingmodes": {
+				"none": "flat",
+				"single": "directional",
+				"multiple": "muti-directional"
+			},
+			"downloadTileSet": "download tile set spec"
 		}
 	},
-	"routes": {
-		"routes": {
+	"selection": {
+		"title": "Selection",
+		"header" : "Selection"
+	},
+	"edit": {
+		"title": "Edit",
+		"mode": "edit mode",
+		"intro": "select edit mode",
+		"modes": {
+			"none": "- none -",
+			"route": "Routes",
+			"trace": "Traces",
+			"entrances": "Entrances"
+		},
+		"entrance": {
+			"header": "Entrances"
+		},
+		"route": {
 			"header": "Routes",
-			"edit": "Edit routes",
 			"current": "Current route",
 			"save": "Save",
 			"new": "New route",
 			"add": "Add",
 			"download": "Download"
+		},
+		"trace": {
+			"header": "Traces",
+			"start": "Start",
+			"end": "End"
 		}
 	},
 	"info": {
+		"title": "Information",
 		"header": "Information",
+		"file": "file",
+		"more": "For more information see",
+		"summary": "A WebGL 3d cave viewer for Survex (.3d), Therion (.lox) and Compass (.plt) models.",
+		"github": "CaveView on GitHub",
 		"stats": {
 			"header": "Survey Stats",
 			"legs": "Leg count",
 			"totalLength": "Total length",
 			"minLength": "Shortest leg",
-			"maxLength": "Longest leg"
+			"maxLength": "Longest leg",
+			"splayCount": "Splay leg count",
+			"surfaceCount": "Surface leg count",
+			"duplicateCount": "Duplicate leg count",
+			"otherLegs": "Other legs"
 		}
-
 	},
 	"help": {
-		"header": "Help - key commands",
+		"title": "Help",
+		"header_svx": "Key commands (survex)",
+		"header_native": "Key commands (native)",
 		"shading": {
 			"header": "Shading",
 			"height": "height",
@@ -119,7 +199,8 @@
 			"depth_cursor": "depth cursor",
 			"cursor_up": "move cursor up",
 			"cursor_down": "move cursor down",
-			"distance": "distance"
+			"distance": "distance",
+			"flat": "Flat shading"
 		},
 		"view": {
 			"header": "View",
@@ -142,13 +223,19 @@
 			"auto_rotate": "rotate continuosly",
 			"rotate_speed_up": "increase speed of rotation",
 			"rotate_speed_down": "decrease speed of rotation",
-			"reverse_rotation": "reverse direction of rotation"
+			"reverse_rotation": "reverse direction of rotation",
+			"zoom_to_cursor": "toggle zoom to cursor mode",
+			"control_mode": "toggle control mode",
+			"decrease_focal_length": "decrease focal length",
+			"increase_focal_length": "increase focal length",
+			"show_labels": "show station names when under mouse"
 		},
 		"visibility": {
 			"header": "Visibility",
 			"scraps": "scraps on/off [lox only]",
+			"bounding_box": "bounding box on/off",
 			"station_labels": "station labels on/off",
-			"entrance_labels": "entrancel abels on/off",
+			"entrance_labels": "entrance labels on/off",
 			"splays": "splay legs on/off",
 			"survey": "underground legs on/off",
 			"surface": "surface legs on/off",
@@ -163,10 +250,39 @@
 			"remove": "remove all except selected section"
 		}
 	},
+	"exports": {
+		"title": "Exports",
+		"gltf_export": {
+			"header": "glTF Export",
+			"walls": "include LRUD walls",
+			"scraps": "include scraps",
+			"legs": "include centre lines",
+			"rotate_axes": "rotate axes",
+			"export": "Download",
+			"binary_format": "Export as .glb"
+		},
+		"png_export": {
+			"header": "Image (PNG) Export",
+			"export": "Snapshot",
+			"size": "Size (px)",
+			"line_scale": "Line scale"
+		}
+	},
 	"hud": {
 		"height": "height",
 		"leg_length": "leg length",
 		"depth": "depth",
 		"inclination": "inclination"
+	},
+	"dnd": {
+		"splash_text": "Drag&nbsp;and&nbsp;drop a .3d or .lox model here to&nbsp;load"
+	},
+	"popup": {
+		"leg_length": "Leg length",
+		"segment_length": "Segment length",
+		"direct_length": "Direct length",
+		"depth_from_surface": "depth from surface",
+		"adjusted_depth": "adjusted depth",
+		"distance": "distance"
 	}
 }

@@ -38,7 +38,7 @@
 	</fn_settings>
 	<fn_settings>
 		<varname>controlcenter_theme</varname>
-		<varvalue>classic</varvalue>
+		<varvalue>adminkit</varvalue>
 		<defaultvalue>classic</defaultvalue>
 	</fn_settings>
 	<fn_settings>

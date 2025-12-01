@@ -14,7 +14,7 @@ $filelox = FN_GetParam("f", $_GET);
     </head>
     <body onload="onload();" style="padding:0px;margin:0px;background-color:#000000">
         <!--<div style="padding:0px;margin:0px;width:100%" id="scene"></div>-->
-        <div style="padding:0px;margin:0px;width:100%;position:absolute;height:100%;width:100%" id="scene"></div>
+        <div style="padding:0px;margin:0px;width:100%;position:absolute;height:100%;width:100%" id="scene"  oncontextmenu="return false;" ></div>
         <button style="position:absolute;bottom:0px;right:0px" onclick="openFullscreen(document.getElementById('scene'))">Full screen</button>
         <script type="text/javascript" >
             function onload() {
@@ -22,6 +22,14 @@ $filelox = FN_GetParam("f", $_GET);
                     terrainDirectory: "<?php echo $_FN['siteurl']; ?>/",
                     surveyDirectory: "<?php echo $_FN['siteurl']; ?>/",
                     home: "<?php echo $_FN['siteurl']; ?>/",
+                    theme: {
+                        stations: {
+                            entrances: { fontsize: 10, angle: 0 },
+                            default: { fontsize: 12 },
+                            junctions: { fontsize: 12 },
+                            linked: { fontsize: 12 }
+                        }
+                    },
                     view: {
                         autoRotate: false,
 
@@ -31,7 +39,10 @@ $filelox = FN_GetParam("f", $_GET);
                         stationLabels: true,
                         terrain: true,
                         terrainOpacity: 0.4,
-                        terrainShading: CV2.SHADING_OVERLAY
+                        walls: true,
+                        scraps: true,
+                        terrainShading: CV2.SHADING_OVERLAY,
+                        cameraType: 1
                     }
                 });
                 const ui = new CV2.CaveViewUI(viewer);

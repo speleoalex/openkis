@@ -3,191 +3,176 @@
 * BingProvider.js (c) Angus Sawyer, 2017.
 */
 
+class BingProvider {
 
-function BingProvider ( imagerySet, key ) {
+	crsSupported = [ 'EPSG:3857' ];
 
-	this.urlTemplate = null;
-	this.subdomains = [];
-	this.subdomainIndex = 0;
-	this.subdomainCount = 0;
+	constructor ( imagerySet, key ) {
 
-	this.minZoom = null;
-	this.maxZoom = null;
+		this.urlTemplate = null;
+		this.subdomains = [];
+		this.subdomainIndex = 0;
+		this.subdomainCount = 0;
 
-	// attribution DOM (added to async)
-	var div = document.createElement( 'div' );
+		this.minZoom = null;
+		this.maxZoom = null;
 
-	div.classList.add( 'overlay-branding' );
-	div.style.lineHeight = '30px';
+		// attribution DOM (added to async)
+		const div = document.createElement( 'div' );
 
-	this.attribution = div;
-	this.OS = ( imagerySet === 'OrdnanceSurvey' );
+		div.classList.add( 'overlay-branding' );
+		div.style.lineHeight = '30px';
 
-	// coverage in WGS84
-	if ( this.OS ) {
+		this.attribution = div;
+		this.OS = ( imagerySet === 'OrdnanceSurvey' );
 
-		this.coverage = {
-			minX: -8,
-			minY: 50,
-			maxX: 2,
-			maxY: 62
-		};
+		// coverage in WGS84
+		if ( this.OS ) {
 
-	} else {
-
-		this.coverage = {
-			minX: -180,
-			minY: -90,
-			maxX: 180,
-			maxY: 90
-		};
-
-	}
-
-
-	var self = this;
-
-	var metadata;
-
-	var uriScheme = window.location.protocol.replace( ':' , '' );
-
-	var metaUrlTemplate = uriScheme + '://dev.virtualearth.net/REST/v1/Imagery/Metadata/{imagerySet}?include=imageryProviders&uriScheme={uriScheme}&key={key}';
-
-	var metaUrl = metaUrlTemplate.replace( '{key}', key ).replace( '{imagerySet}', imagerySet ).replace( '{uriScheme}', uriScheme );
-
-	var req = new XMLHttpRequest();
-
-	req.open( 'GET', metaUrl );
-
-	req.responseType = 'text';
-
-	req.addEventListener( 'load', _getTemplate );
-
-	req.send();
-
-	return;
-
-	function _getTemplate () {
-
-		metadata = JSON.parse( req.response );
-
-		var rss = metadata.resourceSets;
-
-
-		for ( var i = 0; i < rss.length; i++ ) {
-
-			var rs = rss[ i ].resources;
-
-			for ( var j = 0; j < rs.length; j++ ) {
-
-				var r = rs[ j ];
-
-				self.subdomains = r.imageUrlSubdomains;
-				self.urlTemplate = r.imageUrl;
-
-				self.minZoom = r.zoomMin;
-				self.maxZoom = r.zoomMax;
-				self.subdomainCount = self.subdomains.length;
-
-				_setAttribution( r );
-
-				if ( self.OS ) {
-
-					// work around for poor values for OS Maps
-					self.minZoom = 13;
-					self.maxZoom = 17;
-
-				}
-
-				return;
-
-			}
-
-		}
-
-	}
-
-	function _setAttribution( resourceSet ) {
-
-		var span = document.createElement( 'span' );
-
-		span.style.paddingRight = '4px';
-
-		if ( self.OS ) {
-
-			span.textContent = 'Ordnance Survey © Crown Copyright 2017';
+			this.coverage = {
+				minX: -8,
+				minY: 50,
+				maxX: 2,
+				maxY: 62
+			};
 
 		} else {
 
-			span.textContent = resourceSet.imageryProviders[ 0 ].attribution;
+			this.coverage = {
+				minX: -180,
+				minY: -90,
+				maxX: 180,
+				maxY: 90
+			};
 
 		}
 
-		self.attribution.appendChild( span );
+		const self = this;
+		const uriScheme = window.location.protocol.replace( ':' , '' );
+		const metaUrl = uriScheme + `://dev.virtualearth.net/REST/v1/Imagery/Metadata/${imagerySet}?include=imageryProviders&uriScheme=${uriScheme}&key=${key}`;
+		const req = new XMLHttpRequest();
 
-		var img = document.createElement( 'img' );
+		req.open( 'GET', metaUrl );
+		req.responseType = 'text';
+		req.addEventListener( 'load', () => {
 
-		img.src = metadata.brandLogoUri.replace( /^https?:/, window.location.protocol );
-		img.style.backgroundColor = 'white';
-		img.style.verticalAlign = 'middle';
+			const metadata = JSON.parse( req.response );
 
-		self.attribution.appendChild ( img );
+			const rss = metadata.resourceSets;
+
+			for ( let i = 0; i < rss.length; i++ ) {
+
+				const rs = rss[ i ].resources;
+
+				for ( let j = 0; j < rs.length; j++ ) {
+
+					const r = rs[ j ];
+
+					this.subdomains = r.imageUrlSubdomains;
+					this.urlTemplate = r.imageUrl;
+
+					this.minZoom = r.zoomMin;
+					this.maxZoom = r.zoomMax;
+					this.subdomainCount = this.subdomains.length;
+
+					_setAttribution( metadata, r );
+
+					if ( this.OS ) {
+
+						// work around for poor values for OS Maps
+						this.minZoom = 13;
+						this.maxZoom = 17;
+
+					}
+
+				}
+
+			}
+
+		} );
+
+		req.send();
+
+		return;
+
+		function _setAttribution( metadata, resourceSet ) {
+
+			const span = document.createElement( 'span' );
+
+			span.style.paddingRight = '4px';
+
+			if ( self.OS ) {
+
+				span.textContent = 'Ordnance Survey © Crown Copyright 2022';
+
+			} else {
+
+				span.textContent = resourceSet.imageryProviders[ 0 ].attribution;
+
+			}
+
+			self.attribution.appendChild( span );
+
+			const img = document.createElement( 'img' );
+
+			img.src = metadata.brandLogoUri.replace( /^https?:/, window.location.protocol );
+			img.style.backgroundColor = 'white';
+			img.style.verticalAlign = 'middle';
+
+			self.attribution.appendChild ( img );
+
+		}
+
+	}
+
+	quadkey ( x, y, z ) {
+
+		const quadKey = [];
+
+		for ( let i = z; i > 0; i-- ) {
+
+			const mask = 1 << ( i - 1 );
+			let digit = '0';
+
+			if ( ( x & mask ) != 0 ) {
+
+				digit++;
+
+			}
+
+			if ( ( y & mask ) != 0 ) {
+
+				digit++;
+				digit++;
+
+			}
+
+			quadKey.push( digit );
+
+		}
+
+		return quadKey.join( '' );
+
+	}
+
+	getAttribution () {
+
+		return this.attribution;
+
+	}
+
+	getUrl ( x, y, z ) {
+
+		const urlTemplate = this.urlTemplate;
+
+		if ( urlTemplate === null ) return null;
+
+		this.subdomainIndex = ++this.subdomainIndex % this.subdomainCount;
+
+		return urlTemplate
+			.replace( '{subdomain}', this.subdomains[ this.subdomainIndex ] )
+			.replace( '{quadkey}', this.quadkey( x, y, z ) );
 
 	}
 
 }
-
-BingProvider.quadkey = function ( x, y, z ) {
-
-	var quadKey = [];
-
-	for ( var i = z; i > 0; i-- ) {
-
-		var digit = '0';
-		var mask = 1 << ( i - 1 );
-
-		if ( ( x & mask ) != 0 ) {
-
-			digit++;
-
-		}
-
-		if ( ( y & mask ) != 0 ) {
-
-			digit++;
-			digit++;
-
-		}
-
-		quadKey.push( digit );
-
-	}
-
-	return quadKey.join( '' );
-
-};
-
-BingProvider.prototype.crsSupported = [ 'EPSG:3857' ];
-
-BingProvider.prototype.getAttribution = function () {
-
-	return this.attribution;
-
-};
-
-BingProvider.prototype.getUrl = function ( x, y, z ) {
-
-	var urlTemplate = this.urlTemplate;
-
-	if ( urlTemplate === null ) return null;
-
-	var qk = BingProvider.quadkey( x, y, z );
-
-	this.subdomainIndex = ++this.subdomainIndex % this.subdomainCount;
-
-	var url = urlTemplate.replace( '{subdomain}', this.subdomains[ this.subdomainIndex ] ).replace( '{quadkey}', qk );
-
-	return url;
-
-};
-

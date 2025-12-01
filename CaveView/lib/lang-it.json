@@ -1,172 +1,288 @@
 {
 	"settings": {
+		"title": "Impostazioni",
 		"survey": {
-			"header": "Survey",
+			"header": "Rilievo",
 			"caption": "File"
 		},
 		"view": {
-			"header": "View",
+			"header": "Visualizzazione",
 			"camera": {
-				"caption": "Camera type",
-				"orthographic": "Orthographic",
-				"perspective": "Perspective"
+				"caption": "Tipo camera",
+				"orthographic": "ortografica",
+				"perspective": "prospettiva",
+				"anaglyph": "anaglifo"
 			},
 			"viewpoints": {
-				"caption": "Viewpoint",
-				"none": "<select viewpoint>",
-				"plan": "Plan",
-				"elevation_n": "N Elevation",
-				"elevation_s": "S Elevation",
-				"elevation_e": "E Elevation",
-				"elevation_w": "W Elevation"
+				"caption": "Punto di vista",
+				"none": "<seleziona punto di vista>",
+				"plan": "pianta",
+				"elevation_n": "sezione da Nord",
+				"elevation_s": "sezione da Sud",
+				"elevation_e": "sezione da Est",
+				"elevation_w": "sezione da Ovest"
 			},
-			"vertical_scaling": "Vertical Scaling",
-			"autorotate": "Auto Rotate",
-			"rotation_speed": "Rotation Speed"
+			"eye_separation": "Separazione degli occhi",
+			"vertical_scaling": "Scala verticale",
+			"linewidth": "Spessore linea",
+			"autorotate": "Auto rotazione",
+			"rotation_speed": "Velocità di rotazione"
 		},
 		"shading": {
-			"header": "Shading",
-			"caption": "Underground legs",
-			"height": "by height",
-			"length": "by leg length",
-			"inclination": "by leg inclination",
-			"height_cursor": "height cursor",
-			"fixed": "fixed",
-			"survey": "survey",
-			"route": "route",
-			"depth": "depth",
-			"depth_cursor": "depth cursor",
-			"distance": "distance",
+			"header": "Ombreggiatura",
+			"caption": "Battute sotterranee",
+			"height": "per altezza",
+			"length": "per lunghezza battuta",
+			"inclination": "per inclinazione battuta",
+			"height_cursor": "cursore di altezza",
+			"fixed": "fissa",
+			"survey": "rilievo",
+			"route": "percorso",
+			"depth": "profondità",
+			"depth_cursor": "cursore di profondità",
+			"distance": "distanza",
 			"beck": "beck"
 		},
+		"selected_route": "Percorso selezionato",
+		"no_routes": "nessun percorso definito",
 		"visibility": {
-			"header": "Visibility",
-			"entrances": "Entrances",
-			"stations": "Stations",
-			"labels": "Station Labels",
-			"walls": "Walls (LRUD)",
+			"header": "Visibilità",
+			"legs": "Linee di poligono",
+			"entrances": "Etichette ingressi",
+			"entrance_dots": "Punti ingressi",
+			"stations": "Capisaldi",
+			"labels": "Nomi capisaldi",
+			"comments": "Commenti capisaldi",
+			"walls": "Pareti (LRUD)",
 			"scraps": "Scraps",
-			"splays": "Splay Legs",
-			"traces": "Dye Traces",
-			"box": "Bounding box",
-			"hud": "Indicators",
-			"fog": "Fog"
+			"model": "Modello",
+			"splays": "Battute splay",
+			"duplicates": "Battute duplicate",
+			"traces": "Tracce colorazione",
+			"warnings": "Avvertenze",
+			"box": "Riquadro di delimitazione",
+			"hud": "Controlli",
+			"fog": "Nebbia",
+			"grid": "Griglia"
+		},
+		"controls": {
+			"header": "Controlli",
+			"svx_control_mode": "Controlli 'Aven'",
+			"zoom_to_cursor": "Zoom sul cursore",
+			"wheel_tilt": "Rotellina del mouse - inclinazione"
+		},
+		"ui": {
+			"selection_tree": "Usa la selezione ad albero"
+		},
+		"default": {
+			"header": "Predefiniti",
+			"save": "Salva le impostazioni predefinite",
+			"reset": "Ripristina le impostazioni predefinite"
+		},
+		"colors": {
+			"header": "Colori",
+			"background_color": "Sfondo",
+			"entrance_text": "Etichetta dell'ingresso",
+			"entrance_background": "Sfondo dell'ingresso",
+			"entrance_marker": "Marcatore dell'ingresso",
+			"bounding_box": "Riquadro di delimitazione",
+			"legs_fixed": "Linee di passaggio (fissa)",
+			"surface_fixed": "Linee di superficie (fisse)",
+			"duplicate_fixed": "Linee duplicate (fisse)",
+			"hud_text": "Testo della scala",
+			"defaults": "Ripristinare i colori predefiniti"
 		}
 	},
 	"surface": {
+		"title": "Superficie",
 		"surface": {
-			"header": "Surface Features",
-			"legs": "Surface Legs",
+			"header": "Caratteristiche in superficie",
+			"legs": "Battute esterne",
 			"shading": {
-				"caption": "Shading",
-				"height": "by height",
-				"inclination": "by inclination",
-				"height_cursor": "height cursor",
-				"fixed": "fixed"
+				"caption": "Ombreggiatura",
+				"height": "per altezza",
+				"inclination": "per inclinazione",
+				"height_cursor": "cursore di altezza",
+				"fixed": "fissa"
 			}
 		},
 		"terrain": {
-			"header": "Terrain",
-			"terrain": "Terrain visible",
+			"header": "Terreno",
+			"terrain": "Terreno visibile",
 			"shading": {
-				"caption": "Shading",
-				"relief": "relief shading",
-				"height": "by height",
-				"overlay": "map overlay",
-				"contours": "contours"
+				"caption": "Ombreggiatura",
+				"relief": "ombreggiatura in rilievo",
+				"height": "per altezza",
+				"overlay": "mappa in sovrapposizione",
+				"contours": "curve di livello"
 			},
 			"overlay": {
-				"caption": "Overlay"
+				"caption": "Sovrapposizione"
 			},
-			"opacity": "Opacity",
-			"datum_shift": "Vertical datum shift"
+			"opacity": "Opacità",
+			"datum_shift": "Applicare lo spostamento del datum",
+			"datum_shift_value": "Spostamento verticale da datum",
+			"lighting": "Illuminazione direzionale",
+			"lightingmode": "Illuminazione",
+			"lightingmodes": {
+				"none": "piatta",
+				"single": "direzionale",
+				"multiple": "muti-direzionale"
+			},
+			"downloadTileSet": "Scarica spec. set di tasselli"
 		}
 	},
-	"routes": {
-		"routes": {
-			"header": "Routes",
-			"edit": "Edit routes",
-			"current": "Current route",
-			"save": "Save",
-			"new": "New route",
-			"add": "Add",
-			"download": "Download"
+	"selection": {
+		"title": "Selezione",
+		"header": "Selezione"
+	},
+	"edit": {
+		"title": "Modifica",
+		"mode": "Modalità di modifica",
+		"intro": "Seleziona la modalità di modifica",
+		"modes": {
+			"none": "- nessuno -",
+			"route": "percorsi",
+			"trace": "tracce",
+			"entrances": "ingressi"
+		},
+		"entrance": {
+			"header": "Ingressi"
+		},
+		"route": {
+			"header": "Percorsi",
+			"current": "Percorso attuale",
+			"save": "Salva",
+			"new": "Nuovo percorso",
+			"add": "Inserisci",
+			"download": "Scarica"
+		},
+		"trace": {
+			"header": "Tracce",
+			"start": "Inizio",
+			"end": "Fine"
 		}
 	},
 	"info": {
-		"header": "Information",
+		"title": "Informazioni",
+		"header": "Informazioni",
+		"file": "File",
+		"more": "Per ulteriori informazioni, vedi",
+		"summary": "Un visualizzatore WebGL di rilievi grotte 3d per modelli Survex (.3d), Therion (.lox) e Compass (.plt).",
+		"github": "CaveView su GitHub",
 		"stats": {
-			"header": "Survey Stats",
-			"legs": "Leg count",
-			"totalLength": "Total length",
-			"minLength": "Shortest leg",
-			"maxLength": "Longest leg"
+			"header": "Statistiche del rilievo",
+			"legs": "Conteggio delle battute",
+			"totalLength": "Lunghezza totale",
+			"minLength": "La battuta più corta",
+			"maxLength": "La battuta più lunga",
+			"splayCount": "Conteggio battute splay",
+			"surfaceCount": "Conteggio battute in superficie",
+			"duplicateCount": "Conteggio battute duplicate",
+			"otherLegs": "Altre battute"
 		}
-
 	},
 	"help": {
-		"header": "Help - key commands",
+		"title": "Aiuto",
+		"header_svx": "Comandi da tastiera (survex)",
+		"header_native": "Comandi da tastiera (nativi)",
 		"shading": {
-			"header": "Shading",
-			"height": "height",
-			"inclination": "leg inclination",
-			"length": "leg length",
-			"height_cursor": "height cursor",
-			"single": "single colour",
-			"survey": "survey section",
-			"route": "route",
-			"depth": "depth below surface",
-			"depth_cursor": "depth cursor",
-			"cursor_up": "move cursor up",
-			"cursor_down": "move cursor down",
-			"distance": "distance"
+			"header": "Ombreggiatura",
+			"height": "altezza",
+			"inclination": "inclinazione delle battute",
+			"length": "lunghezza delle battute",
+			"height_cursor": "corsore di altezza",
+			"single": "colore unico",
+			"survey": "sezione rilievo",
+			"route": "percorso",
+			"depth": "profondità sotto la superficie",
+			"depth_cursor": "cursore di profondità",
+			"cursor_up": "sposta il cursore in alto",
+			"cursor_down": "sposta il cursore in basso",
+			"distance": "distanza",
+			"flat": "ombreggiatura piatta"
 		},
 		"view": {
-			"header": "View",
-			"full_screen": "toggle full screen",
-			"orthogonal": "orthogonal view",
-			"perspective": "perspective view",
-			"reset": "reset to inital view",
-			"center": "center on selected feature",
-			"next": "next cave",
-			"plan": "plan",
-			"elevation": "elevation",
-			"north": "face north",
-			"east": "face east",
-			"south": "face south",
-			"west": "face west",
-			"rotate_clockwise": "rotate clockwise",
-			"rotate_anticlockwise": "rotate anticlockwise",
-			"zoom_in": "zoom in",
-			"zoom_out": "zoom out",
-			"auto_rotate": "rotate continuosly",
-			"rotate_speed_up": "increase speed of rotation",
-			"rotate_speed_down": "decrease speed of rotation",
-			"reverse_rotation": "reverse direction of rotation"
+			"header": "Vista",
+			"full_screen": "passare a schermo intero",
+			"orthogonal": "vista ortogonale",
+			"perspective": "vista in prospettiva",
+			"reset": "ripristina la visualizzazione iniziale",
+			"center": "centrare sulla caratteristica selezionata",
+			"next": "prossima grotta",
+			"plan": "pianta",
+			"elevation": "sezione",
+			"north": "rivolto a nord",
+			"east": "rivolto a est",
+			"south": "rivolto a sud",
+			"west": "rivolto a ovest",
+			"rotate_clockwise": "rotazione in senso orario",
+			"rotate_anticlockwise": "rotazione in senso antiorario",
+			"zoom_in": "ingrandire",
+			"zoom_out": "rimpicciolire",
+			"auto_rotate": "rotazione continua",
+			"rotate_speed_up": "aumentare la velocità di rotazione",
+			"rotate_speed_down": "diminuire la velocità di rotazione",
+			"reverse_rotation": "senso di rotazione inverso",
+			"zoom_to_cursor": "attiva lo zoom in modalità cursore",
+			"control_mode": "attiva la modalità di controllo",
+			"decrease_focal_length": "diminuire la lunghezza focale",
+			"increase_focal_length": "aumentare la lunghezza focale",
+			"show_labels": "mostra nomi stazioni sotto il mouse"
 		},
 		"visibility": {
-			"header": "Visibility",
-			"scraps": "scraps on/off [lox only]",
-			"station_labels": "station labels on/off",
-			"entrance_labels": "entrancel abels on/off",
-			"splays": "splay legs on/off",
-			"survey": "underground legs on/off",
-			"surface": "surface legs on/off",
-			"terrain": "terrain on/off",
-			"walls": "LRUD walls on/off",
-			"stations": "station markers on/off",
-			"opacity_down": "decrease terrain opacity",
-			"opacity_up": "increase terrain opacity"
+			"header": "Visibilità",
+			"scraps": "scraps on/off [solo lox]",
+			"bounding_box": "riquadro di delimitazione on/off",
+			"station_labels": "etichette dei capisaldi on/off",
+			"entrance_labels": "etichette degli ingressi on/off",
+			"splays": "battute splay on/off",
+			"survey": "battute sotterranee on/off",
+			"surface": "battute di superficie on/off",
+			"terrain": "terreno on/off",
+			"walls": "pareti LRUD on/off",
+			"stations": "marcatori di caposaldo on/off",
+			"opacity_down": "diminuire l'opacità del terreno",
+			"opacity_up": "aumentare l'opacità del terreno"
 		},
 		"selection": {
-			"header": "Selection",
-			"remove": "remove all except selected section"
+			"header": "Selezione",
+			"remove": "rimuove tutto tranne la sezione selezionata"
+		}
+	},
+	"exports": {
+		"title": "Esportazioni",
+		"gltf_export": {
+			"header": "Esportazione glTF",
+			"walls": "Includere le pareti LRUD",
+			"scraps": "Includere gli scraps",
+			"legs": "Includere le linee centrali",
+			"rotate_axes": "Rotazione degli assi",
+			"export": "Scarica",
+			"binary_format": "Esportazione come .glb"
+		},
+		"png_export": {
+			"header": "Esportazione immage (PNG)",
+			"export": "Istantanea",
+			"size": "Dimensione (px)",
+			"line_scale": "Spessore della linea"
 		}
 	},
 	"hud": {
-		"height": "height",
-		"leg_length": "leg length",
-		"depth": "depth",
-		"inclination": "inclination"
+		"height": "altezza",
+		"leg_length": "lunghezza battuta",
+		"depth": "profondità",
+		"inclination": "inclinazione"
+	},
+	"dnd": {
+		"splash_text": "Trascina&nbsp;qui un modello .3d o .lox per&nbsp;caricarlo"
+	},
+	"popup": {
+		"leg_length": "Lunghezza battuta",
+		"segment_length": "Lunghezza segmento",
+		"direct_length": "Lunghezza diretta",
+		"depth_from_surface": "profondità dalla superficie",
+		"adjusted_depth": "profondità aggiustata",
+		"distance": "distanza"
 	}
 }
