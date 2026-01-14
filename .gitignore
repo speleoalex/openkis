@@ -22,3 +22,10 @@ misc/fndatabase/fieldusers.php
 misc/fndatabase/fieldusers/
 misc/fndatabase/ctl_*/
 CLAUDE.md
+
+# Backup files
+*.0
+*.1
+*.bk
+*.backup
+*~
