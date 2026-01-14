@@ -28,4 +28,9 @@ CLAUDE.md
 *.1
 *.bk
 *.backup
+*.old
+*.orig
+*.swp
+*.swo
+*.tmp
 *~
