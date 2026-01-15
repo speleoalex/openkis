@@ -3,8 +3,8 @@ OPS_Map.MyAddLayers = function ()
 //title, url, isBaselayer, visible
 //
     OPS_Map.addOSMLayer("Topo", 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png', true, true);
-    OPS_Map.addOSMLayer("Satellite", "https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=REDACTED_MAPTILER_KEY", true, false);
-    OPS_Map.addOSMLayer("OSM Landscape", "https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=REDACTED_THUNDERFOREST_KEY", true, false);
+    OPS_Map.addOSMLayer("Satellite", "https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=" + API_KEYS.MAPTILER, true, false);
+    OPS_Map.addOSMLayer("OSM Landscape", "https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=" + API_KEYS.THUNDERFOREST, true, false);
     //(title, url, layername, isBaselayer, visible, format, projecton)
     //OPS_Map.addWMSLayer("IGM 1:25000 Liguria", "http://bbsuite.nivolacloud.com:8080/geoserver/IGM/wms", 'IGM:igm25000_256', true, true, "image/jpeg");
     OPS_Map.addWMSLayer("IGM 1:25000 Liguria", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/igm25k_liguria_wgs/ImageServer/WMSServer", 'igm25k_piemonte_wgs', false, false, "png", 'EPSG:4326');

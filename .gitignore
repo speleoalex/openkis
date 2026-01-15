@@ -1,6 +1,11 @@
 extra/openkis_config.local.php
 wms_download.php
 
+# API Keys and sensitive configuration
+bs_map/conf/api_keys.local.js
+**/api_keys.local.js
+**/api_keys.local.php
+
 # Framework generated files (daemon user)
 .htaccess
 controlcenter/

@@ -104,7 +104,7 @@
     // Search
     if (window.docsearch) {
       window.docsearch({
-        apiKey: 'REDACTED_ALGOLIA_KEY',
+        apiKey: (typeof THEME_API_KEYS !== 'undefined') ? THEME_API_KEYS.ALGOLIA_DOCSEARCH : 'REDACTED_ALGOLIA_KEY',
         indexName: 'bootstrap-v4',
         inputSelector: '#search-input',
         handleSelected: function (input, event, suggestion) {
