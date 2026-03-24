@@ -1,0 +1,201 @@
+<div class="container-fluid py-4">
+<div class="text-center mb-5">
+<h1 class="display-4 mb-3">WISH (v2.0)</h1>
+
+<p class="lead">Il <a class="text-primary" href="{siteurl}index.php?mod=wish">WISH</a> &egrave; nato per rendere liberamente consultabile il Catasto Nazionale delle Grotte d&rsquo;Italia e facilitare l&#39;accesso ai catasti regionali che lo rendono possibile. La versione 2.0 ne rappresenta la naturale evoluzione. Tra i suoi obiettivi c&#39;&egrave; quello di completare la mappa GIS delle cavit&agrave; naturali italiane.</p>
+</div>
+<!-- Overlay per info regione -->
+
+<div id="region-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+<div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.3);"><button id="close-overlay" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+
+<h3 id="region-name" style="margin-top: 0; color: #333;">&nbsp;</h3>
+
+<div id="region-status" style="margin: 20px 0; padding: 15px; border-radius: 5px; font-size: 16px;">&nbsp;</div>
+
+<div id="region-details" style="color: #666; line-height: 1.6;">&nbsp;</div>
+
+<div class="text-center mb-5"><a class="btn btn-primary btn-lg me-2 mb-2" href="{siteurl}index.php?mod=map_caves" id="region-link">Vai alla mappa </a> <a class="btn btn-outline-primary btn-lg mb-2" href="{siteurl}index.php?mod=caves" id="cave-link"> Ricerca grotte </a></div>
+</div>
+</div>
+
+<div class="row mb-5">
+<div class="col-lg-8 mb-4 mb-lg-0">
+<div class="card shadow-sm">
+<div class="card-body p-4">
+<div id="italia-map-container" style="max-width: 500px; margin: 0 auto;"><object data="{siteurl}sections/home/italia_regioni_dettagliata.svg" height="auto" id="italia-svg-object" type="image/svg+xml" width="100%"><img alt="Mappa Italia" src="{siteurl}sections/home/italia_regioni_dettagliata.svg" width="100%" /></object></div>
+</div>
+</div>
+</div>
+
+<div class="col-lg-4">
+<div class="card shadow-sm h-100">
+<div class="card-header bg-primary text-white">
+<h5 class="mb-0">Legenda</h5>
+</div>
+
+<div class="card-body">
+<div class="d-flex align-items-center mb-3">
+<div><strong>Verde</strong><br />
+<small class="text-muted">Grotte con coordinate precise</small></div>
+</div>
+
+<div class="d-flex align-items-center mb-3">
+<div><strong>Giallo</strong><br />
+<small class="text-muted">Grotte con dati approssimati</small></div>
+</div>
+
+<div class="d-flex align-items-center mb-3">
+<div><strong>Arancione</strong><br />
+<small class="text-muted">Grotte senza coordinate</small></div>
+</div>
+
+<div class="d-flex align-items-center">
+<div><strong>Rosso</strong><br />
+<small class="text-muted">Nessuna grotta nel sistema</small></div>
+</div>
+
+<p>&nbsp;</p>
+
+<div style="background:#eeeeee;border:1px solid #cccccc;padding:5px 10px;">
+<div>
+<hr />
+<p>Puoi consultare i dati di una singola regione selezionandola sulla cartina d&#39;Italia oppure andare alle sezioni complete, tutta Italia, tramite i link qua sotto.</p>
+
+<p>NOTA: Dato l&#39;alto numero di grotte presenti in Catasto il caricamento dei punti necessita di alcuni secondi.</p>
+
+<hr /></div>
+</div>
+
+<div>
+<p><a class="btn btn-primary btn-lg me-2 mb-2" href="{siteurl}index.php?mod=map_caves">Vai alla mappa </a> <a class="btn btn-outline-primary btn-lg mb-2" href="{siteurl}index.php?mod=caves"> Ricerca grotte </a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	var statoRegioni = {mappa_regioni_stato_json};
+
+	// Aspetta che l'SVG object sia caricato
+	var svgObject = document.getElementById('italia-svg-object');
+
+	function initMap() {
+		var svgDoc = svgObject.contentDocument;
+		if (!svgDoc) return;
+
+        //Object.keys(statoRegioni).forEach(function(regione) {
+		//	console.log("Regione:", regione, "Stato:", statoRegioni[id]);
+		//	//console.log("statoRegioni:", statoRegioni);
+		//});	
+
+
+		// Applica i colori alle regioni
+		Object.keys(statoRegioni).forEach(function(regione) {
+			var elemento = svgDoc.getElementById(regione);
+			if (elemento) {
+				console.log("elemento Regione:", elemento);
+				var stato = statoRegioni[regione];
+				elemento.classList.add('regione-' + stato);
+
+				// Aggiungi tooltip
+				var titleElem = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'title');
+				titleElem.textContent = regione + ': ' +
+					(stato === 'verde' ? 'Grotte con coordinate precise' :
+					 stato === 'giallo' ? 'Grotte con dati approssimati' :
+					 stato === 'arancione' ? 'Grotte senza coordinate' :
+					 'Nessuna grotta nel sistema');
+				elemento.appendChild(titleElem);
+
+				// Aggiungi evento click
+				elemento.addEventListener('click', function() {
+					var messaggio = 'Regione: ' + regione + '\n';
+					if (stato === 'verde') {
+						messaggio += 'Stato: Grotte presenti con coordinate precise';
+					} else if (stato === 'giallo') {
+						messaggio += 'Stato: Grotte presenti con coordinate randomizzate per privacy';
+					} else {
+						messaggio += 'Stato: Nessuna grotta attualmente presente nel sistema';
+					}
+					showRegionOverlay(regione, stato);
+				});
+			}
+		});
+	}
+
+	// Funzione per mostrare l'overlay
+	function showRegionOverlay(regione, stato) {
+		var basemaphref = "{siteurl}index.php?mod=map_caves";
+        var basecavehref = "{siteurl}index.php?mod=caves";
+		//<a id="cave-link" class="btn btn-outline-primary btn-lg mb-2" href="{siteurl}index.php?mod=caves">
+
+		var overlay = document.getElementById('region-overlay');
+		var nameElem = document.getElementById('region-name');
+		var statusElem = document.getElementById('region-status');
+		var detailsElem = document.getElementById('region-details');
+		var linkmapElem = document.getElementById('region-link');
+		var linkcaveElem = document.getElementById('cave-link');
+		//console.log("Link elem:", linkmapElem);
+		linkmapElem.href = basemaphref+'&Region=' + encodeURIComponent(regione);	
+		linkcaveElem.href = basecavehref+'&page=1&nv_regione=' + encodeURIComponent(regione).toUpperCase();	
+		//console.log("Link elem href:", linkmapElem.href);
+
+		nameElem.textContent = regione;
+
+		if (stato === 'verde') {
+			statusElem.style.background = '#d4edda';
+			statusElem.style.color = '#155724';
+			statusElem.style.border = '1px solid #c3e6cb';
+			statusElem.innerHTML = '<strong>✓ Grotte con coordinate precise</strong>';
+			detailsElem.innerHTML = 'Questa regione ha grotte nel sistema con coordinate geografiche precise e pubbliche.';
+		} else if (stato === 'giallo') {
+			statusElem.style.background = '#fff3cd';
+			statusElem.style.color = '#856404';
+			statusElem.style.border = '1px solid #ffeaa7';
+			statusElem.innerHTML = '<strong>⚠ Grotte con dati approssimati</strong>';
+			detailsElem.innerHTML = 'Questa regione ha grotte nel sistema, ma le coordinate sono approssimate per proteggere la privacy e la sicurezza delle cavità.';
+		} else if (stato === 'arancione') {
+			statusElem.style.background = '#ffe5cc';
+			statusElem.style.color = '#8a4a0a';
+			statusElem.style.border = '1px solid #ffcc99';
+			statusElem.innerHTML = '<strong>◷ Grotte senza coordinate</strong>';
+			detailsElem.innerHTML = 'Questa regione ha grotte nel sistema, ma le coordinate geografiche non sono disponibili.';
+		} else {
+			statusElem.style.background = '#f8d7da';
+			statusElem.style.color = '#721c24';
+			statusElem.style.border = '1px solid #f5c6cb';
+			statusElem.innerHTML = '<strong>✗ Nessuna grotta nel sistema</strong>';
+			detailsElem.innerHTML = 'Attualmente non ci sono grotte di questa regione nel sistema WISH. I dati potrebbero essere in fase di acquisizione o non ancora disponibili.';
+		}
+
+		overlay.style.display = 'flex';
+	}
+
+	// Chiudi overlay
+	document.getElementById('close-overlay').addEventListener('click', function() {
+		document.getElementById('region-overlay').style.display = 'none';
+	});
+
+	// Chiudi overlay cliccando fuori
+	document.getElementById('region-overlay').addEventListener('click', function(e) {
+		if (e.target === this) {
+			this.style.display = 'none';
+		}
+	});
+
+	// Inizializza quando l'SVG è caricato
+	svgObject.addEventListener('load', initMap);
+	// Se è già caricato, inizializza subito
+	if (svgObject.contentDocument) {
+		initMap();
+	}
+});
+</script>
+
+<div class="card shadow-sm mb-5">
+<div class="card-header bg-light">
+<h3 class="mb-0"><!-- end if {urlimg} --><!-- end foreach {regioni} --></h3>
+</div>
+</div>
+</div>

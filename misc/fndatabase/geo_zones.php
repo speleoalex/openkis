@@ -1,0 +1,32 @@
+<?php exit(0);?>
+<!-- province -->
+<tables>
+    <field>
+        <name>id</name>
+        <primarykey>1</primarykey>
+        <frm_show>0</frm_show>
+        <extra>autoincrement</extra>		
+    </field>
+    <field>
+        <name>country</name>
+        <foreignkey>geo_countries</foreignkey>
+        <fk_link_field>iso_code_3</fk_link_field>
+        <fk_show_field>name,iso_code_3</fk_show_field>
+        <frm_required>1</frm_required>
+    </field>
+    <field>
+        <name>code</name>
+        <type>string</type>
+    </field>
+    <field>
+        <name>name</name>
+        <type>string</type>
+    </field>
+    <field>
+        <name>region</name>
+        <type>string</type>
+    </field>
+    <indexfield>country</indexfield>
+    <driver>mysql</driver>
+    <sqltable>zones</sqltable>
+</tables>

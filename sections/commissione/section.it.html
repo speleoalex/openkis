@@ -1,0 +1,193 @@
+<div class="container-fluid py-4">
+<div class="text-center mb-5">
+<h1 class="display-4 mb-3"><strong>La nascita della Commissione Catasto Cavita&#39; Naturali</strong></h1>
+
+<p>Siamo nel corso della riunione del Tavolo Permanente&nbsp;della Societ&agrave; Speleologica Italiana (SSI) e delle Federazioni Speleologiche Regionali (FSR) tenutasi a&nbsp;Bologna il 1&deg; marzo 2008.</p>
+
+<p>In quella occasione la SSI e le FSR stilarono un protocollo d&rsquo;intesa per la costituzione di un Gruppo di Lavoro con l&#39;incarico di&nbsp;definire&nbsp;standard, strumenti e metodologie per la realizzazione e gestione di un catasto grotte.</p>
+
+<p>Il Gruppo di Lavoro diede in seguito luogo alla Commissione Catasto Cavita&#39; Naturali (Commissione) istituita in seno alla SSI ETS e costituita da tutte le Organizzazioni Speleologiche Regionali (OSR) che desiderano partecipare.</p>
+
+<p>Per garantire la piena rappresentativita&#39; della comunita&#39; speleologica italiana nella Commissione l&#39;adesione alla stessa e&#39; stato previsto sia a rappresentanti delle Federazioni Speleologiche Regionali (FSR) esistenti o in alternativa a qualsiasi entita&#39;, gruppi speleologici regionali singoli o un insieme di essi liberamente associati. E&#39; stato utilizzato l&#39;acronimo OSR per comprendere tutte le variegate realta&#39; che formano il panorama speleologico italiano.</p>
+</div>
+
+<div class="row mb-5">
+<div class="col-lg-8 mb-4 mb-lg-0">
+<div class="card shadow-sm">
+<div class="card-body p-4">PROVA&nbsp;<a href="../../sections/home/section.it.html">https://speleo.it/catastogrotte/wish.test/sections/home/section.it.html</a></div>
+
+<div class="card-body p-4">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
+</div>
+</div>
+
+<div class="col-lg-4">
+<div class="card shadow-sm h-100">
+<div class="card-header bg-primary text-white">
+<h5 class="mb-0">Lavori della Commissione e Link utili</h5>
+</div>
+
+<div class="card-body">
+<div class="d-flex align-items-center mb-3">
+<div><strong>Verde</strong><br />
+<small class="text-muted">Grotte con coordinate precise</small></div>
+</div>
+
+<div class="d-flex align-items-center mb-3">
+<div><strong>Giallo</strong><br />
+<small class="text-muted">Grotte con dati approssimati</small></div>
+</div>
+
+<div class="d-flex align-items-center mb-3">
+<div><strong>Arancione</strong><br />
+<small class="text-muted">Grotte senza coordinate</small></div>
+</div>
+
+<div class="d-flex align-items-center">
+<div><strong>Rosso</strong><br />
+<small class="text-muted">Nessuna grotta nel sistema</small></div>
+</div>
+
+<p>&nbsp;</p>
+
+<div style="background:#eeeeee;border:1px solid #cccccc;padding:5px 10px;">
+<div>
+<hr />
+<p>Puoi consultare i dati di una singola regione selezionandola sulla cartina d&#39;Italia oppure andare alle sezioni complete, tutta Italia, tramite i link qua sotto.</p>
+
+<p>NOTA: Dato l&#39;alto numero di grotte presenti in Catasto il caricamento dei punti necessita di alcuni secondi.</p>
+
+<hr /></div>
+</div>
+
+<div>
+<p><a class="btn btn-primary btn-lg me-2 mb-2" href="{siteurl}index.php?mod=map_caves">Vai alla mappa </a> <a class="btn btn-outline-primary btn-lg mb-2" href="{siteurl}index.php?mod=caves"> Ricerca grotte </a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	var statoRegioni = {mappa_regioni_stato_json};
+
+	// Aspetta che l'SVG object sia caricato
+	var svgObject = document.getElementById('italia-svg-object');
+
+	function initMap() {
+		var svgDoc = svgObject.contentDocument;
+		if (!svgDoc) return;
+
+        //Object.keys(statoRegioni).forEach(function(regione) {
+		//	console.log("Regione:", regione, "Stato:", statoRegioni[id]);
+		//	//console.log("statoRegioni:", statoRegioni);
+		//});	
+
+
+		// Applica i colori alle regioni
+		Object.keys(statoRegioni).forEach(function(regione) {
+			var elemento = svgDoc.getElementById(regione);
+			if (elemento) {
+				console.log("elemento Regione:", elemento);
+				var stato = statoRegioni[regione];
+				elemento.classList.add('regione-' + stato);
+
+				// Aggiungi tooltip
+				var titleElem = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'title');
+				titleElem.textContent = regione + ': ' +
+					(stato === 'verde' ? 'Grotte con coordinate precise' :
+					 stato === 'giallo' ? 'Grotte con dati approssimati' :
+					 stato === 'arancione' ? 'Grotte senza coordinate' :
+					 'Nessuna grotta nel sistema');
+				elemento.appendChild(titleElem);
+
+				// Aggiungi evento click
+				elemento.addEventListener('click', function() {
+					var messaggio = 'Regione: ' + regione + '\n';
+					if (stato === 'verde') {
+						messaggio += 'Stato: Grotte presenti con coordinate precise';
+					} else if (stato === 'giallo') {
+						messaggio += 'Stato: Grotte presenti con coordinate randomizzate per privacy';
+					} else {
+						messaggio += 'Stato: Nessuna grotta attualmente presente nel sistema';
+					}
+					showRegionOverlay(regione, stato);
+				});
+			}
+		});
+	}
+
+	// Funzione per mostrare l'overlay
+	function showRegionOverlay(regione, stato) {
+		var basemaphref = "{siteurl}index.php?mod=map_caves";
+        var basecavehref = "{siteurl}index.php?mod=caves";
+		//<a id="cave-link" class="btn btn-outline-primary btn-lg mb-2" href="{siteurl}index.php?mod=caves">
+
+		var overlay = document.getElementById('region-overlay');
+		var nameElem = document.getElementById('region-name');
+		var statusElem = document.getElementById('region-status');
+		var detailsElem = document.getElementById('region-details');
+		var linkmapElem = document.getElementById('region-link');
+		var linkcaveElem = document.getElementById('cave-link');
+		//console.log("Link elem:", linkmapElem);
+		linkmapElem.href = basemaphref+'&Region=' + encodeURIComponent(regione);	
+		linkcaveElem.href = basecavehref+'&page=1&nv_regione=' + encodeURIComponent(regione).toUpperCase();	
+		//console.log("Link elem href:", linkmapElem.href);
+
+		nameElem.textContent = regione;
+
+		if (stato === 'verde') {
+			statusElem.style.background = '#d4edda';
+			statusElem.style.color = '#155724';
+			statusElem.style.border = '1px solid #c3e6cb';
+			statusElem.innerHTML = '<strong>✓ Grotte con coordinate precise</strong>';
+			detailsElem.innerHTML = 'Questa regione ha grotte nel sistema con coordinate geografiche precise e pubbliche.';
+		} else if (stato === 'giallo') {
+			statusElem.style.background = '#fff3cd';
+			statusElem.style.color = '#856404';
+			statusElem.style.border = '1px solid #ffeaa7';
+			statusElem.innerHTML = '<strong>⚠ Grotte con dati approssimati</strong>';
+			detailsElem.innerHTML = 'Questa regione ha grotte nel sistema, ma le coordinate sono approssimate per proteggere la privacy e la sicurezza delle cavità.';
+		} else if (stato === 'arancione') {
+			statusElem.style.background = '#ffe5cc';
+			statusElem.style.color = '#8a4a0a';
+			statusElem.style.border = '1px solid #ffcc99';
+			statusElem.innerHTML = '<strong>◷ Grotte senza coordinate</strong>';
+			detailsElem.innerHTML = 'Questa regione ha grotte nel sistema, ma le coordinate geografiche non sono disponibili.';
+		} else {
+			statusElem.style.background = '#f8d7da';
+			statusElem.style.color = '#721c24';
+			statusElem.style.border = '1px solid #f5c6cb';
+			statusElem.innerHTML = '<strong>✗ Nessuna grotta nel sistema</strong>';
+			detailsElem.innerHTML = 'Attualmente non ci sono grotte di questa regione nel sistema WISH. I dati potrebbero essere in fase di acquisizione o non ancora disponibili.';
+		}
+
+		overlay.style.display = 'flex';
+	}
+
+	// Chiudi overlay
+	document.getElementById('close-overlay').addEventListener('click', function() {
+		document.getElementById('region-overlay').style.display = 'none';
+	});
+
+	// Chiudi overlay cliccando fuori
+	document.getElementById('region-overlay').addEventListener('click', function(e) {
+		if (e.target === this) {
+			this.style.display = 'none';
+		}
+	});
+
+	// Inizializza quando l'SVG è caricato
+	svgObject.addEventListener('load', initMap);
+	// Se è già caricato, inizializza subito
+	if (svgObject.contentDocument) {
+		initMap();
+	}
+});
+</script>
+
+<div class="card shadow-sm mb-5">
+<div class="card-header bg-light">
+<h3 class="mb-0"><!-- end if {urlimg} --><!-- end foreach {regioni} --></h3>
+</div>
+</div>
+</div>

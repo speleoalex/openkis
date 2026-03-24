@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss version='2.0'>
+	<channel>
+		<title>Progetto Wish</title>
+		<link>https://localhost/speleoalex/speleo/wish/web/</link>
+		<description><![CDATA['Progetto Wish' - regioni ]]></description>
+		<managingEditor>nobody@catastogrotte.net</managingEditor>
+		<generator>FlatNux RSS Generator - http://www.flatnux.sf.org</generator>
+		<lastBuildDate>2021-07-07 10:22:38 GMT</lastBuildDate>
+		<item>
+			<title>3</title>
+			<link>https://localhost/speleoalex/speleo/wish/web/index.php?mod=regioni&op=view&id=3</link>
+			<description><![CDATA[3]]></description>
+			<pubDate>2021-07-07 10:22:38 GMT</pubDate>
+		</item>
+		<item>
+			<title>1</title>
+			<link>https://localhost/speleoalex/speleo/wish/web/index.php?mod=regioni&op=view&id=1</link>
+			<description><![CDATA[1]]></description>
+			<pubDate>1970-01-01 01:00:00 GMT</pubDate>
+		</item>
+		<item>
+			<title>2</title>
+			<link>https://localhost/speleoalex/speleo/wish/web/index.php?mod=regioni&op=view&id=2</link>
+			<description><![CDATA[2]]></description>
+			<pubDate>1970-01-01 01:00:00 GMT</pubDate>
+		</item>
+	</channel>
+</rss>

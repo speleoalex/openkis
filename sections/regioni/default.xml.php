@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?php exit(0);?>
+<fn_sections>
+	<type>dbview</type>
+	<parent>menu_settings</parent>
+	<position>110</position>
+	<title>Configurazione Regioni</title>
+	<description></description>
+	<startdate></startdate>
+	<enddate></enddate>
+	<status>1</status>
+	<hidden>0</hidden>
+	<accesskey></accesskey>
+	<keywords></keywords>
+	<sectionpath>sections</sectionpath>
+	<level></level>
+	<group_view>w_regioni</group_view>
+	<group_edit></group_edit>
+	<blocksmode></blocksmode>
+	<blocks></blocks>
+	<title_it>Configurazione Regioni</title_it>
+	<description_it></description_it>
+	<title_en></title_en>
+	<description_en></description_en>
+</fn_sections>
+
+<fncf_dbview>
+	<appendquery></appendquery>
+	<databasename>fndatabase</databasename>
+	<default_show_groups>1</default_show_groups>
+	<defaultorder>regione</defaultorder>
+	<descriptionfield></descriptionfield>
+	<documents_folder></documents_folder>
+	<enable_cache>0</enable_cache>
+	<enable_comments_notify>0</enable_comments_notify>
+	<enable_delete>0</enable_delete>
+	<enable_export>1</enable_export>
+	<enable_history>0</enable_history>
+	<enable_offlineform>1</enable_offlineform>
+	<enable_permissions_each_records>0</enable_permissions_each_records>
+	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
+	<enable_statistics>0</enable_statistics>
+	<generate_googlesitemap>0</generate_googlesitemap>
+	<groupadmin>w_regioni</groupadmin>
+	<groupinsert>w_regioni</groupinsert>
+	<groupview>w_regioni</groupview>
+	<hide_on_delete>1</hide_on_delete>
+	<image_size>100</image_size>
+	<image_size_h>300</image_size_h>
+	<image_titlefield>photo1</image_titlefield>
+	<mailalert></mailalert>
+	<navigate_groups>username</navigate_groups>
+	<permissions_records_edit_groups>w_regioni</permissions_records_edit_groups>
+	<permissions_records_groups>w_regioni</permissions_records_groups>
+	<recordsperpage>30</recordsperpage>
+	<search_fields>username</search_fields>
+	<search_min></search_min>
+	<search_options></search_options>
+	<search_orders>regione,recordinsert,recordupdate</search_orders>
+	<search_partfields></search_partfields>
+	<search_query_native_mysql>0</search_query_native_mysql>
+	<table_rules></table_rules>
+	<tables>ctl_wishregioni</tables>
+	<titlefield>regione</titlefield>
+	<viewonlycreator>0</viewonlycreator>
+</fncf_dbview>

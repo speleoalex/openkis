@@ -1,0 +1,255 @@
+<div class="container-fluid py-4">
+<div class="text-center mb-5">
+<h1 class="display-4 mb-3">WISH (v2.0)</h1>
+<p class="lead">WISH (Web Information System Hyperlink) was created to make the <a href="{siteurl}index.php?mod=wish" class="text-primary">National Cave Registry of Italy</a> freely accessible. Version 2.0 represents its natural evolution. Among its objectives is to complete the GIS map of Italian natural caves.</p>
+</div>
+
+<!-- Overlay for region info -->
+<div id="region-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+	<div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+		<button id="close-overlay" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+		<h3 id="region-name" style="margin-top: 0; color: #333;"></h3>
+		<div id="region-status" style="margin: 20px 0; padding: 15px; border-radius: 5px; font-size: 16px;"></div>
+		<div id="region-details" style="color: #666; line-height: 1.6;"></div>
+	</div>
+</div>
+
+<div class="row mb-5">
+	<div class="col-lg-8 mb-4 mb-lg-0">
+		<div class="card shadow-sm">
+			<div class="card-body p-4">
+				<div id="italia-map-container" style="max-width: 500px; margin: 0 auto;">
+					<object data="{siteurl}sections/home/italia_regioni_dettagliata.svg" type="image/svg+xml" width="100%" height="auto" id="italia-svg-object">
+						<img src="{siteurl}sections/home/italia_regioni_dettagliata.svg" alt="Italy Map" width="100%" />
+					</object>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-4">
+		<div class="card shadow-sm h-100">
+			<div class="card-header bg-primary text-white">
+				<h5 class="mb-0"><i class="fas fa-info-circle"></i> Legend</h5>
+			</div>
+			<div class="card-body">
+				<div class="d-flex align-items-center mb-3">
+					<span class="badge bg-success me-3" style="width: 30px; height: 30px;"></span>
+					<div>
+						<strong>Green</strong><br>
+						<small class="text-muted">Caves with precise coordinates</small>
+					</div>
+				</div>
+				<div class="d-flex align-items-center mb-3">
+					<span class="badge bg-warning me-3" style="width: 30px; height: 30px;"></span>
+					<div>
+						<strong>Yellow</strong><br>
+						<small class="text-muted">Caves with approximate data</small>
+					</div>
+				</div>
+				<div class="d-flex align-items-center mb-3">
+					<span class="badge me-3" style="width: 30px; height: 30px; background-color: #fd7e14;"></span>
+					<div>
+						<strong>Orange</strong><br>
+						<small class="text-muted">Caves without coordinates</small>
+					</div>
+				</div>
+				<div class="d-flex align-items-center">
+					<span class="badge bg-danger me-3" style="width: 30px; height: 30px;"></span>
+					<div>
+						<strong>Red</strong><br>
+						<small class="text-muted">No caves in the system</small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="text-center mb-5">
+	<a class="btn btn-primary btn-lg me-2 mb-2" href="{siteurl}index.php?mod=map_caves">
+		<i class="fas fa-map-marked-alt"></i> Go to map
+	</a>
+	<a class="btn btn-outline-primary btn-lg mb-2" href="{siteurl}index.php?mod=caves">
+		<i class="fas fa-search"></i> Cave Search
+	</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	var statoRegioni = {mappa_regioni_stato_json};
+
+	// Wait for SVG object to load
+	var svgObject = document.getElementById('italia-svg-object');
+
+	function initMap() {
+		var svgDoc = svgObject.contentDocument;
+		if (!svgDoc) return;
+
+		// Apply colors to regions
+		Object.keys(statoRegioni).forEach(function(regione) {
+			var elemento = svgDoc.getElementById(regione);
+			if (elemento) {
+				var stato = statoRegioni[regione];
+				elemento.classList.add('regione-' + stato);
+
+				// Add tooltip
+				var titleElem = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'title');
+				titleElem.textContent = regione + ': ' +
+					(stato === 'verde' ? 'Caves with precise coordinates' :
+					 stato === 'giallo' ? 'Caves with approximate data' :
+					 stato === 'arancione' ? 'Caves without coordinates' :
+					 'No caves in the system');
+				elemento.appendChild(titleElem);
+
+				// Add click event
+				elemento.addEventListener('click', function() {
+					var messaggio = 'Region: ' + regione + '\n';
+					if (stato === 'verde') {
+						messaggio += 'Status: Caves present with precise coordinates';
+					} else if (stato === 'giallo') {
+						messaggio += 'Status: Caves present with randomized coordinates for privacy';
+					} else {
+						messaggio += 'Status: No caves currently in the system';
+					}
+					showRegionOverlay(regione, stato);
+				});
+			}
+		});
+	}
+
+	// Function to show overlay
+	function showRegionOverlay(regione, stato) {
+		var overlay = document.getElementById('region-overlay');
+		var nameElem = document.getElementById('region-name');
+		var statusElem = document.getElementById('region-status');
+		var detailsElem = document.getElementById('region-details');
+
+		nameElem.textContent = regione;
+
+		if (stato === 'verde') {
+			statusElem.style.background = '#d4edda';
+			statusElem.style.color = '#155724';
+			statusElem.style.border = '1px solid #c3e6cb';
+			statusElem.innerHTML = '<strong>✓ Caves with precise coordinates</strong>';
+			detailsElem.innerHTML = 'This region has caves in the system with precise and public geographic coordinates.';
+		} else if (stato === 'giallo') {
+			statusElem.style.background = '#fff3cd';
+			statusElem.style.color = '#856404';
+			statusElem.style.border = '1px solid #ffeaa7';
+			statusElem.innerHTML = '<strong>⚠ Caves with approximate data</strong>';
+			detailsElem.innerHTML = 'This region has caves in the system, but coordinates are approximated to protect the privacy and security of the cavities.';
+		} else if (stato === 'arancione') {
+			statusElem.style.background = '#ffe5cc';
+			statusElem.style.color = '#8a4a0a';
+			statusElem.style.border = '1px solid #ffcc99';
+			statusElem.innerHTML = '<strong>◷ Caves without coordinates</strong>';
+			detailsElem.innerHTML = 'This region has caves in the system, but geographic coordinates are not available.';
+		} else {
+			statusElem.style.background = '#f8d7da';
+			statusElem.style.color = '#721c24';
+			statusElem.style.border = '1px solid #f5c6cb';
+			statusElem.innerHTML = '<strong>✗ No caves in the system</strong>';
+			detailsElem.innerHTML = 'Currently there are no caves from this region in the WISH system. Data may be in the process of being acquired or not yet available.';
+		}
+
+		overlay.style.display = 'flex';
+	}
+
+	// Close overlay
+	document.getElementById('close-overlay').addEventListener('click', function() {
+		document.getElementById('region-overlay').style.display = 'none';
+	});
+
+	// Close overlay by clicking outside
+	document.getElementById('region-overlay').addEventListener('click', function(e) {
+		if (e.target === this) {
+			this.style.display = 'none';
+		}
+	});
+
+	// Initialize when SVG is loaded
+	svgObject.addEventListener('load', initMap);
+	// If already loaded, initialize now
+	if (svgObject.contentDocument) {
+		initMap();
+	}
+});
+</script>
+
+<div class="card shadow-sm mb-5">
+	<div class="card-header bg-light">
+		<h3 class="mb-0"><i class="fas fa-list"></i> Regions currently in the Wish archive</h3>
+	</div>
+	<div class="card-body p-0">
+		<div class="table-responsive">
+			<table class="table table-hover table-striped mb-0">
+				<thead class="table-light">
+					<tr>
+						<th scope="col">Region</th>
+						<th scope="col">Portal</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- foreach {regioni_censite} -->
+					<tr>
+						<th scope="row">{nome_regione}</th>
+						<td><!--if {portal} --><a href="{portal}" target="_blank" class="text-decoration-none">{title} <i class="fas fa-external-link-alt fa-sm"></i></a><!--end if {portal} --></td>
+					</tr>
+					<!-- end foreach {regioni_censite} -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="card shadow-sm mb-5">
+	<div class="card-header bg-light">
+		<h3 class="mb-0"><i class="fas fa-trophy"></i> The longest and deepest caves currently listed in Wish</h3>
+	</div>
+	<div class="card-body">
+		<div class="alert alert-info mb-4">
+			<i class="fas fa-info-circle"></i> The data currently present is calculated based on the regions surveyed.
+			In the case of caves with multiple entrances, the name of the cave with the lowest land register number is displayed.
+			To date there are <strong>{numero_ingressi} caves</strong>.
+		</div>
+
+		<h4 class="mb-3"><i class="fas fa-ruler-horizontal"></i> Longest Caves</h4>
+		<div class="table-responsive mb-4">
+			<table class="table table-hover">
+				<tbody><!-- foreach {grotte_grandi} -->
+					<tr>
+						<th scope="row"><a href="{url_wish}" class="text-decoration-none">{name} <!-- if {synonyms} -->({synonyms})<!-- end if {synonyms} --></a></th>
+						<td class="text-end"><span class="badge" style="background-color: #17a2b8; color: white; font-size: 1rem; padding: 0.5rem 0.75rem;">{lenght_total} m</span></td>
+						<td><span class="badge bg-secondary">{regione}</span></td>
+					</tr>
+					<!-- end foreach {grotte_grandi} -->
+				</tbody>
+			</table>
+		</div>
+
+		<h4 class="mb-3"><i class="fas fa-ruler-vertical"></i> Deepest Caves</h4>
+		<div class="table-responsive">
+			<table class="table table-hover">
+				<tbody><!-- foreach {grotte_profonde} -->
+					<tr>
+						<th scope="row"><a href="{url_wish}" class="text-decoration-none">{name} <!-- if {synonyms} -->({synonyms})<!-- end if {synonyms} --></a></th>
+						<td class="text-end"><span class="badge" style="background-color: #17a2b8; color: white; font-size: 1rem; padding: 0.5rem 0.75rem;">{depth_total} m</span></td>
+						<td><span class="badge bg-secondary">{regione}</span></td>
+					</tr>
+					<!-- end foreach {grotte_profonde} -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="card shadow-sm mb-5">
+	<div class="card-header bg-light">
+		<h3 class="mb-0"><i class="fas fa-image"></i> Logos of the Italian speleological regions</h3>
+	</div>
+	<div class="card-body text-center">
+		<!-- foreach {regioni} --><!-- if {urlimg} --><img alt="{regione}" src="{urlimg}" class="m-2" style="height:64px;max-height:64px" /> <!-- end if {urlimg} --><!-- end foreach {regioni} -->
+	</div>
+</div>
+
+</div>

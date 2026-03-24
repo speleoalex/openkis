@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?php exit(0);?>
+<tables>
+	<field>
+		<name>unirecid</name>
+		<primarykey>1</primarykey>
+		<extra>autoincrement</extra>
+		<frm_show>0</frm_show>
+	</field>
+	<field>
+		<name>insert</name>
+		<type>string</type>
+		<defaultvalue></defaultvalue>
+		<frm_type>datetime</frm_type>
+		<frm_dateformat>y-mm-dd</frm_dateformat>
+		<frm_show>0</frm_show>
+	</field>
+	<field>
+		<name>username</name>
+		<type>string</type>
+		<frm_show>0</frm_show>
+		<frm_required>1</frm_required>
+	</field>
+	<field>
+		<name>comment</name>
+		<frm_it>Commento</frm_it>
+		<frm_en>Comment</frm_en>
+		<type>text</type>
+		<frm_type>bbcode</frm_type>
+		<frm_rows>auto</frm_rows>
+		<frm_required>1</frm_required>
+		<frm_cols>80</frm_cols>
+	</field>
+	<field>
+		<name>idimport</name>
+		<frm_show>0</frm_show>
+	</field>
+	<field>
+		<name>unirecidrecord</name>
+		<frm_show>0</frm_show>
+	</field>
+	<indexfield>unirecidrecord</indexfield>
+</tables>

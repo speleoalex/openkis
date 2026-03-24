@@ -1,0 +1,104 @@
+<article>
+<p><strong>Obiettivi del progetto</strong><br />
+Il WISH (Web Information System Hyperlink) &egrave; il progetto nato con l&rsquo;obiettivo di rendere fruibile e consultabile sul web il Catasto Nazionale delle Grotte d&rsquo;Italia tramite un portale creato su piattaforma GIS.</p>
+
+<p>Un altro importante obiettivo del WISH &egrave; quello di esportare le esperienze e le buone pratiche da una federazione all&rsquo;altra, portando i catasti allo stesso grado di fruibilita&#39; e completezza delle informazioni.</p>
+
+<p>Il WISH &egrave; un progetto ambizioso che mira al completamento dei dati per tutto il territorio nazionale; esso &egrave; in continua evoluzione, &egrave; opportunit&agrave; per uniformare i catasti regionali e stimolo per le Federazione a far funzionare i catasti e &ldquo;mettersi in rete&rdquo; con le altre FSR.</p>
+
+<p><strong>La nascita della Commissione Catasto Cavita&#39; Naturali</strong></p>
+
+<p>Il WISH fu&nbsp;proposto dalle Federazioni Speleologiche di Campania e Veneto alla riunione del Tavolo Permanente&nbsp;della Societ&agrave; Speleologica Italiana (SSI) e delle Federazioni Speleologiche Regionali (FSR) tenutasi a&nbsp;Bologna il 1&deg; marzo 2008. In quell&rsquo;occasione la SSI e le FSR stilarono un protocollo d&rsquo;intesa per la costituzione di un Gruppo di Lavoro per la definizione di standard, strumenti e metodologie finalizzate a realizzare il Portale delle Grotte d&rsquo;Italia. Il Gruppo di Lavoro diede in seguito luogo alla Commissione Catasto Cavita&#39; Naturali (Commissione) istituita in seno alla SSI ETS e costituita da tutte le Organizzazioni Speleologiche Regionali (OSR) che desiderano partecipare.</p>
+
+<p>Per garantire la piena rappresentativita&#39; della comunita&#39; speleologica italiana nella Commissione l&#39;adesione alla stessa e&#39; stato previsto sia a rappresentanti delle Federazioni Speleologiche Regionali (FSR) esistenti o in alternativa a qualsiasi entita&#39;, gruppi speleologici regionali singoli o un insieme di essi liberamente associati. E&#39; stato utilizzato l&#39;acronimo OSR per comprendere tutte le variegate realta&#39; che formano il panorama speleologico italiano.</p>
+
+<p><strong>Struttura del progetto</strong><br />
+Il portale permette la navigazione e la consultazione dei dati a livello nazionale, la ricerca di informazioni generali e statistiche, la ricerca speleometrica, ecc., rimandando invece &ndash; tramite link &ndash; la ricerca puntuale e di dettaglio ai webGIS regionali, esistenti o in via di creazione.</p>
+
+<p>La struttura del WISH prevede un portale in cui si possono fare alcuni tipi di ricerche (es. ricerche di tipo speleometrico, ricerche sui catasti speciali, etc.) a livello nazionale; ricerche di tipo geografico possono essere invece eseguite da un livello regionale fino a comunale; mentre, per avere informazioni e dettagli oltre il livello comunale, bisogner&agrave; accedere ai singoli webGIS dei siti delle FSR aderenti al progetto.</p>
+
+<p>Una consultazione approfondita, il vero e proprio webGIS, sar&agrave; resa possibile da un link che rimander&agrave; al relativo webGIS regionale, dove presente, con le caratteristiche, il dettaglio cartografico e le informazioni con cui esso &egrave; stato realizzato.</p>
+
+<p>Il progetto &egrave; implementabile e per il futuro si prevede di inserire altri dati relativi a: presenza di grotte turistiche, grotte classificate come SIC (siti di importanza comunitaria) e quelle che rientrano in altri catasti speciali (inquinate, distrutte, marine, etc.).</p>
+</article>
+
+<div class="text-center"><a class="btn btn-primary" href="../../index.php?mod=home">Vai al Catasto</a> <a class="btn btn-primary" href="../../index.php?mod=caves">Ricerca grotte</a></div>
+
+<div class="text-center">&nbsp;</div>
+
+<div class="text-center"><br />
+&nbsp;</div>
+
+<div class="card shadow-sm mb-5">
+<div class="card-header bg-light">
+<h3 class="mb-0">Regioni attualmente presenti nell&#39;archivio di Wish</h3>
+</div>
+
+<div class="card-body p-0">
+<div class="table-responsive">
+<table class="table table-hover table-striped mb-0">
+	<thead class="table-light">
+		<tr>
+			<th scope="col">Regione</th>
+			<th scope="col">Portale</th>
+		</tr>
+	</thead>
+	<tbody><!-- foreach {regioni_censite} -->
+		<tr>
+			<th scope="row">{nome_regione}</th>
+			<td><!--if {portal} --><a class="text-decoration-none" href="{portal}" target="_blank">{title} </a><!--end if {portal} --></td>
+		</tr>
+		<!-- end foreach {regioni_censite} -->
+	</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="card shadow-sm mb-5">
+<div class="card-header bg-light">
+<h3 class="mb-0">Le grotte pi&ugrave; lunghe e profonde attualmente censite in Wish</h3>
+</div>
+
+<div class="card-body">
+<div class="alert alert-info mb-4">I dati attualmente presenti sono calcolati in base alle regioni censite. In caso di grotte con pi&ugrave; ingressi viene visualizzato il nome della grotta con il numero di catasto pi&ugrave; basso. Ad oggi sono presenti <strong>{numero_ingressi} grotte</strong>.</div>
+
+<h4 class="mb-3">Grotte pi&ugrave; lunghe</h4>
+
+<div class="table-responsive mb-4">
+<table class="table table-hover">
+	<tbody><!-- foreach {grotte_grandi} -->
+		<tr>
+			<th scope="row"><a class="text-decoration-none" href="{url_wish}">{name} <!-- if {synonyms} -->({synonyms})<!-- end if {synonyms} --></a></th>
+			<td class="text-end"><span class="badge" style="background-color: #17a2b8; color: white; font-size: 1rem; padding: 0.5rem 0.75rem;">{lenght_total} m</span></td>
+			<td><span class="badge bg-secondary">{regione}</span></td>
+		</tr>
+		<!-- end foreach {grotte_grandi} -->
+	</tbody>
+</table>
+</div>
+
+<h4 class="mb-3">Grotte pi&ugrave; profonde</h4>
+
+<div class="table-responsive">
+<table class="table table-hover">
+	<tbody><!-- foreach {grotte_profonde} -->
+		<tr>
+			<th scope="row"><a class="text-decoration-none" href="{url_wish}">{name} <!-- if {synonyms} -->({synonyms})<!-- end if {synonyms} --></a></th>
+			<td class="text-end"><span class="badge" style="background-color: #17a2b8; color: white; font-size: 1rem; padding: 0.5rem 0.75rem;">{depth_total} m</span></td>
+			<td><span class="badge bg-secondary">{regione}</span></td>
+		</tr>
+		<!-- end foreach {grotte_profonde} -->
+	</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="card shadow-sm mb-5">
+<div class="card-header bg-light">
+<h3 class="mb-0">Logo delle regioni speleologiche italiane</h3>
+</div>
+
+<div class="card-body text-center"><!-- foreach {regioni} --><!-- if {urlimg} --><img alt="{regione}" class="m-2" src="{urlimg}" style="height:64px;max-height:64px" /> <!-- end if {urlimg} --><!-- end foreach {regioni} --></div>
+</div>

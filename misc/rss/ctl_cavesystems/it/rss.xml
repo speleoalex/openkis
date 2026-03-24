@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss version='2.0'>
+	<channel>
+		<title>Catasto speleologico Piemontese</title>
+		<link>http://localhost/speleoalex/catastopiemonte/web/</link>
+		<description><![CDATA['Catasto speleologico Piemontese' - Complessi carsici ]]></description>
+		<managingEditor>nobody@catastogrotte.net</managingEditor>
+		<generator>FlatNux RSS Generator - http://www.flatnux.sf.org</generator>
+		<lastBuildDate>2018-11-30 15:00:28 GMT</lastBuildDate>
+		<item>
+			<title>Piaggia Bella</title>
+			<link>http://localhost/speleoalex/catastopiemonte/web/index.php?mod=cavesystem&op=view&id=1</link>
+			<description><![CDATA[Piaggia Bella]]></description>
+			<pubDate>2018-11-30 15:00:28 GMT</pubDate>
+		</item>
+	</channel>
+</rss>

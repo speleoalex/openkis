@@ -1,0 +1,16 @@
+Campi:
+
+
+
+Tabella Grotte:
+
+
+
+Numero
+NOME
+SINON
+country->Nazione
+city->Città/Provincia
+comune
+
+

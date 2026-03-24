@@ -258,7 +258,9 @@ if (!empty($_GET['export_pdf']))
     die();
 }
 $urlexport = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1");
-echo "<br/><a class=\"btn btn-primary\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a><br />";
+$urlexportpdf = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1&format=pdf");
+echo "<br/><a class=\"btn btn-primary\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a>";
+echo " <a class=\"btn btn-secondary\" href=\"$urlexportpdf\" target=\"_blank\">Scarica PDF</a><br />";
 
 //------------------generazione scheda catastale------------------------<
 
