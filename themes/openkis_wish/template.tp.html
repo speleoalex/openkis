@@ -19,7 +19,6 @@
         <link rel="manifest" href="manifest.json" />
         <!-- Custom styles for this template -->
         <link rel="stylesheet" href="custom.css"  />
-        <link rel="stylesheet" href="open-iconic/font/css/open-iconic-bootstrap.min.css" />
         <link href="no-more-tables.css" rel="stylesheet">
 
     </head>
@@ -80,7 +79,7 @@
 
                 <!-- if {show_search_form} -->
                 <form method="post" action="{siteurl}index.php?mod=search" class="form-inline  d-block d-sm-block d-lg-inline d-md-inline mr-lg-3 " >
-                    <div class="input-group"><input class="form-control" name="q" type="text" placeholder="{i18n:Search}" aria-label="Search"><div class="input-group-append"><button class="btn btn-secondary " title="{i18n:Search}" type="submit"><span class="oi oi-magnifying-glass"></span></button></div>
+                    <div class="input-group"><input class="form-control" name="q" type="text" placeholder="{i18n:Search}" aria-label="Search"><div class="input-group-append"><button class="btn btn-secondary " title="{i18n:Search}" type="submit"><span aria-hidden="true">⌕</span></button></div>
                     </div>
                 </form>
                 <!-- end if {show_search_form} -->
@@ -99,9 +98,9 @@
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="dropdown-arrow ml-3"></div>
                         <a class="dropdown-item" href="{siteurl}index.php?mod=login&op=editreg">
-                            <span class="dropdown-icon oi oi-person"></span> Profile</a> 
+                            <span class="dropdown-icon" aria-hidden="true">☻</span> Profile</a> 
                         <a class="dropdown-item" href="{siteurl}index.php?fnlogin=logout">
-                            <span class="dropdown-icon oi oi-account-logout"></span> {i18n:Logout}</a>
+                            <span class="dropdown-icon" aria-hidden="true">↪</span> {i18n:Logout}</a>
                     </div>
                 </div>
                 <!-- end include FN_HtmlLogoutForm -->
@@ -143,8 +142,7 @@
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="dist/js/jquery-3.2.1.slim.min.js"  ></script>
-        <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+        <script src="dist/js/jquery-3.7.1.slim.min.js"  ></script>
         <script src="assets/js/vendor/popper.min.js"></script>
         <script src="dist/js/bootstrap.min.js"></script>
         <script src="page.js"></script>

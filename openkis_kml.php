@@ -71,12 +71,25 @@ else
 
 $results=$dbview->GetResults(false,$params,$idresult);
 
+
+if (isset($_GET['debug']))
+{
+    dprint_r("idresult:$idresult");
+}
+
+
 //evita di ricalcolare tutto se non è cambiato niente nel db o in questo file-->
-$idcache="$idresult$minimal$big_icons$absolute$iconsize";
+$idcache="__{$idresult}$minimal$big_icons$absolute$iconsize";
 if ($_FN['enable_compress_gzip'])
 {
     $idcache.=".gz";
 }
+
+if (isset($_GET['debug']))
+{
+    dprint_r("idcache:$idcache");
+}
+
 $maxtime=max(filectime(__FILE__),$table->GetLastUpdateTime());
 $cache=FN_GetGlobalVarValue("$idcache",$maxtime);
 if (empty($absolute) && !empty($cache) && empty($nocache))
