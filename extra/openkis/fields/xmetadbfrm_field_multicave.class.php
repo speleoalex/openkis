@@ -134,7 +134,7 @@ var dofilter{$inputid_prefix}_{$params['name']} = function(id, text) {
     function view($params)
     {
         global $_FN;
-        require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+        //require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
         $separator=!empty($params['frm_separator']) ? $params['frm_separator'] : ",";
         $mod=str_replace("ctl_","",$params['foreignkey']);
         //$config=FN_LoadConfig("modules/dbview/config.php",$mod);
