@@ -30,7 +30,13 @@
 
         </div>
 
-    </form> 
+    </form>
 
+    <!-- if {oauth_providers} -->
+    <hr />
+    <!-- end if {oauth_providers} -->
+    <!-- foreach {oauth_providers} -->
+    <a class="btn btn-outline-secondary" href="{url}"><!-- if {urlimage} --><img style="max-height:30px;" src="{urlimage}" /> <!-- end if {urlimage} -->{i18n:Continue with}: {name}</a>
+    <!-- end foreach {oauth_providers} -->
 
 </div>
