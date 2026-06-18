@@ -280,6 +280,15 @@ function PrintKml($str,$filename="")
     header("Content-Type: application/vnd.google-earth.kml+xml\n");
     if ($_FN['enable_compress_gzip'])
     {
+        // Garantisce che il body sia realmente gzip prima di dichiararlo
+        // nell'header: $str puo' arrivare gia' compresso (cache) oppure in
+        // chiaro (quando $idresult e' vuoto e gzencode viene saltato).
+        // Senza questo controllo il browser fallisce con
+        // ERR_CONTENT_DECODING_FAILED.
+        if (substr($str, 0, 2) !== "\x1f\x8b")
+        {
+            $str = gzencode($str);
+        }
         header("Content-Encoding: gzip");
         print $str;
     }
