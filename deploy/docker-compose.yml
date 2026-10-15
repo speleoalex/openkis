@@ -1,0 +1,57 @@
+name: openkis
+
+services:
+  web:
+    build:
+      context: .
+      additional_contexts:
+        openkis: ..
+    image: openkis-web:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${OPENKIS_HTTP_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-UTC}
+      OPENKIS_DB_HOST: db
+      OPENKIS_DB_NAME: ${OPENKIS_DB_NAME:-openkis}
+      OPENKIS_DB_USER: ${OPENKIS_DB_USER:-openkis}
+      OPENKIS_DB_PASSWORD: ${OPENKIS_DB_PASSWORD:?set OPENKIS_DB_PASSWORD in .env}
+      OPENKIS_CUSTOM: ${OPENKIS_CUSTOM:-}
+      OPENKIS_MCP_APIKEY: ${OPENKIS_MCP_APIKEY:-}
+      OPENKIS_MCP_USER: ${OPENKIS_MCP_USER:-admin}
+      OPENKIS_MCP_READONLY: ${OPENKIS_MCP_READONLY:-0}
+      OPENKIS_DISPLAY_ERRORS: ${OPENKIS_DISPLAY_ERRORS:-off}
+      THUNDERFOREST_API_KEY: ${THUNDERFOREST_API_KEY:-}
+      MAPTILER_API_KEY: ${MAPTILER_API_KEY:-}
+      ALGOLIA_DOCSEARCH_API_KEY: ${ALGOLIA_DOCSEARCH_API_KEY:-}
+    volumes:
+      # web root: code + everything the framework writes (misc/ = data,
+      # uploads, cache; generated .htaccess, sections, ...)
+      - openkis_www:/var/www/html
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+      MARIADB_DATABASE: ${OPENKIS_DB_NAME:-openkis}
+      MARIADB_USER: ${OPENKIS_DB_USER:-openkis}
+      MARIADB_PASSWORD: ${OPENKIS_DB_PASSWORD:?set OPENKIS_DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD in .env}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - openkis_db:/var/lib/mysql
+
+volumes:
+  openkis_www:
+  openkis_db:
