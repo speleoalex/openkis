@@ -232,7 +232,7 @@ PrintGpx($str, $filename);
  */
 function SafeString($str)
 {
-    return htmlspecialchars($str,ENT_QUOTES,UTF_8);
+    return htmlspecialchars($str,ENT_QUOTES,'UTF-8');
 }
 
 
