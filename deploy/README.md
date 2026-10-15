@@ -129,7 +129,16 @@ hard-coded path, not used at run time.
   links come out as `http://`.
 - Change both database passwords; MariaDB is not published on the host.
 - Apache denies `openkis_config.local.php`, `config.vars.local.php`,
-  `misc/fndatabase/` and `.git`.
+  `misc/fndatabase/` and `.git`, plus the unauthenticated maintenance scripts
+  `clear_cache.php` (deletes files from a path in the URL), `openkis_las.php`
+  (reads any `*.las` path or URL) and `finis/{utils,tests,examples}/`. Run
+  `clear_cache.php` with `docker compose exec web php clear_cache.php` instead.
+- `openkis_proxy.php` is an open HTTP proxy (SSRF). It is blocked unless
+  `OPENKIS_ENABLE_PROXY=1`; only the Lombardia IGM map layer needs it.
+- Known issue, not fixed here: the finis query layer evaluates `WHERE` clauses
+  with PHP `eval()`, and a crafted `LIKE` value in a cave's fauna field can run
+  code when the cave page is viewed (see the project's code review). Until it
+  is fixed, give write access (`w_*` groups) only to trusted users.
 - Outgoing e-mail (registration confirmation) uses PHP `mail()`, which has no
   MTA in the container. Disable "registration by mail confirmation" in the
   control center or add an SMTP relay (e.g. `msmtp-mta`) to the image.

@@ -22,6 +22,7 @@ say() { echo "[openkis] $*"; }
 : "${OPENKIS_MCP_READONLY:=0}"
 : "${OPENKIS_DB_WAIT:=60}"
 : "${OPENKIS_DISPLAY_ERRORS:=off}"
+: "${OPENKIS_ENABLE_PROXY:=0}"
 
 # php single-quoted string literal
 phpq() { printf "'%s'" "$(printf '%s' "$1" | sed -e "s/\\\\/\\\\\\\\/g" -e "s/'/\\\\'/g")"; }
@@ -85,6 +86,16 @@ chown www-data:www-data "$WEBROOT/config.vars.local.php"
 
 if [ -n "$OPENKIS_CUSTOM" ] && [ ! -f "$WEBROOT/extra/openkis/custom/$OPENKIS_CUSTOM/$OPENKIS_CUSTOM.php" ]; then
     say "WARNING: OPENKIS_CUSTOM=$OPENKIS_CUSTOM but extra/openkis/custom/$OPENKIS_CUSTOM/ does not exist"
+fi
+
+# openkis_proxy.php forwards any URL from the server (SSRF). Only the
+# Lombardia map layers use it (IGM WMS), so it is off unless asked for.
+if [ "$OPENKIS_ENABLE_PROXY" = 1 ]; then
+    rm -f /etc/apache2/conf-enabled/openkis-proxy.conf
+    say "WARNING: openkis_proxy.php enabled (open HTTP proxy for anyone who can reach the site)"
+else
+    printf '<LocationMatch "^/+openkis_proxy\\.php">\n    Require all denied\n</LocationMatch>\n' \
+        > /etc/apache2/conf-enabled/openkis-proxy.conf
 fi
 
 # --- 3. map api keys -----------------------------------------------------------
