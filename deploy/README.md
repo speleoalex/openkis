@@ -135,10 +135,10 @@ hard-coded path, not used at run time.
   `clear_cache.php` with `docker compose exec web php clear_cache.php` instead.
 - `openkis_proxy.php` is an open HTTP proxy (SSRF). It is blocked unless
   `OPENKIS_ENABLE_PROXY=1`; only the Lombardia IGM map layer needs it.
-- Known issue, not fixed here: the finis query layer evaluates `WHERE` clauses
-  with PHP `eval()`, and a crafted `LIKE` value in a cave's fauna field can run
-  code when the cave page is viewed (see the project's code review). Until it
-  is fixed, give write access (`w_*` groups) only to trusted users.
+- The finis query layer still evaluates `WHERE` clauses with PHP `eval()`.
+  The `php8-compat` finis branch strips `` ` $ { } `` from them before
+  evaluation, which closes the known code-execution path through a cave's
+  fauna field; replacing `eval()` altogether is still advisable.
 - Outgoing e-mail (registration confirmation) uses PHP `mail()`, which has no
   MTA in the container. Disable "registration by mail confirmation" in the
   control center or add an SMTP relay (e.g. `msmtp-mta`) to the image.
