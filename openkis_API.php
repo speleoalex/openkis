@@ -24,8 +24,8 @@ switch($op)
         if (empty($params['fields']))
         {
             $params['fields']="code,latitude,longitude,elevation";
-            $results=$dbview->GetResults($config,$params);
         }
+        $results=$dbview->GetResults($config,$params);
         break;
 }
 dprint_r(count($results));

@@ -40,7 +40,7 @@ function GeneraNumeroArtificials($values)
         $tmp=explode(".",$grotta['code']);
         $tmp=$tmp[0];
 //prendo solo il numero
-        $numero=intval(str_replace("MA",""));
+        $numero=intval(str_replace("MA","",$tmp));
         $grotte_by_code[$numero]['num']=$numero;
         if ($numero > $max)
         {
@@ -92,7 +92,7 @@ function GeneraNumero($values)
         $tmp=explode(".",$grotta['code']);
         $tmp=$tmp[0];
 //prendo solo il numero
-        $numero=intval(str_replace("MA",""));
+        $numero=intval(str_replace("MA","",$tmp));
         $grotte_by_code[$numero]['num']=$numero;
         if ($numero > $max)
         {
