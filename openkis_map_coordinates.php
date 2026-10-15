@@ -24,7 +24,8 @@ $proj=isset($rec_coordinates_type['proj4'])?$rec_coordinates_type['proj4']:"";
 $geo=new openkis_geoconverter($lat,$lon,$coordtype,$proj);
 if (!empty($geo->wgs84lat))
 {
-    $zoom=18;
+    // 17 = max zoom served by OpenTopoMap (default base layer)
+    $zoom=17;
     ?>
     <iframe frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%" src="bs_map.htm?point=circle&lat=<?php echo $geo->wgs84lat;?>&lon=<?php echo $geo->wgs84lon;?>&zoom=<?php echo $zoom?>"></iframe>
     <?php

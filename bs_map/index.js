@@ -67,7 +67,9 @@ window.setTimeout(function () {
     //OPS_Map.addKmlLayer("Storico coordinate", "history_coords.kml.php?num=" + num, false, true);
     if (point == "circle")
     {
-        OPS_Map.drawCircleInMeter(20);
+        OPS_Map.drawCircleInMeter(5);
+        // a click shows the coordinates of the point, with the copy button
+        OPS_Map.clickShowsCoordinates = true;
         //OPS_Map.addMarker(parseFloat(lon), parseFloat(lat), "images/down.png");
     }
 
@@ -237,22 +239,9 @@ window.setTimeout(function () {
         GoToMarker($('#searchText').val());
     });
 
-    if (window.addEventListener) {
-        window.addEventListener("load", function () {
-            OPS_Map.switchBaseLayer();
-
-        }, false);
-    } else if (window.attachEvent) {
-        window.attachEvent("onload", function () {
-            OPS_Map.switchBaseLayer();
-
-        });
-    } else {
-        window.onload = function () {
-            OPS_Map.switchBaseLayer();
-
-        };
-    }
+    // switchBaseLayer is called below (after addLayerSwitcher) — no need
+    // to repeat it on window.load, which would reset tile visibility and
+    // cancel in-flight tile requests, causing a white map on first load.
 
 
     window.addEventListener('resize', function () {
@@ -402,20 +391,79 @@ OPS_Map.onMapClick = function (evt)
             {
                 var Fcoordinates = feature.getGeometry().getCoordinates();
                 OPS_Map.popUp(coordinates, name, description);
-            } else {
-                if (OPS_Map.popOver)
-                {
-                    OPS_Map.popUpClose();
-                }
+                return;
             }
-        } else
+        }
+        // no feature, or a feature without info (e.g. the position circle):
+        // the click goes to the map
+        if (OPS_Map.mode == "info")
         {
-            if (OPS_Map.mode == "info")
-                GetInfoPoint(coordinates, evt);
+            GetInfoPoint(coordinates, evt);
+        } else if (OPS_Map.clickShowsCoordinates)
+        {
+            OPS_Map.popUp(coordinates, "Coordinate", CoordinatesHtml(coordinates));
+        } else if (OPS_Map.popOver)
+        {
+            OPS_Map.popUpClose();
         }
     }
 
 };
+/**
+ * WGS84 coordinates of the clicked point with a "copy" button
+ * @param {array} coordinates [lon, lat]
+ * @returns {String}
+ */
+function CoordinatesHtml(coordinates)
+{
+    var lat = coordinates[1].toFixed(6);
+    var lon = coordinates[0].toFixed(6);
+    return lat + "&nbsp;N<br />" + lon + "&nbsp;E<br />"
+            + "<button type=\"button\" class=\"btn btn-sm btn-secondary\" style=\"margin:3px 0\" "
+            + "onclick=\"CopyToClipboard('" + lat + ", " + lon + "', this);\">Copia coordinate</button><br />";
+}
+/**
+ * 
+ * @param {String} text
+ * @param {Element} button
+ * @returns {undefined}
+ */
+function CopyToClipboard(text, button)
+{
+    var done = function () {
+        if (button)
+        {
+            button.innerHTML = "Copiate!";
+        }
+    };
+    var fallback = function () {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            if (document.execCommand("copy"))
+            {
+                done();
+            } else
+            {
+                window.prompt("Copia le coordinate:", text);
+            }
+        } catch (e) {
+            window.prompt("Copia le coordinate:", text);
+        }
+        document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && window.isSecureContext)
+    {
+        navigator.clipboard.writeText(text).then(done, fallback);
+    } else
+    {
+        fallback();
+    }
+}
 /**
  * 
  * @param {type} coordinates
@@ -473,33 +521,12 @@ function GetInfoPoint(coordinates, evt)
                 sep = ",";
             }
             //$("#infopoint").html();
-            OPS_Map.popUp(coordinates, "Info", Math.floor(coordinates[0] * 100000) / 100000 + "&nbsp;E<br />" + Math.floor(coordinates[1] * 100000) / 100000 + "&nbsp;N<br />" + html);
+            OPS_Map.popUp(coordinates, "Info", CoordinatesHtml(coordinates) + html);
 
         },
         error: function () {
-            var coordinates = evt.coordinate;
-
-            coordinates = ol.proj.transform(coordinates, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
-            var feature = OPS_Map.map.forEachFeatureAtPixel(evt.pixel,
-                    function (feature) {
-                        return feature;
-                    });
-            var name = false;
-            var description = false;
-            if (feature) {
-                name = feature.get('name');
-                description = feature.get('description');
-            }
-            if (name || description)
-            {
-                var Fcoordinates = feature.getGeometry().getCoordinates();
-                OPS_Map.popUp(coordinates, name, description);
-            } else {
-                if (OPS_Map.popOver)
-                {
-                    OPS_Map.popUpClose();
-                }
-            }
+            // geocoding not available: show at least the coordinates
+            OPS_Map.popUp(coordinates, "Info", CoordinatesHtml(coordinates));
         }
     });
 }

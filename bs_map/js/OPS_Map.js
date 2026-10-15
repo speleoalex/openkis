@@ -495,12 +495,18 @@ var OPS_Map = {
      * @param {type} title
      * @returns {undefined}
      */
-    addOSMLayer: function (title, url, isBaselayer, visible) {
+    addOSMLayer: function (title, url, isBaselayer, visible, crossOrigin, maxZoom) {
+        // crossOrigin=null for tile servers that do not send CORS headers
+        // (e.g. OpenTopoMap), otherwise the browser discards the tiles
+        crossOrigin = (typeof crossOrigin !== 'undefined') ? crossOrigin : "Anonymous";
+        // maxZoom: last zoom level served, above it tiles are upscaled
+        maxZoom = (typeof maxZoom !== 'undefined') ? maxZoom : 19;
         var layer = new ol.layer.Tile({name: title,
             visible: visible,
 
             source: new ol.source.OSM({
-                crossOrigin: "Anonymous",
+                maxZoom: maxZoom,
+                crossOrigin: crossOrigin,
                 url: url
             })});
         this.addLayer(layer, isBaselayer);
@@ -1186,7 +1192,10 @@ var OPS_Map = {
      * @returns {undefined}
      */
     addLayerSwitcher: function () {
-        $(function ()
+        // Use a plain function call instead of $(function(){}) to avoid
+        // jQuery 3's async document.ready (Promise-based), which would defer
+        // radio button creation past the immediate switchBaseLayer() call.
+        (function ()
         {
             OPS_Map.printLayerSwitcher();
             OPS_Map.printLayerTree();
@@ -1230,7 +1239,7 @@ var OPS_Map = {
                 OPS_Map.UpdateOverlays();
             });
         }
-        );
+        )();
 
     },
     /**

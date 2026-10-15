@@ -16,10 +16,11 @@ $absolute=FN_GetParam("absolute",$_GET,"html");
 $iconsize = FN_GetParam("iconsize",$_GET,"html");        
 $iconsize = floatval($iconsize);
 $big_icons=!empty($_GET['big_icons']);
-$mod=$_FN['mod'];
-if ($mod== "")
+$mod=isset($_GET['mod'])?$_GET['mod']:"";
+if (empty($mod))
 { 
-    $mod="caves";
+    $_REQUEST['mod']=$_FN['mod']=$_GET['mod']=$mod="caves";
+    
 }
 foreach($_REQUEST as $k=> $v)
 { 
