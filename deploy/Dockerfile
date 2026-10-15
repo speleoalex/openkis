@@ -54,6 +54,9 @@ RUN set -eux; \
         sub=$(basename "$d"); [ "$sub" = _root ] && sub=.; \
         for p in "$d"*.patch; do \
             [ -f "$p" ] || continue; \
+            if patch -d "$sub" -p1 -R --dry-run --force --silent < "$p" >/dev/null 2>&1; then \
+                echo "already applied, skipping $p"; continue; \
+            fi; \
             echo "applying $p to $sub/"; \
             patch -d "$sub" -p1 --forward --batch < "$p"; \
         done; \
