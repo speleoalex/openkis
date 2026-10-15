@@ -2,6 +2,7 @@
 -- This file contains a sample cave record for demonstration purposes
 
 INSERT INTO `ctl_caves` (
+    `id`,
     `code`,
     `name`,
     `synonyms`,
@@ -44,6 +45,7 @@ INSERT INTO `ctl_caves` (
     `recordinsert`,
     `username`
 ) VALUES (
+    '1',
     'DEMO1',
     'GROTTA DEMO',
     'GROTTA DIMOSTRATIVA; CAVERNA ESEMPIO',

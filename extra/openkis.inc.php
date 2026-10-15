@@ -9,6 +9,12 @@ if (file_exists("openkis_config.local.php"))
 require_once(dirname(__FILE__) . "/openkis_geoconverter/openkis_geoconverter.class.php");
 
 FN_AddLanguagePath("extra/openkis/");
+// install missing table definitions (misc/fndatabase/ctl_*.php) on first run
+require_once(__DIR__ . "/openkis/install/openkis_install.php");
+// map defaults used by templates ({default_latitude} ...) when no regional
+// customisation (extra/openkis/custom/<region>) sets them; queued because
+// FN_LoadConfig is not available yet at this point of the bootstrap
+FN_IncludeScript("extra/openkis/openkis_defaults.php");
 $files = glob(__DIR__ . "/openkis/fields/*.class.php");
 
 if (is_array($files))

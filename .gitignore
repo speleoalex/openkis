@@ -14,7 +14,7 @@ include/
 languages/
 modules/
 themes/default/
-misc/
+/misc/
 sitemap-*.xml
 CLAUDE.md
 
