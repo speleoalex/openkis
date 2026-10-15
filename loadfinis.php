@@ -5,5 +5,5 @@ error_reporting(E_ALL);
 global $_FN;
 // Map defaults (centro Italia)
 
-require_once "./finis/src/include/finis.php";
-require_once "./finis/src/FINIS.php";
+require_once __DIR__ . "/finis/src/include/finis.php";
+require_once __DIR__ . "/finis/src/FINIS.php";
