@@ -2,11 +2,9 @@ name: openkis
 
 services:
   web:
-    build:
-      context: .
-      additional_contexts:
-        openkis: ..
-    image: openkis-web:latest
+    # Prebuilt image from Docker Hub. To build from this checkout instead, add
+    # docker-compose.build.yml (see README) or set OPENKIS_IMAGE.
+    image: ${OPENKIS_IMAGE:-robydoc/openkis-web:latest}
     restart: unless-stopped
     depends_on:
       db:

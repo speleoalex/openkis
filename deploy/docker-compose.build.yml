@@ -1,0 +1,12 @@
+# Optional override: build the web image from this checkout instead of
+# pulling robydoc/openkis-web from Docker Hub.
+#
+#   git submodule update --init --recursive
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+services:
+  web:
+    build:
+      context: .
+      additional_contexts:
+        openkis: ..
+    image: openkis-web:local

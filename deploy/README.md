@@ -22,8 +22,9 @@ PHP 8 fixes listed below. Tested end to end on 2026-10-15.
 
 ```
 Dockerfile             Ubuntu 24.04 + Apache 2.4 + PHP 8.3 (mod_php) + extensions
-docker-compose.yml     web (OpenKIS) + db (MariaDB 11.4), two named volumes;
-                       the image is built from the repository root (..)
+docker-compose.yml     web (OpenKIS, image robydoc/openkis-web:latest) + db (MariaDB 11.4),
+                       two named volumes
+docker-compose.build.yml  optional override: build the image from this checkout
 .env.example           all settings; copy to .env
 backup.sh              dumps the database and misc/ into ./backups/
 docker/entrypoint.sh   installs/upgrades code in the volume, writes the config from .env
@@ -34,11 +35,24 @@ patches/               optional extra patches applied at build (empty)
 ## Quick start
 
 ```bash
-git clone --recurse-submodules https://github.com/ravogdev/openkis.git
+git clone https://github.com/ravogdev/openkis.git
 cd openkis/deploy
 cp .env.example .env          # set OPENKIS_DB_PASSWORD and MARIADB_ROOT_PASSWORD
-docker compose up -d --build
+docker compose up -d          # pulls robydoc/openkis-web:latest from Docker Hub
 ```
+
+`robydoc/openkis-web:latest` is built from this `deploy/Dockerfile` with this
+repository and its finis submodule. Set `OPENKIS_IMAGE` in `.env` to pin
+another tag (e.g. `robydoc/openkis-web:2026-10-15`).
+
+### Building the image from this checkout
+
+```bash
+git submodule update --init --recursive    # or clone with --recurse-submodules
+docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+```
+
+The result is tagged `openkis-web:local`.
 
 Open <http://localhost:8080/> and follow the wizard:
 
@@ -53,8 +67,8 @@ Optional demo cave:
 
 ```bash
 set -a; . ./.env; set +a
-docker compose exec -T db mariadb -u"$OPENKIS_DB_USER" -p"$OPENKIS_DB_PASSWORD" "$OPENKIS_DB_NAME" \
-  < ../extra/openkis/install/demo_cave.sql
+docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.sql \
+  | docker compose exec -T db mariadb -u"$OPENKIS_DB_USER" -p"$OPENKIS_DB_PASSWORD" "$OPENKIS_DB_NAME"
 ```
 
 (Open the *Caves* section once before importing, so the `ctl_caves` table exists.)
@@ -87,9 +101,12 @@ line; it is then left alone.
 ### Upgrading
 
 ```bash
-git pull --recurse-submodules
-docker compose up -d --build  # the log shows "installing code version ..."
+docker compose pull           # newer robydoc/openkis-web:latest
+docker compose up -d          # the log shows "installing code version ..."
 ```
+
+With a local build: `git pull --recurse-submodules`, then
+`docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build`.
 
 New table fields are applied automatically by the framework. For installations
 older than 2024-03-25 see `extra/openkis/update.md` upstream.
