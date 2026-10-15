@@ -1,3 +1,4 @@
 [submodule "finis"]
 	path = finis
-	url = https://github.com/speleoalex/finis.git
+	url = https://github.com/ravogdev/finis.git
+	branch = php8-compat
