@@ -80,6 +80,7 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 | `OPENKIS_HTTP_PORT` | host port (default 8080) |
 | `OPENKIS_DB_NAME`, `OPENKIS_DB_USER`, `OPENKIS_DB_PASSWORD`, `MARIADB_ROOT_PASSWORD` | database |
 | `OPENKIS_CUSTOM` | regional customisation: `example`, `italia`, `liguria`, `lombardia`, `marche`, `piemonte`, `umbria`, `wish`; empty = generic |
+| `OPENKIS_HOME_SECTION` | landing page, a folder in `sections/`: e.g. `map_caves` (cave map centred on the region) or `caves` instead of the WISH portal `home`; empty = the home section set in the control center |
 | `OPENKIS_MCP_APIKEY`, `OPENKIS_MCP_USER`, `OPENKIS_MCP_READONLY` | MCP API (`openkis_mcp.php`), off while the key is empty |
 | `THUNDERFOREST_API_KEY`, `MAPTILER_API_KEY`, `ALGOLIA_DOCSEARCH_API_KEY` | optional map/search keys |
 | `OPENKIS_DISPLAY_ERRORS` | `off` (default). `on` shows PHP errors in pages; development only, warnings corrupt the KML/JSON/GPX exports |
