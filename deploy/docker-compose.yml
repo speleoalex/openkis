@@ -28,8 +28,9 @@ services:
       ALGOLIA_DOCSEARCH_API_KEY: ${ALGOLIA_DOCSEARCH_API_KEY:-}
     volumes:
       # web root: code + everything the framework writes (misc/ = data,
-      # uploads, cache; generated .htaccess, sections, ...)
-      - openkis_www:/var/www/html
+      # uploads, cache; generated .htaccess, sections, ...).
+      # OPENKIS_DATA_DIR in .env = a host folder instead of the named volume.
+      - ${OPENKIS_DATA_DIR:-openkis_www}:/var/www/html
 
   db:
     image: mariadb:11.4
@@ -49,7 +50,8 @@ services:
       timeout: 5s
       retries: 30
     volumes:
-      - openkis_db:/var/lib/mysql
+      # OPENKIS_DB_DATA_DIR in .env = a host folder instead of the named volume.
+      - ${OPENKIS_DB_DATA_DIR:-openkis_db}:/var/lib/mysql
 
 volumes:
   openkis_www:
