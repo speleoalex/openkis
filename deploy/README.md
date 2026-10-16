@@ -73,6 +73,47 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 
 (Open the *Caves* section once before importing, so the `ctl_caves` table exists.)
 
+## A site for a single regional cave register
+
+`custom-env/` has a ready env file for each regional customisation:
+
+| Region | File | Port |
+|---|---|---|
+| Liguria | `custom-env/liguria.env` | 8083 |
+| Lombardia | `custom-env/lombardia.env` | 8084 |
+| Marche | `custom-env/marche.env` | 8085 |
+| Piemonte | `custom-env/piemonte.env` | 8086 |
+| Umbria | `custom-env/umbria.env` | 8087 |
+
+Each has its own project name, port and database, so several can run on the
+same server. Example for Lombardia (the others work the same way):
+
+1. Edit `custom-env/lombardia.env` and change `OPENKIS_DB_PASSWORD` and
+   `MARIADB_ROOT_PASSWORD`. The file already sets:
+   ```bash
+   COMPOSE_PROJECT_NAME=openkis_lombardia   # own containers and volumes
+   OPENKIS_HTTP_PORT=8084
+   OPENKIS_DB_NAME=openkis_lombardia
+   OPENKIS_CUSTOM=lombardia                 # regional rules, map centre
+   OPENKIS_HOME_SECTION=map_caves           # landing page: the regional cave map
+   OPENKIS_ENABLE_PROXY=1                   # Lombardia only: its IGM map layer
+   ```
+2. From `deploy/`: `docker compose --env-file custom-env/lombardia.env up -d`,
+   then open `http://<server>:8084/` and run the wizard as in the quick start.
+   The first user registered is the admin.
+3. Sign in from the site's login with that user; the admin area is
+   `http://<server>:8084/index.php?fnapp=controlcenter`.
+
+Without `OPENKIS_HOME_SECTION` the landing page is the home section chosen in
+the wizard (step 3) or later in the control center (*Settings*); the default
+`home` is the WISH national portal, which is still reachable at
+`index.php?mod=home`.
+
+To run several regions on one server, start each one with its own env file.
+The `https` profile below binds ports 80/443, so only one of them can use it;
+several public sites on one server need one reverse proxy in front of all of
+them.
+
 ## Configuration (.env)
 
 | Variable | Meaning |
@@ -80,6 +121,7 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 | `OPENKIS_HTTP_PORT` | host port (default 8080) |
 | `OPENKIS_DB_NAME`, `OPENKIS_DB_USER`, `OPENKIS_DB_PASSWORD`, `MARIADB_ROOT_PASSWORD` | database |
 | `OPENKIS_CUSTOM` | regional customisation: `example`, `italia`, `liguria`, `lombardia`, `marche`, `piemonte`, `umbria`, `wish`; empty = generic |
+| `OPENKIS_HOME_SECTION` | landing page, a folder in `sections/`: e.g. `map_caves` (cave map centred on the region) or `caves` instead of the WISH portal `home`; empty = the home section set in the control center |
 | `OPENKIS_MCP_APIKEY`, `OPENKIS_MCP_USER`, `OPENKIS_MCP_READONLY` | MCP API (`openkis_mcp.php`), off while the key is empty |
 | `THUNDERFOREST_API_KEY`, `MAPTILER_API_KEY`, `ALGOLIA_DOCSEARCH_API_KEY` | optional map/search keys |
 | `OPENKIS_DISPLAY_ERRORS` | `off` (default). `on` shows PHP errors in pages; development only, warnings corrupt the KML/JSON/GPX exports |
