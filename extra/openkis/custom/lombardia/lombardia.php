@@ -41,7 +41,7 @@ function GeneraNumeroArtificials($values)
         $tmp=explode(".",$grotta['code']);
         $tmp=$tmp[0];
 //prendo solo il numero
-        $numero=intval(str_replace("LO",""));
+        $numero=intval(str_replace("LO","",$tmp));
         $grotte_by_code[$numero]['num']=$numero;
         if ($numero > $max)
         {
@@ -191,8 +191,11 @@ function cglombardia_checkprovincia($prov)
         $oldvalues=$table->GetRecordByPk($id);
         //dprint_r($oldvalues);
         //dprint_r($_FN['user'],$oldvalues);
-        if (FNNAV_UserCanEditField($_FN['user'],$oldvalues))
-        { 
+        require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+        $cavesconfig=FN_LoadConfig("modules/dbview/config.php","caves");
+        $cavesview=new FNDBVIEW($cavesconfig);
+        if ($cavesview->UserCanEditField($_FN['user'],$oldvalues))
+        {
             return true;
         }
     }

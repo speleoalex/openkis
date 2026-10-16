@@ -1,0 +1,13 @@
+# Caddy: HTTPS reverse proxy in front of OpenKIS (compose profile "https").
+# OPENKIS_DOMAIN comes from .env. Caddy gets and renews a Let's Encrypt
+# certificate for it, redirects HTTP to HTTPS and sends X-Forwarded-Proto,
+# which Apache in the web container honours.
+{$OPENKIS_DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+	reverse_proxy web:80
+}

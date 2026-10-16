@@ -1,0 +1,81 @@
+name: openkis
+
+services:
+  web:
+    # Prebuilt image from Docker Hub. To build from this checkout instead, add
+    # docker-compose.build.yml (see README) or set OPENKIS_IMAGE.
+    image: ${OPENKIS_IMAGE:-robydoc/openkis-web:latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${OPENKIS_HTTP_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-UTC}
+      OPENKIS_DB_HOST: db
+      OPENKIS_DB_NAME: ${OPENKIS_DB_NAME:-openkis}
+      OPENKIS_DB_USER: ${OPENKIS_DB_USER:-openkis}
+      OPENKIS_DB_PASSWORD: ${OPENKIS_DB_PASSWORD:?set OPENKIS_DB_PASSWORD in .env}
+      OPENKIS_CUSTOM: ${OPENKIS_CUSTOM:-}
+      OPENKIS_MCP_APIKEY: ${OPENKIS_MCP_APIKEY:-}
+      OPENKIS_MCP_USER: ${OPENKIS_MCP_USER:-admin}
+      OPENKIS_MCP_READONLY: ${OPENKIS_MCP_READONLY:-0}
+      OPENKIS_DISPLAY_ERRORS: ${OPENKIS_DISPLAY_ERRORS:-off}
+      OPENKIS_ENABLE_PROXY: ${OPENKIS_ENABLE_PROXY:-0}
+      THUNDERFOREST_API_KEY: ${THUNDERFOREST_API_KEY:-}
+      MAPTILER_API_KEY: ${MAPTILER_API_KEY:-}
+      ALGOLIA_DOCSEARCH_API_KEY: ${ALGOLIA_DOCSEARCH_API_KEY:-}
+    volumes:
+      # web root: code + everything the framework writes (misc/ = data,
+      # uploads, cache; generated .htaccess, sections, ...).
+      # OPENKIS_DATA_DIR in .env = a host folder instead of the named volume.
+      - ${OPENKIS_DATA_DIR:-openkis_www}:/var/www/html
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+      MARIADB_DATABASE: ${OPENKIS_DB_NAME:-openkis}
+      MARIADB_USER: ${OPENKIS_DB_USER:-openkis}
+      MARIADB_PASSWORD: ${OPENKIS_DB_PASSWORD:?set OPENKIS_DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD in .env}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      # OPENKIS_DB_DATA_DIR in .env = a host folder instead of the named volume.
+      - ${OPENKIS_DB_DATA_DIR:-openkis_db}:/var/lib/mysql
+
+  # Optional HTTPS front end. Started only with the "https" profile:
+  # COMPOSE_PROFILES=https and OPENKIS_DOMAIN in .env (see README).
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      # empty = localhost with a self-signed certificate (for testing)
+      OPENKIS_DOMAIN: ${OPENKIS_DOMAIN:-localhost}
+    ports:
+      - "${OPENKIS_CADDY_HTTP_PORT:-80}:80"
+      - "${OPENKIS_CADDY_HTTPS_PORT:-443}:443"
+      - "${OPENKIS_CADDY_HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      # certificates and keys: keep them, or Let's Encrypt rate limits apply
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  openkis_www:
+  openkis_db:
+  caddy_data:
+  caddy_config:
