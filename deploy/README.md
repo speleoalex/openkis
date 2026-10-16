@@ -238,7 +238,8 @@ restarts; trust it only on your own machines.
   links come out as `http://`.
 - Change both database passwords; MariaDB is not published on the host.
 - Apache denies `openkis_config.local.php`, `config.vars.local.php`,
-  `misc/fndatabase/` and `.git`, plus the unauthenticated maintenance scripts
+  the `.php` files in `misc/fndatabase/` (PHP is also switched off there, so an
+  upload can never run), `.git`, plus the unauthenticated maintenance scripts
   `clear_cache.php` (deletes files from a path in the URL), `openkis_las.php`
   (reads any `*.las` path or URL) and `finis/{utils,tests,examples}/`. Run
   `clear_cache.php` with `docker compose exec web php clear_cache.php` instead.
