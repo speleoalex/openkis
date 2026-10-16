@@ -179,4 +179,9 @@ chown www-data:www-data "$WEBROOT" "$WEBROOT/misc" "$WEBROOT/misc/firstinstall" 
     "$WEBROOT/.openkis-image-version" "$WEBROOT/bs_map/conf/api_keys.local.js" \
     "$WEBROOT/themes/api_keys.local.js" 2>/dev/null || true
 
+# a pid file left by the previous run (docker restart, host reboot) makes
+# apache2ctl exit with "httpd (pid N) already running" when N is now another
+# process of this container, and the container restarts forever
+rm -f "${APACHE_PID_FILE:-/var/run/apache2/apache2.pid}"
+
 exec "$@"
