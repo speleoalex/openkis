@@ -183,10 +183,53 @@ OPENKIS_HTTP_PORT=127.0.0.1:8080    # keep plain HTTP off the internet
 
 Open ports 80 and 443 on the firewall (80 is needed for the certificate
 challenge and redirects to HTTPS), then `docker compose up -d`. Caddy's config
-is `docker/Caddyfile`; certificates are kept in the `caddy_data` volume. With
-`OPENKIS_DOMAIN` empty Caddy serves `localhost` with a self-signed certificate,
-which is only useful for testing. `OPENKIS_CADDY_HTTP_PORT` /
-`OPENKIS_CADDY_HTTPS_PORT` change the host ports if 80/443 are taken.
+is `docker/Caddyfile`; certificates are kept in the `caddy_data` volume. `OPENKIS_CADDY_HTTP_PORT` / `OPENKIS_CADDY_HTTPS_PORT` change the host ports if
+80/443 are taken.
+
+### Public server: free Let's Encrypt certificate
+
+Nothing to configure in Caddy: for a real domain it requests the certificate
+from Let's Encrypt and renews it before it expires. What it needs:
+
+1. a DNS **A** (and/or **AAAA**) record for `OPENKIS_DOMAIN` pointing at the
+   server's public IP;
+2. ports **80 and 443 open** to the internet: Let's Encrypt checks port 80 (or
+   443) to prove you control the domain;
+3. `docker compose up -d`, then `docker compose logs -f caddy` until it reports
+   `certificate obtained successfully`.
+
+If it fails, check the DNS record (`dig +short kis.example.org`) and the
+firewall, then `docker compose restart caddy`. Do not delete the `caddy_data`
+volume: repeated requests for the same domain hit Let's Encrypt's rate limits.
+
+### Local machine: self-signed certificate for https://localhost
+
+With `OPENKIS_DOMAIN=localhost` (or empty) Caddy creates its own local
+certificate authority and issues a certificate for `localhost` by itself:
+
+```bash
+COMPOSE_PROFILES=https
+OPENKIS_DOMAIN=localhost
+OPENKIS_CADDY_HTTPS_PORT=8443       # optional, if 443 is busy
+```
+
+Open `https://localhost/` (or `https://localhost:8443/`). The browser warns that
+the certificate is not trusted; accept it once, or trust Caddy's root
+certificate to remove the warning:
+
+```bash
+docker compose cp caddy:/data/caddy/pki/authorities/local/root.crt ./caddy-root.crt
+```
+
+- **Windows**: double-click `caddy-root.crt` → Install Certificate → Local
+  Machine → "Trusted Root Certification Authorities".
+- **macOS**: `sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain caddy-root.crt`
+- **Linux**: `sudo cp caddy-root.crt /usr/local/share/ca-certificates/ && sudo update-ca-certificates`
+- **Firefox** keeps its own list: Settings → Privacy & Security → Certificates →
+  View Certificates → Authorities → Import.
+
+The root certificate lives in the `caddy_data` volume and stays the same across
+restarts; trust it only on your own machines.
 
 ## Production notes
 
