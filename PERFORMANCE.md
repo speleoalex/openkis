@@ -83,7 +83,8 @@ indexes, each lookup by cave code, by `codecave` (photos, surveys), by
 `username`, etc. scans the table. Numeric fields stored as text also sort
 alphabetically (`'100' < '20'`), which is why some sorting is redone in PHP.
 
-Quick win, no code change: add indexes once in MariaDB, for example
+Quick win, no code change: `sql/openkis_indexes.sql` (see `INDEXES.md`) adds
+the indexes for the most used and heaviest queries. The core of it, for example
 
 ```sql
 ALTER TABLE ctl_caves        ADD INDEX (code), ADD INDEX (recorddeleted);
