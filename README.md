@@ -105,6 +105,8 @@ the first time each section is opened. No SQL dump is needed.
   mysql -u root openkis < extra/openkis/install/demo_cave.sql
   ```
 
+- **Database indexes** (optional, faster pages with many records):
+  `mysql -u root -p openkis < sql/openkis_indexes.sql`, see `INDEXES.md`.
 - **Map API keys** (optional layers like Google, Bing, regional WMS): edit
   `bs_map/conf/api_keys.local.js` and `themes/api_keys.local.js`
   (git-ignored, copied from the `*.example.js` files by `setup.sh`).
