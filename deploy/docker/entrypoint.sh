@@ -21,6 +21,8 @@ say() { echo "[openkis] $*"; }
 : "${OPENKIS_MCP_USER:=admin}"
 : "${OPENKIS_MCP_READONLY:=0}"
 : "${OPENKIS_DB_WAIT:=60}"
+: "${OPENKIS_DB_INDEXES:=1}"
+: "${OPENKIS_DB_INDEXES_INTERVAL:=3600}"
 : "${OPENKIS_DISPLAY_ERRORS:=off}"
 : "${OPENKIS_ENABLE_PROXY:=0}"
 
@@ -136,6 +138,40 @@ if [ ! -d "$WEBROOT/misc/fndatabase" ]; then
     mkdir -p "$WEBROOT/misc"
     touch "$WEBROOT/misc/firstinstall"
     say "fresh installation: open the site to run the setup wizard"
+fi
+
+# --- 5. database indexes ----------------------------------------------------------
+# sql/openkis_indexes.sql adds the secondary indexes (see INDEXES.md). It is
+# idempotent and skips tables that don't exist yet; OpenKIS creates tables on
+# first use, so it runs now and then again every OPENKIS_DB_INDEXES_INTERVAL
+# seconds (0 = only at start), in the background so Apache is not delayed.
+INDEXES_SQL="$SRC/sql/openkis_indexes.sql"
+db_sql() {
+    mariadb -h "$OPENKIS_DB_HOST" -u "$OPENKIS_DB_USER" --password="$OPENKIS_DB_PASSWORD" \
+        --skip-ssl -N "$OPENKIS_DB_NAME" "$@"
+}
+count_indexes() {
+    db_sql -e "SELECT COUNT(DISTINCT table_name, index_name) FROM information_schema.statistics
+               WHERE table_schema = DATABASE() AND index_name LIKE 'okx\\_%'" 2>/dev/null || echo 0
+}
+if [ "$OPENKIS_DB_INDEXES" = "1" ] && [ -f "$INDEXES_SQL" ]; then
+    (
+        first=1
+        while :; do
+            before=$(count_indexes)
+            if db_sql < "$INDEXES_SQL" 2>/tmp/openkis-indexes.err; then
+                after=$(count_indexes)
+                if [ "$after" != "$before" ] || [ "$first" = 1 ]; then
+                    say "database indexes: $after in place ($((after - before)) added)"
+                fi
+                first=0
+            else
+                say "WARNING: database index script failed: $(tr '\n' ' ' < /tmp/openkis-indexes.err)"
+            fi
+            [ "$OPENKIS_DB_INDEXES_INTERVAL" -gt 0 ] 2>/dev/null || break
+            sleep "$OPENKIS_DB_INDEXES_INTERVAL"
+        done
+    ) &
 fi
 
 echo "$IMAGE_VERSION" > "$WEBROOT/.openkis-image-version"

@@ -7,6 +7,15 @@ lookup is a full table scan.
 
 ## Apply
 
+**Docker:** nothing to do. The container's entrypoint runs the script at every
+start and then every hour (`OPENKIS_DB_INDEXES_INTERVAL`, seconds) in the
+background, so indexes appear as soon as OpenKIS creates their tables. The
+log shows `database indexes: N in place (M added)`. Set
+`OPENKIS_DB_INDEXES=0` in `.env` to turn it off, or
+`OPENKIS_DB_INDEXES_INTERVAL=0` to run it only at start.
+
+**By hand** (other installations, or to run it now):
+
 ```bash
 mariadb -u root -p openkis < sql/openkis_indexes.sql
 # Docker deploy:
