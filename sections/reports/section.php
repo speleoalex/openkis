@@ -192,7 +192,7 @@ foreach ($all_items as $item)
 
     
     
-   $tmp_col[] =  array("text" => FN_Translate($item['status']));
+   $tmp_col[] =  array("text" => isset($item['status']) ? FN_Translate($item['status']) : "");
 
 
     $tmp_row['cols'] = $tmp_col;
