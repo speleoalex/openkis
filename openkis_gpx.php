@@ -38,9 +38,6 @@ foreach ($fields_to_read as $field)
 $params['fields'] = implode(",", $fields);
 $params['filter_code'] = $codes;
 $idresult = false;
-openkis_UpdateCoords("caves");
-openkis_UpdateCoords("artificials");
-openkis_UpdateCoords("springs");
 
 $data = $_FN['sitename'] . "-" . FN_now();
 $forcename = FN_GetParam("filename", $_GET, "html");
@@ -54,18 +51,23 @@ else
     $filename = "$data-$mod.gpx";
 }
 
+//evita di ricalcolare tutto se non è cambiato niente nel db o in questo file-->
+$idcache = openkis_MapCacheKey(__FILE__, $config);
+if (!FN_IsAdmin() && !FN_GetParam("nocache", $_GET, "flat"))
+{
+    $cache = openkis_MapCacheGet($idcache, $tablename);
+    if ($cache !== null)
+    {
+        PrintGpx($cache, $filename);
+    }
+}
+//evita di ricalcolare tutto se non è cambiato niente nel db o in questo file--<
+openkis_UpdateCoords("caves");
+openkis_UpdateCoords("artificials");
+openkis_UpdateCoords("springs");
+$stamp = openkis_MapCacheStamp($tablename);
 $results = $dbview->GetResults(false, $params, $idresult);
 
-//evita di ricalcolare tutto se non è cambiato niente nel db o in questo file-->
-$idcache = "$idresult$minimal$big_icons" . basename(__FILE__);
-$maxtime = max(filectime(__FILE__), $table->GetLastUpdateTime());
-$cache = FN_GetGlobalVarValue("$idcache", $maxtime);
-if (!empty($cache) && !FN_IsAdmin())
-{
-    PrintGpx($cache, $filename);
-}
-
-//evita di ricalcolare tutto se non è cambiato niente nel db o in questo file--<
 $tplstring = file_get_contents("openkis_gpx.tp.xml");
 $tplvars['sourceurl'] = $_FN['siteurl'];
 $tplvars['name'] = $tablename;
@@ -214,13 +216,10 @@ if (isset($_GET['debug']))
     dprint_r(__FILE__ . " " . __LINE__ . " : post tpl " . FN_GetExecuteTimer());
 }
 
-if ("$idresult")
+openkis_MapCacheSet($idcache, $stamp, $str);
+if (isset($_GET['debug']))
 {
-    FN_SetGlobalVarValue("$idcache", $str);
-    if (isset($_GET['debug']))
-    {
-        dprint_r(__FILE__ . " " . __LINE__ . " : FN_SetGlobalVarValue  " . FN_GetExecuteTimer());
-    }
+    dprint_r(__FILE__ . " " . __LINE__ . " : openkis_MapCacheSet  " . FN_GetExecuteTimer());
 }
 PrintGpx($str, $filename);
 

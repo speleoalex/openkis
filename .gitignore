@@ -8,7 +8,13 @@ bs_map/conf/api_keys.local.js
 
 # Framework generated files (daemon user)
 .htaccess
-controlcenter/
+controlcenter/*
+# only the OpenKIS control-center page is tracked (Control center -> Utilities -> Refresh map data)
+!controlcenter/sections/
+controlcenter/sections/*
+!controlcenter/sections/utilities/
+controlcenter/sections/utilities/*
+!controlcenter/sections/utilities/refresh_map_data/
 images/
 include/
 languages/
