@@ -128,6 +128,25 @@ the first time each section is opened. No SQL dump is needed.
 - To reinstall from scratch: `sudo rm -rf misc`, drop the database, run
   `./setup.sh` again.
 
+## Testing
+
+`tests/smoke_test.sh` checks a copy of the code served by a local web server:
+`php -l` on every file, optionally a clean install (`setup.sh` + wizard),
+every section as anonymous and administrator, the KML/GPX/JSON/markers
+exports and their cache, the control-center "Refresh map data" page,
+`refresh-cache.php`, `sql/openkis_indexes.sql` and the PHP error log.
+
+```bash
+# existing test copy (defaults: ~/public_html/openkis_test, DB openkis_test, XAMPP root without password)
+tests/smoke_test.sh
+# wipe the test copy and its database, install from scratch, then run every check
+tests/smoke_test.sh -f
+```
+
+`tests/smoke_test.sh -h` lists the environment variables (`TEST_DIR`,
+`TEST_URL`, `TEST_DB`, `DB_USER`, `DB_PASS`, `FINIS_SRC`, ...). It copies the
+git `HEAD` of the repository and of `finis`, so commit before testing.
+
 ## Upgrading
 
 ```bash
