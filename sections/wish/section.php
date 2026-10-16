@@ -7,7 +7,11 @@ $vars = array();
 
 // Recupera tutte le regioni dalla tabella "ctl_wishregioni"
 $table_regioni = FN_XMDBTable("ctl_wishregioni");
-$regioni = $table_regioni->GetRecords(/* array("status"=>1) */);
+$regioni = $table_regioni ? $table_regioni->GetRecords(/* array("status"=>1) */) : false;
+if (!is_array($regioni))
+{
+    $regioni = array();
+}
 
 // Per ogni regione, aggiunge il percorso dell'immagine se presente
 foreach ($regioni as $k => $v)
@@ -27,10 +31,17 @@ die("<br>Fine debug<br>");
 */
 // Recupera tutte le grotte dalla tabella "ctl_caves"
 $table = FN_XMDBTable("ctl_caves");
-$all = $table->GetRecords(
-    false, false, false, "code", false, 
-    "id|code|regione|name|synonyms|lenght_total|depth_total|id_regione"
-);
+// id_regione exists only in the WISH portal database: elsewhere the region
+// record is looked up by name (see $regioni_censite below)
+$has_id_regione = $table && isset($table->fields['id_regione']);
+$all = $table ? $table->GetRecords(
+    false, false, false, "code", false,
+    "id|code|regione|name|synonyms|lenght_total|depth_total" . ($has_id_regione ? "|id_regione" : "")
+) : false;
+if (!is_array($all))
+{
+    $all = array();
+}
 // Ordina le grotte per codice
 $all = FN_ArraySortByKey($all, "code");
 
@@ -47,7 +58,7 @@ foreach ($all as $k => $item)
     // Crea il link alla pagina della grotta
     $item['url_wish'] = FN_RewriteLink("index.php?mod=caves&op=view&&id={$item['id']}");
     // Salva l'id_regione per ogni regione censita
-    $regioni_censite[$item['regione']] = $item['id_regione'];
+    $regioni_censite[$item['regione']] = isset($item['id_regione']) ? $item['id_regione'] : "";
 
     // Converte lunghezza e profondità in interi
     $lenght_total = intval($item['lenght_total']);
@@ -91,7 +102,12 @@ $table_ctl_wishregioni = FN_XMDBTable("ctl_wishregioni");
 ksort($regioni_censite);
 foreach ($regioni_censite as $k => $regione_censita)
 {
-    $regioni_censite[$k] = $table_ctl_wishregioni->GetRecord(array("id" => $regione_censita));
+    $rec = false;
+    if ($table_ctl_wishregioni)
+    {
+        $rec = $regione_censita !== "" ? $table_ctl_wishregioni->GetRecord(array("id" => $regione_censita)) : $table_ctl_wishregioni->GetRecord(array("regione" => $k));
+    }
+    $regioni_censite[$k] = is_array($rec) ? $rec : array();
     $regioni_censite[$k]['nome_regione'] = $k;
     $regioni_censite[$k]['title'] = isset($regioni_censite[$k]['title']) ? $regioni_censite[$k]['title'] : "";
 }
