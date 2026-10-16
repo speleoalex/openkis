@@ -73,6 +73,36 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 
 (Open the *Caves* section once before importing, so the `ctl_caves` table exists.)
 
+## A site for a single regional cave register
+
+Example for Lombardia; the regional customisations are `liguria`,
+`lombardia`, `marche`, `piemonte`, `umbria` (plus `italia` and `wish`).
+
+1. In `.env` (copied from `.env.example`) set the passwords and:
+   ```bash
+   COMPOSE_PROJECT_NAME=openkis_lombardia   # own containers and volumes
+   OPENKIS_HTTP_PORT=8084
+   OPENKIS_DB_NAME=openkis_lombardia
+   OPENKIS_CUSTOM=lombardia                 # regional rules, map centre
+   OPENKIS_HOME_SECTION=map_caves           # landing page: the regional cave map
+   OPENKIS_ENABLE_PROXY=1                   # Lombardia only: its IGM map layer
+   ```
+2. `docker compose up -d`, then open `http://<server>:8084/` and run the
+   wizard as in the quick start. The first user registered is the admin.
+3. Sign in from the site's login with that user; the admin area is
+   `http://<server>:8084/index.php?fnapp=controlcenter`.
+
+Without `OPENKIS_HOME_SECTION` the landing page is the home section chosen in
+the wizard (step 3) or later in the control center (*Settings*); the default
+`home` is the WISH national portal, which is still reachable at
+`index.php?mod=home`.
+
+To run several regions on one server, give each its own env file with a
+different `COMPOSE_PROJECT_NAME`, port and database and start each one with
+`docker compose --env-file <file> up -d`. The `https` profile below binds
+ports 80/443, so only one of them can use it; several public sites on one
+server need one reverse proxy in front of all of them.
+
 ## Configuration (.env)
 
 | Variable | Meaning |
