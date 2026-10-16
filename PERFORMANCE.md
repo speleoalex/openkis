@@ -20,7 +20,7 @@ records (caves, versions, notifications).
 | 8 | `extra/openkis.inc.php:57-72` | After any cave edit, the next map/KML/GPX request recalculates coordinates for all changed rows through #1 and writes them one `UpdateRecord` at a time; rows whose coordinates can't be resolved are redone every time | Medium, spikes after edits | Low–medium |
 | 9 | `sections/caves/viewfooter.php:43`, `sections/artificials/viewfooter.php` | Bibliography for a cave is found with `codecaves LIKE '%,CODE,%'` (comma-separated codes in a text field): no index can help, full scan of bibliography on every cave view | Low–medium | Medium (needs a link table) |
 | 10 | `sections/home/section.php:37` | The WISH home page loads every cave and computes the stats on each request, no cache | Medium for the WISH portal only | Low |
-| 11 | `deploy/Dockerfile:21` | `--no-install-recommends` very likely leaves out **php8.3-opcache** (a "Recommends" of mod-php on Ubuntu), so PHP recompiles every file on every request; no APCu either, so `FN_GetGlobalVarValue` falls back to files | Medium on every request | Very low |
+| 11 | `deploy/Dockerfile:21` | No APCu, so `FN_GetGlobalVarValue` caches go to files under `misc/_cache/`. (Opcache is installed and enabled: checked in the image on 2026-10-16.) | Low | Very low |
 | 12 | `XMETATable_mysql.php:211, 327` and `XMETATable.php:205-249` | Per request, each table opened re-reads and regex-parses its XML descriptor, and runs `SHOW TABLES` + `DESCRIBE` (cached only for the request) | Low–medium: a page opens many tables | Medium |
 | 13 | `XMETATable_mysql.php:1104` | New ids are computed with `SELECT MAX(CAST(id AS UNSIGNED)) … WHERE id NOT LIKE '%[a-z]%'` (ids are `VARCHAR`, no AUTO_INCREMENT): full scan on every insert | Low (inserts only) | Medium |
 
@@ -155,15 +155,14 @@ small.
 Cache the computed block with `FN_SetGlobalVarValue` keyed on
 `GetLastUpdateTime()`.
 
-### 11. PHP opcode cache
+### 11. PHP caches
 
-The image installs `libapache2-mod-php8.3` and the extensions with
-`--no-install-recommends`; on Ubuntu `php8.3-opcache` is only recommended, so
-it is very likely missing. Check with
-`docker compose exec web php -m | grep -i opcache`. Adding `php8.3-opcache`
-(and `php8.3-apcu`, which `FN_GetGlobalVarValue` uses when present instead of
-files under `misc/_cache/`) to the Dockerfile is the cheapest gain for every
-request, since finis loads a lot of PHP per page.
+Corrected after checking the built image (2026-10-16): `php8.3-opcache` is
+installed and `opcache.enable=1`, so PHP files are not recompiled on every
+request. APCu is not installed: `FN_GetGlobalVarValue` then keeps its cache
+in files under `misc/_cache/`. Adding `php8.3-apcu` to the Dockerfile would
+make those lookups a memory read and would allow caching the per-request
+schema work (#12) across requests.
 
 ### 12. Per-request schema work
 
@@ -181,7 +180,7 @@ imports (`sections/Imports`).
 
 ## Suggested order
 
-1. Infrastructure, no code change: add opcache/APCu to the image (#11) and the
+1. Infrastructure, no code change: add APCu to the image (#11) and the
    indexes (#5).
 2. One-line fixes: #3, #2 (guests + native query), #4.
 3. Make `FN_XMETADBQuery` use the native SQL path on MySQL (#1). This fixes
