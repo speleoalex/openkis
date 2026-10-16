@@ -53,6 +53,29 @@ services:
       # OPENKIS_DB_DATA_DIR in .env = a host folder instead of the named volume.
       - ${OPENKIS_DB_DATA_DIR:-openkis_db}:/var/lib/mysql
 
+  # Optional HTTPS front end. Started only with the "https" profile:
+  # COMPOSE_PROFILES=https and OPENKIS_DOMAIN in .env (see README).
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      # empty = localhost with a self-signed certificate (for testing)
+      OPENKIS_DOMAIN: ${OPENKIS_DOMAIN:-localhost}
+    ports:
+      - "${OPENKIS_CADDY_HTTP_PORT:-80}:80"
+      - "${OPENKIS_CADDY_HTTPS_PORT:-443}:443"
+      - "${OPENKIS_CADDY_HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      # certificates and keys: keep them, or Let's Encrypt rate limits apply
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   openkis_www:
   openkis_db:
+  caddy_data:
+  caddy_config:

@@ -84,6 +84,7 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 | `THUNDERFOREST_API_KEY`, `MAPTILER_API_KEY`, `ALGOLIA_DOCSEARCH_API_KEY` | optional map/search keys |
 | `OPENKIS_DISPLAY_ERRORS` | `off` (default). `on` shows PHP errors in pages; development only, warnings corrupt the KML/JSON/GPX exports |
 | `TZ` | time zone for PHP and MariaDB |
+| `COMPOSE_PROFILES`, `OPENKIS_DOMAIN` | `https` + a domain turn on the Caddy HTTPS front end; empty = off (see below) |
 | `OPENKIS_DATA_DIR`, `OPENKIS_DB_DATA_DIR` | host folders for the web root and the MariaDB data; empty = named volumes (see below) |
 
 `extra/openkis_config.local.php` is rewritten from `.env` on every start. To
@@ -168,10 +169,29 @@ section types; no OpenKIS section uses them, so the image does not install
 them. `sections/home/kml_to_svg.py` is a one-off developer script with a
 hard-coded path, not used at run time.
 
+## HTTPS with Caddy
+
+The compose file has an optional `caddy` service (profile `https`) that
+terminates TLS in front of OpenKIS, with a free Let's Encrypt certificate that
+it gets and renews by itself. It is off unless you turn it on in `.env`:
+
+```bash
+COMPOSE_PROFILES=https
+OPENKIS_DOMAIN=kis.example.org      # DNS A/AAAA record pointing at this server
+OPENKIS_HTTP_PORT=127.0.0.1:8080    # keep plain HTTP off the internet
+```
+
+Open ports 80 and 443 on the firewall (80 is needed for the certificate
+challenge and redirects to HTTPS), then `docker compose up -d`. Caddy's config
+is `docker/Caddyfile`; certificates are kept in the `caddy_data` volume. With
+`OPENKIS_DOMAIN` empty Caddy serves `localhost` with a self-signed certificate,
+which is only useful for testing. `OPENKIS_CADDY_HTTP_PORT` /
+`OPENKIS_CADDY_HTTPS_PORT` change the host ports if 80/443 are taken.
+
 ## Production notes
 
-- Put a TLS reverse proxy (Caddy, Traefik, nginx) in front of port 80; Apache
-  honours `X-Forwarded-Proto: https`. Set the site URL in the control center if
+- Serve it over HTTPS: use the `https` profile above, or another TLS reverse
+  proxy in front of port 80; Apache honours `X-Forwarded-Proto: https`. Set the site URL in the control center if
   links come out as `http://`.
 - Change both database passwords; MariaDB is not published on the host.
 - Apache denies `openkis_config.local.php`, `config.vars.local.php`,
