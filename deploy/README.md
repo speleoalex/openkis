@@ -84,6 +84,7 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 | `THUNDERFOREST_API_KEY`, `MAPTILER_API_KEY`, `ALGOLIA_DOCSEARCH_API_KEY` | optional map/search keys |
 | `OPENKIS_DISPLAY_ERRORS` | `off` (default). `on` shows PHP errors in pages; development only, warnings corrupt the KML/JSON/GPX exports |
 | `TZ` | time zone for PHP and MariaDB |
+| `OPENKIS_DB_INDEXES`, `OPENKIS_DB_INDEXES_INTERVAL` | `1` (default) applies `sql/openkis_indexes.sql` at start and every `3600` s; `0` = off / only at start (see `INDEXES.md`) |
 | `COMPOSE_PROFILES`, `OPENKIS_DOMAIN` | `https` + a domain turn on the Caddy HTTPS front end; empty = off (see below) |
 | `OPENKIS_DATA_DIR`, `OPENKIS_DB_DATA_DIR` | host folders for the web root and the MariaDB data; empty = named volumes (see below) |
 
