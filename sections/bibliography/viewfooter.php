@@ -11,7 +11,7 @@ foreach($caves as $key=> $val)
 {
     if ($val!= "")
     {
-        $r=$table->GetRecord(array("code"=>$val));
+        $r=XMETAFKLookup::GetRecord($table,"code",$val,"id,name,synonyms");
         if (isset($r['name']))
         {
             $l=FN_RewriteLink("index.php?mod=caves&op=view&id={$r['id']}");
@@ -32,7 +32,7 @@ foreach($grotte as $key=> $val)
 {
     if ($val!= "")
     {
-        $r=$table->GetRecord(array("id"=>$val));
+        $r=XMETAFKLookup::GetRecord($table,"id",$val,"id,name,synonyms");
         if (isset($r['name']))
         {
 

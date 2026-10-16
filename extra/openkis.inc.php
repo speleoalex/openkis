@@ -256,7 +256,7 @@ function openkis_GetItemPosition($row)
         }
     }
 
-    $items_ct = $table_coordinatestypes->GetRecord(array("coordinates_type" => $coordinatestypes));
+    $items_ct = XMETAFKLookup::GetRecord($table_coordinatestypes, "coordinates_type", $coordinatestypes, "proj4");
 
     $proj = (!empty($items_ct['proj4'])) ? $items_ct['proj4'] : "";
     //dprint_r($items_ct);
