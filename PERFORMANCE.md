@@ -128,6 +128,14 @@ query; re-enable the commented `PrintJs`/`PrintKml` lines once the key is
 safe. Send `Cache-Control`/`ETag` headers instead of `no-cache` so browsers
 can reuse unchanged layers.
 
+Done (issue #11): the four endpoints look up the cache before the query, keyed
+on the request, the section config and the user, and drop it when the table's
+`updated` marker moves (the marker folder is now created on MySQL installs,
+where it was missing), when the endpoint file changes, or after
+`$_FN['openkis_map_cache_maxage']` seconds (default 3600). Control center ->
+Utilities -> Refresh map data and `refresh-cache.php` force a refresh after
+direct database edits. The `Cache-Control` headers are unchanged.
+
 ### 8. Coordinate recalculation
 
 `openkis_UpdateCoords()` (`extra/openkis.inc.php:33`) is cheap when nothing

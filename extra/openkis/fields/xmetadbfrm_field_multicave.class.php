@@ -154,8 +154,8 @@ var dofilter{$inputid_prefix}_{$params['name']} = function(id, text) {
         {
             if (isset($bykey[$cave]))
             {
-                $item=$table->GetRecord(array($params['fk_link_field']=>$cave));
                 $primarykey=$table->primarykey;
+                $item=XMETAFKLookup::GetRecord($table,$params['fk_link_field'],$cave,$primarykey);
                 $link=FN_RewriteLink("index.php?mod=$mod&amp;op=view&amp;id={$item[$primarykey]}");
                 $htmlout_s[]="\n<li><a href=\"$link\" >{$bykey[$cave]}</a></li> ";
             }

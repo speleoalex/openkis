@@ -46,18 +46,6 @@ foreach($fields_to_read as $field)
 $params['fields']=implode(",",$fields);
 $params['filter_code']=$codes;
 $idresult=false;
-if (isset($_GET['debug']))
-{
-    dprint_r(__FILE__."  ".__LINE__." : ".FN_GetExecuteTimer());
-}
-openkis_UpdateCoords("caves");
-openkis_UpdateCoords("artificials");
-openkis_UpdateCoords("springs");
-if (isset($_GET['debug']))
-{
-    dprint_r(__FILE__."  ".__LINE__." : ".FN_GetExecuteTimer());
-}
-
 $data=$_FN['sitename']."-".FN_now();
 $forcename=FN_GetParam("filename",$_GET,"html");
 $data=str_replace(" ","_",str_replace(":","-",$data));
@@ -70,32 +58,40 @@ else
     $filename="$data-$mod.kml";
 }
 
-$results=$dbview->GetResults(false,$params,$idresult);
-
-
-if (isset($_GET['debug']))
-{
-    dprint_r("idresult:$idresult");
-}
-
-
 //evita di ricalcolare tutto se non è cambiato niente nel db o in questo file-->
-$idcache="__{$idresult}$minimal$big_icons$absolute$iconsize";
+$idcache=openkis_MapCacheKey(__FILE__, $config);
 if ($_FN['enable_compress_gzip'])
 {
     $idcache.=".gz";
 }
-
 if (isset($_GET['debug']))
 {
     dprint_r("idcache:$idcache");
 }
-
-$maxtime=max(filectime(__FILE__),$table->GetLastUpdateTime());
-$cache=FN_GetGlobalVarValue("$idcache",$maxtime);
-if (empty($absolute) && !empty($cache) && empty($nocache))
+if (empty($absolute) && empty($nocache))
 {
-    PrintKml($cache,$filename);
+    $cache=openkis_MapCacheGet($idcache,$tablename);
+    if ($cache!==null)
+    {
+        PrintKml($cache,$filename);
+    }
+}
+if (isset($_GET['debug']))
+{
+    dprint_r(__FILE__."  ".__LINE__." : ".FN_GetExecuteTimer());
+}
+openkis_UpdateCoords("caves");
+openkis_UpdateCoords("artificials");
+openkis_UpdateCoords("springs");
+if (isset($_GET['debug']))
+{
+    dprint_r(__FILE__."  ".__LINE__." : ".FN_GetExecuteTimer());
+}
+$stamp=openkis_MapCacheStamp($tablename);
+$results=$dbview->GetResults(false,$params,$idresult);
+if (isset($_GET['debug']))
+{
+    dprint_r("idresult:$idresult");
 }
 //evita di ricalcolare tutto se non è cambiato niente nel db o in questo file--<
 $tplstring=file_get_contents("openkis_kml.tp.xml");
@@ -236,17 +232,14 @@ if (isset($_GET['debug']))
     dprint_r(__FILE__." ".__LINE__." : post tpl ".FN_GetExecuteTimer());
 }
 $str=FN_FixNewline($str);
-if ("$idresult")
+if ($_FN['enable_compress_gzip'])
 {
-    if ($_FN['enable_compress_gzip'])
-    {
-        $str=gzencode($str);
-    }
-    FN_SetGlobalVarValue("$idcache",$str);
-    if (isset($_GET['debug']))
-    {
-        dprint_r(__FILE__." ".__LINE__." : FN_SetGlobalVarValue  ".FN_GetExecuteTimer());
-    }
+    $str=gzencode($str);
+}
+openkis_MapCacheSet($idcache,$stamp,$str);
+if (isset($_GET['debug']))
+{
+    dprint_r(__FILE__." ".__LINE__." : openkis_MapCacheSet  ".FN_GetExecuteTimer());
 }
 
 

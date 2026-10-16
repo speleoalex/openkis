@@ -47,6 +47,9 @@ RUN set -eux; \
     cd /usr/src/openkis; \
     test -f finis/src/include/finis.php \
       || { echo "finis submodule missing: run git submodule update --init --recursive" >&2; exit 1; }; \
+    # the entrypoint applies it on every start (OPENKIS_DB_INDEXES)
+    test -s sql/openkis_indexes.sql \
+      || { echo "sql/openkis_indexes.sql missing: database indexes would not be created" >&2; exit 1; }; \
     rm -rf .git finis/.git misc deploy; \
     # optional local patches: deploy/patches/<subdir>/*.patch apply to that
     # subdir (_root = the OpenKIS root, finis = the submodule)
