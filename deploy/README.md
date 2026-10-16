@@ -142,6 +142,20 @@ With a local build: `git pull --recurse-submodules`, then
 New table fields are applied automatically by the framework. For installations
 older than 2024-03-25 see `extra/openkis/update.md` upstream.
 
+### Map data after editing the database directly
+
+The map layers (KML, GPX, JSON, markers) are cached and refreshed by
+themselves when the data are changed through OpenKIS. After changing the caves
+data directly in the database, refresh them from Control center -> Utilities ->
+Refresh map data, or with:
+
+```bash
+docker compose exec -u www-data web php /var/www/html/refresh-cache.php
+```
+
+Otherwise they are rebuilt within an hour
+(`$_FN['openkis_map_cache_maxage']`, seconds; 0 disables the cache).
+
 ### Backup and restore
 
 ```bash

@@ -75,6 +75,137 @@ function openkis_UpdateCoords($mod, $forceall = false)
 }
 
 /**
+ * Map exports cache (openkis_kml.php, openkis_gpx.php, openkis_json.php,
+ * openkis_markers.js.php).
+ *
+ * The cache is looked up before the query and is valid until the table
+ * changes (XMETATable touches misc/fndatabase/<table>/updated on every insert,
+ * update and delete), the endpoint file changes, or it is older than
+ * $_FN['openkis_map_cache_maxage'] seconds (default 3600, 0 = no cache).
+ * Edits made directly in the database are not seen: use Control center ->
+ * Utilities -> Refresh map data, or "php refresh-cache.php".
+ *
+ * @param string $endpoint __FILE__ of the endpoint
+ * @param array $config the section configuration
+ * @return string
+ */
+function openkis_MapCacheKey($endpoint, $config)
+{
+    global $_FN;
+    $request = array_merge($_GET, $_POST);
+    unset($request['debug'], $request['nocache']);
+    ksort($request);
+    $context = array($request, $config, $_FN['mod'], $_FN['lang'], $_FN['siteurl'], $_FN['user']);
+    return "openkis_map_" . basename($endpoint) . "_" . filemtime($endpoint) . "_" . md5(serialize($context));
+}
+
+/**
+ * Last change time of a table. The marker folder is created when missing
+ * (MySQL tables), otherwise XMETATable cannot record the changes and the
+ * time would never move.
+ *
+ * @param string $tablename
+ * @return int
+ */
+function openkis_MapCacheStamp($tablename)
+{
+    $table = FN_XMDBTable($tablename);
+    if (!$table)
+    {
+        return time();
+    }
+    $dir = "{$table->path}/{$table->databasename}/{$table->tablename}";
+    if (!file_exists("$dir/updated"))
+    {
+        if (!is_dir($dir))
+        {
+            @mkdir($dir, 0755, true);
+        }
+        @touch("$dir/updated");
+    }
+    clearstatcache(true, "$dir/updated");
+    return $table->GetLastUpdateTime();
+}
+
+/**
+ * @param string $key from openkis_MapCacheKey()
+ * @param string $tablename
+ * @return string|null the cached output, null when missing or out of date
+ */
+function openkis_MapCacheGet($key, $tablename)
+{
+    global $_FN;
+    $maxage = isset($_FN['openkis_map_cache_maxage']) ? intval($_FN['openkis_map_cache_maxage']) : 3600;
+    if ($maxage <= 0)
+    {
+        return null;
+    }
+    $cache = FN_GetGlobalVarValue($key);
+    if (!is_array($cache) || !isset($cache['stamp'], $cache['time'], $cache['data']))
+    {
+        return null;
+    }
+    if ($cache['stamp'] < openkis_MapCacheStamp($tablename) || time() - $cache['time'] > $maxage)
+    {
+        return null;
+    }
+    return $cache['data'];
+}
+
+/**
+ * @param string $key from openkis_MapCacheKey()
+ * @param int $stamp openkis_MapCacheStamp() read before the query
+ * @param string $data
+ */
+function openkis_MapCacheSet($key, $stamp, $data)
+{
+    FN_SetGlobalVarValue($key, array('stamp' => $stamp, 'time' => time(), 'data' => $data));
+}
+
+/**
+ * Drops every cached map export and recalculates the coordinates, e.g. after
+ * the caves data were changed directly in the database.
+ *
+ * @return array what was done, one line per step
+ */
+function openkis_RefreshMapData()
+{
+    global $_FN;
+    $done = array();
+    foreach (array("caves", "artificials", "springs", "glacial") as $mod)
+    {
+        if (!file_exists("sections/$mod"))
+        {
+            continue;
+        }
+        $config = FN_LoadConfig("modules/dbview/config.php", $mod);
+        if (empty($config['tables']) || !FN_XMDBTable($config['tables']))
+        {
+            continue;
+        }
+        openkis_MapCacheStamp($config['tables']);
+        FN_XMDBTable($config['tables'])->SetLastUpdateTime();
+        $done[] = "{$config['tables']}: " . FN_Translate("marked as changed");
+    }
+    FN_ClearCache();
+    if (function_exists('apcu_clear_cache'))
+    {
+        apcu_clear_cache();
+    }
+    $done[] = FN_Translate("cache cleared");
+    // the map endpoints recalculate these three
+    foreach (array("caves", "artificials", "springs") as $mod)
+    {
+        if (file_exists("sections/$mod"))
+        {
+            openkis_UpdateCoords($mod, true);
+            $done[] = "$mod: " . FN_Translate("coordinates recalculated");
+        }
+    }
+    return $done;
+}
+
+/**
  * 
  * @param type $row
  */

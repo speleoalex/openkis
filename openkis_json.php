@@ -27,13 +27,15 @@ $tablename=$config['tables'];
 $params['fields']="code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total,meteorology,fauna,closed";
 $params['filter_code']=$codes;
 $idresult=false;
-openkis_UpdateCoords("caves");
-$results=$dbview->GetResults(false,$params,$idresult);
-$cache =FN_GetGlobalVarValue("$idresult");
-if (!empty($cache))
+$idcache=openkis_MapCacheKey(__FILE__, $config);
+$cache=openkis_MapCacheGet($idcache,$tablename);
+if ($cache!==null && !FN_GetParam("nocache",$_GET,"flat"))
 {
-  //  PrintKml($cache);
+    PrintJson($cache,str_replace(" ","_",str_replace(":","-",$_FN['sitename']."-".FN_now()))."-$mod.kml");
 }
+openkis_UpdateCoords("caves");
+$stamp=openkis_MapCacheStamp($tablename);
+$results=$dbview->GetResults(false,$params,$idresult);
 $tplstring=file_get_contents("openkis_kml.tp.xml");
 $tplvars['sourceurl']=$_FN['siteurl'];
 $tplvars['name']=$tablename;
@@ -137,10 +139,7 @@ if (isset($_GET['debug']))
 $data=$_FN['sitename']."-".FN_now();
 $data=str_replace(" ","_",str_replace(":","-",$data));
 $filename="$data-$mod.kml";
-/*if ( "$idresult")
-{
-    FN_SetGlobalVarValue("$idresult",$str);
-}*/
+openkis_MapCacheSet($idcache,$stamp,$str);
 PrintJson($str,$filename);
 
 /**
