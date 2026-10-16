@@ -75,8 +75,18 @@ docker compose exec -T web cat /usr/src/openkis/extra/openkis/install/demo_cave.
 
 ## A site for a single regional cave register
 
-Example for Lombardia; the regional customisations are `liguria`,
-`lombardia`, `marche`, `piemonte`, `umbria` (plus `italia` and `wish`).
+`custom-env/` has a ready env file for each regional customisation:
+
+| Region | File | Port |
+|---|---|---|
+| Liguria | `custom-env/liguria.env` | 8083 |
+| Lombardia | `custom-env/lombardia.env` | 8084 |
+| Marche | `custom-env/marche.env` | 8085 |
+| Piemonte | `custom-env/piemonte.env` | 8086 |
+| Umbria | `custom-env/umbria.env` | 8087 |
+
+Each has its own project name, port and database, so several can run on the
+same server. Example for Lombardia (the others work the same way):
 
 1. Edit `custom-env/lombardia.env` and change `OPENKIS_DB_PASSWORD` and
    `MARIADB_ROOT_PASSWORD`. The file already sets:
@@ -88,7 +98,6 @@ Example for Lombardia; the regional customisations are `liguria`,
    OPENKIS_HOME_SECTION=map_caves           # landing page: the regional cave map
    OPENKIS_ENABLE_PROXY=1                   # Lombardia only: its IGM map layer
    ```
-   For another region, copy it and change these values.
 2. From `deploy/`: `docker compose --env-file custom-env/lombardia.env up -d`,
    then open `http://<server>:8084/` and run the wizard as in the quick start.
    The first user registered is the admin.
@@ -100,12 +109,10 @@ the wizard (step 3) or later in the control center (*Settings*); the default
 `home` is the WISH national portal, which is still reachable at
 `index.php?mod=home`.
 
-To run several regions on one server, give each its own env file (like
-`custom-env/lombardia.env`) with a different `COMPOSE_PROJECT_NAME`, port and
-database, and start each one with
-`docker compose --env-file <file> up -d`. The `https` profile below binds
-ports 80/443, so only one of them can use it; several public sites on one
-server need one reverse proxy in front of all of them.
+To run several regions on one server, start each one with its own env file.
+The `https` profile below binds ports 80/443, so only one of them can use it;
+several public sites on one server need one reverse proxy in front of all of
+them.
 
 ## Configuration (.env)
 
