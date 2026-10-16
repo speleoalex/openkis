@@ -158,5 +158,27 @@ else
     }
 //--------------------download     dati ---------------------------------------<
 }
+
+/**
+ * Fetch the content of an (admin-configured) regional data URL.
+ * Restored helper: it was referenced above but defined nowhere, so the
+ * "download data" action fatalled with "undefined function wish_GetWebPage()".
+ *
+ * @param string $url
+ * @return string page body, or "" on error
+ */
+function wish_GetWebPage($url)
+{
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+    curl_setopt($ch, CURLOPT_USERAGENT, "OpenKIS data import");
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return ($result === false) ? "" : $result;
+}
 ?>
 

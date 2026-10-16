@@ -19,6 +19,9 @@
 
 ## Installation
 
+> **Docker:** `deploy/` contains a Docker Compose environment (Apache + PHP 8.3 +
+> MariaDB). See [deploy/README.md](deploy/README.md).
+
 ### 1. Get the code
 
 ```bash
