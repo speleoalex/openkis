@@ -213,6 +213,9 @@
             <div class="navigatorresults">
                 <div class="pageresults">
                     <a  id="mapresultslink" target="_blank" href="{siteurl}bs_map.htm{querystring}&lat={default_latitude}&lon={default_longitude}&zoom={default_zoom}">{i18n:Map link}</a>
+                    <!-- if {txt_num_records} -->
+                    <div class="text-muted small">{txt_num_records}</div>
+                    <!-- end if {txt_num_records} -->
                     <nav aria-label="{i18n:Pages}">
                         <ul class="pagination">
                             <!-- if {linkpreviouspage} -->
@@ -257,6 +260,9 @@
                 </div>        
                 <div class="pageresults">
                     <input id="querystring" type="hidden" value="{querystring}" />
+                    <!-- if {txt_num_records} -->
+                    <div class="text-muted small">{txt_num_records}</div>
+                    <!-- end if {txt_num_records} -->
                     <nav aria-label="{i18n:Pages}">
                         <ul class="pagination">
                             <!-- if {linkpreviouspage} -->
@@ -286,10 +292,11 @@
                 <!-- end if {access_control_url} -->
                 <!-- if {url_exports} -->
                 <br /><br />
-                <div class="alert alert-info"><h5>{i18n:Export the results}:</h5>    
+                <div class="alert alert-info"><h5>{i18n:Export the results}:</h5>
                     <!-- foreach {url_exports} -->
                     <a href="{url_export}" class="btn btn-primary">{title}</a>
                     <!-- end foreach {url_exports} -->
+                    <a href="{siteurl}index.php{querystring}" class="btn btn-outline-primary">&#128279; {i18n:Link to this search}</a>
                 </div>
                 <!-- end if {url_exports} -->
             </div>

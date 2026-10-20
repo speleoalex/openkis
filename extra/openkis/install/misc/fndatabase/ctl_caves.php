@@ -298,7 +298,7 @@
     </field>
     <field> 
         <name>lake</name>
-        <frm_it>Cavit&agrave;lacustre</frm_it>
+        <frm_it>Cavit&agrave; lacustre</frm_it>
         <type>radio</type>
         <frm_options>S,N</frm_options>
         <frm_options_it>Si,No</frm_options_it>
@@ -519,7 +519,9 @@
     <field>
         <name>import_rawdata</name>
         <frm_it>Dati pre importazione</frm_it>
-        <type>text</type>        
+        <type>text</type>
+        <frm_show>0</frm_show>
+        <view_show>1</view_show>
     </field>
     <field>
         <name>recordinsert</name>

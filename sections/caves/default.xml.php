@@ -40,6 +40,8 @@
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>code,name</titlefield>
+	<offlineform_hidden_fields>status,groupview,check,check_date,changelog,original_coordinates_type,photo1</offlineform_hidden_fields>
+	<offlineform_text_fields>caveslinks</offlineform_text_fields>
 	<descriptionfield>description</descriptionfield>
 	<search_options>archeological,closed,marine</search_options>
 	<navigate_groups>regione,provincia,comune,areas</navigate_groups>
