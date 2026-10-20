@@ -30,15 +30,15 @@ if (!empty($row['latitude']))
     echo "</div><br />";
 
 
-    $position=openkis_GetItemPosition($row);
-    echo "<div>Coordinate  WGS84 (Lon,Lat):<input class=\"form-input\" value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" /></div>";
-    
-    echo "<div>Coordinate  WGS84 (Lon,Lat):<input class=\"form-input\" value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" /></div>";
-   
-    echo "<div>Coordinate  WGS84 UTM (x,y,zone):<input class=\"form-input\" value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" /></div>";
-    
-    
-    
+    $position = openkis_GetItemPosition($row);
+    // Coordinates card: decimal degrees, sexagesimal (DMS) and UTM, click-to-select
+    echo "<div class=\"card mb-3\">";
+    echo "<div class=\"card-header\"><h5 class=\"mb-0\">Coordinate WGS84</h5></div>";
+    echo "<div class=\"card-body\">";
+    echo "<div class=\"row mb-2\"><label class=\"col-sm-4 col-form-label\">Gradi decimali (Lon, Lat)</label><div class=\"col-sm-8\"><input class=\"form-control\" readonly value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" /></div></div>";
+    echo "<div class=\"row mb-2\"><label class=\"col-sm-4 col-form-label\">Gradi sessagesimali (Lon, Lat)</label><div class=\"col-sm-8\"><input class=\"form-control\" readonly value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" /></div></div>";
+    echo "<div class=\"row\"><label class=\"col-sm-4 col-form-label\">UTM (X, Y, fuso)</label><div class=\"col-sm-8\"><input class=\"form-control\" readonly value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" /></div></div>";
+    echo "</div></div>";
 }
 $config = FN_LoadConfig("", "bibliography");
 $biblio = new FNDBVIEW($config);
@@ -71,16 +71,30 @@ $items = $survey->GetResults($config, $params);
 if (is_array($items) && count($items))
 {
     $items = FN_ArraySortByKey($items, "priority");
+    $html3d = "";
+    $count3d = 0;
     foreach ($items as $survey_item)
     {
         if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}"))
         {
+            $count3d++;
             $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
             $iframe_href = "{$_FN['siteurl']}openkis_cave_viewer.php?f={$file}";
-//            echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
- //           dprint_r($survey_item);
-            echo "<br/>{$survey_item['name']}: <a class=\"btn btn-primary\" href=\"$iframe_href\" target=\"_blank\">" . FN_Translate("3D Viewer") . "</a><br />";
+            // Use the survey name as button label, fall back to a numbered generic label
+            $title3d = trim((string) $survey_item['name']);
+            if ($title3d === "")
+            {
+                $title3d = "Modello 3D" . ($count3d > 1 ? " $count3d" : "");
+            }
+            $html3d .= "<a class=\"btn btn-primary m-1\" href=\"$iframe_href\" target=\"_blank\">&#10696; " . htmlspecialchars($title3d) . "</a>";
         }
+    }
+    if ($html3d !== "")
+    {
+        echo "<div class=\"alert alert-secondary\">";
+        echo "<h5>" . FN_Translate("3D Viewer") . ":</h5>";
+        echo $html3d;
+        echo "</div>";
     }
 }
 
@@ -281,8 +295,11 @@ if (!empty($_GET['export_pdf']))
 }
 $urlexport = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1");
 $urlexportpdf = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1&format=pdf");
-echo "<br/><a class=\"btn btn-primary\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a>";
-echo " <a class=\"btn btn-secondary\" href=\"$urlexportpdf\" target=\"_blank\">Scarica PDF</a><br />";
+echo "<div class=\"alert alert-info\">";
+echo "<h5>Scheda catastale:</h5>";
+echo "<a class=\"btn btn-primary m-1\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a>";
+echo "<a class=\"btn btn-secondary m-1\" href=\"$urlexportpdf\" target=\"_blank\">Scarica PDF</a>";
+echo "</div>";
 
 //------------------generazione scheda catastale------------------------<
 

@@ -247,7 +247,7 @@ function get_html_pdf($id)
         $html .= '<script>document.addEventListener("DOMContentLoaded", function() {
             var map = L.map("map").setView([' . $data['lat'] . ', ' . $data['lon'] . '], ' . ($data['isIGM'] ? '13' : '15') . ');';
         if ($data['isIGM']) {
-            $html .= 'L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png",{maxZoom:18,attribution:"CartoDB"}).addTo(map);
+            $html .= 'L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,maxNativeZoom:16,attribution:"Esri"}).addTo(map);
             L.tileLayer.wms("https://sgi2.isprambiente.it/arcgis/services/raster/igm25k_liguria_wgs/ImageServer/WMSServer",{layers:"igm25k_liguria_wgs",format:"image/png",transparent:true,version:"1.1.1",attribution:"IGM 1:25000 Liguria"}).addTo(map);';
         } else {
             $html .= 'L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17,attribution:"OpenTopoMap"}).addTo(map);';

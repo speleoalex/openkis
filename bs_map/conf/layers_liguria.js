@@ -3,7 +3,8 @@ OPS_Map.MyAddLayers = function () {
     //
     OPS_Map.addOSMLayer("Topo", 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png', true, true, null, 17);
     OPS_Map.addOSMLayer("Satellite", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", true, false);
-    OPS_Map.addOSMLayer("Bianco", 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png', true, false);
+    // CARTO basemaps now require an API key: use Esri Light Gray Canvas (keyless, native tiles up to z16)
+    OPS_Map.addOSMLayer("Bianco", "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", true, false, "Anonymous", 16);
     //OPS_Map.addOSMLayer("OSM Landscape", "https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=" + API_KEYS.THUNDERFOREST, true, false);
     //(title, url, layername, isBaselayer, visible, format, projecton)
     OPS_Map.addWMSLayer("IGM 1:25000", "openkis_proxy.php/http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_25000.map&", 'CB.IGM25000', false, false, "image/png", 'EPSG:4326');
