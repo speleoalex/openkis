@@ -8,7 +8,9 @@
 - 3D cave visualization (CaveView.js)
 - Multi-region support with customizable themes
 - Data export: KML, GPX, JSON, Shapefile
-- REST / MCP API endpoints
+- REST API endpoints
+- MCP server (`openkis_mcp.php`) for AI assistants, with personal API keys and
+  read only access by default
 
 ## Requirements
 
@@ -117,6 +119,14 @@ the first time each section is opened. No SQL dump is needed.
   in `extra/openkis/custom/` (automatic cave numbering, PDF sheets, map
   centre). Themes `openkis_liguria`, `openkis_lombardia`, ... extend the base
   `openkis` theme.
+
+- **MCP server** (optional): AI assistants (Claude, ChatGPT, ...) can query and,
+  if allowed, edit the database through `openkis_mcp.php`. An administrator
+  enables the users in **Configuration > MCP server** (group `mcp_users`);
+  enabled users generate their key on the same page. Keys are read only unless
+  the administrator allows the write tools (group `mcp_write`). Connect with:
+  `claude mcp add --transport http openkis https://<site>/openkis_mcp.php --header "X-API-Key: <key>"`.
+  See [docs/MCP_SERVER.md](docs/MCP_SERVER.md).
 
 ### XAMPP notes (Linux, `/opt/lampp`)
 
