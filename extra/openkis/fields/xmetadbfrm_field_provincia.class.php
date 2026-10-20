@@ -28,6 +28,8 @@ class xmetadbfrm_field_provincia
         $html="$htmljs";
         $htmljs="";
         $html.="<select onchange=\"updateComuni();\" id=\"select_provincia\" name=\"{$params['name']}\">";
+        // empty option, so that the field can be left unset
+        $html.="<option value=\"\"></option>";
         foreach($province as $provincia)
         {
             $s=($provincia['name']== $params['value']) ? "selected=\"selected\"" : "";

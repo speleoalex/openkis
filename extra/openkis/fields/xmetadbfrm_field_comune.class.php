@@ -22,6 +22,8 @@ class xmetadbfrm_field_comune
         $html="$htmljs";
         $htmljs="";
         $html.="<select id=\"select_comune\" name=\"{$params['name']}\">";
+        // empty option, so that the field can be left unset
+        $html.="<option value=\"\"></option>";
         //$html.="<option selected=\"selected\" value=\"{$params['value']}\">{$params['value']} </option>";
         foreach($comuni as $comune)
         {

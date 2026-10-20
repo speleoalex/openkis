@@ -36,6 +36,8 @@ class xmetadbfrm_field_regione
         $html="$htmljs";
         $htmljs="";
         $html.="<select id=\"select_regione\" onchange=\"updateProvince();\" name=\"{$params['name']}\">";
+        // empty option, so that the field can be left unset
+        $html.="<option value=\"\"></option>";
         foreach($regioni as $code=> $regione)
         {
             $s=($regione['name']== $params['value']) ? "selected=\"selected\"" : "";
