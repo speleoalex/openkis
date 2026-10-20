@@ -14,7 +14,7 @@
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
 	<level></level>
-	<group_view>catasto_scrittura</group_view>
+	<group_view>w_caves</group_view>
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>

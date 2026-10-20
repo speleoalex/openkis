@@ -14,7 +14,7 @@
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
 	<level></level>
-	<group_view>fauna,catasto_scrittura,archeologi,curatori</group_view>
+	<group_view>w_fauna,w_caves,archaeologists,curators</group_view>
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>

@@ -27,8 +27,8 @@
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert>fauna</groupinsert>
-	<groupadmin>fauna</groupadmin>
+	<groupinsert>w_fauna</groupinsert>
+	<groupadmin>w_fauna</groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>

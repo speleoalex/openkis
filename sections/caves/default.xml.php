@@ -51,7 +51,7 @@
 	<table_rules>ctl_caves_rules</table_rules>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
-	<permissions_records_groups>r_caves,w_caves,grotte_nascoste,archeologi</permissions_records_groups>
+	<permissions_records_groups>r_caves,w_caves,hidden_caves,archaeologists</permissions_records_groups>
 	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
 	<enable_history>1</enable_history>
 	<enable_export>1</enable_export>
