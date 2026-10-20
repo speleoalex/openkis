@@ -93,13 +93,35 @@ function DrawFile($file)
     $color[1] = "#eaeaea";
     $color2[0] = "#f3e49c";
     $color2[1] = "#f3e4c8";
-    $icon = $_FN['siteurl'] . "images/mime/pdf.png";
-    $tit = basename($file);
-    $l2 = $_FN['siteurl'] . "ops_getfile.php?f=$file";
+    $tit = htmlspecialchars(basename($file));
+    // the path may contain spaces and special characters: encode it in the URL
+    $fileurl = str_replace("%2F", "/", rawurlencode($file));
+    $l2 = $_FN['siteurl'] . "ops_getfile.php?f=$fileurl";
     $ext = strtolower(FN_GetFileExtension($file));
+    switch ($ext)
+    {
+        case "pdf":
+            $icon = $_FN['siteurl'] . "images/mime/pdf.png";
+            break;
+        case "doc":
+        case "docx":
+        case "odt":
+        case "rtf":
+            $icon = $_FN['siteurl'] . "images/mime/doc.png";
+            break;
+        case "txt":
+        case "csv":
+        case "tro":
+        case "th":
+        case "svx":
+            $icon = $_FN['siteurl'] . "images/mime/text.png";
+            break;
+        default:
+            $icon = $_FN['siteurl'] . "images/mime/unknown.png";
+    }
     if ($ext == "jpg" || $ext == "jpeg" || $ext == "png")
     {
-        $icon = "{$_FN['siteurl']}/thumb.php?f=$file&amp;h=300&amp;w=300";
+        $icon = "{$_FN['siteurl']}thumb.php?f=$fileurl&amp;h=300&amp;w=300";
     }
     echo "\n<div class=\"card col-12  col-xs-12 col-sm-3 col-lg-2\"  >";
     echo "<a class=\"\" target=\"_blank\" href=\"$l2\"><img class=\"card-img-top\" src='$icon' alt=\"\" /></a>";
