@@ -793,7 +793,7 @@ function mcp_Tool_upload($args)
     $id = isset($args['id']) ? (string) $args['id'] : "";
     $field = isset($args['field']) ? (string) $args['field'] : "";
     mcp_CheckField($Table, $field);
-    if (!in_array($Table->fields[$field]->type, array("file", "image")))
+    if (!xmetadb_is_file_field($Table->fields[$field]))
         throw new McpToolError("field $field is not a file/image field");
     $sources = 0;
     foreach (array("content_base64", "url", "from_id", "clear") as $k)
@@ -1110,7 +1110,7 @@ function mcp_CheckWritableFields($Table, $values)
     foreach ($values as $k => $v)
     {
         mcp_CheckField($Table, $k);
-        if (in_array($Table->fields[$k]->type, array("file", "image")))
+        if (xmetadb_is_file_field($Table->fields[$k]))
             throw new McpToolError("field $k is a file/image field, upload not supported");
         if (is_array($v) || is_object($v))
             throw new McpToolError("field $k: scalar value expected");
