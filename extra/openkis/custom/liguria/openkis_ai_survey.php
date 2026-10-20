@@ -11,6 +11,12 @@
  * GET parameters:
  *   mod    = caves | artificials
  *   survey = numeric id of the record in ctl_surveys / ctl_surveys_artificials
+ *   cached = 1: return the saved analysis only, without calling the API
+ *            ({"ok":false} when there is none or the image has changed)
+ *
+ * Every successful analysis is saved in {datadir}/_cache/openkis_ai_survey/
+ * keyed by the md5 of the image, so the edit form can show the last result
+ * as long as the survey image stays the same.
  *
  * Requirements:
  *   - logged in user (any group);
@@ -120,6 +126,39 @@ $max_bytes = 15 * 1024 * 1024;
 if (filesize($image_file) > $max_bytes)
 {
     openkis_ai_survey_Reply(array("error" => "Immagine troppo grande (oltre 15 MB)"), 413);
+}
+
+$survey_meta = array(
+    "id" => $survey_id,
+    "name" => isset($survey['name']) ? $survey['name'] : "",
+    "date" => isset($survey['date']) ? $survey['date'] : "",
+    "author" => isset($survey['author']) ? $survey['author'] : "",
+    "file" => basename($photo1),
+);
+
+// Saved analyses: one JSON file per survey, reused only while the image
+// checksum stays the same
+$image_md5 = md5_file($image_file);
+$ai_cache_dir = (!empty($_FN['datadir']) ? $_FN['datadir'] : "misc") . "/_cache/openkis_ai_survey";
+$ai_cache_file = "{$ai_cache_dir}/{$surveys_table}_{$survey_id}.json";
+
+if (!empty($_GET['cached']))
+{
+    // Read-only mode: never calls the API (used on page load)
+    $saved = is_file($ai_cache_file) ? json_decode(file_get_contents($ai_cache_file), true) : null;
+    if (is_array($saved) && isset($saved['image_md5']) && isset($saved['analysis'])
+        && $saved['image_md5'] === $image_md5 && is_array($saved['analysis']))
+    {
+        openkis_ai_survey_Reply(array(
+            "ok" => true,
+            "cached" => true,
+            "analyzed_at" => isset($saved['analyzed_at']) ? $saved['analyzed_at'] : "",
+            "survey" => $survey_meta,
+            "model" => isset($saved['model']) ? $saved['model'] : "",
+            "analysis" => $saved['analysis'],
+        ));
+    }
+    openkis_ai_survey_Reply(array("ok" => false, "cache" => "miss"));
 }
 
 // Cadastral record data used by the prompt to cross-check the name drawn on
@@ -271,15 +310,24 @@ if (!is_array($analysis))
     openkis_ai_survey_Reply(array("error" => "JSON non valido nella risposta AI", "raw" => $content), 502);
 }
 
+// Save the result so the edit form can show it again without a new API call
+$analyzed_at = date("Y-m-d H:i");
+if (!is_dir($ai_cache_dir))
+{
+    @mkdir($ai_cache_dir, 0755, true);
+}
+@file_put_contents($ai_cache_file, json_encode(array(
+    "image_md5" => $image_md5,
+    "analyzed_at" => $analyzed_at,
+    "model" => $openai_model,
+    "analysis" => $analysis,
+), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
 openkis_ai_survey_Reply(array(
     "ok" => true,
-    "survey" => array(
-        "id" => $survey_id,
-        "name" => isset($survey['name']) ? $survey['name'] : "",
-        "date" => isset($survey['date']) ? $survey['date'] : "",
-        "author" => isset($survey['author']) ? $survey['author'] : "",
-        "file" => basename($photo1),
-    ),
+    "cached" => false,
+    "analyzed_at" => $analyzed_at,
+    "survey" => $survey_meta,
     "model" => $openai_model,
     "analysis" => $analysis,
 ));

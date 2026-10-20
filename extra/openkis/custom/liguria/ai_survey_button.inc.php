@@ -4,12 +4,16 @@
  * Liguria: AI survey analysis button for the record edit form.
  *
  * Included by extra/openkis/custom/liguria/bottom_edit_{caves,artificials}.php
- * through the region hook at the end of sections/<mod>/bottom_edit.php, so it
- * runs in that scope: $id (record key), $_FN['mod'], $html.
+ * through the region hook in sections/<mod>/bottom_edit.php, so it runs in
+ * that scope: $id (record key), $_FN['mod'], $html.
  *
- * If the record has at least one survey with an image, it appends a button
+ * If the record has at least one survey with an image, it prepends to the top
+ * of the form (the validator banner, prepended afterwards, stays above) a button
  * that calls openkis_ai_survey.php asynchronously and renders the compliance
  * checks (CampiScheda-20250327) returned by the OpenAI vision model.
+ * On page load (and when another survey is selected) the last saved analysis
+ * is shown automatically via the endpoint's cached=1 read-only mode, which
+ * never triggers an API call; the button re-runs the full analysis.
  * Nothing is shown when there are no survey images or no API key configured.
  */
 if (!isset($id) || $id === "" || empty($_FN['mod']))
@@ -119,7 +123,7 @@ else
     $ai_selector .= "</select>";
 }
 
-$html .= <<<HTML
+$ai_box = <<<HTML
 <div id="openkis_ai_survey_box" style="margin:10px 0;">
     {$ai_selector}
     <button type="button" id="openkis_ai_survey_btn" class="btn btn-secondary btn-default">
@@ -157,69 +161,99 @@ $html .= <<<HTML
             "background:" + (v === "Y" ? "#28a745" : (v === "N" ? "#dc3545" : "#6c757d")) + ";";
         return span;
     }
-    btn.addEventListener("click", function () {
+    function showError(message) {
+        var err = document.createElement("div");
+        err.className = "alert alert-danger";
+        err.textContent = message;
+        box.innerHTML = "";
+        box.appendChild(err);
+    }
+    function showResult(data) {
+        var panel = document.createElement("div");
+        panel.className = "alert alert-info";
+        var title = document.createElement("strong");
+        var meta = [];
+        if (data.survey) {
+            if (data.survey.name) { meta.push(data.survey.name); }
+            if (data.survey.date) { meta.push(data.survey.date); }
+            if (data.survey.file) { meta.push(data.survey.file); }
+        }
+        title.textContent = "Analisi AI del rilievo" + (meta.length ? " (" + meta.join(" - ") + ")" : "");
+        panel.appendChild(title);
+        if (data.analyzed_at) {
+            var when = document.createElement("div");
+            when.style.cssText = "font-size:85%;opacity:0.8;";
+            when.textContent = (data.cached ? "Ultima analisi: " : "Analisi del: ") + data.analyzed_at;
+            panel.appendChild(when);
+        }
+        var list = document.createElement("div");
+        list.style.cssText = "margin-top:6px;column-width:280px;";
+        for (var key in labels) {
+            if (!Object.prototype.hasOwnProperty.call(labels, key)) { continue; }
+            var row = document.createElement("div");
+            row.style.cssText = "margin:2px 0;break-inside:avoid;";
+            row.appendChild(badge(data.analysis ? data.analysis[key] : "?"));
+            row.appendChild(document.createTextNode(labels[key]));
+            list.appendChild(row);
+        }
+        panel.appendChild(list);
+        if (data.analysis && data.analysis.note_generali) {
+            var note = document.createElement("div");
+            note.style.marginTop = "6px";
+            note.textContent = "Note: " + data.analysis.note_generali;
+            panel.appendChild(note);
+        }
+        var disclaimer = document.createElement("div");
+        disclaimer.style.cssText = "margin-top:6px;font-size:85%;opacity:0.8;";
+        disclaimer.textContent = "Analisi automatica sperimentale (" + (data.model || "AI") + "): verificare sempre i risultati.";
+        panel.appendChild(disclaimer);
+        box.innerHTML = "";
+        box.appendChild(panel);
+        btn.textContent = "Aggiorna analisi AI";
+    }
+    function runAnalysis(cachedOnly) {
         var surveyId = sel ? sel.value : "";
         if (!surveyId) { return; }
-        btn.disabled = true;
-        box.innerHTML = "";
-        status.textContent = "Analisi in corso (10-30 secondi)...";
-        var url = "{$ai_endpoint}?mod={$ai_mod_escaped}&survey=" + encodeURIComponent(surveyId);
+        if (!cachedOnly) {
+            btn.disabled = true;
+            box.innerHTML = "";
+            status.textContent = "Analisi in corso (10-30 secondi)...";
+        }
+        var url = "{$ai_endpoint}?mod={$ai_mod_escaped}&survey=" + encodeURIComponent(surveyId) + (cachedOnly ? "&cached=1" : "");
         fetch(url, {credentials: "same-origin"})
             .then(function (resp) { return resp.json(); })
             .then(function (data) {
                 btn.disabled = false;
                 status.textContent = "";
-                if (!data || data.error) {
-                    var err = document.createElement("div");
-                    err.className = "alert alert-danger";
-                    err.textContent = (data && data.error) ? data.error : "Errore sconosciuto";
-                    box.appendChild(err);
+                if (data && data.ok) {
+                    showResult(data);
                     return;
                 }
-                var panel = document.createElement("div");
-                panel.className = "alert alert-info";
-                var title = document.createElement("strong");
-                var meta = [];
-                if (data.survey) {
-                    if (data.survey.name) { meta.push(data.survey.name); }
-                    if (data.survey.date) { meta.push(data.survey.date); }
-                    if (data.survey.file) { meta.push(data.survey.file); }
-                }
-                title.textContent = "Analisi AI del rilievo" + (meta.length ? " (" + meta.join(" - ") + ")" : "");
-                panel.appendChild(title);
-                var list = document.createElement("div");
-                list.style.cssText = "margin-top:6px;column-width:280px;";
-                for (var key in labels) {
-                    if (!Object.prototype.hasOwnProperty.call(labels, key)) { continue; }
-                    var row = document.createElement("div");
-                    row.style.cssText = "margin:2px 0;break-inside:avoid;";
-                    row.appendChild(badge(data.analysis ? data.analysis[key] : "?"));
-                    row.appendChild(document.createTextNode(labels[key]));
-                    list.appendChild(row);
-                }
-                panel.appendChild(list);
-                if (data.analysis && data.analysis.note_generali) {
-                    var note = document.createElement("div");
-                    note.style.marginTop = "6px";
-                    note.textContent = "Note: " + data.analysis.note_generali;
-                    panel.appendChild(note);
-                }
-                var disclaimer = document.createElement("div");
-                disclaimer.style.cssText = "margin-top:6px;font-size:85%;opacity:0.8;";
-                disclaimer.textContent = "Analisi automatica sperimentale (" + (data.model || "AI") + "): verificare sempre i risultati.";
-                panel.appendChild(disclaimer);
-                box.appendChild(panel);
+                // Cached lookup with no valid saved analysis: stay silent,
+                // the user can run the analysis with the button
+                if (cachedOnly) { return; }
+                showError((data && data.error) ? data.error : "Errore sconosciuto");
             })
             .catch(function (e) {
                 btn.disabled = false;
                 status.textContent = "";
-                var err = document.createElement("div");
-                err.className = "alert alert-danger";
-                err.textContent = "Errore di rete: " + e;
-                box.appendChild(err);
+                if (cachedOnly) { return; }
+                showError("Errore di rete: " + e);
             });
-    });
+    }
+    btn.addEventListener("click", function () { runAnalysis(false); });
+    if (sel && sel.tagName === "SELECT") {
+        sel.addEventListener("change", function () {
+            box.innerHTML = "";
+            btn.textContent = "Analizza rilievo con AI";
+            runAnalysis(true);
+        });
+    }
+    // Show the last saved analysis (if the image is unchanged) on page load
+    runAnalysis(true);
 })();
 </script>
 <hr />
 HTML;
+// Prepend: the box goes above the edit form, below the validator banner
+$html = $ai_box . $html;

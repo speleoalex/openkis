@@ -6,6 +6,19 @@ if ($id === "")
     $id = FN_GetParam("id", $_POST, "html");
 }
 
+// Region hook: a region can add its own additions to the edit form with
+// extra/openkis/custom/<region>/bottom_edit_<mod>.php. It runs before the
+// validator block, so content prepended by the region ends up right below
+// the validator banner at the top of the form.
+if (!empty($_FN['openkis_custom']))
+{
+    $region_bottom_edit = "extra/openkis/custom/{$_FN['openkis_custom']}/bottom_edit_{$_FN['mod']}.php";
+    if (file_exists($region_bottom_edit))
+    {
+        include $region_bottom_edit;
+    }
+}
+
 // Record validator: shows an informative banner above the edit form with the
 // missing or non-uniform data. It never blocks saving. Default rules are in
 // extra/openkis_validator.inc.php, regions can override them with
@@ -32,15 +45,4 @@ if (file_exists("extra/openkis_validator.inc.php"))
 }
 
 $html .= "<hr /><a class=\"btn btn-primary\" href=\"{$_FN['siteurl']}openkis_photos.php?id={$id}&t=ctl_{$_FN['mod']}\">Inserimento rapido foto</a><hr />";
-
-// Region hook: a region can append its own additions to the edit form with
-// extra/openkis/custom/<region>/bottom_edit_<mod>.php
-if (!empty($_FN['openkis_custom']))
-{
-    $region_bottom_edit = "extra/openkis/custom/{$_FN['openkis_custom']}/bottom_edit_{$_FN['mod']}.php";
-    if (file_exists($region_bottom_edit))
-    {
-        include $region_bottom_edit;
-    }
-}
 ?>
