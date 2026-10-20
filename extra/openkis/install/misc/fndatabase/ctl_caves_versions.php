@@ -158,6 +158,18 @@
         <frm_size>8</frm_size>
     </field>
     <field>
+        <name>lenght_scope</name>
+        <frm_it>Sviluppo riferito a</frm_it>
+        <frm_en>Development refers to</frm_en>
+        <type>radio</type>
+        <frm_options>total,partial</frm_options>
+        <frm_options_it>complessivo (intera grotta),parziale (solo questo ingresso)</frm_options_it>
+        <frm_options_en>whole cave,this entrance only</frm_options_en>
+        <frm_default>total</frm_default>
+        <frm_help_it>Indica se sviluppo e dislivelli della scheda si riferiscono all'intera grotta (complessivo) o solo al ramo di questo ingresso (parziale). Parziale con sviluppo vuoto = ingresso che non aggiunge sviluppo proprio. Le schede storiche non ancora classificate restano vuote.</frm_help_it>
+        <frm_help_en>States whether development and depth refer to the whole cave (total) or only to the branch of this entrance (partial). Partial with empty development = entrance adding no development of its own. Unclassified historic records stay empty.</frm_help_en>
+    </field>
+    <field>
         <name>depth_positive</name>
         <type>string</type>
         <frm_type>os_lenght</frm_type>
