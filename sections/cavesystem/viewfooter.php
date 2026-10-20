@@ -1,5 +1,19 @@
 <?php
 
+// Refresh the computed development before showing the record, so edits made
+// outside the save hooks (imports, table_editor) are picked up too. The time
+// stamp inside openkis_UpdateCaveSystems() makes this a no-op on most views.
+if (function_exists("openkis_UpdateCaveSystems") && isset($row['id']))
+{
+    openkis_UpdateCaveSystems();
+    $systems_refresh = FN_XMDBTable("ctl_cavesystems");
+    $row_refresh = is_object($systems_refresh) ? $systems_refresh->GetRecordByPk($row['id']) : false;
+    if (is_array($row_refresh))
+    {
+        $row = $row_refresh;
+    }
+}
+
 $zoom=8;
 $baselayer="";
 $lat=45;
@@ -142,9 +156,10 @@ foreach($items as $item)
         }
     }
 
-    if (isset($item['elevation']) && $item['elevation']!== "")
+    // elevation of this entrance, empty when unknown (reset for every item)
+    $quota=(isset($item['elevation']) && $item['elevation']!== "") ? $item['elevation'] : "";
+    if ($quota!== "")
     {
-        $quota=$item['elevation'];
         $punto_piu_basso=$quota - abs(intval($item['depth_negative']));
         $punto_piu_alto=$quota + abs(intval($item['depth_positive']));
         if ($max_quota_gr=== false || $punto_piu_alto > $max_quota_gr)
@@ -158,7 +173,7 @@ foreach($items as $item)
     }
     if (isset($item['code']))
     {
-        $html.="<br /><b>{$item['code']}</b> <a target = \"_blank\" href=\"".FN_Rewritelink("index.php?mod=Navigator&op=view&id={$item['code']}")."\">{$item['name']}</a>  <em>SV.R.{$item['lenght_total']}  P.{$item['depth_total']}</em> $latlon Q.$quota";
+        $html.="<br /><b>{$item['code']}</b> <a target = \"_blank\" href=\"".FN_Rewritelink("index.php?mod=Navigator&op=view&id={$item['code']}")."\">{$item['name']}</a>  <em>SV.R.{$item['lenght_total']}  P.{$item['depth_total']}</em> $latlon".($quota!== "" ? " Q.$quota" : "");
     }
 }
 
@@ -208,25 +223,24 @@ else
 $dislivelloTotDaIngressoPiuAlto=$cave_max_quota['elevation'] - $min_quota_gr;
 
 //----------quote e dislivelli -----<
-//----------aggiorno automaticamente lo sviluppo reale del complesso con i dati presenti a catasto --->
 
+// Show the stored record values. The per-entrance sum double counts caves that
+// carry the whole-cave development on every entrance, so this view must not
+// overwrite the record; recomputation will move to a dedicated scope-aware
+// function (see the 2026-10-20 proposal in liguria doc/validazione).
 $sviluppo=round($sviluppo);
 $dislivelloTot=round($dislivelloTot);
 
-if ($row['lenght_total']!= $sviluppo || $row['depth_total']!= $dislivelloTot)
+echo "<div>Sviluppo reale complesso: <b>{$row['lenght_total']} m.</b></div>";
+if ($sviluppo!= intval($row['lenght_total']))
 {
-    $id=FN_GetParam("id",$_GET,"html");
-    $TableSystem=FN_XMDBTable($tablename);
-    $snewvalues=$TableSystem->GetRecordByPrimaryKey($id);
-    $snewvalues['lenght_total']=$sviluppo;
-    $snewvalues['depth_total']=$dislivelloTot;
-    $TableSystem->UpdateRecord($snewvalues);
+    echo "<div style=\"color:grey\">Somma degli sviluppi delle schede: $sviluppo m.</div>";
 }
-//----------aggiorno automaticamente lo sviluppo reale del complesso con i dati presenti a catasto ---<
-echo "<div>Sviluppo reale complesso: <b>$sviluppo m.</b> (calcolato sommando lo sviluppo reale delle cavità)</div>";
-
-
-echo "<div>Dislivello totale complesso: <b>$dislivelloTot m.</b></div>";
+echo "<div>Dislivello totale complesso: <b>{$row['depth_total']} m.</b></div>";
+if ($dislivelloTot!= intval($row['depth_total']))
+{
+    echo "<div style=\"color:grey\">Dislivello calcolato dalle quote degli ingressi: $dislivelloTot m.</div>";
+}
 echo "<div>Profondità calcolata dall'ingresso più alto al punto più profondo: <b>$dislivelloTotDaIngressoPiuAlto m.</b></div>";
 
 echo $htmlquote;

@@ -59,6 +59,18 @@
         <frm_size>8</frm_size>
         <frm_showinlist>1</frm_showinlist>
     </field>
+    <field>
+        <name>lenght_auto</name>
+        <frm_it>Ricalcolo automatico dello sviluppo</frm_it>
+        <frm_en>Automatic development recalculation</frm_en>
+        <type>radio</type>
+        <frm_options>Y,N</frm_options>
+        <frm_options_i18n>yes,no</frm_options_i18n>
+        <frm_default>Y</frm_default>
+        <view_show>0</view_show>
+        <frm_help_it>Si (o vuoto): lo sviluppo del complesso viene ricalcolato dalle schede collegate con "Sviluppo riferito a" compilato (massimo degli sviluppi complessivi; in mancanza, somma dei parziali). No: lo sviluppo inserito a mano non viene toccato, da usare per giunzioni recenti non ancora riportate sulle schede. Il dislivello non viene mai ricalcolato.</frm_help_it>
+        <frm_help_en>Yes (or empty): the system development is recalculated from the linked records whose "Development refers to" is set (maximum of the whole-cave values; otherwise sum of the partial ones). No: the development entered by hand is kept, for fresh junctions not yet reported on the records. Depth is never recalculated.</frm_help_en>
+    </field>
 
     <field>
         <name>caves</name>

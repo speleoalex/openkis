@@ -75,6 +75,119 @@ function openkis_UpdateCoords($mod, $forceall = false)
 }
 
 /**
+ * Recomputes the development (lenght_total) of the cave systems from the
+ * member records, following the per-record scope (ctl_caves.lenght_scope)
+ * and the per-system switch (ctl_cavesystems.lenght_auto):
+ *
+ *  - lenght_auto = "N": the stored value is kept (entered by hand, e.g. a
+ *    fresh junction not yet reported on the member records);
+ *  - members with lenght_scope = "total" and a non-empty development: the
+ *    system development is the maximum of those values (each one describes
+ *    the whole cave, summing them would count the same passages many times);
+ *  - otherwise, members with lenght_scope = "partial": the system development
+ *    is the sum of their values (an empty value counts as zero: an entrance
+ *    that adds no development of its own);
+ *  - no classified member: the record is left untouched (legacy systems whose
+ *    member records have not been classified yet).
+ *
+ * depth_total is never recalculated: the depth of a system cannot be derived
+ * from the member records alone.
+ *
+ * Cheap to call on every request: a time stamp file makes it a no-op until
+ * ctl_caves or ctl_cavesystems changes (same pattern as openkis_UpdateCoords).
+ * Does nothing when the instance does not have the lenght_scope/lenght_auto
+ * fields installed.
+ *
+ * @param bool $forceall recompute even when the tables did not change
+ * @return void
+ */
+function openkis_UpdateCaveSystems($forceall = false)
+{
+    global $_FN;
+    $systems_table = FN_XMDBTable("ctl_cavesystems");
+    $caves_table = FN_XMDBTable("ctl_caves");
+    if (!is_object($systems_table) || !is_object($caves_table))
+        return;
+    // both sides of the feature must be installed on this instance
+    if (!isset($caves_table->fields['lenght_scope']) || !isset($systems_table->fields['lenght_auto']))
+        return;
+    $file_lastUpdate = "{$_FN['datadir']}/_cache/openkis_UpdateCaveSystems.time";
+    if (!file_exists($file_lastUpdate))
+    {
+        // when the cache dir is not writable (e.g. CLI run as another user)
+        // just recompute every time instead of failing
+        $fp = @fopen($file_lastUpdate, "a");
+        if (is_resource($fp))
+            fclose($fp);
+        $forceall = true;
+    }
+    if (!$forceall && $caves_table->GetLastUpdateTime() <= filectime($file_lastUpdate) && $systems_table->GetLastUpdateTime() <= filectime($file_lastUpdate))
+    {
+        return;
+    }
+    // member data in one query: code => lenght_total, lenght_scope
+    $caves = array();
+    $rows = FN_XMETADBQuery("SELECT code,lenght_total,lenght_scope FROM ctl_caves");
+    $systems = FN_XMETADBQuery("SELECT id,caves,lenght_total,lenght_auto FROM ctl_cavesystems");
+    if (!is_array($rows) || !is_array($systems))
+        return;
+    foreach ($rows as $cave)
+    {
+        $caves[trim(strval($cave['code']))] = $cave;
+    }
+    foreach ($systems as $system)
+    {
+        if (strtoupper(trim(strval($system['lenght_auto']))) == "N")
+            continue;
+        $totals = array();
+        $partials = array();
+        foreach (explode(",", strval($system['caves'])) as $code)
+        {
+            $code = trim($code);
+            if ($code === "" || !isset($caves[$code]))
+                continue;
+            $scope = trim(strval($caves[$code]['lenght_scope']));
+            $lenght = trim(strval($caves[$code]['lenght_total']));
+            if ($scope == "total" && $lenght !== "")
+                $totals[] = intval($lenght);
+            elseif ($scope == "partial")
+                $partials[] = intval($lenght);
+        }
+        if (count($totals) > 0)
+            $value = max($totals);
+        elseif (count($partials) > 0)
+            $value = array_sum($partials);
+        else
+            continue;
+        if (intval($system['lenght_total']) == $value)
+            continue;
+        $systems_table->UpdateRecordBypk(array("lenght_total" => strval($value)), "id", $system['id']);
+    }
+    @touch($file_lastUpdate);
+}
+
+/**
+ * dbview callback (function_on_update / function_on_insert of the sections
+ * "caves" and "cavesystem"): refreshes the systems after every save, from the
+ * web UI and from the MCP server. The time stamp inside
+ * openkis_UpdateCaveSystems() keeps it cheap.
+ *
+ * @param array $record the saved record (not used)
+ * @return void
+ */
+function openkis_OnSaveUpdateCaveSystems($record)
+{
+    openkis_UpdateCaveSystems();
+}
+
+// Register the save callbacks. Nothing else writes these entries: the dbview
+// section initialises $_FN['modparams'][mod]['editorparams'] only when unset.
+$_FN['modparams']['caves']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
+$_FN['modparams']['caves']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
+$_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
+$_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
+
+/**
  * Map exports cache (openkis_kml.php, openkis_gpx.php, openkis_json.php,
  * openkis_markers.js.php).
  *
