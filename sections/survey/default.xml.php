@@ -27,7 +27,7 @@
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert></groupinsert>
+	<groupinsert>w_caves</groupinsert>
 	<groupadmin></groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>

@@ -51,7 +51,7 @@ class xmetadbfrm_field_selectfilter
 
         $html = "<input type=\"text\" class=\"form-control\" id=\"{$uid}_filter\" autocomplete=\"off\" placeholder=\"$placeholder...\" style=\"margin-bottom:4px\" "
                 . "oninput=\"selectfilter_apply('{$uid}')\" onkeydown=\"if(event.key==='Enter'){event.preventDefault();return false;}\" />";
-        $html .= "<select $attributes id=\"{$uid}\" name=\"" . htmlspecialchars($name) . "\">";
+        $html .= "<select $attributes id=\"{$uid}\" name=\"" . htmlspecialchars($name) . "\" onchange=\"selectfilter_collapse('{$uid}')\">";
         $html .= "\n\t<option value=\"\">----</option>$htmloptions\n</select>";
         $html .= "\n<script type=\"text/javascript\">
 var selectfilter_options = selectfilter_options || {};
@@ -100,6 +100,21 @@ if (typeof selectfilter_apply !== 'function') {
         if (words.length > 0 && sel.options.length === 2 && current === '') {
             sel.selectedIndex = 1;
             selectfilter_auto[uid] = sel.value;
+        }
+        // while a filter is typed show the matches as an open list,
+        // otherwise go back to the normal dropdown
+        if (words.length > 0 && sel.options.length > 2) {
+            sel.size = Math.min(sel.options.length, 10);
+        } else {
+            sel.removeAttribute('size');
+        }
+    }
+    // a value picked from the open list closes it again
+    function selectfilter_collapse(uid) {
+        var sel = document.getElementById(uid);
+        if (sel.value !== '') {
+            sel.removeAttribute('size');
+            selectfilter_auto[uid] = '';
         }
     }
 }
