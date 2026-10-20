@@ -45,7 +45,17 @@
                         <div class="form-group row">        
                             <label class="col-sm-3 col-form-label" for="search_fields{name}">{title}:</label>
                             <div class="col-sm-9">
+                                <!-- if {options} -->
+                                <select class="form-control" id="search_fields{name}" name="{name}">
+                                    <option value=""></option>
+                                    <!-- foreach {options} -->
+                                    <option value="{value}" {selected}>{title}</option>
+                                    <!-- end foreach {options} -->
+                                </select>
+                                <!-- end if {options} -->
+                                <!-- if not {options} -->
                                 <input type="text" class="form-control" id="search_fields{name}" name="{name}" value="{value}" placeholder="{suffix}">
+                                <!-- end if not {options} -->
                             </div>
                         </div>
                         <!-- end foreach {search_fields} -->
@@ -53,7 +63,17 @@
                         <div class="form-group row">        
                             <label class="col-sm-3 col-form-label" for="search_partfields{name}">{title}:</label>
                             <div class="col-sm-9">
+                                <!-- if {options} -->
+                                <select class="form-control" id="search_partfields{name}" name="{name}">
+                                    <option value=""></option>
+                                    <!-- foreach {options} -->
+                                    <option value="{value}" {selected}>{title}</option>
+                                    <!-- end foreach {options} -->
+                                </select>
+                                <!-- end if {options} -->
+                                <!-- if not {options} -->
                                 <input type="text" class="form-control" id="search_partfields{name}" name="{name}" value="{value}" placeholder="{suffix}">
+                                <!-- end if not {options} -->
                             </div>
                         </div>
                         <!-- end foreach {search_partfields} -->        
