@@ -17,6 +17,7 @@
  *
  * Loaded on demand by openkis_ValidateRecord() in extra/openkis_validator.inc.php.
  */
+require_once __DIR__ . "/ai_survey_analysis.inc.php";
 
 /**
  * @param array $row      ctl_artificials record values
@@ -85,8 +86,9 @@ function openkis_ValidateRecord_custom_artificials($row, $findings)
             return $tb - $ta;
         });
         $latest = $surveys[0];
+        // The cave name on the drawing is not a record field: it is checked
+        // by the AI analysis below, when available
         $surveychecks = array(
-            "name" => FN_Translate("nome della cavita' sul disegno"),
             "author" => FN_Translate("autore del disegno"),
             "date" => FN_Translate("data del rilevamento"),
             "accuracy" => FN_Translate("grado di precisione"),
@@ -104,6 +106,7 @@ function openkis_ValidateRecord_custom_artificials($row, $findings)
         {
             openkis_ValidatorAdd($findings, "notice", FN_Translate("Rilievo piu' recente"), FN_Translate("dati mancanti") . ": " . implode(", ", $missingparts));
         }
+        openkis_LiguriaAiSurveyFindings($findings, "ctl_surveys_artificials", $latest);
     }
 
     return $findings;

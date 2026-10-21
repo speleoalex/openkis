@@ -214,6 +214,7 @@ Rispondi alle seguenti domande con Y (sì/presente), N (no/assente) o ? (non sic
 10. TOPOGRAFI: Sono indicati i nomi dei topografi/rilevatori?
 11. MORFOLOGIA_ESTERNA: È rappresentata la morfologia esterna (superficie)?
 12. SEZIONI_TRASV: Ci sono sezioni trasversali disegnate?
+13. NOME_CAVITA: È scritto sul disegno il nome o il numero di catasto della grotta?
 {$cave_info}
 
 
@@ -234,6 +235,7 @@ Rispondi SOLO con un JSON in questo formato esatto:
   \"topografi\": \"Y/N/?\",
   \"morfologia\": \"Y/N/?\",
   \"sezioni_trasv\": \"Y/N/?\",
+  \"nome_cavita\": \"Y/N/?\",
   \"note_generali\": \"breve riassunto sulla qualità del rilievo, indicando se conforme allo standard regionale [se presente nome trovato]\"
 }
 

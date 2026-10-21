@@ -150,7 +150,8 @@ $ai_box = <<<HTML
         spessore_dettagli: "Dettagli distinti dai bordi",
         topografi: "Topografi indicati",
         morfologia: "Morfologia esterna",
-        sezioni_trasv: "Sezioni trasversali"
+        sezioni_trasv: "Sezioni trasversali",
+        nome_cavita: "Nome o numero della grotta sul disegno"
     };
     function badge(value) {
         var span = document.createElement("span");
