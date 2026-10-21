@@ -63,7 +63,7 @@ if (is_array($biblio_items) && count($biblio_items))
 $config = FN_LoadConfig("", "survey");
 $survey = new FNDBVIEW($config);
 $params['appendquery'] = "codecave LIKE '{$row['code']}'";
-$params['fields'] = "id,name,filelox,priority";
+$params['fields'] = "id,name,filelox,filelas,priority";
 
 $items = array();
 
@@ -72,9 +72,20 @@ if (is_array($items) && count($items))
 {
     $items = FN_ArraySortByKey($items, "priority");
     $html3d = "";
+    $htmllas = "";
     $count3d = 0;
     foreach ($items as $survey_item)
     {
+        // LAS point cloud: embedded viewer, same as artificial cavities
+        if (!empty($survey_item['filelas']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelas/{$survey_item['filelas']}"))
+        {
+            $lasurl = "{$_FN['siteurl']}misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelas/" . rawurlencode($survey_item['filelas']);
+            $las_href = "{$_FN['siteurl']}lasviewer/viewer.html?url=" . urlencode($lasurl);
+            $htmllas .= "<h5>" . FN_Translate("3D Viewer") . ": " . htmlspecialchars($survey_item['name']) . "</h5>";
+            $htmllas .= "<a class=\"btn btn-primary m-1\" href=\"$lasurl\" target=\"_blank\">" . FN_Translate("download") . " 3D</a>";
+            $htmllas .= "<a class=\"btn btn-primary m-1\" href=\"$las_href\" target=\"_blank\">" . FN_Translate("open") . " 3D</a>";
+            $htmllas .= "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$las_href\" allowfullscreen allow=\"fullscreen\"></iframe>";
+        }
         if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}"))
         {
             $count3d++;
@@ -94,6 +105,12 @@ if (is_array($items) && count($items))
         echo "<div class=\"alert alert-secondary\">";
         echo "<h5>" . FN_Translate("3D Viewer") . ":</h5>";
         echo $html3d;
+        echo "</div>";
+    }
+    if ($htmllas !== "")
+    {
+        echo "<div class=\"alert alert-secondary\">";
+        echo $htmllas;
         echo "</div>";
     }
 }
