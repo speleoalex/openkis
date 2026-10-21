@@ -105,20 +105,40 @@ var OPS_Map = {
         //------------------map object ----------------------------------------<
         //---------------- display popup on click------------------------------>
         this.map.on('click', function (evt) {
+            OPS_Map.lastClickTime = Date.now();
             OPS_Map.onMapClick(evt);
         });
+        this.addTapFallback();
 
 
-        // change mouse cursor when over marker
+        // change mouse cursor when over marker, the tooltip shows its name
         this.map.on('pointermove', function (e) {
             if (e.dragging) {
                 OPS_Map.stopFollowing();
                 //$(element).popover('destroy');
                 return;
             }
+            if (e.originalEvent && e.originalEvent.pointerType && e.originalEvent.pointerType !== 'mouse')
+            {
+                return;
+            }
             var pixel = OPS_Map.map.getEventPixel(e.originalEvent);
-            var hit = OPS_Map.map.hasFeatureAtPixel(pixel);
-            OPS_Map.map.getTarget().style.cursor = hit ? 'pointer' : '';
+            var hits = OPS_Map.getFeaturesNearPixel(pixel, OPS_Map.getHitTolerance(e.originalEvent));
+            var target = OPS_Map.map.getTargetElement();
+            target.style.cursor = hits.length > 0 ? 'pointer' : '';
+            var names = [];
+            for (var i = 0; i < hits.length && i < 5; i++)
+            {
+                if (hits[i].name)
+                {
+                    names.push(hits[i].name);
+                }
+            }
+            if (hits.length > 5)
+            {
+                names.push("...");
+            }
+            target.title = names.join("\n");
         });
         //---------------- display popup on click------------------------------<
 //------------------------ Geolocation marker---------------------------------->
@@ -247,6 +267,261 @@ var OPS_Map = {
 
     },
     popupClosingProcess: false,
+    /** Hit tolerance around the pointer, in CSS pixels */
+    hitToleranceMouse: 6,
+    hitToleranceTouch: 16,
+    /** Time of the last click emitted by OpenLayers */
+    lastClickTime: 0,
+    /** Features listed by the last multi-feature popup */
+    hitList: [],
+    /**
+     * Hit tolerance for the pointer that generated the event: a finger
+     * needs a much larger area than a mouse.
+     * @param {Event} originalEvent
+     * @returns {Number}
+     */
+    getHitTolerance: function (originalEvent)
+    {
+        var type = originalEvent ? originalEvent.pointerType : undefined;
+        if (type === 'touch' || type === 'pen' || (!type && touchDevice))
+        {
+            return this.hitToleranceTouch;
+        }
+        return this.hitToleranceMouse;
+    },
+    /**
+     * Features with a name or a description around a pixel, closest first.
+     * A record shown by more layers is returned once.
+     * @param {Array} pixel
+     * @param {Number} tolerance
+     * @returns {Array} [{feature, name, description, url, distance, coordinate}]
+     */
+    getFeaturesNearPixel: function (pixel, tolerance)
+    {
+        var map = this.map;
+        var found = [];
+        var seen = {};
+        var clickCoordinate = map.getCoordinateFromPixel(pixel);
+        if (!clickCoordinate)
+        {
+            return found;
+        }
+        map.forEachFeatureAtPixel(pixel, function (feature) {
+            var name = feature.get('name');
+            var description = feature.get('description');
+            if (!name && !description)
+            {
+                return;
+            }
+            var url = OPS_Map.getFeatureUrl(feature);
+            var key = url ? url : name + "|" + description;
+            if (seen[key])
+            {
+                return;
+            }
+            seen[key] = true;
+            var coordinate = clickCoordinate;
+            var distance = 0;
+            var geometry = feature.getGeometry();
+            if (geometry)
+            {
+                coordinate = geometry.getClosestPoint(clickCoordinate);
+                var p = map.getPixelFromCoordinate(coordinate);
+                if (p)
+                {
+                    distance = Math.sqrt(Math.pow(p[0] - pixel[0], 2) + Math.pow(p[1] - pixel[1], 2));
+                }
+            }
+            found.push({
+                feature: feature,
+                name: name,
+                description: description,
+                url: url,
+                distance: distance,
+                coordinate: coordinate
+            });
+        }, {hitTolerance: tolerance});
+        found.sort(function (a, b) {
+            return a.distance - b.distance;
+        });
+        return found;
+    },
+    /**
+     * URL of the record of a feature: the "open" link of its KML
+     * description (the one opened with window.open, or a ".../view/..." link).
+     * @param {ol.Feature} feature
+     * @returns {String|false}
+     */
+    getFeatureUrl: function (feature)
+    {
+        if (feature.opsRecordUrl !== undefined)
+        {
+            return feature.opsRecordUrl;
+        }
+        var url = false;
+        var description = feature.get('description');
+        if (typeof description === 'string' && description.indexOf('<a') !== -1 && window.DOMParser)
+        {
+            try {
+                // DOMParser builds an inert document: images are not loaded
+                var doc = new DOMParser().parseFromString(description, 'text/html');
+                var links = doc.querySelectorAll('a[href]');
+                for (var i = 0; i < links.length; i++)
+                {
+                    var onclick = links[i].getAttribute('onclick') || '';
+                    var href = links[i].getAttribute('href');
+                    if (onclick.indexOf('window.open') !== -1 || /\/view\//.test(href))
+                    {
+                        url = href;
+                        break;
+                    }
+                }
+            } catch (e) {
+                url = false;
+            }
+        }
+        feature.opsRecordUrl = url;
+        return url;
+    },
+    /**
+     * Opens a record in the "r" window, like the "open" link of the popup.
+     * @param {String} url
+     * @returns {Boolean} false if the browser blocked the window
+     */
+    openRecord: function (url)
+    {
+        var w = null;
+        try {
+            w = window.open(url, 'r', 'scrollbars=yes');
+            if (w)
+            {
+                w.focus();
+            }
+        } catch (e) {
+            w = null;
+        }
+        return w ? true : false;
+    },
+    /**
+     * @param {String} text
+     * @returns {String}
+     */
+    escapeHtml: function (text)
+    {
+        return String(text).replace(/[&<>"']/g, function (c) {
+            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
+        });
+    },
+    /**
+     * Popup with the details of a feature found by getFeaturesNearPixel
+     * @param {Object} hit
+     * @returns {undefined}
+     */
+    showHitPopup: function (hit)
+    {
+        var coordinates = ol.proj.transform(hit.coordinate, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
+        OPS_Map.popUp(coordinates, hit.name ? hit.name : "", hit.description ? hit.description : "");
+    },
+    /**
+     * Popup listing the features under the pointer: the name opens the
+     * record, the icon shows the details.
+     * @param {Array} coordinates click position (input projection)
+     * @param {Array} hits result of getFeaturesNearPixel
+     * @returns {undefined}
+     */
+    showHitListPopup: function (coordinates, hits)
+    {
+        var max = 20;
+        OPS_Map.hitList = hits.slice(0, max);
+        var html = "<div style=\"max-height:220px;overflow-y:auto;overflow-x:hidden;font-size:13px;line-height:1.5\">";
+        for (var i = 0; i < OPS_Map.hitList.length; i++)
+        {
+            var hit = OPS_Map.hitList[i];
+            var label = OPS_Map.escapeHtml(hit.name ? hit.name : "?");
+            var details = "<a href=\"#\" title=\"Dettagli\" onclick=\"OPS_Map.showHitPopup(OPS_Map.hitList[" + i + "]);return false;\">";
+            if (hit.url)
+            {
+                html += "<div style=\"padding:5px 0;border-bottom:1px solid #eee\">"
+                        + "<a href=\"" + OPS_Map.escapeHtml(hit.url) + "\" target=\"_blank\" onclick=\"return !OPS_Map.openRecord(this.href);\">" + label + "</a> "
+                        + details + "<span class=\"glyphicon glyphicon-info-sign\"></span></a></div>";
+            } else
+            {
+                html += "<div style=\"padding:5px 0;border-bottom:1px solid #eee\">" + details + label + "</a></div>";
+            }
+        }
+        if (hits.length > max)
+        {
+            html += "<div>... (" + (hits.length - max) + ")</div>";
+        }
+        html += "</div>";
+        OPS_Map.popUp(coordinates, hits.length + " punti qui", html);
+    },
+    /**
+     * Touch taps not turned into a click by OpenLayers are handled here.
+     * When the canvas under a finger is removed during a pinch (a layer
+     * crossing its min/max zoom, openlayers#11465 #13746) its pointerup is
+     * lost and OpenLayers stops emitting clicks: the map looks dead.
+     * @returns {undefined}
+     */
+    addTapFallback: function ()
+    {
+        var viewport = this.map.getViewport();
+        var tap = null;
+        var inControl = function (e) {
+            return e.target && e.target.closest && e.target.closest('.ol-overlaycontainer-stopevent');
+        };
+        viewport.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' || inControl(e))
+            {
+                tap = null;
+                return;
+            }
+            var now = Date.now();
+            if (tap && !tap.ended && now - tap.time < 1000)
+            {
+                // a second finger: pinch, not a tap
+                tap.multi = true;
+                return;
+            }
+            tap = {id: e.pointerId, x: e.clientX, y: e.clientY, time: now, multi: false, ended: false};
+        });
+        var end = function (e) {
+            if (!tap || tap.id !== e.pointerId)
+            {
+                return;
+            }
+            var t = tap;
+            t.ended = true;
+            tap = null;
+            if (e.type !== 'pointerup' || t.multi || inControl(e))
+            {
+                return;
+            }
+            var moved = Math.abs(e.clientX - t.x) + Math.abs(e.clientY - t.y);
+            if (moved > 12 || Date.now() - t.time > 700)
+            {
+                return;
+            }
+            var pixel = OPS_Map.map.getEventPixel(e);
+            var coordinate = OPS_Map.map.getCoordinateFromPixel(pixel);
+            window.setTimeout(function () {
+                if (OPS_Map.lastClickTime >= t.time || !coordinate)
+                {
+                    return; // OpenLayers handled it
+                }
+                OPS_Map.lastClickTime = Date.now();
+                OPS_Map.onMapClick({
+                    type: 'click',
+                    pixel: pixel,
+                    coordinate: coordinate,
+                    originalEvent: e,
+                    map: OPS_Map.map
+                });
+            }, 50);
+        };
+        viewport.addEventListener('pointerup', end);
+        viewport.addEventListener('pointercancel', end);
+    },
     popUp: function (coordinates, name, description)
     {
         if (!this.popupElement) {
@@ -282,7 +557,8 @@ var OPS_Map = {
         if (OPS_Map.popOver == null)
         {
             OPS_Map.popOver = $(OPS_Map.popupElement).popover({
-                'placement': 'top',
+                // below the point when there is no room above it
+                'placement': 'auto top',
                 'html': true,
                 'content': description,
                 'title': name + htmlclosePopup
@@ -303,20 +579,13 @@ var OPS_Map = {
         var coordinates = evt.coordinate;
 
         coordinates = ol.proj.transform(coordinates, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
-        var feature = OPS_Map.map.forEachFeatureAtPixel(evt.pixel,
-                function (feature) {
-                    return feature;
-                });
-        var name = false;
-        var description = false;
-        if (feature) {
-            name = feature.get('name');
-            description = feature.get('description');
-        }
-        if (name || description)
+        var hits = OPS_Map.getFeaturesNearPixel(evt.pixel, OPS_Map.getHitTolerance(evt.originalEvent));
+        if (hits.length === 1)
         {
-            var Fcoordinates = feature.getGeometry().getCoordinates();
-            OPS_Map.popUp(coordinates, name, description);
+            OPS_Map.showHitPopup(hits[0]);
+        } else if (hits.length > 1)
+        {
+            OPS_Map.showHitListPopup(coordinates, hits);
         } else {
             if (OPS_Map.popOver)
             {

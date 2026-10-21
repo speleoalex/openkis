@@ -369,45 +369,46 @@ function GoToMarker(text) {
 }
 
 /**
- * 
- * @param {type} evt
+ * Click on the map. A single record under the pointer is opened at once
+ * (one click instead of point, popup, link); more records close together
+ * are listed in a popup, closest first.
+ * @param {ol.MapBrowserEvent} evt
  * @returns {undefined}
  */
 OPS_Map.onMapClick = function (evt)
 {
-    var coordinates = evt.coordinate;
+    var coordinates = ol.proj.transform(evt.coordinate, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
+    var hits = OPS_Map.getFeaturesNearPixel(evt.pixel, OPS_Map.getHitTolerance(evt.originalEvent));
+    // in "info" mode and in the map of a record the click is for the map
+    var directOpen = OPS_Map.mode != "info" && !OPS_Map.clickShowsCoordinates;
+    if (hits.length === 1)
     {
-        coordinates = ol.proj.transform(coordinates, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
-        var feature = OPS_Map.map.forEachFeatureAtPixel(evt.pixel,
-                function (feature) {
-                    return feature;
-                });
-        var name = false;
-        var description = false;
-        if (feature) {
-            name = feature.get('name');
-            description = feature.get('description');
-            if (name || description)
-            {
-                var Fcoordinates = feature.getGeometry().getCoordinates();
-                OPS_Map.popUp(coordinates, name, description);
-                return;
-            }
+        if (directOpen && hits[0].url)
+        {
+            OPS_Map.openRecord(hits[0].url);
         }
-        // no feature, or a feature without info (e.g. the position circle):
-        // the click goes to the map
-        if (OPS_Map.mode == "info")
-        {
-            GetInfoPoint(coordinates, evt);
-        } else if (OPS_Map.clickShowsCoordinates)
-        {
-            OPS_Map.popUp(coordinates, "Coordinate", CoordinatesHtml(coordinates));
-        } else if (OPS_Map.popOver)
-        {
-            OPS_Map.popUpClose();
-        }
+        // the popup stays on the map: it marks the opened point and its
+        // link works if the browser blocked the new window
+        OPS_Map.showHitPopup(hits[0]);
+        return;
     }
-
+    if (hits.length > 1)
+    {
+        OPS_Map.showHitListPopup(coordinates, hits);
+        return;
+    }
+    // no feature, or a feature without info (e.g. the position circle):
+    // the click goes to the map
+    if (OPS_Map.mode == "info")
+    {
+        GetInfoPoint(coordinates, evt);
+    } else if (OPS_Map.clickShowsCoordinates)
+    {
+        OPS_Map.popUp(coordinates, "Coordinate", CoordinatesHtml(coordinates));
+    } else if (OPS_Map.popOver)
+    {
+        OPS_Map.popUpClose();
+    }
 };
 /**
  * WGS84 coordinates of the clicked point with a "copy" button
