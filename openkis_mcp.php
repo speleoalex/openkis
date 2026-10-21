@@ -531,7 +531,17 @@ function mcp_Tool_query($args)
     $fields = isset($args['fields']) ? trim($args['fields']) : "";
     if ($fields == "" && $src['section'])
     {
-        $fields = $src['pk'] . "," . $src['config']['titlefield'];
+        // the dbview default titlefield is "title": keep only the fields the table has
+        $fields = array($src['pk']);
+        foreach (explode(",", $src['config']['titlefield']) as $f)
+        {
+            $f = trim($f);
+            if ($f != "" && isset($Table->fields[$f]))
+                $fields[] = $f;
+        }
+        if (count($fields) == 1 && isset($Table->fields['name']))
+            $fields[] = "name";
+        $fields = implode(",", $fields);
     }
     $fields = mcp_FieldList($Table, $fields);
     //conditions
