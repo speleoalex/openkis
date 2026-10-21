@@ -36,16 +36,16 @@
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>1</generate_googlesitemap>
 	<tables>ctl_springs</tables>
-	<search_orders>title,recordinsert,recordupdate</search_orders>
+	<search_orders>name,recordupdate,recordinsert</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
-	<titlefield>title</titlefield>
+	<titlefield>code,name</titlefield>
 	<descriptionfield>description</descriptionfield>
-	<search_options></search_options>
-	<navigate_groups>username</navigate_groups>
-	<search_partfields></search_partfields>
-	<search_fields>username</search_fields>
+	<search_options>utilization</search_options>
+	<navigate_groups>provincia,comune</navigate_groups>
+	<search_partfields>name,localita,use</search_partfields>
+	<search_fields>code</search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
 	<image_size>400</image_size>
@@ -59,7 +59,7 @@
 	<enable_export>0</enable_export>
 	<enable_delete>1</enable_delete>
 	<hide_on_delete>0</hide_on_delete>
-	<default_show_groups>0</default_show_groups>
+	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>1</enable_offlineform>
