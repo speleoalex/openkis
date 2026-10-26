@@ -269,6 +269,17 @@ status=$(fetch "$WORK/r4.html" -b "$ANON" --data-urlencode "fn_csrf=$token" "${T
 ! grep -qi "dati delle mappe aggiornati\|map data refreshed" "$WORK/r4.html" && ok "control center: anonymous refresh refused" || fail "control center: anonymous refresh accepted"
 
 # -------------------------------------------------------------- 7. server error log
+say "6c. per-record edit permissions (tests/record_permissions_test.sh)"
+if [ -x "$REPO/tests/record_permissions_test.sh" ]; then
+    if TEST_DIR="$TEST_DIR" TEST_URL="$TEST_URL" TEST_DB="$TEST_DB" ADMIN_USER="$ADMIN_USER" ADMIN_PASS="$ADMIN_PASS" "$REPO/tests/record_permissions_test.sh" > "$WORK/perm.log" 2>&1; then
+        ok "record permissions: $(tail -1 "$WORK/perm.log")"
+    else
+        fail "record permissions: $(tail -1 "$WORK/perm.log")"; grep "FAIL" "$WORK/perm.log" | head -20
+    fi
+else
+    echo "  (tests/record_permissions_test.sh missing, skipped)"
+fi
+
 say "7. PHP errors logged by the web server during the test"
 if [ -f "$PHP_ERROR_LOG" ]; then
     new=$(tail -n +"$((ERRLOG_START + 1))" "$PHP_ERROR_LOG" | grep -E "PHP (Fatal|Parse|Warning|Deprecated|Notice)" | sed 's/^\[[^]]*\] //' | sort | uniq -c | sort -rn)
