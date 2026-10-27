@@ -48,6 +48,7 @@ OPS_Map.MyAddLayers = function ()
     }
     OPS_Map.addKmlLayer("Sorgenti carsiche", "openkis_kml.php?mod=springs", false, mod === "springs");
     OPS_Map.addKmlLayer("Cavita artificiali", "openkis_kml.php?mod=artificials&minimal=1", false, mod === "artificials");
+    OPS_Map.addTracingsLayerFromUrl("Tracciamenti");
     OPS_Map.addKmlLayer("Catasto grotte Liguria", "openkis_proxy.php/https://catastogrotte.net/liguria/openkis_kml.php?mod=caves&time=1&minimal=1", false, false);
 
     splx.include("bs_surveys.js.php?mod=" + mod);

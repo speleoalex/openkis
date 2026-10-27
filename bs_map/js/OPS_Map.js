@@ -907,6 +907,160 @@ var OPS_Map = {
         }
         //---------------------------kml-----------------------------------<        
     },
+    /**
+     * Colours of the tracer test arrows (openkis_tracings.php "kind").
+     */
+    tracingColors: {
+        water: "#1e9be9",
+        air_summer: "#0b2a80",
+        air_winter: "#f07d00"
+    },
+    /**
+     * Style of a tracer test: a line with a white casing, a dot on the
+     * injection point and an arrow head just before the detection point (so
+     * it does not cover the cave icon).
+     * @param {ol.Feature} feature
+     * @param {Number} resolution map units per pixel
+     * @returns {Array} ol.style.Style
+     */
+    tracingStyle: function (feature, resolution)
+    {
+        var color = OPS_Map.tracingColors[feature.get("kind")] || OPS_Map.tracingColors.water;
+        var coords = feature.getGeometry().getCoordinates();
+        var start = coords[0];
+        var end = coords[coords.length - 1];
+        var styles = [
+            new ol.style.Style({stroke: new ol.style.Stroke({color: "rgba(255,255,255,0.85)", width: 6})}),
+            new ol.style.Style({stroke: new ol.style.Stroke({color: color, width: 3})}),
+            new ol.style.Style({
+                geometry: new ol.geom.Point(start),
+                image: new ol.style.Circle({radius: 4, fill: new ol.style.Fill({color: color}), stroke: new ol.style.Stroke({color: "#ffffff", width: 1.5})})
+            })
+        ];
+        var dx = end[0] - start[0];
+        var dy = end[1] - start[1];
+        var length = Math.sqrt(dx * dx + dy * dy);
+        if (length > 0)
+        {
+            var radius = 9;
+            // centre of the triangle: its tip lands 6 px before the end point
+            var back = (6 + radius) * resolution;
+            var head = [end[0] - dx / length * back, end[1] - dy / length * back];
+            styles.push(new ol.style.Style({
+                geometry: new ol.geom.Point(head),
+                image: new ol.style.RegularShape({
+                    points: 3,
+                    radius: radius,
+                    rotation: Math.atan2(dx, dy),
+                    rotateWithView: true,
+                    fill: new ol.style.Fill({color: color}),
+                    stroke: new ol.style.Stroke({color: "#ffffff", width: 1.5})
+                })
+            }));
+        }
+        return styles;
+    },
+    /**
+     * Legend of the tracer test arrows.
+     * @param {Object} labels "legend" member of openkis_tracings.php
+     * @returns {String} html
+     */
+    tracingLegendHtml: function (labels)
+    {
+        var esc = function (text) {
+            return $("<div>").text(text === undefined ? "" : text).html();
+        };
+        var sample = function (color) {
+            return "<svg width=\"36\" height=\"10\" style=\"vertical-align:middle;margin-right:4px\">" +
+                    "<line x1=\"1\" y1=\"5\" x2=\"27\" y2=\"5\" stroke=\"" + color + "\" stroke-width=\"3\" />" +
+                    "<polygon points=\"26,1 35,5 26,9\" fill=\"" + color + "\" /></svg>";
+        };
+        var c = OPS_Map.tracingColors;
+        return "<b>" + esc(labels.title) + "</b><br />" +
+                sample(c.water) + esc(labels.water) + "<br />" +
+                sample(c.air_summer) + esc(labels.air_summer) + "<br />" +
+                sample(c.air_winter) + esc(labels.air_winter);
+    },
+    /**
+     * Tracer tests layer: arrows from the injection to the detection point,
+     * read from openkis_tracings.php (GeoJSON). The legend is shown while the
+     * layer is visible and has arrows.
+     * @param {String} title layer name in the layer switcher
+     * @param {String} path url of openkis_tracings.php with its filters
+     * @param {Boolean} visible
+     * @param {Boolean} fit zoom the view on the arrows once they are loaded
+     * @returns {ol.layer.Vector}
+     */
+    addTracingsLayer: function (title, path, visible, fit)
+    {
+        var source = new ol.source.Vector();
+        var layer = new ol.layer.Vector({
+            name: title,
+            visible: visible,
+            source: source,
+            style: OPS_Map.tracingStyle
+        });
+        // below the cave icons, which stay clickable
+        layer.setZIndex(9);
+        this.addLayer(layer, false);
+        // fixed on the page like the other bottom buttons: the map viewport
+        // is taller than the window (it starts below the toolbar)
+        var legend = document.createElement("div");
+        legend.className = "ol-unselectable ol-control";
+        legend.style.cssText = "position:fixed;left:8px;bottom:40px;z-index:6;padding:4px 8px;background:rgba(255,255,255,0.9);color:#222;font-size:12px;line-height:18px;display:none";
+        document.body.appendChild(legend);
+        var updateLegend = function () {
+            legend.style.display = (layer.getVisible() && source.getFeatures().length > 0) ? "block" : "none";
+        };
+        layer.on("change:visible", updateLegend);
+        $.getJSON(path, function (data) {
+            var features = new ol.format.GeoJSON().readFeatures(data, {
+                dataProjection: OPS_Map.inputProjectonEPSG,
+                featureProjection: OPS_Map.view.getProjection()
+            });
+            source.addFeatures(features);
+            if (data.legend)
+            {
+                legend.innerHTML = OPS_Map.tracingLegendHtml(data.legend);
+            }
+            updateLegend();
+            if (fit && features.length > 0)
+            {
+                OPS_Map.view.fit(source.getExtent(), {padding: [60, 60, 60, 60], maxZoom: 17});
+            }
+        });
+        return layer;
+    },
+    /**
+     * Tracer tests layer configured from the page url: hidden (all the
+     * tracings, can be switched on) unless the url asks for them, in which
+     * case it is shown and the view is framed on the arrows:
+     *   tracings=1            all the tracings
+     *   tracing=id            one tracing
+     *   tracing_cave=code     the tracings starting or ending in a cave
+     *   tracing_spring=code   the tracings ending in a spring
+     * @param {String} title layer name in the layer switcher
+     * @returns {ol.layer.Vector}
+     */
+    addTracingsLayerFromUrl: function (title)
+    {
+        var path = "openkis_tracings.php";
+        var tracing = getUrlVar("tracing", "");
+        var cave = getUrlVar("tracing_cave", "");
+        var spring = getUrlVar("tracing_spring", "");
+        if (tracing !== "")
+        {
+            path += "?id=" + encodeURIComponent(tracing);
+        } else if (cave !== "")
+        {
+            path += "?cave=" + encodeURIComponent(cave);
+        } else if (spring !== "")
+        {
+            path += "?spring=" + encodeURIComponent(spring);
+        }
+        var shown = (getUrlVar("tracings", "") !== "" || path !== "openkis_tracings.php");
+        return this.addTracingsLayer(title, path, shown, shown);
+    },
     addJsonLayer: function (title, path, isBaselayer, visible)
     {
         //---------------------------json----------------------------------->

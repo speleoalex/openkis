@@ -186,6 +186,8 @@ $_FN['modparams']['caves']['editorparams']['table']['function_on_update'] = "ope
 $_FN['modparams']['caves']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
+// tracer tests: computed fields, save callbacks and map arrows
+require_once(__DIR__ . "/openkis/openkis_tracings.inc.php");
 
 /**
  * Map exports cache (openkis_kml.php, openkis_gpx.php, openkis_json.php,

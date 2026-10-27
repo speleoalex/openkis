@@ -62,6 +62,11 @@ if (is_array($biblio_items) && count($biblio_items))
     }
     echo "</table></div></div></div>";
 }
+//----tracer tests: the ones starting or ending in this cave------------------->
+if (function_exists("openkis_TracingsCaveCard"))
+{
+    echo openkis_TracingsCaveCard($row['code']);
+}
 //----survey------------------------------------------------------------------->
 $config = FN_LoadConfig("", "survey");
 $survey = new FNDBVIEW($config);

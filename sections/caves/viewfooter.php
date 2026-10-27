@@ -61,6 +61,11 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
         echo "</table>";
         echo "</div>";
     }
+    // tracer tests starting or ending in this cave
+    if (function_exists("openkis_TracingsCaveCard"))
+    {
+        echo openkis_TracingsCaveCard($row['code']);
+    }
     //survey------------------------------------------------------------------->
     $config = FN_LoadConfig("", "survey");
     $survey = new FNDBVIEW($config);
