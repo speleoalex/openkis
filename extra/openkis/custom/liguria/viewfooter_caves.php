@@ -3,6 +3,12 @@
 $icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
 
 
+// Blocks pushed into $GLOBALS['openkis_view_side'] are printed by
+// sections/caves/viewheader.php in the side column of the sheet.
+if (!isset($GLOBALS['openkis_view_side']) || !is_array($GLOBALS['openkis_view_side']))
+{
+    $GLOBALS['openkis_view_side'] = array();
+}
 if (!empty($row['latitude']))
 {
     $zoom = 17;
@@ -11,34 +17,33 @@ if (!empty($row['latitude']))
     {
         $baselayer = "IGM 1:25000";
     }
-    echo "<iframe style=\"border:0px;width:100%;height:400px;\" src=\"{$_FN['siteurl']}bs_map.htm?mod={$_FN['mod']}&baselayer={$baselayer}&point=circle&lat={$row['latitude']}&lon={$row['longitude']}&zoom=$zoom&history={$row['id']}\"></iframe>";
-
+    //---- map card ---------------------------------------------------------->
+    $side = "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("map") . "</h5></div>";
+    $side .= "<iframe style=\"border:0px;width:100%;height:300px;\" src=\"{$_FN['siteurl']}bs_map.htm?mod={$_FN['mod']}&baselayer={$baselayer}&point=circle&lat={$row['latitude']}&lon={$row['longitude']}&zoom=$zoom&history={$row['id']}\"></iframe>";
+    $side .= "<div class=\"card-body p-2\">";
+    $side .= "<div class=\"small text-muted mb-1\">" . FN_Translate("calculate the route") . "</div>";
     $gmap_link = "//www.google.it/maps/dir//" . $row['latitude'] . "," . $row['longitude'] . "/@" . $row['latitude'] . "," . $row['longitude'] . ",18z";
-    echo "<div class=\"alert alert-info\">";
-    echo "<h5>" . FN_Translate("calculate the route") . ":</h5>";
-
-    echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"$gmap_link\">GMaps</a>";
-
-    $gmap_link = "https://maps.openrouteservice.org/directions?n1=44.075342&n2=9.807849&n3=17&a=null,null," . $row['latitude'] . "," . $row['longitude'] . "&b=0&c=0&k1=it&k2=km";
-    echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"$gmap_link\">OpenRouteService</a>";
-
-
+    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"$gmap_link\">GMaps</a>";
+    $ors_link = "https://maps.openrouteservice.org/directions?n1=44.075342&n2=9.807849&n3=17&a=null,null," . $row['latitude'] . "," . $row['longitude'] . "&b=0&c=0&k1=it&k2=km";
+    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"$ors_link\">OpenRouteService</a>";
     $osmanLink = "https://www.openstreetmap.org/directions?engine=graphhopper_foot&route={$row['latitude']}%2C{$row['longitude']}%3B{$row['latitude']}%2C{$row['longitude']}";
-    echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"$osmanLink\">OpenStreetmap</a>";
+    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"$osmanLink\">OpenStreetmap</a>";
     $forcename = openkis_TextToAscii($row['name']);
-    echo " <a class=\"btn btn-secondary\" target=\"_blank\" href=\"{$_FN['siteurl']}openkis_kml.php?mod={$_FN['mod']}&big_icons=1&filter_code=" . urlencode($row['code']) . "&filename=$forcename&absolute=1\">Scarica kml</a>";
-    echo "</div><br />";
+    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"{$_FN['siteurl']}openkis_kml.php?mod={$_FN['mod']}&big_icons=1&filter_code=" . urlencode($row['code']) . "&filename=$forcename&absolute=1\">KML</a>";
+    $side .= "</div></div>";
+    $GLOBALS['openkis_view_side'][] = $side;
+    //---- map card ----------------------------------------------------------<
 
-
+    //---- coordinates card: decimal degrees, sexagesimal (DMS) and UTM ------>
     $position = openkis_GetItemPosition($row);
-    // Coordinates card: decimal degrees, sexagesimal (DMS) and UTM, click-to-select
-    echo "<div class=\"card mb-3\">";
-    echo "<div class=\"card-header\"><h5 class=\"mb-0\">Coordinate WGS84</h5></div>";
-    echo "<div class=\"card-body\">";
-    echo "<div class=\"row mb-2\"><label class=\"col-sm-4 col-form-label\">Gradi decimali (Lon, Lat)</label><div class=\"col-sm-8\"><input class=\"form-control\" readonly value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" /></div></div>";
-    echo "<div class=\"row mb-2\"><label class=\"col-sm-4 col-form-label\">Gradi sessagesimali (Lon, Lat)</label><div class=\"col-sm-8\"><input class=\"form-control\" readonly value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" /></div></div>";
-    echo "<div class=\"row\"><label class=\"col-sm-4 col-form-label\">UTM (X, Y, fuso)</label><div class=\"col-sm-8\"><input class=\"form-control\" readonly value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" /></div></div>";
-    echo "</div></div>";
+    $side = "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("coordinates WGS84") . "</h5></div>";
+    $side .= "<div class=\"card-body p-2 small\">";
+    $side .= "<div class=\"text-muted\">Gradi decimali (Lon, Lat)</div><input class=\"form-control form-control-sm mb-2\" readonly value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" />";
+    $side .= "<div class=\"text-muted\">Gradi sessagesimali (Lon, Lat)</div><input class=\"form-control form-control-sm mb-2\" readonly value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" />";
+    $side .= "<div class=\"text-muted\">UTM (X, Y, fuso)</div><input class=\"form-control form-control-sm\" readonly value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" />";
+    $side .= "</div></div>";
+    $GLOBALS['openkis_view_side'][] = $side;
+    //---- coordinates card --------------------------------------------------<
 }
 $config = FN_LoadConfig("", "bibliography");
 $biblio = new FNDBVIEW($config);
@@ -48,16 +53,14 @@ $biblio_items = $biblio->GetResults(false, $params);
 $biblio_items = FN_ArraySortByKey($biblio_items, "year");
 if (is_array($biblio_items) && count($biblio_items))
 {
-    echo "<div class=\"alert alert-warning\">";
-    echo "<h3>" . FN_Translate("bibliography") . "</h3>";
-    echo "<table class=\"table table-responsive\">";
+    echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("bibliography") . "</h5></div>";
+    echo "<div class=\"card-body p-0\"><div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
     foreach ($biblio_items as $biblio_item)
     {
         $url = FN_RewriteLink("index.php?mod=bibliography&op=view&id={$biblio_item['id']}");
-        echo "<tr><td>{$biblio_item['year']}</td><td>{$biblio_item['title']}</td><td>{$biblio_item['authors']}</td><td><a class=\"btn btn-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
+        echo "<tr><td class=\"text-nowrap\">{$biblio_item['year']}</td><td><a href=\"$url\">{$biblio_item['title']}</a></td><td>{$biblio_item['authors']}</td><td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
     }
-    echo "</table>";
-    echo "</div>";
+    echo "</table></div></div></div>";
 }
 //----survey------------------------------------------------------------------->
 $config = FN_LoadConfig("", "survey");
@@ -97,21 +100,18 @@ if (is_array($items) && count($items))
             {
                 $title3d = "Modello 3D" . ($count3d > 1 ? " $count3d" : "");
             }
-            $html3d .= "<a class=\"btn btn-primary m-1\" href=\"$iframe_href\" target=\"_blank\">&#10696; " . htmlspecialchars($title3d) . "</a>";
+            $html3d .= "<a class=\"btn btn-sm btn-primary m-1\" href=\"$iframe_href\" target=\"_blank\">&#10696; " . htmlspecialchars($title3d) . "</a>";
         }
     }
     if ($html3d !== "")
     {
-        echo "<div class=\"alert alert-secondary\">";
-        echo "<h5>" . FN_Translate("3D Viewer") . ":</h5>";
-        echo $html3d;
-        echo "</div>";
+        $GLOBALS['openkis_view_side'][] = "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("3D models") . "</h5></div><div class=\"card-body p-2\">$html3d</div></div>";
     }
     if ($htmllas !== "")
     {
-        echo "<div class=\"alert alert-secondary\">";
+        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-body\">";
         echo $htmllas;
-        echo "</div>";
+        echo "</div></div>";
     }
 }
 
@@ -177,8 +177,8 @@ if (file_exists("../nextcloud/data/catasto/files/scansioni_Issel/"))
 
     if ($list && count($list) > 0)
     {
-        echo "<h3>Schede storiche Issel:</h3>";
-        echo "<div style=\"max-height:400px;overflow:auto;border:1px solid;padding:10px;\">";
+        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede storiche Issel</h5></div>";
+        echo "<div class=\"card-body\" style=\"max-height:400px;overflow:auto;\">";
         echo "<div class=\"card-columns row\">";
         foreach ($list as $item)
         {
@@ -202,7 +202,7 @@ if (file_exists("../nextcloud/data/catasto/files/scansioni_Issel/"))
             }
         }
         echo "</div>";
-        echo "</div>";
+        echo "</div></div>";
     }
 }
 
@@ -221,8 +221,8 @@ if (file_exists("../nextcloud/data/catasto/files/scansioni_Zoja/"))
 
     if ($list && count($list) > 0)
     {
-        echo "<h3>Schede storiche Issel - Aggiornamento Zoja:</h3>";
-        echo "<div style=\"max-height:400px;overflow:auto;border:1px solid;padding:10px;\">";
+        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede storiche Issel - Aggiornamento Zoja</h5></div>";
+        echo "<div class=\"card-body\" style=\"max-height:400px;overflow:auto;\">";
         echo "<div class=\"card-columns row\">";
         foreach ($list as $item)
         {
@@ -246,7 +246,7 @@ if (file_exists("../nextcloud/data/catasto/files/scansioni_Zoja/"))
             }
         }
         echo "</div>";
-        echo "</div>";
+        echo "</div></div>";
     }
 }
 
@@ -262,8 +262,8 @@ if (file_exists("../nextcloud/data/catasto/files/schede_dsl/"))
         $list = glob("../nextcloud/data/catasto/files/schede_dsl/{$idfolder}_*");
     if ($list && count($list) > 0)
     {
-        echo "<h3>Documentazione Delegazione Speleologica Ligure</h3>";
-        echo "<div class=\"alert alert-warning\">";
+        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Documentazione Delegazione Speleologica Ligure</h5></div>";
+        echo "<div class=\"card-body\">";
         echo "<div class=\"card-columns row\">";
         if (FN_IsAdmin() || FN_UserInGroup($_FN['user'], "w_caves"))
         {
@@ -296,7 +296,7 @@ if (file_exists("../nextcloud/data/catasto/files/schede_dsl/"))
         }
 
         echo "</div>";
-        echo "</div>";
+        echo "</div></div>";
     }
 }
 
@@ -312,11 +312,11 @@ if (!empty($_GET['export_pdf']))
 }
 $urlexport = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1");
 $urlexportpdf = FN_RewriteLink("index.php?mod={$_FN['mod']}&op=view&id={$row['id']}&export_pdf=1&format=pdf");
-echo "<div class=\"alert alert-info\">";
-echo "<h5>Scheda catastale:</h5>";
-echo "<a class=\"btn btn-primary m-1\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a>";
-echo "<a class=\"btn btn-secondary m-1\" href=\"$urlexportpdf\" target=\"_blank\">Scarica PDF</a>";
-echo "</div>";
+$side = "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("cadastral sheet") . "</h5></div><div class=\"card-body p-2\">";
+$side .= "<a class=\"btn btn-sm btn-primary m-1\" href=\"$urlexport\" target=\"_blank\">" . FN_Translate("Genera scheda catastale") . "</a>";
+$side .= "<a class=\"btn btn-sm btn-secondary m-1\" href=\"$urlexportpdf\" target=\"_blank\">Scarica PDF</a>";
+$side .= "</div></div>";
+$GLOBALS['openkis_view_side'][] = $side;
 
 //------------------generazione scheda catastale------------------------<
 

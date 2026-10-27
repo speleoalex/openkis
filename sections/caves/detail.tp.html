@@ -1,0 +1,36 @@
+<div class="viewrecordpage openkis-cave-sheet">
+<!-- if {navigationbar} -->
+<ul class="nav nav-tabs mb-3">
+<!-- if {viewlist} -->
+<li class="nav-item"><a class="nav-link" href="{link}">{title}</a></li>
+<!-- end if {viewlist} -->
+<!-- if {viewprev} -->
+<li class="nav-item"><a class="nav-link" href="{link}"><span class="oi oi-arrow-left"></span> {title}</a></li>
+<!-- end if {viewprev} -->
+<!-- if {viewnext} -->
+<li class="nav-item"><a class="nav-link" href="{link}">{title} <span class="oi oi-arrow-right"></span></a></li>
+<!-- end if {viewnext} -->
+<!-- foreach {user_options} -->
+<!-- if {active} -->
+<li class="nav-item"><a class="nav-link active" href="{link}">{title}</a></li>
+<!-- end if {active} -->
+<!-- if not {active} -->
+<li class="nav-item"><a class="nav-link" href="{link}">{title}</a></li>
+<!-- end if not {active} -->
+<!-- end foreach {user_options} -->
+</ul>
+<!-- end if {navigationbar} -->
+<!-- contents -->
+<!-- group --> <!-- end_group -->
+<!-- item --> <!-- end_item -->
+<!-- endgroup --> <!-- end_endgroup -->
+<!-- end_contents -->
+{header}
+{innertables}
+</div>
+</div>
+{footer}
+<!-- if {url_offlineform} -->
+<br /><a class="btn btn-primary" href="{url_offlineform}">{i18n:Download update form} </a>
+<!-- end if {url_offlineform} -->
+</div>
