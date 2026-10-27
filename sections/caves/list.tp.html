@@ -30,6 +30,9 @@
     /* The entrance image is only a placeholder (default.png) when the record has no photo */
     #pageresults.openkis-view-list .card-img-top[src$="/default.png"] ~ .card-body .openkis-photo-yes,
     #pageresults.openkis-view-list .card-img-top:not([src$="/default.png"]) ~ .card-body .openkis-photo-no { display: none; }
+    /* The map of the results sits outside the container, as wide as the page; the search bar follows it */
+    .openkis-map-full { margin-bottom: .5rem; }
+    .openkis-map-full iframe { display: block; width: 100%; height: clamp(280px, 45vh, 560px); border: 0; }
 </style>
 <script>
     /**
@@ -69,7 +72,13 @@
         });
     }
 </script>
+<div class="openkis-map-full" id="mapresults">
+    <iframe title="{i18n:Map}" src="{siteurl}bs_map.htm{querystring}&lat={default_latitude}&lon={default_longitude}&zoom={default_zoom}"></iframe>
+</div>
 <div class="container">
+    <div id="legendresults">
+        {html_header}
+    </div>
 
     <div class="card openkis-searchbar mb-3">
         <div class="card-body py-2">
@@ -256,12 +265,6 @@
                     </div>
                 </div>
             </div>
-        </div>    
-        <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 "  id="mapresults">
-            <iframe id="" style="border:0px;width:99%;height:400px;" src="{siteurl}bs_map.htm{querystring}&lat={default_latitude}&lon={default_longitude}&zoom={default_zoom}"></iframe>
-        </div>
-        <div class="col-12" id="legendresults">
-            {html_header}
         </div>
         <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 " id="pageresults"  >
             <div class="navigatorresults">
