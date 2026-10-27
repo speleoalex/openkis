@@ -384,7 +384,11 @@ function openkis_GetItemPosition($row)
         }
         else
         {
-            dprint_r("$lat_ori,$lon_ori, coordinatestypes vuoto per {$row['code']} - force $coordinatestypes ", "", "red");
+            // diagnostic only: shown with ?debug=1, never to the visitors
+            if (isset($_GET['debug']))
+            {
+                dprint_r("$lat_ori,$lon_ori, coordinatestypes vuoto per {$row['code']} - force $coordinatestypes ", "", "red");
+            }
         }
     }
 
