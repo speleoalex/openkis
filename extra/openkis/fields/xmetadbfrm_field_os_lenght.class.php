@@ -3,6 +3,16 @@
 class xmetadbfrm_field_os_lenght
 {
 
+    /**
+     * Measures are stored as text: dbview sorts them by numeric value, on the
+     * absolute value so that negative depths rank with the positive ones.
+     * @return string
+     */
+    function SortNumeric()
+    {
+        return "abs";
+    }
+
     function show($params)
     {
         $html="";
