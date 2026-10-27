@@ -71,20 +71,29 @@
 </script>
 <div class="container">
 
-    <div class="accordion" id="accordionDiv">
-        <div class="card">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"  data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        {i18n:Filter results}
-                    </button>
-                </h5>
-            </div>
-
-            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" >
-                <div class="card-body">
-                    <form onsubmit="fn_FormToAjax(this, 'pageresults,mapresults', 'post');return false;" id="formfilters" name="filter" method="get" action="{formaction}">
-                        <input name="mod" type="hidden" value="{mod}">
+    <div class="card openkis-searchbar mb-3">
+        <div class="card-body py-2">
+            <form onsubmit="fn_FormToAjax(this, 'pageresults,mapresults', 'post');return false;" id="formfilters" name="filter" method="get" action="{formaction}">
+                <input name="mod" type="hidden" value="{mod}">
+                <div class="form-row align-items-center">
+                    <div class="col-12 col-md">
+                        <div class="input-group">
+                            <input type="search" class="form-control" id="searchtext" name="q" value="{q}" placeholder="{i18n:Search caves}" aria-label="{i18n:Text}" />
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">&#128269; {i18n:Search}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-auto mt-2 mt-md-0 openkis-searchbar-tools">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#collapseOne" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">&#9881; {i18n:Advanced filters}</button>
+                        <!-- if {categories} -->
+                        <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#collapseFilters" data-bs-target="#collapseFilters" aria-expanded="false" aria-controls="collapseFilters">&#9776; {i18n:Browse by category}</button>
+                        <!-- end if {categories} -->
+                        <a class="btn btn-link btn-sm" href="{siteurl}index.php?mod={mod}">{i18n:New search}</a>
+                    </div>
+                </div>
+                <div id="collapseOne" class="collapse mt-3 openkis-advanced-filters">
+                    <div class="card-body bg-light border rounded py-2">
                         <!-- if {table_rules} -->
                         <div class="form-group row">        
                             <label class="col-sm-3 col-form-label" for="table_rules">{i18n:Shows only}:</label>
@@ -98,12 +107,6 @@
                             </div>
                         </div>
                         <!-- end if {table_rules} -->
-                        <div class="form-group row">        
-                            <label class="col-sm-3 col-form-label" for="searchtext">{i18n:Text}:</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="searchtext" size="15" name="q" value="{q}" />
-                            </div>
-                        </div>
                         <!-- foreach {search_fields} -->
                         <div class="form-group row">        
                             <label class="col-sm-3 col-form-label" for="search_fields{name}">{title}:</label>
@@ -177,54 +180,39 @@
                                 <input class="form-check-input" id="checked_desc" type="checkbox" {checked_desc} name="desc" value="1" /> 
                             </div>
                         </div>
-
-                        <button type="submit" class="btn btn-primary" >{i18n:Search}</button>
-                        <button type="button" class="btn btn-primary" onclick="window.location = '{siteurl}index.php?mod={mod}'" >{i18n:New Search}</button>
-                    </form>            
-
-
+                        <button type="submit" class="btn btn-primary btn-sm">{i18n:Search}</button>
+                        <a class="btn btn-outline-secondary btn-sm" href="{siteurl}index.php?mod={mod}">{i18n:New search}</a>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
     <script defer="defer">
-
-        console.log("filters");
+        /* Opens the advanced filters when one of them is set (and the categories when a
+           category filter is active), so the user sees why the results are filtered. */
         window.addEventListener('load', function () {
             window.setTimeout(function () {
-                document.querySelectorAll("#formfilters input[type=text], #formfilters select, #formfilters textarea, #formfilters input:checked").forEach(function (element) {
-                    if (element.value !== "") {
-                        if (element.id !== "table_order" && element.id !== "checked_desc") {
-                            document.getElementById("collapseOne").style.display = "block";
-                        }
-                        return;
+                var open = false;
+                document.querySelectorAll("#collapseOne input[type=text], #collapseOne select, #collapseOne input:checked").forEach(function (element) {
+                    if (element.value !== "" && element.id !== "table_order" && element.id !== "checked_desc") {
+                        open = true;
                     }
                 });
-            }, 1000);
-
-            window.setTimeout(function () {
-                document.querySelectorAll(".removefilter").forEach(function () {
-                    document.getElementById("collapseFilters").style.display = "block";
-                });
+                if (open) {
+                    document.getElementById("collapseOne").classList.add("show");
+                }
+                if (document.querySelector(".removefilter")) {
+                    document.getElementById("collapseFilters").classList.add("show");
+                }
             }, 1000);
         });
-
     </script>
     <div  class="row">
         <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 " >
-            <div class="accordion" id="accordionDiv2">
-                <div class="card" >
-                    <!-- if {categories} -->
-                    <div class="card-header" id="headingOne">
-                        <h5 class="mb-0">
-                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#collapseFilters" data-bs-target="#collapseFilters" aria-expanded="true" aria-controls="collapseOne">
-                                {i18n:Browse by categories}
-                            </button>
-                        </h5>
-                    </div>
-                    <!-- end if {categories} -->
-                    <div id="collapseFilters" class="collapse hidden" aria-labelledby="headingOne" >
+            <div id="accordionDiv2">
+                <div class="openkis-categories mb-2">
+                    <div id="collapseFilters" class="collapse" >
                         <div class="row"  >
                             <!-- foreach {categories} -->
                             <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 "  >
@@ -272,6 +260,9 @@
         <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 "  id="mapresults">
             <iframe id="" style="border:0px;width:99%;height:400px;" src="{siteurl}bs_map.htm{querystring}&lat={default_latitude}&lon={default_longitude}&zoom={default_zoom}"></iframe>
         </div>
+        <div class="col-12" id="legendresults">
+            {html_header}
+        </div>
         <div class="col-xs-12  col-sm-12  col-md-12 col-lg-12 " id="pageresults"  >
             <div class="navigatorresults">
                 <div class="pageresults">
@@ -280,7 +271,18 @@
                         <button type="button" class="btn btn-outline-secondary" data-view="list" title="{i18n:list view}" aria-label="{i18n:list view}" onclick="openkisListView('list')"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2.2" rx="1"/><rect x="1" y="6.9" width="14" height="2.2" rx="1"/><rect x="1" y="11.8" width="14" height="2.2" rx="1"/></svg></button>
                     </div>
                     <script>openkisListView();</script>
-                    <a  id="mapresultslink" target="_blank" href="{siteurl}bs_map.htm{querystring}&lat={default_latitude}&lon={default_longitude}&zoom={default_zoom}">{i18n:Map link}</a>
+                    <div class="openkis-exports mb-2">
+                        <a id="mapresultslink" target="_blank" class="btn btn-sm btn-outline-secondary" href="{siteurl}bs_map.htm{querystring}&lat={default_latitude}&lon={default_longitude}&zoom={default_zoom}">&#128506; {i18n:Map link}</a>
+                        <!-- if {url_exports} -->
+                        <span class="text-muted small">{i18n:Export the results}:</span>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{i18n:Export the results}">
+                            <!-- foreach {url_exports} -->
+                            <a href="{url_export}" class="btn btn-outline-primary">{title}</a>
+                            <!-- end foreach {url_exports} -->
+                        </div>
+                        <a href="{siteurl}index.php{querystring}" class="btn btn-sm btn-outline-secondary" title="{i18n:Link to this search}">&#128279; {i18n:Link to this search}</a>
+                        <!-- end if {url_exports} -->
+                    </div>
                     <!-- if {txt_num_records} -->
                     <div class="text-muted small">{txt_num_records}</div>
                     <!-- end if {txt_num_records} -->
@@ -302,9 +304,9 @@
                 <div class="card-group">
                     <!-- foreach {items} -->
                     <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" >
-                        <div class="card mb-4 box-shadow" style="height: 95%"  ><img src="{item_urlimage}" class="card-img-top" alt="" loading="lazy">
+                        <div class="card mb-4 box-shadow" style="height: 95%" data-closed="{value_closed}"><img src="{item_urlimage}" class="card-img-top" alt="" loading="lazy">
                             <div class="card-body">
-                                <div class="card-title" ><span class="openkis-photo-flag openkis-photo-yes" role="img" title="{i18n:entrance photo present}" aria-label="{i18n:entrance photo present}"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 2h5l1 2H14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h2.5z"/><circle cx="8" cy="8.5" r="2.6" fill="#fff"/></svg></span><span class="openkis-photo-flag openkis-photo-no" role="img" title="{i18n:no entrance photo}" aria-label="{i18n:no entrance photo}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5.5 2.6h5l1 2H14a.6.6 0 0 1 .6.6v7.6a.6.6 0 0 1-.6.6H2a.6.6 0 0 1-.6-.6V5.2a.6.6 0 0 1 .6-.6h2.5z"/><circle cx="8" cy="8.5" r="2.4"/><path d="M1.5 14.5l13-13"/></svg></span>{item_title}</div>
+                                <div class="card-title" ><span class="openkis-photo-flag openkis-photo-yes" role="img" title="{i18n:entrance photo present}" aria-label="{i18n:entrance photo present}"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 2h5l1 2H14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h2.5z"/><circle cx="8" cy="8.5" r="2.6" fill="#fff"/></svg></span><span class="openkis-photo-flag openkis-photo-no" role="img" title="{i18n:no entrance photo}" aria-label="{i18n:no entrance photo}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5.5 2.6h5l1 2H14a.6.6 0 0 1 .6.6v7.6a.6.6 0 0 1-.6.6H2a.6.6 0 0 1-.6-.6V5.2a.6.6 0 0 1 .6-.6h2.5z"/><circle cx="8" cy="8.5" r="2.4"/><path d="M1.5 14.5l13-13"/></svg></span>{item_title} <span class="badge openkis-badge-closed">{i18n:Closed cave}</span><span class="badge openkis-badge-open">{i18n:Open cave}</span></div>
                                 <!-- foreach {itemvalues} -->
                                 <span class="openkis-item-value"><b>{title}:</b> {value}</span><br />
                                 <!-- end foreach {itemvalues} -->
@@ -358,15 +360,6 @@
                 <!-- if {access_control_url} -->
                 <a class="btn btn-primary" href="{access_control_url}">{i18n:Access control}</a>
                 <!-- end if {access_control_url} -->
-                <!-- if {url_exports} -->
-                <br /><br />
-                <div class="alert alert-info"><h5>{i18n:Export the results}:</h5>
-                    <!-- foreach {url_exports} -->
-                    <a href="{url_export}" class="btn btn-primary">{title}</a>
-                    <!-- end foreach {url_exports} -->
-                    <a href="{siteurl}index.php{querystring}" class="btn btn-outline-primary">&#128279; {i18n:Link to this search}</a>
-                </div>
-                <!-- end if {url_exports} -->
             </div>
 
         </div>
