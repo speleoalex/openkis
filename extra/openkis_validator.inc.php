@@ -191,7 +191,60 @@ function openkis_ValidateRecord($mod, $row)
             $findings = $customfunction($row, $findings);
         }
     }
-    return is_array($findings) ? $findings : array();
+    return openkis_ValidatorRulesOff(is_array($findings) ? $findings : array());
+}
+
+/**
+ * Removes the findings of the rules the administrator switched off with
+ * $_FN['openkis_validator_rules_off'] (OPENKIS_VALIDATOR_RULES_OFF in the
+ * Docker .env): a comma separated list of the keys below, or of finding
+ * labels (e.g. a regional rule). Applied after the regional rules, so it
+ * overrides them. "all" hides the banner (see openkis_ValidatorHtml).
+ *
+ * @global array $_FN
+ * @param array $findings
+ * @return array
+ */
+function openkis_ValidatorRulesOff($findings)
+{
+    global $_FN;
+    if (empty($_FN['openkis_validator_rules_off']))
+    {
+        return $findings;
+    }
+    $keys = array(
+        "name" => "Nome",
+        "description" => "Descrizione",
+        "coordinates" => "Coordinate",
+        "reference_system" => "Sistema di riferimento",
+        "elevation" => "Quota",
+        "comune" => "Comune",
+        "provincia" => "Provincia",
+        "speleometric" => "Dati speleometrici",
+        "depth_total" => "Dislivello totale",
+    );
+    $off = array();
+    foreach (explode(",", strtolower($_FN['openkis_validator_rules_off'])) as $rule)
+    {
+        $rule = trim($rule);
+        if ($rule === "")
+        {
+            continue;
+        }
+        $label = isset($keys[$rule]) ? $keys[$rule] : $rule;
+        $off[] = strtolower($label);
+        $off[] = strtolower(FN_Translate($label));
+    }
+    $ret = array();
+    foreach ($findings as $finding)
+    {
+        $label = isset($finding['label']) ? strtolower(trim($finding['label'])) : "";
+        if (!in_array($label, $off, true))
+        {
+            $ret[] = $finding;
+        }
+    }
+    return $ret;
 }
 
 /**
@@ -203,6 +256,12 @@ function openkis_ValidateRecord($mod, $row)
  */
 function openkis_ValidatorHtml($findings)
 {
+    global $_FN;
+    // banner switched off by the administrator (see openkis_ValidatorRulesOff)
+    if (!empty($_FN['openkis_validator_rules_off']) && in_array("all", array_map("trim", explode(",", strtolower($_FN['openkis_validator_rules_off']))), true))
+    {
+        return "";
+    }
     $html = "<div class=\"openkis_validator\">";
     if (empty($findings))
     {
