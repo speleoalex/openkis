@@ -98,6 +98,7 @@
     </field>
     <field>
         <name>codecaves</name>
+        <type>text</type>
         <frm_it>Grotte</frm_it>
         <frm_type>multicave</frm_type>
         <foreignkey>ctl_caves</foreignkey>

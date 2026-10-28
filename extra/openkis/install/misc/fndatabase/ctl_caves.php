@@ -579,12 +579,12 @@
     
     <field>
         <name>latitude</name>
-        <type>float</type>
+        <type>double</type>
         <frm_show>0</frm_show>
     </field>
     <field>
         <name>longitude</name>
-        <type>float</type>
+        <type>double</type>
         <frm_show>0</frm_show>
     </field>  
     <field>
