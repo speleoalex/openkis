@@ -15,6 +15,37 @@ require_once(__DIR__ . "/openkis/install/openkis_install.php");
 // customisation (extra/openkis/custom/<region>) sets them; queued because
 // FN_LoadConfig is not available yet at this point of the bootstrap
 FN_IncludeScript("extra/openkis/openkis_defaults.php");
+
+/**
+ * Map position for a regional customisation: the region's own centre, unless
+ * the administrator changed the map defaults (admin section "configopenkis",
+ * extra/openkis/config.php). Called from extra/openkis/custom/<region>/<region>.php.
+ */
+function openkis_SetRegionMapCenter($latitude, $longitude, $zoom)
+{
+    global $_FN;
+    $config = array();
+    include __DIR__ . "/openkis/config.php"; // shipped defaults
+    $current = FN_LoadConfig("extra/openkis/config.php");
+    $changed = false;
+    foreach (array("default_latitude", "default_longitude", "default_zoom") as $k)
+    {
+        if ((string) $current[$k] !== (string) $config[$k])
+            $changed = true;
+    }
+    if ($changed)
+    {
+        $_FN['default_latitude'] = $current['default_latitude'];
+        $_FN['default_longitude'] = $current['default_longitude'];
+        $_FN['default_zoom'] = $current['default_zoom'];
+    }
+    else
+    {
+        $_FN['default_latitude'] = $latitude;
+        $_FN['default_longitude'] = $longitude;
+        $_FN['default_zoom'] = $zoom;
+    }
+}
 $files = glob(__DIR__ . "/openkis/fields/*.class.php");
 
 if (is_array($files))

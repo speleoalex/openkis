@@ -4,7 +4,7 @@ global $_CARS;
 $karsconfig=FN_LoadConfig("extra/openkis/config.php");
 //echo FN_HtmlStaticContent("sections/".$_FN['mod']);
 ?>
-<iframe id="iframemap" style="border:0px;width:100%;height:400px;" src="<?php echo $_FN['siteurl'];?>bs_map.htm?baselayer=Satellite&mod=glacial&lat=<?php echo $karsconfig['default_latitude'];?>&lon=<?php echo $karsconfig['default_longitude'];?>&zoom=<?php echo $karsconfig['default_zoom'];?>"></iframe>
+<iframe id="iframemap" style="border:0px;width:100%;height:400px;" src="<?php echo $_FN['siteurl'];?>bs_map.htm?baselayer=Satellite&mod=glacial&lat=<?php echo $_FN['default_latitude'];?>&lon=<?php echo $_FN['default_longitude'];?>&zoom=<?php echo $_FN['default_zoom'];?>"></iframe>
 <div class="card">
     <div class="card-body">
         <div class="table">

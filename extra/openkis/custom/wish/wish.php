@@ -8,9 +8,7 @@ global $_FN; //variabile globale condivisa da tutto il programma Flatnux
 //l'inserimento di una grotta, la funzione riceve come parametro un array con i 
 //dati appena inseriti:
 
-$config=FN_LoadConfig("extra/openkis/config.php");
-$_FN['default_latitude']=$config['default_latitude'];
-$_FN['default_longitude']=$config['default_longitude'];
-$_FN['default_zoom']=$config['default_zoom'];
+// map centred on the region (unless changed in the admin section "configopenkis")
+openkis_SetRegionMapCenter(42.00, 12.50, 6);
 
 

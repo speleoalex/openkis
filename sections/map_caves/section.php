@@ -4,7 +4,7 @@ global $_CARS;
 $karsconfig=FN_LoadConfig("extra/openkis/config.php");
 echo FN_HtmlStaticContent("sections/".$_FN['mod']);
 ?>
-<iframe id="iframemap" style="border:0px;width:100%;height:calc(100vh - 190px);min-height:400px;" src="<?php echo $_FN['siteurl'];?>bs_map.htm?mod=caves&lat=<?php echo $karsconfig['default_latitude'];?>&lon=<?php echo $karsconfig['default_longitude'];?>&zoom=<?php echo $karsconfig['default_zoom'];?>"></iframe>
+<iframe id="iframemap" style="border:0px;width:100%;height:calc(100vh - 190px);min-height:400px;" src="<?php echo $_FN['siteurl'];?>bs_map.htm?mod=caves&lat=<?php echo $_FN['default_latitude'];?>&lon=<?php echo $_FN['default_longitude'];?>&zoom=<?php echo $_FN['default_zoom'];?>"></iframe>
 <button class="btn btn-primary btn-sm mt-2" onclick="openFullscreen()" ><?php echo FN_Translate("open map in full screen");?></button>
 <details class="openkis-legend small my-2">
     <summary class="text-muted"><?php echo FN_Translate("legend");?></summary>

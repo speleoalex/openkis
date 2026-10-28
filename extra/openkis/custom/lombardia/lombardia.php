@@ -9,10 +9,8 @@ global $_FN; //variabile globale condivisa da tutto il programma Flatnux
 //dati appena inseriti:
 $_FN['modparams']["caves"]['editorparams']['table']['function_on_insert']="GeneraNumero";
 $_FN['modparams']["artificials"]['editorparams']['table']['function_on_insert']="GeneraNumeroArtificials";
-$config=FN_LoadConfig("extra/openkis/config.php");
-$_FN['default_latitude']=$config['default_latitude'];
-$_FN['default_longitude']=$config['default_longitude'];
-$_FN['default_zoom']=$config['default_zoom'];
+// map centred on the region (unless changed in the admin section "configopenkis")
+openkis_SetRegionMapCenter(45.62, 9.75, 8);
 
 
 /**
