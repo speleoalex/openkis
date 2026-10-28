@@ -16,6 +16,9 @@ $_FN['openkis_mcp_write_group']="mcp_write";
 // reference_system, elevation, comune, provincia, speleometric, depth_total or the label of a
 // regional rule); "all" hides the banner in the edit forms
 $_FN['openkis_validator_rules_off']="";
+// map proxy (openkis_proxy.php): hosts allowed besides the ones used in bs_map/conf/layers_*.js
+// and the host of this site, comma separated (e.g. "wms.example.org,tiles.example.org")
+$_FN['openkis_proxy_hosts']="";
 $_FN['openkis_custom']=""; //region identifier, loads extra/openkis/custom/<region>/<region>.php (e.g. "liguria"); empty = no customisation
 
 if (file_exists("extra/openkis_config.local.php"))
