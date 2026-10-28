@@ -227,7 +227,7 @@ var OPS_Map = {
                     if (OPS_Map.kmllayers[i].showLabels === "auto")
                     {
                         console.log("change showPointNames in " + showPointNames);
-                        OPS_Map.kmllayers[i].setSource(new ol.source.Vector({
+                        OPS_Map.kmllayers[i].setSource(OPS_Map.scaleIconsWithZoom(new ol.source.Vector({
                             crossOrigin: "Anonymous",
                             url: OPS_Map.kmllayers[i].path,
                             projection: OPS_Map.view.getProjection(),
@@ -236,7 +236,7 @@ var OPS_Map = {
                                         writeStyles: true,
                                         showPointNames: showPointNames
                                     })
-                        }));
+                        })));
                         //OPS_Map.kmllayers[i].values_.source.format_.showPointNames_ = showPointNames;
                         // console.log(OPS_Map.kmllayers[i].getSource().setProperties({showPointNames: showPointNames}));//.setProperties({showPointNames: true});
                         //OPS_Map.kmllayers[i].setProperties({showPointNames: true});
@@ -846,7 +846,7 @@ var OPS_Map = {
             var layer = new ol.layer.Vector({
                 name: title,
                 //visible: visible,
-                source: new ol.source.Vector({
+                source: OPS_Map.scaleIconsWithZoom(new ol.source.Vector({
                     crossOrigin: "Anonymous",
                     url: path,
                     projection: this.view.getProjection(),
@@ -855,7 +855,7 @@ var OPS_Map = {
                                 writeStyles: true,
                                 showPointNames: showPointNames
                             })
-                })
+                }))
             });
 
 
@@ -882,7 +882,7 @@ var OPS_Map = {
                 declutter: false,
                 name: title,
                 visible: visible,
-                source: new ol.source.Vector({
+                source: OPS_Map.scaleIconsWithZoom(new ol.source.Vector({
                     crossOrigin: "Anonymous",
                     url: path,
                     projection: this.view.getProjection(),
@@ -891,7 +891,7 @@ var OPS_Map = {
                                 writeStyles: true,
                                 showPointNames: showPointNames
                             })
-                })
+                }))
             });
             //var zindex=OPS_Map.kmllayerid+1
             layer.setZIndex(10);
@@ -905,7 +905,86 @@ var OPS_Map = {
             this.addLayer(layer, isBaselayer);
             OPS_Map.getKmlPoints();
         }
-        //---------------------------kml-----------------------------------<        
+        //---------------------------kml-----------------------------------<
+    },
+    /**
+     * Icon growth with the zoom: from iconZoomMin each zoom level adds
+     * iconZoomStep to the KML scale, up to iconZoomMaxFactor times and never
+     * beyond iconZoomMaxPx pixels.
+     */
+    iconZoomMin: 13,
+    iconZoomStep: 0.3,
+    iconZoomMaxFactor: 3,
+    iconZoomMaxPx: 40,
+    /**
+     * Wraps the KML style of every point added to the source so that its
+     * icon grows with the zoom (the KML icons have a fixed size in pixels
+     * and are too small on close zoom levels).
+     * @param {ol.source.Vector} source
+     * @returns {ol.source.Vector}
+     */
+    scaleIconsWithZoom: function (source)
+    {
+        source.on('addfeature', function (event) {
+            var feature = event.feature;
+            var styleFunction = feature.getStyleFunction();
+            var geometry = feature.getGeometry();
+            if (!styleFunction || !geometry || geometry.getType() !== 'Point')
+            {
+                return;
+            }
+            feature.setStyle(function (feature, resolution) {
+                var styles = styleFunction(feature, resolution);
+                if (OPS_Map.setIconZoomScale(styles, resolution))
+                {
+                    // the label offset depends on the icon scale: build it again
+                    styles = styleFunction(feature, resolution);
+                }
+                return styles;
+            });
+        });
+        return source;
+    },
+    /**
+     * Sets the scale of the icons in the styles for the given resolution.
+     * @param {Array|ol.style.Style} styles
+     * @param {Number} resolution map units per pixel
+     * @returns {Boolean} true if a scale has changed
+     */
+    setIconZoomScale: function (styles, resolution)
+    {
+        var zoom = OPS_Map.map.getView().getZoomForResolution(resolution);
+        var factor = Math.min(1 + Math.max(0, zoom - OPS_Map.iconZoomMin) * OPS_Map.iconZoomStep, OPS_Map.iconZoomMaxFactor);
+        var changed = false;
+        styles = Array.isArray(styles) ? styles : [styles];
+        for (var i = 0; i < styles.length; i++)
+        {
+            var image = styles[i] ? styles[i].getImage() : null;
+            if (!(image instanceof ol.style.Icon) || typeof image.getScale() !== 'number')
+            {
+                continue;
+            }
+            var scale = image.getScale();
+            // the KML format rescales the icon when the image is loaded:
+            // a scale not set here becomes the new base
+            if (image.opsZoomScale !== scale)
+            {
+                image.opsBaseScale = scale;
+            }
+            var newScale = image.opsBaseScale * factor;
+            var size = image.getSize();
+            if (size)
+            {
+                newScale = Math.min(newScale, Math.max(OPS_Map.iconZoomMaxPx / Math.max(size[0], size[1]), image.opsBaseScale));
+            }
+            if (newScale !== scale)
+            {
+                image.setScale(newScale);
+                changed = true;
+            }
+            image.opsZoomScale = newScale;
+        }
+        return changed;
     },
     /**
      * Colours of the tracer test arrows (openkis_tracings.php "kind").
