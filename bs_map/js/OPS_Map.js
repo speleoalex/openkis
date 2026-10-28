@@ -131,7 +131,7 @@ var OPS_Map = {
             {
                 if (hits[i].name)
                 {
-                    names.push(hits[i].name);
+                    names.push(OPS_Map.decodeEntities(hits[i].name));
                 }
             }
             if (hits.length > 5)
@@ -413,6 +413,32 @@ var OPS_Map = {
         });
     },
     /**
+     * Plain text of a KML name. The names arrive already escaped, sometimes
+     * more than once ("DELL&amp;#039;EDERA"): the entities are decoded until
+     * none is left, so that escapeHtml() escapes the text only once.
+     * @param {String} text
+     * @returns {String}
+     */
+    decodeEntities: function (text)
+    {
+        text = String(text);
+        if (!window.DOMParser)
+        {
+            return text;
+        }
+        for (var i = 0; i < 3 && /&(#\d+|#x[0-9a-f]+|[a-z]+\d*);/i.test(text); i++)
+        {
+            // DOMParser builds an inert document: nothing in it runs or loads
+            var decoded = new DOMParser().parseFromString(text, 'text/html').documentElement.textContent;
+            if (decoded === text)
+            {
+                break;
+            }
+            text = decoded;
+        }
+        return text;
+    },
+    /**
      * Popup with the details of a feature found by getFeaturesNearPixel
      * @param {Object} hit
      * @returns {undefined}
@@ -420,7 +446,7 @@ var OPS_Map = {
     showHitPopup: function (hit)
     {
         var coordinates = ol.proj.transform(hit.coordinate, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
-        OPS_Map.popUp(coordinates, hit.name ? hit.name : "", hit.description ? hit.description : "");
+        OPS_Map.popUp(coordinates, hit.name ? OPS_Map.escapeHtml(OPS_Map.decodeEntities(hit.name)) : "", hit.description ? hit.description : "");
     },
     /**
      * Popup listing the features under the pointer: the name opens the
@@ -437,7 +463,7 @@ var OPS_Map = {
         for (var i = 0; i < OPS_Map.hitList.length; i++)
         {
             var hit = OPS_Map.hitList[i];
-            var label = OPS_Map.escapeHtml(hit.name ? hit.name : "?");
+            var label = OPS_Map.escapeHtml(hit.name ? OPS_Map.decodeEntities(hit.name) : "?");
             var details = "<a href=\"#\" title=\"Dettagli\" onclick=\"OPS_Map.showHitPopup(OPS_Map.hitList[" + i + "]);return false;\">";
             if (hit.url)
             {
@@ -545,6 +571,8 @@ var OPS_Map = {
         {
             OPS_Map.popupOverlay = new ol.Overlay({
                 element: OPS_Map.popupElement,
+                // custom.css keeps it above the map controls
+                className: 'ol-overlay-container ol-selectable ops-popup-overlay',
                 positioning: 'auto',
                 stopEvent: true,
                 offset: [0, -8]
@@ -563,6 +591,9 @@ var OPS_Map = {
                 'content': description,
                 'title': name + htmlclosePopup
             });
+            $(OPS_Map.popupElement).on('shown.bs.popover', function () {
+                OPS_Map.panPopupIntoView();
+            });
             $(OPS_Map.popupElement).on('hidden.bs.popover', function () {
                 OPS_Map.map.removeOverlay(OPS_Map.popupOverlay);
                 OPS_Map.popupOverlay = null;
@@ -573,6 +604,64 @@ var OPS_Map = {
         $('.popover-title').html(name);
         $('.popover-content').html(description);
         $(OPS_Map.popupElement).popover('show');
+    },
+    /** Free space kept between the popup and the edges of the map, in CSS pixels */
+    popupMargin: 10,
+    /**
+     * Moves the map so that the open popup is inside the visible part of the
+     * map: a popup opened near an edge was cut off, and on a phone its top
+     * went under the toolbar.
+     * @returns {undefined}
+     */
+    panPopupIntoView: function ()
+    {
+        var popover = $(OPS_Map.popupElement).data('bs.popover');
+        var tip = popover && popover.$tip ? popover.$tip[0] : null;
+        if (!tip || !tip.getBoundingClientRect)
+        {
+            return;
+        }
+        var p = tip.getBoundingClientRect();
+        var m = OPS_Map.map.getViewport().getBoundingClientRect();
+        // the visible part of the map: inside the window and below the
+        // toolbar, which floats over the top of the map
+        var margin = OPS_Map.popupMargin;
+        var left = Math.max(m.left, 0) + margin;
+        var right = Math.min(m.right, window.innerWidth) - margin;
+        var top = Math.max(m.top, 0) + margin;
+        var toolbar = document.querySelector('#navbar .mytoolbar');
+        if (toolbar && toolbar.getBoundingClientRect)
+        {
+            top = Math.max(top, toolbar.getBoundingClientRect().bottom + margin);
+        }
+        var bottom = Math.min(m.bottom, window.innerHeight) - margin;
+        var dx = 0;
+        var dy = 0;
+        if (p.width > right - left || p.left < left)
+        {
+            dx = p.left - left;
+        } else if (p.right > right)
+        {
+            dx = p.right - right;
+        }
+        if (p.height > bottom - top || p.top < top)
+        {
+            dy = p.top - top;
+        } else if (p.bottom > bottom)
+        {
+            dy = p.bottom - bottom;
+        }
+        if (dx === 0 && dy === 0)
+        {
+            return;
+        }
+        var view = OPS_Map.map.getView();
+        var size = OPS_Map.map.getSize();
+        var center = OPS_Map.map.getCoordinateFromPixel([size[0] / 2 + dx, size[1] / 2 + dy]);
+        if (center)
+        {
+            view.animate({center: center, duration: 250});
+        }
     },
     onMapClick: function (evt)
     {

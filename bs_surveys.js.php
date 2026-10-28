@@ -26,7 +26,16 @@ if (!empty($_GET['t']) && $_GET['t'] == "areas")
     $table_link = "code";
 }
 
-openkis_RequireSectionView($mod_survey);
+// The map page includes this script for every visitor. Someone who may not
+// view the surveys section gets an empty script, not a 403: no survey data is
+// sent either way, and the map shows no error in the browser console.
+if (!FN_UserCanViewSection($mod_survey))
+{
+    while (false !== @ob_end_clean());
+    header("Cache-Control: no-store");
+    header('Content-type: application/javascript');
+    die("/* surveys: no access */\n");
+}
 $Tablerilievi = FN_XMDBForm($tablename);
 $config = FN_LoadConfig("modules/dbview/config.php", "$mod_survey");
 $dbview = new FNDBVIEW($config);

@@ -139,3 +139,8 @@ button[title=Attributions]{
         width: calc(100vw - 100px);
     }
 }
+/* the popup of a point stays above the zoom buttons, the mouse position and
+   the other map controls */
+.ol-overlaycontainer-stopevent > .ops-popup-overlay{
+    z-index: 101;
+}
