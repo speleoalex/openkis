@@ -233,8 +233,13 @@ endpoint "openkis_gpx.php (caves)" "${TEST_URL}openkis_gpx.php?mod=caves" "<wpt 
 endpoint "openkis_json.php (caves)" "${TEST_URL}openkis_json.php?mod=caves" "$DEMO_CODE"
 endpoint "openkis_markers.js.php (caves)" "${TEST_URL}openkis_markers.js.php?mod=caves" "$DEMO_CODE"
 for m in artificials springs; do
-    s=$(fetch "$WORK/e3" "${TEST_URL}openkis_kml.php?mod=$m"); [ "$s" = 200 ] && ! grep -aEq "$PHP_ERRORS" "$WORK/e3" && ok "openkis_kml.php (mod=$m, empty table)" || fail "openkis_kml.php mod=$m: HTTP $s"
+    s=$(fetch "$WORK/e3" -b "$COOKIES" "${TEST_URL}openkis_kml.php?mod=$m"); [ "$s" = 200 ] && ! grep -aEq "$PHP_ERRORS" "$WORK/e3" && ok "openkis_kml.php (mod=$m, empty table, administrator)" || fail "openkis_kml.php mod=$m (administrator): HTTP $s"
 done
+# the exports follow the section access: springs is restricted to r_caves,w_caves on a clean install
+s=$(fetch "$WORK/e3a" "${TEST_URL}openkis_kml.php?mod=springs"); [ "$s" = 403 ] && ok "openkis_kml.php mod=springs refused to anonymous visitors (restricted section)" || fail "openkis_kml.php mod=springs, anonymous: HTTP $s, expected 403"
+s=$(fetch "$WORK/e3b" "${TEST_URL}openkis_map_access.js.php"); [ "$s" = 200 ] && grep -aq '"springs":""' "$WORK/e3b" && grep -aq '"caves":"all"' "$WORK/e3b" && ok "openkis_map_access.js.php: springs hidden, caves visible for anonymous visitors" || fail "openkis_map_access.js.php (HTTP $s)"
+# the map proxy fetches only from the hosts of the map layers
+s=$(fetch "$WORK/e3c" "${TEST_URL}openkis_proxy.php/http://example.com/"); [ "$s" = 403 ] && ok "openkis_proxy.php refuses a host that is not a map layer host" || fail "openkis_proxy.php/http://example.com/: HTTP $s, expected 403"
 s=$(fetch "$WORK/e4" "${TEST_URL}openkis_kml.php?mod=caves&filter_code=NOSUCHCODE")
 [ "$s" = 200 ] && ! grep -aq "$DEMO_CODE" "$WORK/e4" && ! (gzip -dc "$WORK/e4" 2>/dev/null | grep -aq "$DEMO_CODE") && ok "kml filter_code is part of the cache key (filtered call does not return the cached full export)" || fail "kml filter_code=NOSUCHCODE returned the demo cave or HTTP $s"
 s=$(fetch "$WORK/e5" -b "$COOKIES" "${TEST_URL}openkis_API.php?mod=caves&fields=name,passwd")
