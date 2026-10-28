@@ -23,7 +23,12 @@ $config=FN_LoadConfig("modules/dbview/config.php","caves");
 $params['fields']="code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total";
 $dbview=new FNDBVIEW($config);
 $items_tmp=$dbview->GetResults($config,$params);
-$codecaves=explode(",",$row['caves']);
+if (!is_array($items_tmp))
+{
+    $items_tmp=array();
+}
+$codecaves=array_map("trim",explode(",",isset($row['caves']) ? $row['caves'] : ""));
+$items=array();
 foreach($items_tmp as $item)
 {
     if (in_array($item['code'],$codecaves))
@@ -97,6 +102,11 @@ $latmin=false;
 $latmax=false;
 $lonmin=false;
 $lonmax=false;
+$deltalatkm=0;
+$deltalonkm=0;
+
+$cave_max_quota=null;
+$cave_min_quota=null;
 
 
 
@@ -106,11 +116,12 @@ foreach($items as $item)
     {
         continue;
     }
+    $quota="";
     $sviluppo+=intval($item['lenght_total']);
-    if (isset($item['latitude']))
+    if (!empty($item['latitude']) && !empty($item['longitude']))
     {
-        $_lat=$item['latitude'];
-        $_lon=$item['longitude'];
+        $_lat=floatval($item['latitude']);
+        $_lon=floatval($item['longitude']);
         $geo=new openkis_geoconverter($_lat,$_lon,"GEOWGS84");
         $latlonUTM=$geo->GetCoordinates("UTMWGS8432");
         $latlon=" <span style=\"color:grey\">wgs84: ".$_lat."N ".$_lon."E</span>";
@@ -137,9 +148,7 @@ foreach($items as $item)
         $latlon="";
     }
 
-    $qu=$item['elevation'];
-    $item['elevation']=$qu;
-    if ($item['elevation']!== "")
+    if (isset($item['elevation']) && $item['elevation']!== "")
     {
         if (!$max_quota || $item['elevation'] > $max_quota)
         {
@@ -181,6 +190,10 @@ foreach($items as $item)
 //----------quote e dislivelli ----->
 
 $htmlquote="";
+$dislivelloTot=0;
+$dislivelloTotDaIngressoPiuAlto=0;
+if ($cave_max_quota!== null && $cave_min_quota!== null && $min_quota_gr!== false)
+{
 $minquotatext="da quota $min_quota_gr m s.l.m. ";
 
 $dislivelloTot=$max_quota_gr - $min_quota_gr;
@@ -221,29 +234,34 @@ else
 }
 
 $dislivelloTotDaIngressoPiuAlto=$cave_max_quota['elevation'] - $min_quota_gr;
+}
 
 //----------quote e dislivelli -----<
 
 // Show the stored record values. The per-entrance sum double counts caves that
 // carry the whole-cave development on every entrance, so this view must not
-// overwrite the record; recomputation will move to a dedicated scope-aware
-// function (see the 2026-10-20 proposal in liguria doc/validazione).
+// overwrite the record; the scope-aware recalculation is done by
+// openkis_UpdateCaveSystems() (extra/openkis.inc.php).
 $sviluppo=round($sviluppo);
 $dislivelloTot=round($dislivelloTot);
 
 echo "<div>Sviluppo reale complesso: <b>{$row['lenght_total']} m.</b></div>";
-if ($sviluppo!= intval($row['lenght_total']))
+// the computed values only mean something when at least one linked cave was found
+if (count($items) > 0 && $sviluppo!= intval($row['lenght_total']))
 {
     echo "<div style=\"color:grey\">Somma degli sviluppi delle schede: $sviluppo m.</div>";
 }
 echo "<div>Dislivello totale complesso: <b>{$row['depth_total']} m.</b></div>";
-if ($dislivelloTot!= intval($row['depth_total']))
+if (count($items) > 0 && $dislivelloTot!= intval($row['depth_total']))
 {
     echo "<div style=\"color:grey\">Dislivello calcolato dalle quote degli ingressi: $dislivelloTot m.</div>";
 }
+if (count($items) > 0)
+{
 echo "<div>Profondità calcolata dall'ingresso più alto al punto più profondo: <b>$dislivelloTotDaIngressoPiuAlto m.</b></div>";
 
 echo $htmlquote;
+}
 
 /**
  * 
@@ -254,12 +272,17 @@ function get_articolo($nome)
 {
     //dprint_r($nome);
     $art="la ";
-    if ($nome[1]== " ")
+    $nome=(string)$nome;
+    if ($nome=== "")
+        return "";
+    if (isset($nome[1]) && $nome[1]== " ")
         return "";
     if ($nome)
     {
         $nome=explode(" ",splx_str_to_lower($nome));
         $nome=$nome[0];
+        if ($nome=== "")
+            return $art;
         if ($nome[strlen($nome) - 1]== "o")
         {
             $art="il ";
@@ -279,12 +302,17 @@ function get_articolo_de($nome)
 {
     //dprint_r($nome);
     $art="della ";
-    if ($nome[1]== " ")
+    $nome=(string)$nome;
+    if ($nome=== "")
+        return "";
+    if (isset($nome[1]) && $nome[1]== " ")
         return "";
     if ($nome)
     {
         $nome=explode(" ",splx_str_to_lower($nome));
         $nome=$nome[0];
+        if ($nome=== "")
+            return $art;
         if ($nome[strlen($nome) - 1]== "o")
         {
             $art="del ";
@@ -299,12 +327,17 @@ function get_articolo_a($nome)
 {
     //dprint_r($nome);
     $art="alla ";
-    if ($nome[1]== " ")
+    $nome=(string)$nome;
+    if ($nome=== "")
+        return "";
+    if (isset($nome[1]) && $nome[1]== " ")
         return "";
     if ($nome)
     {
         $nome=explode(" ",splx_str_to_lower($nome));
         $nome=$nome[0];
+        if ($nome=== "")
+            return $art;
         if ($nome[strlen($nome) - 1]== "o")
         {
             $art="al ";
@@ -322,7 +355,7 @@ function get_articolo_a($nome)
  */
 function splx_str_to_lower($str)
 {
-    $str=strtolower($str);
+    $str=strtolower((string)$str);
     $str=str_replace("À","à",$str);
     $str=str_replace("È","è",$str);
     $str=str_replace("Ì","ì",$str);
