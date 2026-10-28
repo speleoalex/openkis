@@ -340,13 +340,29 @@ function openkis_RequireSectionView($mod)
  */
 function openkis_SectionAccess($mod)
 {
+    $access = openkis_SectionMapAccess($mod);
+    if ($access === "")
+        openkis_RequireSectionView($mod);
+    return $access;
+}
+
+/**
+ * Same rules as openkis_SectionAccess(), without ending the request: "all",
+ * "public", or "" when the user would get 403. The map page asks it for each
+ * section it may draw (openkis_map_access.js.php), so that it does not
+ * request a layer the user may not see.
+ *
+ * @param string $mod section name
+ * @return string "all", "public" or ""
+ */
+function openkis_SectionMapAccess($mod)
+{
     if (FN_UserCanViewSection($mod))
         return "all";
     $config = FN_LoadConfig("modules/dbview/config.php", $mod);
     $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
     if ($table && isset($table->fields['public_map']))
         return "public";
-    openkis_RequireSectionView($mod);
     return "";
 }
 

@@ -796,8 +796,33 @@ var OPS_Map = {
      * @param {type} layergroup
      * @returns {undefined}
      */
+    // false for a layer of this site's map data endpoints (openkis_kml.php,
+    // openkis_kml_history.php) that the current user may not get: they would
+    // answer 403. OPENKIS_MAP_ACCESS comes from openkis_map_access.js.php;
+    // without it, or for a section it does not list, the layer is loaded.
+    canLoadLayer: function (path)
+    {
+        var m = /^(openkis_kml|openkis_kml_history)\.php(\?.*)?$/.exec(String(path));
+        if (!m || typeof OPENKIS_MAP_ACCESS !== "object" || OPENKIS_MAP_ACCESS === null)
+        {
+            return true;
+        }
+        var mod = /[?&]mod=([^&#]*)/.exec(m[2] || "");
+        mod = (mod && mod[1] !== "") ? decodeURIComponent(mod[1]) : "caves";
+        if (!OPENKIS_MAP_ACCESS.hasOwnProperty(mod))
+        {
+            return true;
+        }
+        var access = OPENKIS_MAP_ACCESS[mod];
+        // the coordinate history has no public part
+        return m[1] === "openkis_kml_history" ? access === "all" : access !== "";
+    },
     addKmlLayer: function (title, path, isBaselayer, visible, showPointNames, searchable, layergroup)
     {
+        if (!OPS_Map.canLoadLayer(path))
+        {
+            return;
+        }
         var isVisible = visible;
         var _showPointNames;
         if (typeof visible === 'string' || visible instanceof String)
