@@ -182,7 +182,7 @@ if (file_exists("../nextcloud/data/catasto/files/scansioni_Issel/"))
 
     if ($list && count($list) > 0)
     {
-        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede storiche Issel</h5></div>";
+        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede Storiche Catasto G.S.L. Issel</h5></div>";
         echo "<div class=\"card-body\" style=\"max-height:400px;overflow:auto;\">";
         echo "<div class=\"card-columns row\">";
         foreach ($list as $item)
@@ -226,7 +226,7 @@ if (file_exists("../nextcloud/data/catasto/files/scansioni_Zoja/"))
 
     if ($list && count($list) > 0)
     {
-        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede storiche Issel - Aggiornamento Zoja</h5></div>";
+        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede Storiche Catasto G.S.L. Issel - Aggiornamento Zoja</h5></div>";
         echo "<div class=\"card-body\" style=\"max-height:400px;overflow:auto;\">";
         echo "<div class=\"card-columns row\">";
         foreach ($list as $item)
