@@ -1,6 +1,6 @@
 <?php
 global $_FN;
-openkis_UpdateCoords("artificials",true);
+openkis_UpdateCoordsIfChanged("artificials");
 if (!empty($row['latitude']))
 {
     $zoom=17;

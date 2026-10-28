@@ -64,6 +64,7 @@ if (is_array($files))
 function openkis_UpdateCoords($mod, $forceall = false)
 {
     global $_FN;
+    $started = time();
     //dprint_r(" openkis_UpdateCoords($mod, $forceall = false)");
     $config = FN_LoadConfig("modules/dbview/config.php", $mod);
     $file_lastUpdate = "{$_FN['datadir']}/_cache/openkis_UpdateCoords{$mod}.time";
@@ -103,6 +104,55 @@ function openkis_UpdateCoords($mod, $forceall = false)
         }
     }
     @touch($file_lastUpdate);
+    if ($forceall)
+    {
+        // a full recalculation started at $started (openkis_UpdateCoordsIfChanged)
+        @touch(openkis_UpdateCoordsAllFile($mod), $started);
+    }
+}
+
+/**
+ * @param string $mod
+ * @return string the file whose mtime is the start of the last full
+ * recalculation of $mod's coordinates
+ */
+function openkis_UpdateCoordsAllFile($mod)
+{
+    global $_FN;
+    return "{$_FN['datadir']}/_cache/openkis_UpdateCoordsAll{$mod}.time";
+}
+
+/**
+ * Full coordinate recalculation, like openkis_UpdateCoords($mod, true), but
+ * only when something it depends on changed since the last full one: the
+ * section's table, ctl_coordinatestypes or the conversion code. Edits made
+ * directly in the database are not seen: use Control center -> Utilities ->
+ * Refresh map data, or "php refresh-cache.php".
+ *
+ * @param string $mod
+ */
+function openkis_UpdateCoordsIfChanged($mod)
+{
+    $config = FN_LoadConfig("modules/dbview/config.php", $mod);
+    $file = openkis_UpdateCoordsAllFile($mod);
+    if (file_exists($file))
+    {
+        $changed = max(openkis_MapCacheStamp($config['tables']),
+            openkis_MapCacheStamp("ctl_coordinatestypes"),
+            filectime(__FILE__),
+            filectime(__DIR__ . "/openkis_geoconverter/openkis_geoconverter.class.php"));
+        clearstatcache(true, $file);
+        // recalculate when a stamp is >= the start of the last one: stamps
+        // have a one second resolution, and a change made during the last
+        // recalculation (or by it) is not older than its start
+        if ($changed < filemtime($file))
+        {
+            if (isset($_GET['debug']))
+                dprint_r("$mod:Cache openkis_UpdateCoordsIfChanged: $changed", "", "magenta");
+            return;
+        }
+    }
+    openkis_UpdateCoords($mod, true);
 }
 
 /**
