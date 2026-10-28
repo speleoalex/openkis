@@ -30,6 +30,7 @@ if (!file_exists("sections/$mod"))
 {
     die();
 }
+$openkis_access = openkis_SectionAccess($mod);
 $config=FN_LoadConfig("modules/dbview/config.php",$mod);
 $dbview=new FNDBVIEW($config);
 $tablename=$config['tables'];
@@ -89,6 +90,7 @@ if (isset($_GET['debug']))
 }
 $stamp=openkis_MapCacheStamp($tablename);
 $results=$dbview->GetResults(false,$params,$idresult);
+$results = openkis_FilterPublicRecords($openkis_access, $config, $results);
 if (isset($_GET['debug']))
 {
     dprint_r("idresult:$idresult");

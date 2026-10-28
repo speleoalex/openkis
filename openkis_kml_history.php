@@ -20,6 +20,7 @@ if (!file_exists("sections/$mod"))
 {
     die();
 }
+openkis_RequireSectionView($mod);
 $config=FN_LoadConfig("modules/dbview/config.php",$mod);
 $dbview=new FNDBVIEW($config);
 $tablename=$config['tables'];

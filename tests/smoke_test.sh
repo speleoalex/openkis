@@ -237,9 +237,9 @@ for m in artificials springs; do
 done
 s=$(fetch "$WORK/e4" "${TEST_URL}openkis_kml.php?mod=caves&filter_code=NOSUCHCODE")
 [ "$s" = 200 ] && ! grep -aq "$DEMO_CODE" "$WORK/e4" && ! (gzip -dc "$WORK/e4" 2>/dev/null | grep -aq "$DEMO_CODE") && ok "kml filter_code is part of the cache key (filtered call does not return the cached full export)" || fail "kml filter_code=NOSUCHCODE returned the demo cave or HTTP $s"
-s=$(fetch "$WORK/e5" "${TEST_URL}openkis_API.php?mod=caves&fields=name,passwd")
-[ "$s" = 200 ] && grep -aq "$DEMO_CODE" "$WORK/e5" && grep -aq "latitude" "$WORK/e5" && ! grep -aq "\[name\]" "$WORK/e5" && ok "openkis_API.php: fixed fields, request 'fields' ignored" || fail "openkis_API.php (HTTP $s)"
-s=$(fetch "$WORK/e6" "${TEST_URL}openkis_API.php?op=near&mod=caves&lat=44.42&lon=8.98")
+s=$(fetch "$WORK/e5" -b "$COOKIES" "${TEST_URL}openkis_API.php?mod=caves&fields=name,passwd")
+[ "$s" = 200 ] && grep -aq "$DEMO_CODE" "$WORK/e5" && grep -aq '"latitude"' "$WORK/e5" && ! grep -aq '"name"' "$WORK/e5" && ok "openkis_API.php: fixed fields, request 'fields' ignored" || fail "openkis_API.php (HTTP $s)"
+s=$(fetch "$WORK/e6" -b "$COOKIES" "${TEST_URL}openkis_API.php?op=near&mod=caves&lat=44.42&lon=8.98")
 [ "$s" = 200 ] && grep -aq "methers" "$WORK/e6" && ok "openkis_API.php op=near" || fail "openkis_API.php op=near (HTTP $s)"
 
 say "6b. cache invalidation when the table changes"

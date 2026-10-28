@@ -22,6 +22,7 @@ if (!file_exists("sections/$mod"))
 {
     die();
 }
+$openkis_access = openkis_SectionAccess($mod);
 $config = FN_LoadConfig("modules/dbview/config.php", $mod);
 $dbview = new FNDBVIEW($config);
 $tablename = $config['tables'];
@@ -67,6 +68,7 @@ openkis_UpdateCoords("artificials");
 openkis_UpdateCoords("springs");
 $stamp = openkis_MapCacheStamp($tablename);
 $results = $dbview->GetResults(false, $params, $idresult);
+$results = openkis_FilterPublicRecords($openkis_access, $config, $results);
 
 $tplstring = file_get_contents("openkis_gpx.tp.xml");
 $tplvars['sourceurl'] = $_FN['siteurl'];

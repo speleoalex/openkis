@@ -32,6 +32,7 @@ if (!file_exists("sections/$mod"))
 {
     die();
 }
+$openkis_access = openkis_SectionAccess($mod);
 $config = FN_LoadConfig("modules/dbview/config.php", $mod);
 $dbview = new FNDBVIEW($config);
 $tablename = $config['tables'];
@@ -56,6 +57,7 @@ $data = str_replace("\\", "", str_replace("/", "", $data));
 $filename = "$data-$mod";
 
 $results = $dbview->GetResults(false, $params, $idresult);
+$results = openkis_FilterPublicRecords($openkis_access, $config, $results);
 
 
 

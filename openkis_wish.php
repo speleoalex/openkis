@@ -28,6 +28,7 @@ if (!file_exists("sections/$mod"))
 {
     die();
 }
+$openkis_access = openkis_SectionAccess($mod);
 $config = FN_LoadConfig("modules/dbview/config.php", $mod);
 
 
@@ -45,6 +46,7 @@ openkis_UpdateCoords("artificials");
 openkis_UpdateCoords("springs");
 
 $results = $dbview->GetResults($config, $params);
+$results = openkis_FilterPublicRecords($openkis_access, $config, $results);
 foreach ($results as $id => $result)
 {
     $results[$id]['link'] = FN_RewriteLink("index.php?mod=$mod&op=view&id={$result['id']}", "&", true);

@@ -17,19 +17,21 @@ switch($op)
         GetNear();
         break;
     default:
+        if ($_FN['mod'] == "" || !file_exists("sections/{$_FN['mod']}"))
+            die();
+        $openkis_access=openkis_SectionAccess($_FN['mod']);
         $config=FN_LoadConfig("modules/dbview/config.php",$_FN['mod']);
         $dbview=new FNDBVIEW($config);
-        $table=FN_XMDBTable($config['tables']);
         $params=$_REQUEST;
         // the exported columns are fixed: a "fields" parameter from the
-        // request is ignored, so unauthenticated calls cannot pick other
-        // columns of the table
+        // request is ignored, so callers cannot pick other columns of the table
         $params['fields']="code,latitude,longitude,elevation";
         $results=$dbview->GetResults($config,$params);
+        $results=openkis_FilterPublicRecords($openkis_access,$config,$results);
+        header("Content-Type: application/json; charset=utf-8");
+        echo json_encode(array("count" => count($results), "items" => array_values($results)));
         break;
 }
-dprint_r(count($results));
-dprint_r($results);
 
 /**
  * 
@@ -39,6 +41,9 @@ function GetNear()
 {
     global $_FN;
     $mod=FN_GetParam("mod",$_REQUEST);
+    if ($mod == "" || !file_exists("sections/$mod"))
+        die();
+    $openkis_access=openkis_SectionAccess($mod);
     $params['fields']="code,latitude,longitude,elevation,name";
     $config=FN_LoadConfig("modules/dbview/config.php",$mod);
     $lat=FN_GetParam("lat",$_REQUEST);
@@ -50,6 +55,7 @@ function GetNear()
     $lon=str_replace(",",".",$lon);
     $dbview=new FNDBVIEW($config);
     $allinrange=$dbview->GetResults(false,$params);
+    $allinrange=openkis_FilterPublicRecords($openkis_access,$config,$allinrange);
     $near=0;
     $mindiff=-1;
     foreach($allinrange as $item)

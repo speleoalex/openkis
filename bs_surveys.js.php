@@ -26,6 +26,7 @@ if (!empty($_GET['t']) && $_GET['t'] == "areas")
     $table_link = "code";
 }
 
+openkis_RequireSectionView($mod_survey);
 $Tablerilievi = FN_XMDBForm($tablename);
 $config = FN_LoadConfig("modules/dbview/config.php", "$mod_survey");
 $dbview = new FNDBVIEW($config);

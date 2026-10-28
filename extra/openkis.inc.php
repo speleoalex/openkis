@@ -70,7 +70,9 @@ function openkis_UpdateCoords($mod, $forceall = false)
     $file_lastUpdate = "{$_FN['datadir']}/_cache/openkis_UpdateCoords{$mod}.time";
     if (!file_exists($file_lastUpdate))
     {
-        fclose(fopen($file_lastUpdate, "a"));
+        if (!is_dir("{$_FN['datadir']}/_cache"))
+            @mkdir("{$_FN['datadir']}/_cache", 0777, true);
+        touch($file_lastUpdate);
         $forceall = true;
     }
     $table = FN_XMDBTable($config['tables']);
@@ -269,6 +271,79 @@ $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] =
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 // tracer tests: computed fields, save callbacks and map arrows
 require_once(__DIR__ . "/openkis/openkis_tracings.inc.php");
+
+/**
+ * Stops the request unless the current user may view the section that a data
+ * endpoint reads. The data of a restricted section, such as a reserved cave
+ * register, then reaches only its authorized groups and the administrators,
+ * as in the web interface.
+ *
+ * @param string $mod section name
+ * @return void
+ */
+function openkis_RequireSectionView($mod)
+{
+    if (FN_UserCanViewSection($mod))
+        return;
+    http_response_code(403);
+    header("Cache-Control: no-store");
+    die();
+}
+
+/**
+ * Access of the current user to the records of a section in the data
+ * endpoints (map exports, API, WISH feed):
+ *  - "all": the user may view the section (its records still follow the
+ *    per-record groupview);
+ *  - "public": the user may not view the section, but its table has the
+ *    public_map field: only the records with public_map = "Y" are served
+ *    (see openkis_FilterPublicRecords());
+ *  - otherwise the request ends with 403.
+ *
+ * @param string $mod section name
+ * @return string "all" or "public"
+ */
+function openkis_SectionAccess($mod)
+{
+    if (FN_UserCanViewSection($mod))
+        return "all";
+    $config = FN_LoadConfig("modules/dbview/config.php", $mod);
+    $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
+    if ($table && isset($table->fields['public_map']))
+        return "public";
+    openkis_RequireSectionView($mod);
+    return "";
+}
+
+/**
+ * Keeps only the records marked public_map = "Y" when $access is "public".
+ *
+ * @param string $access result of openkis_SectionAccess()
+ * @param array $config section config (its first table is the one read)
+ * @param array $results rows with the primary key of that table
+ * @return array
+ */
+function openkis_FilterPublicRecords($access, $config, $results)
+{
+    if ($access !== "public" || !is_array($results))
+        return $results;
+    $table = FN_XMDBTable($config['tables']);
+    $pk = $table->primarykey;
+    $public = array();
+    $rows = FN_XMETADBQuery("SELECT $pk FROM {$config['tables']} WHERE public_map LIKE 'Y'");
+    if (is_array($rows))
+    {
+        foreach ($rows as $row)
+            $public[strval($row[$pk])] = true;
+    }
+    $ret = array();
+    foreach ($results as $key => $row)
+    {
+        if (isset($row[$pk]) && isset($public[strval($row[$pk])]))
+            $ret[$key] = $row;
+    }
+    return $ret;
+}
 
 /**
  * Map exports cache (openkis_kml.php, openkis_gpx.php, openkis_json.php,
