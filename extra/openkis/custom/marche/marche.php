@@ -119,19 +119,13 @@ function GeneraNumero($values)
 }
 
 /**
- * 
+ * Country and region pre-filled in the insert forms, set only on the pages of
+ * these sections (see openkis_SetInsertDefaults()).
  */
 function InizializzaDB()
 {
-    $TableFRM=FN_XMDBForm("ctl_caves");
-    $TableFRM->formvals['country']['frm_default']="ITALIA";
-    $TableFRM->formvals['regione']['frm_default']="MARCHE";
-    $TableFRM1=FN_XMDBForm("ctl_artificials");
-    $TableFRM1->formvals['country']['frm_default']="ITALIA";
-    $TableFRM1->formvals['regione']['frm_default']="MARCHE";
-    $TableFRM2=FN_XMDBForm("ctl_springs");
-    $TableFRM2->formvals['country']['frm_default']="ITALIA";
-    $TableFRM2->formvals['regione']['frm_default']="MARCHE";
+    openkis_SetInsertDefaults(array("caves" => "ctl_caves", "artificials" => "ctl_artificials", "springs" => "ctl_springs"),
+        array("country" => "ITALIA", "regione" => "MARCHE"));
 }
 
 InizializzaDB();

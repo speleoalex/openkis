@@ -102,6 +102,7 @@ CALL openkis_add_index('ctl_faunacave',               'okx_codecave',       'cod
 CALL openkis_add_index('ctl_faunacave',               'okx_codeartificial', 'codeartificial');
 CALL openkis_add_index('ctl_faunacave',               'okx_name',           'name');
 CALL openkis_add_index('ctl_springs',                 'okx_codecave',       'codecave');
+CALL openkis_add_index('ctl_bibliography_links',      'okx_linkfield_code', 'linkfield(32),code(64)');
 
 -- 3. Default list order (ORDER BY recordupdate DESC LIMIT n) of the sections
 CALL openkis_add_index('ctl_caves',        'okx_recordupdate', 'recordupdate');

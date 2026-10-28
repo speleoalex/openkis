@@ -46,6 +46,41 @@ function openkis_SetRegionMapCenter($latitude, $longitude, $zoom)
         $_FN['default_zoom'] = $zoom;
     }
 }
+/**
+ * Values pre-filled in the insert form of a table, e.g. the country and the
+ * region of a regional register. Called from
+ * extra/openkis/custom/<region>/<region>.php with the sections that show the
+ * table (section id => table). Building a form reads every table its
+ * foreign keys point to (for caves, artificial cavities and springs the whole
+ * caves table), so the form is set up only on the pages of those sections,
+ * which build it anyway, instead of on every page. frm_default is used
+ * only when the insert form is shown, never when a record is saved from the
+ * API or an import.
+ *
+ * @param array $tables section id => table name, e.g. array("caves" => "ctl_caves")
+ * @param array $defaults field => value
+ */
+function openkis_SetInsertDefaults($tables, $defaults)
+{
+    global $_FN;
+    if (empty($_FN['mod']) || empty($tables[$_FN['mod']]))
+    {
+        return;
+    }
+    $form = FN_XMDBForm($tables[$_FN['mod']]);
+    if (!is_object($form))
+    {
+        return;
+    }
+    foreach ($defaults as $field => $value)
+    {
+        if (isset($form->formvals[$field]))
+        {
+            $form->formvals[$field]['frm_default'] = $value;
+        }
+    }
+}
+
 $files = glob(__DIR__ . "/openkis/fields/*.class.php");
 
 if (is_array($files))
@@ -453,8 +488,9 @@ function openkis_MapCacheSet($key, $stamp, $data)
 }
 
 /**
- * Drops every cached map export and recalculates the coordinates, e.g. after
- * the caves data were changed directly in the database.
+ * Drops every cached map export, recalculates the coordinates and marks the
+ * bibliography as changed (its link table is rebuilt), e.g. after the data
+ * were changed directly in the database.
  *
  * @return array what was done, one line per step
  */
@@ -476,6 +512,13 @@ function openkis_RefreshMapData()
         openkis_MapCacheStamp($config['tables']);
         FN_XMDBTable($config['tables'])->SetLastUpdateTime();
         $done[] = "{$config['tables']}: " . FN_Translate("marked as changed");
+    }
+    // the bibliography link table of the cave pages is rebuilt at the next view
+    if (FN_XMDBTable("ctl_bibliography"))
+    {
+        openkis_MapCacheStamp("ctl_bibliography");
+        FN_XMDBTable("ctl_bibliography")->SetLastUpdateTime();
+        $done[] = "ctl_bibliography: " . FN_Translate("marked as changed");
     }
     FN_ClearCache();
     if (function_exists('apcu_clear_cache'))

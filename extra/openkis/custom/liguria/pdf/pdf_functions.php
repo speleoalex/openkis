@@ -22,14 +22,14 @@ function pdf_get_cave_data($id)
     $tablerilievi = FN_XMDBTable("ctl_surveys");
     $rilievi = $tablerilievi->GetRecords(array("codecave" => $record['code']));
 
-    // Bibliografia: usa FNDBVIEW con la stessa query LIKE del viewfooter
+    // Bibliografia: usa FNDBVIEW con lo stesso filtro del viewfooter (tabella di collegamento)
     $bibliografia = array();
-    $bibconfig = FN_LoadConfig("", "bibliography");
+    $bibfilter = openkis_BibliographyFilter($record['code'], "codecaves");
+    $bibconfig = $bibfilter !== false ? FN_LoadConfig("", "bibliography") : false;
     if ($bibconfig) {
         $bibview = new FNDBVIEW($bibconfig);
         $bibparams = array();
-        $code = $record['code'];
-        $bibparams['appendquery'] = "codecaves LIKE '{$code}' OR codecaves LIKE '{$code},%' OR codecaves LIKE '%,{$code},%' OR codecaves LIKE '%,{$code}' ";
+        $bibparams['appendquery'] = $bibfilter;
         $bibparams['fields'] = "id,title,authors,year";
         $bibliografia = $bibview->GetResults(false, $bibparams);
         if (is_array($bibliografia)) {

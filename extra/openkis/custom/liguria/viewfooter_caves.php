@@ -45,12 +45,18 @@ if (!empty($row['latitude']))
     $GLOBALS['openkis_view_side'][] = $side;
     //---- coordinates card --------------------------------------------------<
 }
-$config = FN_LoadConfig("", "bibliography");
-$biblio = new FNDBVIEW($config);
-$params['appendquery'] = "codecaves LIKE '{$row['code']}' OR codecaves LIKE '{$row['code']},%' OR codecaves LIKE '%,{$row['code']},%' OR codecaves LIKE '%,{$row['code']}' ";
-$params['fields'] = "id,title,authors,year";
-$biblio_items = $biblio->GetResults(false, $params);
-$biblio_items = FN_ArraySortByKey($biblio_items, "year");
+// items linked to this code, through the bibliography link table
+$biblio_items = array();
+$biblio_filter = openkis_BibliographyFilter($row['code'], "codecaves");
+if ($biblio_filter !== false)
+{
+    $config = FN_LoadConfig("", "bibliography");
+    $biblio = new FNDBVIEW($config);
+    $params['appendquery'] = $biblio_filter;
+    $params['fields'] = "id,title,authors,year";
+    $biblio_items = $biblio->GetResults(false, $params);
+    $biblio_items = FN_ArraySortByKey($biblio_items, "year");
+}
 if (is_array($biblio_items) && count($biblio_items))
 {
     echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("bibliography") . "</h5></div>";

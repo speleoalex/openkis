@@ -48,6 +48,7 @@ key, weighted by how often they run:
 | `codecave` / `codeartificial` / `codeglacial` on photos, surveys, attachments, fauna, springs | `WHERE codecave LIKE 'X'` | cave view footers (`sections/*/viewfooter.php`), `openkis_photos_server.php`, dbview navigation by cave | Every cave page |
 | `recordupdate` on the main tables | `WHERE recorddeleted <> '1' ORDER BY recordupdate DESC LIMIT a,b` | default list order of the caves, artificials, glacial, springs and bibliography sections | Every list page |
 | `regione`, `provincia`, `comune`, `areas`, `glaciers`, `year`, `province`, `zone`, `username` | `WHERE field LIKE 'value'` and per-value counts | dbview `navigate_groups` filters configured in the sections | Navigation clicks |
+| `(linkfield, code)` on `ctl_bibliography_links` | `WHERE linkfield = 'codecaves' AND code = 'X'` | bibliography box of the cave and artificial cavity pages (`extra/openkis_bibliography.inc.php`) | Every cave page |
 | `(id, recordupdate)` on the `*_versions` tables | `WHERE id LIKE 'X' ORDER BY recordupdate DESC` | record history, `openkis_kml_history.php` | History views; these are the largest tables |
 | `code` on `ctl_areas`, `ctl_glaciers`; `name` on `ctl_licenses`; `scientific_name` on `ctl_fauna`, `name` on `ctl_faunacave` | `WHERE link_field LIKE 'X'` | foreign-key value lookups done per record and per field in lists, views and exports | Many per page |
 | `(username, displayed)` on `fn_notifications` | `WHERE username LIKE 'u' AND displayed <> 1` | notifications, on every page | Every page |
@@ -144,10 +145,11 @@ For the column types (`VARCHAR(255)` everywhere) see [DB_STRUCTURE.md](DB_STRUCT
   (`FN_XMETADBQuery`) read the whole table into PHP whatever the indexes, so
   the notifications and history indexes only pay off where those calls use
   the native path. The same goes for `openkis_UpdateCoords`.
-- Free-text search (`LIKE '%text%'`), permission filters on `groupview`
-  (`LIKE '%group'`) and the comma-separated code lists in the bibliography
-  (`codecaves LIKE '%,X,%'`) can't use a normal index; FULLTEXT indexes or a
-  link table would be needed.
+- Free-text search (`LIKE '%text%'`) and permission filters on `groupview`
+  (`LIKE '%group'`) can't use a normal index; FULLTEXT indexes would be
+  needed. The comma-separated code lists of the bibliography
+  (`codecaves LIKE '%,X,%'`) are looked up through the link table
+  `ctl_bibliography_links` instead.
 - `COUNT(*) … WHERE recorddeleted <> '1'` for the list pagination still reads
   all rows; it is cheap compared with the old full scan + sort.
 

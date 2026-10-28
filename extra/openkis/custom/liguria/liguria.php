@@ -119,15 +119,13 @@ function GeneraNumero($values)
 }
 
 /**
- * 
+ * Country and region pre-filled in the insert forms, set only on the pages of
+ * these sections (see openkis_SetInsertDefaults()).
  */
 function InizializzaDB()
 {
-//inizializza a PIEMONTE la regione di default durante l'inserimento
-    $TableFRM = FN_XMDBForm("ctl_caves");
-//dprint_r($TableFRM ->formvals['regione']['frm_default']);
-    $TableFRM->formvals['country']['frm_default'] = "ITALIA";
-    $TableFRM->formvals['regione']['frm_default'] = "LIGURIA";
+    openkis_SetInsertDefaults(array("caves" => "ctl_caves"),
+        array("country" => "ITALIA", "regione" => "LIGURIA"));
 }
 /**
  * 
