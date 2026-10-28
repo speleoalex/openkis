@@ -31,3 +31,5 @@ if (file_exists("openkis_config.local.php"))
 
     include "openkis_config.local.php";
 }
+// queued after the regional customisation, which both local files may queue
+FN_IncludeScript("extra/openkis/openkis_hooks.php");

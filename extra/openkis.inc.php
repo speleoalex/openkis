@@ -298,8 +298,31 @@ function openkis_OnSaveUpdateCaveSystems($record)
     openkis_UpdateCaveSystems();
 }
 
-// Register the save callbacks. Nothing else writes these entries: the dbview
-// section initialises $_FN['modparams'][mod]['editorparams'] only when unset.
+/**
+ * Insert callback of the caves section when the regional customisation sets
+ * its own one (the cadastre number, e.g. GeneraNumero): dbview calls a single
+ * function, so extra/openkis/openkis_hooks.php puts this one in its place.
+ * It runs the regional callback, then the cave systems recalculation.
+ *
+ * @param array $record the inserted record
+ * @return mixed what the regional callback returns
+ */
+function openkis_OnInsertCave($record)
+{
+    global $_FN;
+    $ret = null;
+    if (!empty($_FN['openkis_caves_on_insert']) && function_exists($_FN['openkis_caves_on_insert']))
+    {
+        $ret = call_user_func($_FN['openkis_caves_on_insert'], $record);
+    }
+    openkis_OnSaveUpdateCaveSystems($record);
+    return $ret;
+}
+
+// Register the save callbacks. The dbview section initialises
+// $_FN['modparams'][mod]['editorparams'] only when unset. The regional
+// customisations replace the insert callback of the caves with their own:
+// extra/openkis/openkis_hooks.php chains the two.
 $_FN['modparams']['caves']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['caves']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
