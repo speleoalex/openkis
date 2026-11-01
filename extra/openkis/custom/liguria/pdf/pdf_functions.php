@@ -39,6 +39,20 @@ function pdf_get_cave_data($id)
         }
     }
 
+    // Fauna records (ctl_faunacave): only for users who can view the fauna_surveys section
+    $fauna = array();
+    if (FN_UserCanViewSection("fauna_surveys")) {
+        $fauna = FN_XMDBTable("ctl_faunacave")->GetRecords(array("codecave" => $record['code']));
+        if (is_array($fauna)) {
+            usort($fauna, function ($a, $b) {
+                $c = strcasecmp(trim($a['scientific_name']), trim($b['scientific_name']));
+                return $c != 0 ? $c : strcmp($a['date'], $b['date']);
+            });
+        } else {
+            $fauna = array();
+        }
+    }
+
     // Censimenti
     $strcens = array();
     if ($record['marine'] == "S") $strcens[] = "Cavit&agrave; marina";
@@ -92,6 +106,7 @@ function pdf_get_cave_data($id)
         'record' => $record,
         'rilievi' => $rilievi,
         'bibliografia' => $bibliografia,
+        'fauna' => $fauna,
         'strcens' => implode(", ", $strcens),
         'areaName' => $areaName,
         'geoValue' => $geoValue,
@@ -491,6 +506,9 @@ function _build_fields_html($data, $mode)
             $html .= $section_title($label);
             $html .= $text_block($record[$field]);
         }
+        if ($field === 'fauna') {
+            $html .= _build_fauna_html($data, $mode);
+        }
     }
 
     // Dati compilazione
@@ -521,6 +539,50 @@ function _build_fields_html($data, $mode)
         }
     }
 
+    return $html;
+}
+
+/**
+ * Table of the fauna records of the cave (species, date, specimens, observer, source)
+ */
+function _build_fauna_html($data, $mode)
+{
+    $fauna = $data['fauna'];
+    if (!$fauna || count($fauna) == 0)
+        return '';
+    $section_title = ($mode === 'pdf') ? 'tpdf_section_title' : 'html_section_title';
+    $html = $section_title('Rilevamenti faunistici (' . count($fauna) . ')');
+    if ($mode === 'pdf') {
+        $th = 'font-size:9px;color:#0078a3;padding:2px 4px;border-bottom:1px solid #cccccc;text-align:left;';
+        $td = 'style="font-size:9px;padding:2px 4px;border-bottom:1px solid #eeeeee;vertical-align:top;"';
+        $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
+        $html .= "<tr><td style=\"{$th}width:30%;\">Specie</td><td style=\"{$th}width:12%;\">Data</td><td style=\"{$th}width:14%;\">Esemplari</td><td style=\"{$th}width:20%;\">Rilevato da</td><td style=\"{$th}width:24%;\">Fonte</td></tr>";
+    } else {
+        $th = 'style="font-size:11px;color:#0078a3;padding:3px 6px;border-bottom:1px solid #ccc;text-align:left;"';
+        $td = 'style="font-size:12px;padding:3px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top;"';
+        $html .= '<table style="width:100%;border-collapse:collapse;margin-bottom:6px;">';
+        $html .= "<tr><th $th>Specie</th><th $th>Data</th><th $th>Esemplari</th><th $th>Rilevato da</th><th $th>Fonte</th></tr>";
+    }
+    foreach ($fauna as $item) {
+        // dates are stored as Y-m-d H:i:s; a few old records use other formats: show them as they are
+        $date = trim($item['date']);
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $date, $m)) {
+            $date = "{$m[3]}/{$m[2]}/{$m[1]}";
+        }
+        // short source: "Fonte: Authors, year" from the description
+        $source = '';
+        if (preg_match('/Fonte: (.*?\d{4})/', $item['description'], $m)) {
+            $source = $m[1];
+        } elseif (preg_match('/Fonte: ([^.\n]+)/', $item['description'], $m)) {
+            $source = $m[1];
+        }
+        $html .= '<tr><td ' . $td . '><i>' . fix_charset(trim($item['scientific_name'])) . '</i></td>'
+                . '<td ' . $td . '>' . fix_charset($date) . '</td>'
+                . '<td ' . $td . '>' . fix_charset($item['ammount']) . '</td>'
+                . '<td ' . $td . '>' . fix_charset($item['caver']) . '</td>'
+                . '<td ' . $td . '>' . fix_charset($source) . '</td></tr>';
+    }
+    $html .= '</table>';
     return $html;
 }
 
