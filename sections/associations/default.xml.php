@@ -15,7 +15,7 @@
 	<sectionpath>sections</sectionpath>
 	<level></level>
 	<group_view></group_view>
-	<group_edit>w_caves</group_edit>
+	<group_edit>w_caves,w_associations</group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
 	<title_it>Gruppi speleologici</title_it>

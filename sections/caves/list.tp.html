@@ -33,6 +33,16 @@
     /* The map of the results sits outside the container, as wide as the page; the search bar follows it */
     .openkis-map-full { margin-bottom: .5rem; }
     .openkis-map-full iframe { display: block; width: 100%; height: clamp(280px, 45vh, 560px); border: 0; }
+    /* Data status badge: the card carries the raw status, only the matching badge is shown */
+    .openkis-badge-status { display: none; color: #fff; }
+    .card[data-status="draft"] .openkis-status-draft,
+    .card[data-status="verify"] .openkis-status-verify,
+    .card[data-status="validated"] .openkis-status-validated,
+    .card[data-status="rejected"] .openkis-status-rejected { display: inline-block; }
+    .openkis-status-draft { background-color: #6c757d; }
+    .openkis-status-verify { background-color: #ffc107; color: #212529; }
+    .openkis-status-validated { background-color: #28a745; }
+    .openkis-status-rejected { background-color: #dc3545; }
 </style>
 <script>
     /**
@@ -307,9 +317,9 @@
                 <div class="card-group">
                     <!-- foreach {items} -->
                     <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" >
-                        <div class="card mb-4 box-shadow" style="height: 95%" data-closed="{value_closed}"><img src="{item_urlimage}" class="card-img-top" alt="" loading="lazy">
+                        <div class="card mb-4 box-shadow" style="height: 95%" data-status="{value_status}"><img src="{item_urlimage}" class="card-img-top" alt="" loading="lazy">
                             <div class="card-body">
-                                <div class="card-title" ><span class="openkis-photo-flag openkis-photo-yes" role="img" title="{i18n:entrance photo present}" aria-label="{i18n:entrance photo present}"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 2h5l1 2H14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h2.5z"/><circle cx="8" cy="8.5" r="2.6" fill="#fff"/></svg></span><span class="openkis-photo-flag openkis-photo-no" role="img" title="{i18n:no entrance photo}" aria-label="{i18n:no entrance photo}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5.5 2.6h5l1 2H14a.6.6 0 0 1 .6.6v7.6a.6.6 0 0 1-.6.6H2a.6.6 0 0 1-.6-.6V5.2a.6.6 0 0 1 .6-.6h2.5z"/><circle cx="8" cy="8.5" r="2.4"/><path d="M1.5 14.5l13-13"/></svg></span>{item_title} <span class="badge openkis-badge-closed">{i18n:Closed cave}</span><span class="badge openkis-badge-open">{i18n:Open cave}</span></div>
+                                <div class="card-title" ><span class="openkis-photo-flag openkis-photo-yes" role="img" title="{i18n:entrance photo present}" aria-label="{i18n:entrance photo present}"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 2h5l1 2H14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h2.5z"/><circle cx="8" cy="8.5" r="2.6" fill="#fff"/></svg></span><span class="openkis-photo-flag openkis-photo-no" role="img" title="{i18n:no entrance photo}" aria-label="{i18n:no entrance photo}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5.5 2.6h5l1 2H14a.6.6 0 0 1 .6.6v7.6a.6.6 0 0 1-.6.6H2a.6.6 0 0 1-.6-.6V5.2a.6.6 0 0 1 .6-.6h2.5z"/><circle cx="8" cy="8.5" r="2.4"/><path d="M1.5 14.5l13-13"/></svg></span>{item_title} <span class="badge openkis-badge-status openkis-status-draft">{i18n:Draft}</span><span class="badge openkis-badge-status openkis-status-verify">{i18n:Verify}</span><span class="badge openkis-badge-status openkis-status-validated">{i18n:Validated}</span><span class="badge openkis-badge-status openkis-status-rejected">{i18n:Rejected}</span></div>
                                 <!-- foreach {itemvalues} -->
                                 <span class="openkis-item-value"><b>{title}:</b> {value}</span><br />
                                 <!-- end foreach {itemvalues} -->
