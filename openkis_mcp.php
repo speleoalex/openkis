@@ -10,7 +10,9 @@
  * list cache invalidation).
  *
  * Authentication: every request carries an API key (header "X-API-Key: <key>",
- * "Authorization: Bearer <key>" or ?apikey=<key>).
+ * "Authorization: Bearer <key>" or ?apikey=<key>) or an OAuth access token
+ * ("Authorization: Bearer <token>", issued by index.php?fnapp=oauthserver after the
+ * login of the user: same users and permissions of the personal keys).
  *
  *  - User keys (recommended): an administrator enables the user (group $_FN['apikey_groups'],
  *    default "mcp_users", see extra/openkis_config.inc.php), then the user generates a personal
@@ -91,7 +93,7 @@ if ($method == "OPTIONS")
 if (!mcp_Authenticate())
 {
     http_response_code(401);
-    header('WWW-Authenticate: Bearer realm="openkis_mcp"');
+    FN_OAuthServerChallenge(FN_OAuthServerIssuer() . "/openkis_mcp.php");
     echo json_encode(array("jsonrpc" => "2.0", "id" => null, "error" => array("code" => -32001, "message" => "Unauthorized")));
     exit();
 }
@@ -163,7 +165,7 @@ function mcp_Authenticate()
     $_FN['uservalues'] = array();
     if (isset($_FN['openkis_mcp_userkeys']) && !$_FN['openkis_mcp_userkeys'])
         return false;
-    if (!function_exists("FN_LoginByApiKey") || !FN_LoginByApiKey($given))
+    if (!FN_OAuthServerLoginByToken($given) && !FN_LoginByApiKey($given))
         return false;
     $_FN['openkis_mcp_access'] = FN_IsAdmin($_FN['user']) ? "full" : "user";
     $_FN['openkis_mcp_canwrite'] = mcp_FullAccess() || mcp_UserInWriteGroup($_FN['uservalues']);

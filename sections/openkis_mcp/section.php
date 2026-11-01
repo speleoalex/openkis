@@ -127,12 +127,12 @@ if ($okmcp_error != "")
 
 //--------------------------- server ----------------------------------------->
 echo "<h3>" . FN_Translate("OpenKIS MCP server") . "</h3>";
-echo "<p>" . FN_Translate("The MCP server lets AI assistants (Claude, ChatGPT, ...) read and edit the cadastre. Every enabled user has a personal key: the assistant works with the same permissions the user has on the website.") . "</p>";
+echo "<p>" . FN_Translate("The MCP server lets AI assistants (Claude, ChatGPT, ...) read and edit the cadastre. Every enabled user connects with their username and password or with a personal key: the assistant works with the same permissions the user has on the website.") . "</p>";
 echo "<div class=\"mb-3\"><label class=\"form-label\"><b>" . FN_Translate("server URL") . "</b></label>";
 echo "<input type=\"text\" class=\"form-control\" readonly=\"readonly\" onclick=\"this.select()\" value=\"" . okmcp_h($okmcp_url) . "\" /></div>";
 echo "<ul>";
 echo "<li>" . FN_Translate("transport") . ": <code>Streamable HTTP</code></li>";
-echo "<li>" . FN_Translate("authentication") . ": " . FN_Translate("header", "") . " <code>X-API-Key: &lt;" . FN_Translate("key", "") . "&gt;</code> " . FN_Translate("or", "") . " <code>Authorization: Bearer &lt;" . FN_Translate("key", "") . "&gt;</code></li>";
+echo "<li>" . FN_Translate("authentication") . ": " . FN_Translate("header", "") . " <code>X-API-Key: &lt;" . FN_Translate("key", "") . "&gt;</code> " . FN_Translate("or", "") . " <code>Authorization: Bearer &lt;" . FN_Translate("key", "") . "&gt;</code>, " . FN_Translate("or OAuth (login with username and password)") . "</li>";
 if (isset($_FN['openkis_mcp_userkeys']) && !$_FN['openkis_mcp_userkeys'])
     echo "<li><span class=\"text-danger\">" . FN_Translate("the personal keys are disabled in the configuration") . " (<code>\$_FN['openkis_mcp_userkeys'] = 0</code>)</span></li>";
 if (!empty($_FN['openkis_mcp_readonly']))
@@ -411,6 +411,8 @@ function okmcp_HtmlUser($user, $link, $isadmin)
         return;
     }
 
+    echo "<p><b>" . FN_Translate("Claude Desktop, claude.ai and the clients with OAuth") . "</b>: " . FN_Translate("add a custom connector with the server URL and log in with your username and password, no key needed. Generating a new key or revoking it also disconnects these clients.") . "</p>";
+    echo "<p><b>" . FN_Translate("personal key") . "</b></p>";
     echo "<form method=\"post\" action=\"$userlink\" class=\"mb-3\">";
     echo "<input type=\"hidden\" name=\"okmcp_token\" value=\"$token\" />";
     if ($key != "")

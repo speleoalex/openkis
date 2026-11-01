@@ -2,7 +2,8 @@
 
 `openkis_mcp.php` is a [Model Context Protocol](https://modelcontextprotocol.io) server:
 AI assistants (Claude, ChatGPT, ...) can read the cadastre and, when allowed, edit it.
-Every call runs with the identity and the permissions of the owner of the API key.
+Every call runs with the identity and the permissions of the user, who connects with
+username and password (OAuth) or with a personal API key.
 
 - Endpoint: `https://<site>/openkis_mcp.php`
 - Transport: Streamable HTTP (JSON responses)
@@ -23,7 +24,20 @@ Authorization: Bearer <key>
 ```
 
 Some hosting providers (e.g. Aruba) strip the `Authorization` header before PHP: use
-`X-API-Key` there.
+`X-API-Key` there. The OAuth clients send only `Authorization`: the rule that Finis writes
+in `.htaccess` usually restores it.
+
+### Username and password (OAuth)
+
+Claude Desktop, claude.ai and the other clients with OAuth need only the server URL: they
+open the browser, the user logs in with username and password and authorizes the client.
+The users and the permissions are those of the personal keys below (the user must be
+enabled). Generating a new key, revoking it or changing the password disconnects these
+clients; `$_FN['openkis_mcp_userkeys'] = 0` refuses them too.
+
+The site needs HTTPS and the `Authorization` header must reach PHP; a site in a folder
+also needs two rules in the `.htaccess` of the domain root. Details in
+`finis/doc/en_mcp_guide.md`, section "OAuth login".
 
 ### Personal keys (recommended)
 
@@ -110,7 +124,13 @@ called.
 
 ## Client configuration
 
-Claude Code:
+Claude Desktop and claude.ai: add a custom connector with the URL
+`https://<site>/openkis_mcp.php`, then log in when the browser opens.
+
+Claude Code with OAuth: `claude mcp add --transport http openkis https://<site>/openkis_mcp.php`,
+then `/mcp` to log in.
+
+Claude Code with the key:
 
 ```bash
 claude mcp add --transport http openkis https://<site>/openkis_mcp.php --header "X-API-Key: <key>"
@@ -144,4 +164,4 @@ curl -s https://<site>/openkis_mcp.php -H "X-API-Key: <key>" \
   the MCP server page when a client is no longer used.
 - Give the write permission only to the users who need it: the read only default keeps an
   assistant from changing data by mistake.
-- Use HTTPS: the key travels in a header of every request.
+- Use HTTPS: the key or the token travels in a header of every request.

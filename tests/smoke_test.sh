@@ -285,6 +285,53 @@ else
     echo "  (tests/record_permissions_test.sh missing, skipped)"
 fi
 
+say "6d. MCP servers with OAuth (index.php?fnapp=oauthserver)"
+OA="${TEST_URL}index.php?fnapp=oauthserver&op="
+REDIR=https://claude.ai/api/mcp/auth_callback
+OAJAR=$WORK/oauth.txt
+json_field() { grep -o "\"$1\":\"[^\"]*\"" "$2" | head -1 | cut -d'"' -f4; }
+mcp_whoami() { # mcp_whoami url token -> HTTP status, answer in $WORK/mcp.json
+    fetch "$WORK/mcp.json" -H "Authorization: Bearer $2" -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"whoami","arguments":{}}}' "$1"
+}
+token() { fetch "$WORK/token.json" "$@" "${OA}token"; }
+s=$(fetch "$WORK/o1" "${OA}metadata"); [ "$s" = 200 ] && grep -q '"code_challenge_methods_supported":\["S256"\]' "$WORK/o1" && ok "authorization server metadata" || fail "authorization server metadata (HTTP $s)"
+for u in "${TEST_URL}openkis_mcp.php" "${TEST_URL}index.php?fnapp=mcp"; do
+    curl -s -D "$WORK/o2" -o /dev/null -X POST "$u"
+    grep -qi '^WWW-Authenticate: Bearer resource_metadata="[^"]*op=prm' "$WORK/o2" && ok "401 with resource_metadata: $u" || fail "no resource_metadata in the 401 of $u"
+done
+fetch "$WORK/o3" -H 'Content-Type: application/json' -d "{\"client_name\":\"smoke test\",\"redirect_uris\":[\"$REDIR\"]}" "${OA}register" >/dev/null
+CID=$(json_field client_id "$WORK/o3"); [ -n "$CID" ] && ok "dynamic client registration" || fail "dynamic client registration"
+VER=$(head -c 48 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=\n'); CH=$(printf %s "$VER" | openssl dgst -sha256 -binary | base64 | tr '+/' '-_' | tr -d '=\n')
+AUTH="${OA}authorize&response_type=code&client_id=$CID&redirect_uri=$(printf %s "$REDIR" | sed 's/:/%3A/g;s#/#%2F#g')&code_challenge=$CH&code_challenge_method=S256&state=st1"
+rm -f "$OAJAR"
+fetch "$WORK/o4" -b "$OAJAR" -c "$OAJAR" "$AUTH" >/dev/null
+action=$(grep -o '<form[^>]*name="login"[^>]*>' "$WORK/o4" | grep -o 'action="[^"]*"' | sed 's/action="//;s/"$//;s/&amp;/\&/g')
+[ -n "$action" ] && ok "authorize: login form" || fail "authorize: no login form"
+fetch "$WORK/o5" -b "$OAJAR" -c "$OAJAR" --data-urlencode "username=$ADMIN_USER" --data-urlencode "password=$ADMIN_PASS" "${TEST_URL}$action" >/dev/null
+csrf=$(grep -o 'name="csrf" value="[0-9a-f]*"' "$WORK/o5" | sed 's/.*value="//;s/"$//')
+[ -n "$csrf" ] && ok "authorize: consent page after the login" || fail "authorize: no consent page after the login"
+loc=$(curl -s -o /dev/null -w '%{redirect_url}' -b "$OAJAR" -d consent=allow -d csrf=wrong "$AUTH"); [ -z "$loc" ] && ok "authorize: wrong CSRF token refused" || fail "authorize: wrong CSRF token accepted"
+loc=$(curl -s -o /dev/null -w '%{redirect_url}' -b "$OAJAR" -d consent=allow -d "csrf=$csrf" "$AUTH")
+code=$(printf %s "$loc" | grep -o 'code=[^&]*' | cut -d= -f2-)
+[ -n "$code" ] && printf %s "$loc" | grep -q 'state=st1' && ok "authorize: redirect with code and state" || fail "authorize: no code ($loc)"
+s=$(token --data-urlencode grant_type=authorization_code --data-urlencode "code=$code" --data-urlencode "client_id=$CID" --data-urlencode "redirect_uri=$REDIR" --data-urlencode "code_verifier=x$VER")
+[ "$s" = 400 ] && ok "token: wrong PKCE verifier refused" || fail "token: wrong PKCE verifier, HTTP $s"
+token --data-urlencode grant_type=authorization_code --data-urlencode "code=$code" --data-urlencode "client_id=$CID" --data-urlencode "redirect_uri=$REDIR" --data-urlencode "code_verifier=$VER" >/dev/null
+AT=$(json_field access_token "$WORK/token.json"); RT=$(json_field refresh_token "$WORK/token.json")
+[ -n "$AT" ] && [ -n "$RT" ] && ok "token: access and refresh token" || fail "token: $(cat "$WORK/token.json")"
+s=$(token --data-urlencode grant_type=authorization_code --data-urlencode "code=$code" --data-urlencode "client_id=$CID" --data-urlencode "redirect_uri=$REDIR" --data-urlencode "code_verifier=$VER")
+[ "$s" = 400 ] && ok "token: code used twice refused" || fail "token: code used twice, HTTP $s"
+s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$AT"); [ "$s" = 200 ] && grep -q "$ADMIN_USER,.*,admin," "$WORK/mcp.json" && ok "openkis_mcp.php whoami with the access token" || fail "openkis_mcp.php with the access token: HTTP $s"
+s=$(mcp_whoami "${TEST_URL}index.php?fnapp=mcp" "$AT"); [ "$s" = 200 ] && grep -q "\"structuredContent\":{\"username\":\"$ADMIN_USER\"" "$WORK/mcp.json" && ok "finis mcp whoami with the access token" || fail "finis mcp with the access token: HTTP $s"
+s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$RT"); [ "$s" = 401 ] && ok "refresh token refused as access token" || fail "refresh token used as access token: HTTP $s"
+token --data-urlencode grant_type=refresh_token --data-urlencode "refresh_token=$RT" --data-urlencode "client_id=$CID" >/dev/null
+AT2=$(json_field access_token "$WORK/token.json"); [ -n "$AT2" ] && ok "token: refresh" || fail "token: refresh"
+s=$(token --data-urlencode grant_type=refresh_token --data-urlencode "refresh_token=$RT" --data-urlencode "client_id=$CID"); [ "$s" = 400 ] && ok "token: refresh token used twice refused" || fail "token: refresh token used twice, HTTP $s"
+key=$(mysql_q "$TEST_DB" -e "SELECT apikey FROM fn_users WHERE username='$ADMIN_USER'")
+mysql_q "$TEST_DB" -e "UPDATE fn_users SET apikey='$(openssl rand -hex 24)' WHERE username='$ADMIN_USER'"
+s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$AT2"); [ "$s" = 401 ] && ok "a new API key revokes the OAuth tokens" || fail "access token still valid after a new API key: HTTP $s"
+mysql_q "$TEST_DB" -e "UPDATE fn_users SET apikey='$key' WHERE username='$ADMIN_USER'"
+
 say "7. PHP errors logged by the web server during the test"
 if [ -f "$PHP_ERROR_LOG" ]; then
     new=$(tail -n +"$((ERRLOG_START + 1))" "$PHP_ERROR_LOG" | grep -E "PHP (Fatal|Parse|Warning|Deprecated|Notice)" | sed 's/^\[[^]]*\] //' | sort | uniq -c | sort -rn)

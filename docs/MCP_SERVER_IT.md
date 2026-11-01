@@ -2,8 +2,8 @@
 
 `openkis_mcp.php` è un server [Model Context Protocol](https://modelcontextprotocol.io):
 gli assistenti AI (Claude, ChatGPT, ...) possono leggere il catasto e, se autorizzati,
-modificarlo. Ogni chiamata viene eseguita con l'identità e i permessi del proprietario
-della chiave API.
+modificarlo. Ogni chiamata viene eseguita con l'identità e i permessi dell'utente, che si
+collega con utente e password (OAuth) o con una chiave API personale.
 
 - Endpoint: `https://<sito>/openkis_mcp.php`
 - Trasporto: Streamable HTTP (risposte JSON)
@@ -24,7 +24,20 @@ Authorization: Bearer <chiave>
 ```
 
 Alcuni hosting (es. Aruba) rimuovono l'header `Authorization` prima di PHP: in quel caso
-usare `X-API-Key`.
+usare `X-API-Key`. I client OAuth inviano solo `Authorization`: la regola che Finis scrive
+nel `.htaccess` di solito lo ripristina.
+
+### Utente e password (OAuth)
+
+A Claude Desktop, claude.ai e agli altri client con OAuth basta l'URL del server: aprono il
+browser, l'utente accede con utente e password e autorizza il client. Utenti e permessi
+sono quelli delle chiavi personali descritte sotto (l'utente deve essere abilitato).
+Generare una nuova chiave, revocarla o cambiare la password scollega questi client;
+`$_FN['openkis_mcp_userkeys'] = 0` rifiuta anche loro.
+
+Il sito deve essere in HTTPS e l'header `Authorization` deve arrivare a PHP; un sito in una
+cartella richiede anche due regole nel `.htaccess` della radice del dominio. Dettagli in
+`finis/doc/it_guida_mcp.md`, sezione "Accesso con OAuth".
 
 ### Chiavi personali (consigliate)
 
@@ -113,7 +126,13 @@ chiamati, vengono rifiutati.
 
 ## Configurazione del client
 
-Claude Code:
+Claude Desktop e claude.ai: aggiungere un connettore personalizzato con l'URL
+`https://<sito>/openkis_mcp.php`, poi accedere quando si apre il browser.
+
+Claude Code con OAuth: `claude mcp add --transport http openkis https://<sito>/openkis_mcp.php`,
+poi `/mcp` per accedere.
+
+Claude Code con la chiave:
 
 ```bash
 claude mcp add --transport http openkis https://<sito>/openkis_mcp.php --header "X-API-Key: <chiave>"
@@ -147,4 +166,4 @@ curl -s https://<sito>/openkis_mcp.php -H "X-API-Key: <chiave>" \
   dalla pagina del server MCP quando un client non serve più.
 - Consentire la scrittura solo agli utenti che ne hanno bisogno: la sola lettura di default
   evita che un assistente modifichi i dati per errore.
-- Usare HTTPS: la chiave viaggia in un header di ogni richiesta.
+- Usare HTTPS: la chiave o il token viaggiano in un header di ogni richiesta.
