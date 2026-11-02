@@ -113,6 +113,39 @@ function openkis_FaunaCaveCard($code)
 }
 
 /**
+ * Map of the caves (only these caves, as in the cave systems), centred and zoomed on them.
+ *
+ * @param array $caves records with code, latitude, longitude
+ * @return string html, empty when no cave has coordinates
+ */
+function openkis_FaunaCavesMap($caves)
+{
+    global $_FN;
+    $codes = array();
+    $lats = array();
+    $lons = array();
+    foreach ($caves as $cave)
+    {
+        $codes[] = rawurlencode($cave['code']);
+        if (!empty($cave['latitude']) && !empty($cave['longitude']))
+        {
+            $lats[] = floatval(str_replace(",", ".", $cave['latitude']));
+            $lons[] = floatval(str_replace(",", ".", $cave['longitude']));
+        }
+    }
+    if (!count($lats))
+        return "";
+    $lat = (max($lats) + min($lats)) / 2;
+    $lon = (max($lons) + min($lons)) / 2;
+    // zoom that fits the extent in a map about 800x400 px (256 px tiles), between 8 and 14
+    $span = max(max($lons) - min($lons), (max($lats) - min($lats)) * 3);
+    $zoom = $span > 0 ? floor(log(3 * 360 / ($span * 1.3), 2)) : 14;
+    $zoom = max(8, min(14, $zoom));
+    $src = "{$_FN['siteurl']}bs_map.htm?mod=caves&zoom=$zoom&lat=" . sprintf("%.6F", $lat) . "&lon=" . sprintf("%.6F", $lon) . "&filter_code=" . implode(",", array_unique($codes));
+    return "<iframe style=\"border:0px;width:100%;height:400px;display:block\" src=\"" . htmlspecialchars($src) . "\"></iframe>";
+}
+
+/**
  * Card listing the caves where a species was observed, for the species sheet.
  * Sightings in caves the user may not see are left out.
  *
@@ -126,7 +159,7 @@ function openkis_FaunaSpeciesCard($scientific_name)
     $sightings = openkis_FaunaSightings("name LIKE '" . addslashes($scientific_name) . "'");
     if (!count($sightings))
         return "";
-    $caves = openkis_FaunaRecordsByField("caves", "code", array_column($sightings, "codecave"), "id,code,name,comune,provincia");
+    $caves = openkis_FaunaRecordsByField("caves", "code", array_column($sightings, "codecave"), "id,code,name,comune,provincia,latitude,longitude");
     $rows = array();
     foreach ($sightings as $sighting)
     {
@@ -141,7 +174,8 @@ function openkis_FaunaSpeciesCard($scientific_name)
         return strnatcmp($a['cave']['code'], $b['cave']['code']);
     });
     $html = "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("observed in") . " (" . count($rows) . ")</h5></div>";
-    $html .= "<div class=\"card-body p-0\"><div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
+    $html .= "<div class=\"card-body p-0\">" . openkis_FaunaCavesMap($caves);
+    $html .= "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
     $html .= "<tr><th>" . FN_Translate("cave") . "</th><th></th><th>" . FN_Translate("specimens") . "</th><th>" . FN_Translate("date") . "</th><th>" . FN_Translate("observer") . "</th><th></th></tr>";
     foreach ($rows as $r)
     {

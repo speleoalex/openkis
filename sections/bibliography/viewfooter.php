@@ -50,25 +50,33 @@ if ($html!= "")
 
 
 
-$table=FN_XMDBTable("ctl_fauna");
 $fauna=explode(",",$row['fauna']);
 $fauna=array_unique($fauna);
 $fhtml="";
+// species read once (a publication can list hundreds of them): same name first, else a name containing it
+$species=trim($row['fauna'])!= "" ? FN_XMETADBQuery("SELECT id,scientific_name,name FROM ctl_fauna") : array();
+if (!is_array($species))
+    $species=array();
 foreach($fauna as $key=> $val)
 {
-    $val=trim(ltrim(str_replace("\n","",str_replace("\r","",$val))));
-    // the value is interpolated in the query: keep only the characters of a scientific name
-    $val=preg_replace('/[^\p{L}\p{N} .\-]/u',"",$val);
-    if ($val!= "")
+    $val=strtolower(trim(str_replace(array("\r","\n"),"",$val)));
+    if ($val== "")
+        continue;
+    $found=false;
+    foreach($species as $sp)
     {
-        $query="SELECT * FROM ctl_fauna WHERE scientific_name LIKE \"%".$val."%\" OR scientific_name LIKE \"%".strtolower($val)."%\" OR scientific_name LIKE \"%".ucfirst(strtolower($val))."%\" OR scientific_name LIKE \"%".strtoupper($val)."%\" ";
-        $r=FN_XMETADBQuery($query);
-
-        if (isset($r[0]['scientific_name']))
+        if (strtolower(trim($sp['scientific_name']))== $val)
         {
-            $l=fn_rewritelink("index.php?mod=fauna&op=view&id={$r[0]['id']}");
-            $fhtml.="<br /><b>{$r[0]['scientific_name']}</b>&nbsp;<em>{$r[0]['name']}</em> <a href=\"$l\">".FN_Translate("view")."</a>";
+            $found=$sp;
+            break;
         }
+        if ($found=== false && strpos(strtolower($sp['scientific_name']),$val)!== false)
+            $found=$sp;
+    }
+    if ($found!== false)
+    {
+        $l=fn_rewritelink("index.php?mod=fauna&op=view&id={$found['id']}");
+        $fhtml.="<br /><b>".htmlspecialchars($found['scientific_name'])."</b>&nbsp;<em>".htmlspecialchars($found['name'])."</em> <a href=\"$l\">".FN_Translate("view")."</a>";
     }
 }
 if ($fhtml!= "")
