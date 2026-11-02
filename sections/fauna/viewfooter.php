@@ -1,5 +1,9 @@
 <?php
 
+// caves where the species was observed (section fauna_surveys)
+require_once "extra/openkis/openkis_fauna.inc.php";
+echo openkis_FaunaSpeciesCard($row['scientific_name']);
+
 $config=FN_LoadConfig("","bibliography");
 $biblio=new FNDBVIEW($config);
 $params['appendquery']="fauna LIKE '{$row['scientific_name']}' OR fauna LIKE '{$row['scientific_name']}|%' OR fauna LIKE '%|{$row['scientific_name']}|%' OR fauna LIKE '%|{$row['scientific_name']}' ";
