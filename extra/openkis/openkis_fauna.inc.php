@@ -8,28 +8,68 @@
 require_once __DIR__ . "/openkis_sheet.inc.php";
 
 /**
+ * Field of the sightings table with the scientific name of the species: "name" in
+ * the table shipped with OpenKIS, "scientific_name" in older registers (Liguria).
+ *
+ * @return string field name, empty when the section has no sightings table
+ */
+function openkis_FaunaSpeciesField()
+{
+    static $field = null;
+    if ($field !== null)
+        return $field;
+    $field = "";
+    if (!file_exists("sections/fauna_surveys"))
+        return $field;
+    $config = FN_LoadConfig("modules/dbview/config.php", "fauna_surveys");
+    // the section must list the sightings table (it lists fn_files when never configured)
+    $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
+    if (!$table || !isset($table->fields['codecave']))
+        return $field;
+    if (isset($table->fields['scientific_name']))
+        $field = "scientific_name";
+    elseif (isset($table->fields['name']))
+        $field = "name";
+    return $field;
+}
+
+/**
  * Sightings visible to the user that match an SQL condition.
  *
- * @param string $where condition on the sightings table (codecave, name, ...)
- * @return array id, name, codecave, ammount, date, caver of each sighting
+ * @param string $where condition on the sightings table (codecave, species field, ...)
+ * @return array id, name (the species, whatever the field of the table), codecave,
+ *               ammount, date, caver of each sighting
  */
 function openkis_FaunaSightings($where)
 {
     global $_FN;
-    if (!file_exists("sections/fauna_surveys") || !FN_UserCanViewSection("fauna_surveys"))
+    $species = openkis_FaunaSpeciesField();
+    if ($species === "" || !FN_UserCanViewSection("fauna_surveys"))
         return array();
     $config = FN_LoadConfig("modules/dbview/config.php", "fauna_surveys");
-    // the section must list the sightings table (it lists fn_files when never configured)
-    $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
-    if (!$table || !isset($table->fields['codecave']) || !isset($table->fields['name']))
-        return array();
     require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
     $dbview = new FNDBVIEW($config);
     $params = array();
-    $params['fields'] = "id,name,codecave,ammount,date,caver";
+    $params['fields'] = "id,$species,codecave,ammount,date,caver";
     $params['appendquery'] = $where;
     $items = $dbview->GetResults($config, $params);
-    return is_array($items) ? $items : array();
+    if (!is_array($items))
+        return array();
+    foreach ($items as $k => $item)
+        $items[$k]['name'] = trim((string) $item[$species]);
+    return $items;
+}
+
+/**
+ * Key of a species name for the lookups: the names in the sightings do not
+ * always match the species sheet in case and spaces.
+ *
+ * @param string $name
+ * @return string
+ */
+function openkis_FaunaKey($name)
+{
+    return strtolower(trim(preg_replace('/\s+/', " ", (string) $name)));
 }
 
 /**
@@ -39,7 +79,7 @@ function openkis_FaunaSightings($where)
  * @param string $field field compared with the values
  * @param array $values
  * @param string $fields fields to read
- * @return array records indexed by the field value
+ * @return array records indexed by the field value (by openkis_FaunaKey() for scientific_name)
  */
 function openkis_FaunaRecordsByField($mod, $field, $values, $fields)
 {
@@ -59,7 +99,7 @@ function openkis_FaunaRecordsByField($mod, $field, $values, $fields)
     $records = array();
     $items = $dbview->GetResults($config, $params);
     foreach (is_array($items) ? $items : array() as $item)
-        $records[$item[$field]] = $item;
+        $records[($field == "scientific_name") ? openkis_FaunaKey($item[$field]) : $item[$field]] = $item;
     return $records;
 }
 
@@ -74,16 +114,23 @@ function openkis_FaunaDate($date)
 }
 
 /**
- * Card listing the species observed in a cave, for the cave sheet.
+ * Card listing the species observed in a cave, for the cave sheet and the
+ * sheet of a sighting (where the sighting itself is left out).
  *
  * @param string $code cave code
+ * @param int $exclude_id sighting not to list
+ * @param string $title title of the card, default "cave fauna"
  * @return string html, empty when the cave has no sighting visible to the user
  */
-function openkis_FaunaCaveCard($code)
+function openkis_FaunaCaveCard($code, $exclude_id = 0, $title = "")
 {
     if ($code === "")
         return "";
     $sightings = openkis_FaunaSightings("codecave LIKE '" . addslashes($code) . "'");
+    $sightings = array_values(array_filter($sightings, function ($sighting) use ($exclude_id)
+    {
+        return $exclude_id == 0 || $sighting['id'] != $exclude_id;
+    }));
     if (!count($sightings))
         return "";
     $sightings = FN_ArraySortByKey($sightings, "name");
@@ -94,9 +141,10 @@ function openkis_FaunaCaveCard($code)
         $url = FN_RewriteLink("index.php?mod=fauna_surveys&op=view&id={$sighting['id']}");
         $name = "<i>" . htmlspecialchars($sighting['name']) . "</i>";
         $type = "";
-        if (isset($species[$sighting['name']]))
+        $key = openkis_FaunaKey($sighting['name']);
+        if (isset($species[$key]))
         {
-            $sp = $species[$sighting['name']];
+            $sp = $species[$key];
             $name = "<a href=\"" . FN_RewriteLink("index.php?mod=fauna&op=view&id={$sp['id']}") . "\">$name</a>";
             if ($sp['name'] != "")
                 $name .= "<br /><small>" . htmlspecialchars($sp['name']) . "</small>";
@@ -106,28 +154,31 @@ function openkis_FaunaCaveCard($code)
         $rows[] = array($name, $type, htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
     $head = array(FN_Translate("species"), FN_Translate("category"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
-    return openkis_SheetListCard(FN_Translate("cave fauna"), $head, $rows, array("id" => "card_cave_fauna"));
+    return openkis_SheetListCard($title != "" ? $title : FN_Translate("cave fauna"), $head, $rows, array("id" => "card_cave_fauna"));
 }
 
 /**
- * Card listing the caves where a species was observed, for the species sheet.
+ * Card listing the caves where a species was observed, for the species sheet
+ * and the sheet of a sighting (where the sighting itself is left out).
  * Sightings in caves the user may not see are left out.
  *
  * @param string $scientific_name
+ * @param int $exclude_id sighting not to list
+ * @param string $title title of the card, default "observed in"
  * @return string html, empty when there is no sighting visible to the user
  */
-function openkis_FaunaSpeciesCard($scientific_name)
+function openkis_FaunaSpeciesCard($scientific_name, $exclude_id = 0, $title = "")
 {
-    if ($scientific_name === "")
+    $scientific_name = trim((string) $scientific_name);
+    $field = openkis_FaunaSpeciesField();
+    if ($scientific_name === "" || $field === "")
         return "";
-    $sightings = openkis_FaunaSightings("name LIKE '" . addslashes($scientific_name) . "'");
-    if (!count($sightings))
-        return "";
+    $sightings = openkis_FaunaSightings("$field LIKE '" . addslashes($scientific_name) . "'");
     $caves = openkis_FaunaRecordsByField("caves", "code", array_column($sightings, "codecave"), "id,code,name,comune,provincia,latitude,longitude");
     $rows = array();
     foreach ($sightings as $sighting)
     {
-        if (!isset($caves[$sighting['codecave']]))
+        if (!isset($caves[$sighting['codecave']]) || ($exclude_id != 0 && $sighting['id'] == $exclude_id))
             continue;
         $rows[] = array("cave" => $caves[$sighting['codecave']], "sighting" => $sighting);
     }
@@ -138,10 +189,12 @@ function openkis_FaunaSpeciesCard($scientific_name)
         return strnatcmp($a['cave']['code'], $b['cave']['code']);
     });
     $cells = array();
+    $listed = array();
     foreach ($rows as $r)
     {
         $cave = $r['cave'];
         $sighting = $r['sighting'];
+        $listed[$cave['code']] = $cave;
         $cave_url = FN_RewriteLink("index.php?mod=caves&op=view&id={$cave['id']}");
         $url = FN_RewriteLink("index.php?mod=fauna_surveys&op=view&id={$sighting['id']}");
         $place = trim($cave['comune'] . ($cave['provincia'] != "" ? " ({$cave['provincia']})" : ""));
@@ -150,6 +203,6 @@ function openkis_FaunaSpeciesCard($scientific_name)
             htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
     $head = array(array(FN_Translate("number"), "text-nowrap openkis-card-code"), FN_Translate("cave"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
-    $options = array_merge(array("id" => "card_observed_in"), openkis_SheetMapOptions(openkis_SheetCavesMapUrl($caves)));
-    return openkis_SheetListCard(FN_Translate("observed in"), $head, $cells, $options);
+    $options = array_merge(array("id" => "card_observed_in"), openkis_SheetMapOptions(openkis_SheetCavesMapUrl($listed)));
+    return openkis_SheetListCard($title != "" ? $title : FN_Translate("observed in"), $head, $cells, $options);
 }

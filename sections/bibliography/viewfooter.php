@@ -1,88 +1,147 @@
 <?php
 
-//footer bibliografia ....
-
+/**
+ * Bibliography sheet, footer. Runs before viewheader.php: echoed html goes
+ * below the sheet at full width, as the list cards of the other sheets:
+ * - the caves dealt with in the publication (fields codecaves, surveys,
+ *   modified_caves, modified_surveys), with what the publication brings
+ *   for each of them (survey, updated survey, updated data);
+ * - the artificial cavities (codeartificials);
+ * - the species (fauna), linked to their sheet when it exists;
+ * - where the section speleopaleo exists, the caves with fossils.
+ * Caves, cavities and species hidden to the user are left out.
+ */
 global $_FN;
-$table=FN_XMDBTable("ctl_caves");
-$caves=explode(",",$row['codecaves'].",".$row['modified_surveys'].",".$row['modified_caves'].",".$row['fossils']);
-$caves=array_unique($caves);
-$html="";
-foreach($caves as $key=> $val)
+require_once "extra/openkis/openkis_sheet.inc.php";
+$GLOBALS['openkis_view_side'] = array();
+
+/**
+ * Codes listed in a field: separated by commas, typed with spaces inside ("LI 258"), "-" for none
+ */
+$openkis_codes = function ($value)
 {
-    if ($val!= "")
+    $codes = array();
+    foreach (preg_split('/[,|;\n]+/', (string) $value) as $code)
     {
-        $r=$table->GetRecord(array("code"=>$val));
-        if (isset($r['name']))
+        $code = strtoupper(preg_replace('/\s+/', "", $code));
+        if ($code !== "" && $code !== "-")
+            $codes[$code] = $code;
+    }
+    return array_values($codes);
+};
+
+//---- caves dealt with in the publication ------------------------------------->
+$marks = array("surveys" => FN_Translate("survey"), "modified_surveys" => FN_Translate("updated survey"), "modified_caves" => FN_Translate("updated data"));
+$codes = $openkis_codes(isset($row['codecaves']) ? $row['codecaves'] : "");
+$notes = array();
+foreach ($marks as $field => $mark)
+{
+    foreach ($openkis_codes(isset($row[$field]) ? $row[$field] : "") as $code)
+    {
+        $codes[] = $code;
+        $notes[$code][] = $mark;
+    }
+}
+$caves = openkis_SheetRecordsByCode("caves", $codes, "id,code,name,comune,latitude,longitude,elevation,elevation_map,elevation_gps,lenght_total,depth_total");
+if (count($caves))
+{
+    $values = array();
+    foreach ($caves as $cave)
+    {
+        $key = strtoupper($cave['code']);
+        $values[$cave['code']] = isset($notes[$key]) ? htmlspecialchars(implode(", ", $notes[$key])) : "";
+    }
+    $extra = array();
+    if (count($notes))
+        $extra[] = array("title" => FN_Translate("in the publication"), "class" => "", "values" => $values);
+    // the map selects the caves by their codes: no map when the url would be too long
+    echo openkis_SheetCavesCard(FN_Translate("caves dealt with"), $caves, array("extra" => $extra, "map" => (count($caves) > 300) ? false : ""));
+}
+//---- caves dealt with in the publication -------------------------------------<
+//---- artificial cavities ----------------------------------------------------->
+$cavities = openkis_SheetRecordsByCode("artificials", $openkis_codes(isset($row['codeartificials']) ? $row['codeartificials'] : ""), "id,code,name,comune");
+echo openkis_SheetCavesCard(FN_Translate("artificial cavities dealt with"), $cavities, array("mod" => "artificials", "columns" => array("comune"), "map" => false));
+//---- artificial cavities -----------------------------------------------------<
+//---- species: a list separated by commas (or "|"), an item may carry the author ->
+$items = array();
+foreach (preg_split('/[,|\n](?![^(]*\))/', isset($row['fauna']) ? (string) $row['fauna'] : "") as $item)
+{
+    $item = trim(preg_replace('/\s+/', " ", $item));
+    if ($item !== "" && !isset($items[strtolower($item)]))
+        $items[strtolower($item)] = $item;
+}
+if (count($items) && file_exists("sections/fauna"))
+{
+    $species = array();
+    if (FN_UserCanViewSection("fauna"))
+    {
+        require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+        $config = FN_LoadConfig("modules/dbview/config.php", "fauna");
+        $dbview = new FNDBVIEW($config);
+        $species = $dbview->GetResults($config, array("fields" => "id,scientific_name,name,type"));
+        $species = is_array($species) ? $species : array();
+    }
+    $rows = array();
+    foreach ($items as $key => $item)
+    {
+        // the same name, else the longest name followed by the author, else a name containing the item
+        $found = $prefix = $contains = false;
+        foreach ($species as $sp)
         {
-            $l=FN_RewriteLink("index.php?mod=caves&op=view&id={$r['id']}");
-            $html.="<br /><b>{$r['name']}</b>&nbsp;<em>{$r['synonyms']}</em> <a class=\"\" href=\"$l\">".FN_Translate("view")."</a>";
+            $name = strtolower(trim($sp['scientific_name']));
+            if ($name === "")
+                continue;
+            if ($name === $key)
+            {
+                $found = $sp;
+                break;
+            }
+            if (strpos($key, "$name ") === 0 && ($prefix === false || strlen($name) > strlen($prefix['scientific_name'])))
+                $prefix = $sp;
+            elseif ($contains === false && strpos($name, $key) !== false)
+                $contains = $sp;
+        }
+        if ($found === false)
+            $found = ($prefix !== false) ? $prefix : $contains;
+        if ($found !== false)
+        {
+            $url = FN_RewriteLink("index.php?mod=fauna&op=view&id={$found['id']}");
+            $rows[] = array("<a href=\"$url\"><i>" . htmlspecialchars($found['scientific_name']) . "</i></a>", htmlspecialchars($found['name']),
+                htmlspecialchars(ucfirst(strtolower($found['type']))), openkis_SheetViewButton($url));
+        }
+        else
+        {
+            $rows[] = array("<i>" . htmlspecialchars($item) . "</i>", "", "", "");
         }
     }
+    $head = array(FN_Translate("species"), FN_Translate("common name"), FN_Translate("category"), array("", "text-right text-end"));
+    echo openkis_SheetListCard(FN_Translate("species dealt with"), $head, $rows, array("id" => "card_species"));
 }
-if ($html!= "")
+//---- species -----------------------------------------------------------------<
+//---- caves with fossils (section speleopaleo, only where it exists) ----------->
+if (file_exists("sections/speleopaleo") && !empty($row['fossils']))
 {
-    echo "<br /><br /><h4>Grotte a catasto presenti in questa pubblicazione:</h4><div class=\"alert alert-info\">$html</div>";
-}
-
-//-------------------------biblio speleopaleo---------------------------------->
-$grotte=explode(",",$row['fossils']);
-$grotte=array_unique($grotte);
-$html="";
-foreach($grotte as $key=> $val)
-{
-    if ($val!= "")
+    $ids = array();
+    foreach ($openkis_codes($row['fossils']) as $id)
+        $ids[] = intval($id);
+    $ids = array_filter(array_unique($ids));
+    $rows = array();
+    if (count($ids) && FN_UserCanViewSection("speleopaleo"))
     {
-        $r=$table->GetRecord(array("id"=>$val));
-        if (isset($r['name']))
+        $config = FN_LoadConfig("modules/dbview/config.php", "caves");
+        $dbview = new FNDBVIEW($config);
+        $fossil_caves = $dbview->GetResults($config, array("fields" => "id,code,name,synonyms", "appendquery" => "id IN (" . implode(",", $ids) . ")"));
+        foreach (is_array($fossil_caves) ? $fossil_caves : array() as $cave)
         {
-
-
-            $l=fn_rewritelink("index.php?mod=speleopaleo&op=view&id={$r['id']}");
-            $html.="<br /><b>{$r['name']}</b>&nbsp;<em>{$r['synonyms']}</em> <a href=\"$l\">".FN_Translate("view")."</a>";
+            $url = FN_RewriteLink("index.php?mod=speleopaleo&op=view&id={$cave['id']}");
+            $rows[] = array(array(htmlspecialchars($cave['code']), "text-nowrap openkis-card-code"), "<a href=\"$url\">" . htmlspecialchars($cave['name']) . "</a>",
+                htmlspecialchars($cave['synonyms']), openkis_SheetViewButton($url));
         }
     }
-}
-if ($html!= "")
-{
-    echo "<br /><br /><h4>Grotte a catasto presenti che parlano di fossili:</h4><div class=\"alert alert-primary\" >$html</div>";
-}
-//-------------------------biblio speleopaleo----------------------------------<
-
-
-
-$fauna=explode(",",$row['fauna']);
-$fauna=array_unique($fauna);
-$fhtml="";
-// species read once (a publication can list hundreds of them): same name first, else a name containing it
-$species=trim($row['fauna'])!= "" ? FN_XMETADBQuery("SELECT id,scientific_name,name FROM ctl_fauna") : array();
-if (!is_array($species))
-    $species=array();
-foreach($fauna as $key=> $val)
-{
-    $val=strtolower(trim(str_replace(array("\r","\n"),"",$val)));
-    if ($val== "")
-        continue;
-    $found=false;
-    foreach($species as $sp)
+    if (count($rows))
     {
-        if (strtolower(trim($sp['scientific_name']))== $val)
-        {
-            $found=$sp;
-            break;
-        }
-        if ($found=== false && strpos(strtolower($sp['scientific_name']),$val)!== false)
-            $found=$sp;
-    }
-    if ($found!== false)
-    {
-        $l=fn_rewritelink("index.php?mod=fauna&op=view&id={$found['id']}");
-        $fhtml.="<br /><b>".htmlspecialchars($found['scientific_name'])."</b>&nbsp;<em>".htmlspecialchars($found['name'])."</em> <a href=\"$l\">".FN_Translate("view")."</a>";
+        $head = array(FN_Translate("number"), FN_Translate("name"), FN_Translate("synonyms"), array("", "text-right text-end"));
+        echo openkis_SheetListCard(FN_Translate("caves with fossils"), $head, $rows, array("id" => "card_fossils"));
     }
 }
-if ($fhtml!= "")
-{
-    echo "<br /><br /><h4>Schede della fauna presente in questa pubblicazione:</h4>
-		<div class=\"alert alert-primary\">
-		$fhtml</div>";
-}
-?>
+//---- caves with fossils ------------------------------------------------------<

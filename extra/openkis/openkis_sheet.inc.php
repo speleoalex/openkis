@@ -320,6 +320,31 @@ function openkis_SheetCavesCard($title, $caves, $options = array())
 }
 
 /**
+ * Records of a dbview section with the given codes, visible to the user (section
+ * and per-record permissions apply).
+ *
+ * @param string $mod section (caves, artificials, springs)
+ * @param array $codes
+ * @param string $fields fields to read
+ * @return array records, empty when the section is missing or hidden to the user
+ */
+function openkis_SheetRecordsByCode($mod, $codes, $fields)
+{
+    global $_FN;
+    $codes = array_unique(array_filter(array_map("trim", $codes), "strlen"));
+    if (!count($codes) || !file_exists("sections/$mod") || !FN_UserCanViewSection($mod))
+        return array();
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    $config = FN_LoadConfig("modules/dbview/config.php", $mod);
+    $dbview = new FNDBVIEW($config);
+    $in = array();
+    foreach ($codes as $code)
+        $in[] = "'" . addslashes($code) . "'";
+    $items = $dbview->GetResults($config, array("fields" => $fields, "appendquery" => "code IN (" . implode(",", $in) . ")"));
+    return is_array($items) ? $items : array();
+}
+
+/**
  * Card listing bibliography items.
  *
  * @param array $items id, title, authors, year and optionally magazine, in the order to show
@@ -368,7 +393,9 @@ function openkis_SheetMapCards($mod, $row)
     }
     $blocks = array();
     //---- map card ----------------------------------------------------------->
-    $body = "<iframe style=\"border:0px;width:100%;height:300px;\" src=\"{$_FN['siteurl']}bs_map.htm?mod=$mod&baselayer={$baselayer}&point=circle&lat=$lat&lon=$lon&zoom=17&history={$row['id']}\"></iframe>";
+    // the map reads "history" as the id of a cave (layer of its past coordinates)
+    $history = ($mod == "caves") ? "&history={$row['id']}" : "";
+    $body = "<iframe style=\"border:0px;width:100%;height:300px;\" src=\"{$_FN['siteurl']}bs_map.htm?mod=$mod&baselayer={$baselayer}&point=circle&lat=$lat&lon=$lon&zoom=17$history\"></iframe>";
     $body .= "<div class=\"card-body p-2\">";
     $body .= "<div class=\"small text-muted mb-1\">" . FN_Translate("calculate the route") . "</div>";
     $body .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"//www.google.it/maps/dir//$lat,$lon/@$lat,$lon,18z\">GMaps</a>";
