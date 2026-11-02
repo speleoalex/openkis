@@ -367,7 +367,7 @@ function openkis_TemperaturesPoints($records)
             $point['lat'] = floatval($record['latitude']);
             $point['lon'] = floatval($record['longitude']);
         }
-        if ($point['lat'] == 0 && $point['lon'] == 0)
+        if ($point['lat'] == 0 || $point['lon'] == 0)
             continue;
         // the points of one cave entrance share a marker on the map
         $point['key'] = ($code !== "" && floatval($record['latitude']) == 0) ? "cave:$code" : "pos:" . round($point['lat'], 5) . "," . round($point['lon'], 5);

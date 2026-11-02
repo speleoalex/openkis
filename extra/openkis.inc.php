@@ -594,10 +594,14 @@ function openkis_GetItemPosition($row)
     $lat_wgs84 = $row['latitude'];
     $lon_wgs84 = $row['longitude'];
     
-    if ($lat_wgs84 == "" && $lat_ori == "" && $lon_ori == "")
+    // without the original coordinates the WGS84 columns are the only source,
+    // and a point on the equator there is what an empty record leaves: its 0
+    // read back as UTM 32 or Gauss-Boaga gives 0 N 4.51 E or 0 N 4.36 W
+    if ($lat_ori == "" && $lon_ori == "" && (abs(floatval($lat_wgs84)) < 0.01 || floatval($lon_wgs84) == 0))
     {
         $ret['lat'] = 0;
         $ret['lon'] = 0;
+        $ret['lat_dms'] = $ret['lon_dms'] = $ret['x'] = $ret['y'] = $ret['zone'] = "";
         $ret['elevation'] = 0;
         return $ret;
     }
