@@ -9,7 +9,12 @@
         <meta name="theme-color" content="#1b5e3b">
 
         <link rel="icon" href="favicon.ico">
-        <link rel="apple-touch-icon" href="img/logo.png">
+        <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+        <!-- installable as an app: manifest.json, openkis_sw.js in the site root -->
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="Catasto FSLo">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <title></title>
 
         <!-- Bootstrap core CSS -->
@@ -265,7 +270,6 @@
                         <div class="gc-footer-head">{i18n:Technical}</div>
                         <nav class="gc-footer-nav">
                             <a href="https://github.com/speleoalex/openkis" target="_blank" rel="noopener">OpenKIS on GitHub</a>
-                            <a href="{siteurl}openkis_API.php" target="_blank" rel="noopener">API</a>
                             <a href="{siteurl}openkis_kml.php" target="_blank" rel="noopener">KML</a>
                         </nav>
                     </div>
@@ -286,5 +290,12 @@
         <script src="assets/js/vendor/popper.min.js"></script>
         <script src="dist/js/bootstrap.min.js"></script>
         <script src="page.js"></script>
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('{siteurl}openkis_sw.js').catch(function () {});
+                });
+            }
+        </script>
     </body>
 </html>

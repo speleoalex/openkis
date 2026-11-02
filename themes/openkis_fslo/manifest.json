@@ -1,17 +1,31 @@
 {
-    "description": "Catasto Speleologico Lombardo - Federazione Speleologica Lombarda",
-    "version": "1.0",
+    "name": "Catasto Speleologico Lombardo",
+    "short_name": "Catasto FSLo",
+    "description": "Catasto Speleologico Lombardo della Federazione Speleologica Lombarda",
+    "lang": "it",
+    "start_url": "../../",
+    "scope": "../../",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1b5e3b",
     "icons": [
-    {
-      "src": "themes/openkis_fslo/favicon.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "themes/openkis_fslo/img/logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]    
+        {
+            "src": "img/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "img/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
 }
- 
