@@ -306,8 +306,12 @@ $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] =
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 // tracer tests: computed fields, save callbacks and map arrows
 require_once(__DIR__ . "/openkis/openkis_tracings.inc.php");
+// grid/list switch of the results of the sections without their own list template
+require_once(__DIR__ . "/openkis/openkis_listview.inc.php");
 // underground temperatures (UCC project sheets): computed fields, save callbacks, map points, exports
 require_once(__DIR__ . "/openkis/openkis_temperatures.inc.php");
+// Grottocenter: Karstlink export and links to the Grottocenter entrances
+require_once(__DIR__ . "/openkis/openkis_grottocenter.inc.php");
 
 /**
  * Stops the request unless the current user may view the section that a data
@@ -383,6 +387,8 @@ function openkis_IsRecordSection($sectionvalues)
 
 /**
  * Keeps only the records marked public_map = "Y" when $access is "public".
+ * A record restricted to some groups (per-record groupview) is never public,
+ * even if marked.
  *
  * @param string $access result of openkis_SectionAccess()
  * @param array $config section config (its first table is the one read)
@@ -396,11 +402,16 @@ function openkis_FilterPublicRecords($access, $config, $results)
     $table = FN_XMDBTable($config['tables']);
     $pk = $table->primarykey;
     $public = array();
-    $rows = FN_XMETADBQuery("SELECT $pk FROM {$config['tables']} WHERE public_map LIKE 'Y'");
+    $fields = isset($table->fields['groupview']) ? "$pk,groupview" : $pk;
+    $rows = FN_XMETADBQuery("SELECT $fields FROM {$config['tables']} WHERE public_map LIKE 'Y'");
     if (is_array($rows))
     {
         foreach ($rows as $row)
+        {
+            if (!empty($row['groupview']))
+                continue;
             $public[strval($row[$pk])] = true;
+        }
     }
     $ret = array();
     foreach ($results as $key => $row)
@@ -413,7 +424,7 @@ function openkis_FilterPublicRecords($access, $config, $results)
 
 /**
  * Map exports cache (openkis_kml.php, openkis_gpx.php, openkis_json.php,
- * openkis_markers.js.php).
+ * openkis_markers.js.php, openkis_karstlink.php).
  *
  * The cache is looked up before the query and is valid until the table
  * changes (XMETATable touches misc/fndatabase/<table>/updated on every insert,
@@ -432,7 +443,7 @@ function openkis_MapCacheKey($endpoint, $config)
     // only the parameters that change the output take part in the key: the
     // ones read by the endpoints and the ones FNDBVIEW::BuildResultsQuery()
     // honours (filter_*, min_*, nv_*, sfield_*, spfield_*, q, rule, order...)
-    $names = array("mod", "id", "filter_code", "exclude", "minimal", "big_icons", "absolute", "iconsize", "zoom", "filename", "q", "rule", "order", "desc");
+    $names = array("mod", "id", "filter_code", "exclude", "minimal", "big_icons", "absolute", "iconsize", "zoom", "filename", "q", "rule", "order", "desc", "format");
     $prefixes = array("filter_", "min_", "nv_", "sfield_", "spfield_");
     $request = array();
     foreach (array_merge($_GET, $_POST) as $k => $v)
@@ -576,7 +587,8 @@ function openkis_RefreshMapData()
 function openkis_GetItemPosition($row)
 {
     //dprint_r($row,"splx","red");
-    $table_coordinatestypes = FN_XMDBTable("ctl_coordinatestypes");
+    // coordinate types read once per request: the exports call this for every record
+    static $coordinatestypes_records = array();
     $lat_ori = $row['latitude_txt'];
     $lon_ori = $row['longitude_txt'];
     $lat_wgs84 = $row['latitude'];
@@ -624,7 +636,12 @@ function openkis_GetItemPosition($row)
         }
     }
 
-    $items_ct = $table_coordinatestypes->GetRecord(array("coordinates_type" => $coordinatestypes));
+    if (!array_key_exists($coordinatestypes, $coordinatestypes_records))
+    {
+        $table_coordinatestypes = FN_XMDBTable("ctl_coordinatestypes");
+        $coordinatestypes_records[$coordinatestypes] = $table_coordinatestypes->GetRecord(array("coordinates_type" => $coordinatestypes));
+    }
+    $items_ct = $coordinatestypes_records[$coordinatestypes];
 
     $proj = (!empty($items_ct['proj4'])) ? $items_ct['proj4'] : "";
     //dprint_r($items_ct);

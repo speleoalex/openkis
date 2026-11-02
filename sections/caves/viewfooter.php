@@ -101,6 +101,14 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
         }
     }
     //survey-------------------------------------------------------------------<
-    
+
+}
+// the same cave on Grottocenter, when the link is confirmed (section "grottocenter"),
+// also with the regional sheets
+if (function_exists("openkis_GrottocenterCaveCard"))
+{
+    $gc_card = openkis_GrottocenterCaveCard($_FN['mod'], $row);
+    if ($gc_card != "")
+        $GLOBALS['openkis_view_side'][] = $gc_card;
 }
 ?>

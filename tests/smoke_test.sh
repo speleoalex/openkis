@@ -332,9 +332,30 @@ mysql_q "$TEST_DB" -e "UPDATE fn_users SET apikey='$(openssl rand -hex 24)' WHER
 s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$AT2"); [ "$s" = 401 ] && ok "a new API key revokes the OAuth tokens" || fail "access token still valid after a new API key: HTTP $s"
 mysql_q "$TEST_DB" -e "UPDATE fn_users SET apikey='$key' WHERE username='$ADMIN_USER'"
 
-say "6f. temperatures (section temperatures, openkis_temperatures.php)"
+say "6e. Karstlink export and links to Grottocenter (openkis_karstlink.php, section grottocenter)"
+endpoint "openkis_karstlink.php (caves, CSV)" "${TEST_URL}openkis_karstlink.php?mod=caves" "$DEMO_CODE"
+endpoint "openkis_karstlink.php (caves, JSON-LD)" "${TEST_URL}openkis_karstlink.php?mod=caves&format=jsonld" "karstlink:UndergroundCavity"
+s=$(fetch "$WORK/k1" "${TEST_URL}openkis_karstlink.php?mod=caves&nocache=1")
+[ "$s" = 200 ] && head -1 "$WORK/k1" | grep -q '^id,rdf:type,dct:rights/cc:attributionName,dct:rights/karstlink:licenseType,' && grep -aq "karstlink:UndergroundCavity" "$WORK/k1" && ok "Karstlink CSV: columns of the Grottocenter importer" || fail "Karstlink CSV header (HTTP $s)"
+! grep -aq "Grotta dimostrativa per testare" "$WORK/k1" && ok "Karstlink CSV: description not exported by default" || fail "Karstlink CSV: description exported with export_texts = 0"
+s=$(fetch "$WORK/k2" "${TEST_URL}openkis_karstlink.php?mod=caves&format=jsonld&nocache=1")
+[ "$s" = 200 ] && grep -aq '"@context"' "$WORK/k2" && grep -aEq '"dwc:coordinatePrecision": ?3[,}]' "$WORK/k2" && ok "Karstlink JSON-LD: context, precision read from location_evaluation" || fail "Karstlink JSON-LD (HTTP $s)"
+s=$(fetch "$WORK/k3" -b "$COOKIES" "${TEST_URL}openkis_karstlink.php?mod=springs"); [ "$s" = 404 ] && ok "openkis_karstlink.php refuses a section that is not a cave register" || fail "openkis_karstlink.php mod=springs: HTTP $s, expected 404"
+page "grottocenter section (admin): export links and search form" "$COOKIES" "${TEST_URL}index.php?mod=grottocenter" "okgc_action"
+s=$(fetch "$WORK/k4" -b "$ANON" "${TEST_URL}index.php?mod=grottocenter"); [ "$s" = 200 ] && ! grep -aq "okgc_action" "$WORK/k4" && ok "grottocenter section: no actions for anonymous visitors" || fail "grottocenter section, anonymous: HTTP $s or actions shown"
+# a confirmed link, written directly (the search needs the Grottocenter API):
+# card on the cave sheet and owl:sameAs in the export
 DEMO_ID=$(mysql_q "$TEST_DB" -e "SELECT id FROM ctl_caves WHERE code='$DEMO_CODE'")
+mysql_q "$TEST_DB" -e "INSERT INTO ctl_grottocenter (id,section,record_id,status,gc_entrance,gc_cave,gc_name) VALUES ('999999','caves','$DEMO_ID','confirmed','999999','999999','Smoke test entrance')"
+page "cave sheet: Grottocenter card of a confirmed link" "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$DEMO_ID" "grottocenter.org/ui/entrances/999999"
+s=$(fetch "$WORK/k5" "${TEST_URL}openkis_karstlink.php?mod=caves&nocache=1"); [ "$s" = 200 ] && grep -aq "grottocenter.org/ui/entrances/999999" "$WORK/k5" && ok "Karstlink CSV: owl:sameAs of the confirmed link" || fail "Karstlink CSV: no owl:sameAs for the confirmed link (HTTP $s)"
+mysql_q "$TEST_DB" -e "DELETE FROM ctl_grottocenter WHERE id='999999'"
+
+
+say "6f. temperatures (section temperatures, openkis_temperatures.php)"
 page "temperatures: list with the map and the UCC export links (admin)" "$COOKIES" "${TEST_URL}index.php?mod=temperatures" "openkis_temperatures.php?format=ucc"
+page "temperatures: results as a list by default (grid/list switch)" "$ANON" "${TEST_URL}index.php?mod=temperatures" "openkis_view_temperatures"
+page "tracings: results as a list by default (grid/list switch)" "$ANON" "${TEST_URL}index.php?mod=tracings" "openkis_view_tracings"
 page "temperatures: new record form (admin)" "$COOKIES" "${TEST_URL}index.php?mod=temperatures&op=new" "name=\"temperature\""
 # the id is computed by the framework (varchar, max + 1), so direct inserts give it
 TID=$(mysql_q "$TEST_DB" -e "SELECT COALESCE(MAX(CAST(id AS UNSIGNED)),0)+1 FROM ctl_temperatures")
@@ -348,6 +369,15 @@ s=$(fetch "$WORK/t1" "${TEST_URL}openkis_temperatures.php"); [ "$s" = 200 ] && g
 s=$(fetch "$WORK/t2" "${TEST_URL}openkis_temperatures.php?cave=NOSUCHCODE"); [ "$s" = 200 ] && grep -aq '"features":\[\]' "$WORK/t2" && ok "openkis_temperatures.php: unknown cave gives no feature" || fail "openkis_temperatures.php?cave=NOSUCHCODE (HTTP $s)"
 s=$(fetch "$WORK/t3" "${TEST_URL}openkis_temperatures.php?format=ucc&type=spot"); [ "$s" = 200 ] && head -1 "$WORK/t3" | grep -q 'nome grotta";"num. Catasto";' && grep -aq ";ingresso;" "$WORK/t3" && ! grep -aq "Sala Grande" "$WORK/t3" && ok "UCC export: spot sheet with the spot records only" || fail "UCC spot export (HTTP $s)"
 s=$(fetch "$WORK/t4" "${TEST_URL}openkis_temperatures.php?format=ucc&type=monitoring"); [ "$s" = 200 ] && head -1 "$WORK/t4" | grep -q 'inizio misurazione";"fine misurazione";' && grep -aq "Sala Grande" "$WORK/t4" && ! grep -aq ";ingresso;" "$WORK/t4" && ok "UCC export: monitoring sheet with the monitorings only" || fail "UCC monitoring export (HTTP $s)"
+
+say "6g. tracings with free detection coordinates (openkis_tracings.php)"
+RID=$(mysql_q "$TEST_DB" -e "SELECT COALESCE(MAX(CAST(id AS UNSIGNED)),0)+1 FROM ctl_tracings")
+mysql_q "$TEST_DB" -e "INSERT INTO ctl_tracings (id,name,type,cave_injection,detection_latitude_txt,detection_longitude_txt,detection_coordinates_type,detection_elevation,result,username) VALUES ($RID,'','water','$DEMO_CODE','44.43','8.99','WGS84','310','positive','$ADMIN_USER')"
+rstamp=$(find "$TEST_DIR/misc/fndatabase" -path "*/ctl_tracings/updated" 2>/dev/null | head -1); [ -n "$rstamp" ] && sudo -n -u daemon touch "$rstamp" 2>/dev/null || sudo -n -u daemon touch "$TEST_DIR/misc/fndatabase/ctl_tracings/updated" 2>/dev/null || touch "$TEST_DIR/misc/fndatabase/ctl_tracings/updated"
+page "tracings: list after the insert, name with the detection coordinates" "$ANON" "${TEST_URL}index.php?mod=tracings" "$DEMO_CODE -> 44.43,8.99"
+s=$(fetch "$WORK/r5" "${TEST_URL}openkis_tracings.php?id=$RID")
+if [ "$s" = 200 ] && php -r '$j=json_decode(file_get_contents($argv[1]),true); $f=$j["features"][0]["geometry"]["coordinates"] ?? null; exit(($f && abs($f[1][0]-8.99)<0.00001 && abs($f[1][1]-44.43)<0.00001) ? 0 : 1);' "$WORK/r5"; then ok "openkis_tracings.php: the arrow ends at the free detection coordinates"; else fail "openkis_tracings.php?id=$RID (HTTP $s): $(head -c 300 "$WORK/r5")"; fi
+page "tracings: sheet with the free detection point" "$ANON" "${TEST_URL}index.php?mod=tracings&op=view&id=$RID" "44.43, 8.99"
 
 say "7. PHP errors logged by the web server during the test"
 if [ -f "$PHP_ERROR_LOG" ]; then
