@@ -96,7 +96,7 @@ sotto la mappa li spiega. *Apri la mappa a schermo intero* la allarga a tutto lo
 | ⦿ | Centra la mappa sulla posizione del dispositivo (GPS) e la segue; trascinare la mappa smette di seguirla |
 | Search | Cerca una grotta per numero o nome tra quelle caricate; con `lat,lon` in gradi decimali sposta la mappa in quel punto |
 | + / − | Zoom |
-| (i) Info | Modalità informazioni: un clic mostra i dati senza aprire la scheda (vedi sotto) |
+| (i) Info | Modalità informazioni: un clic in un punto vuoto mostra coordinate, indirizzo e numero di grotte del comune (vedi sotto) |
 | ⛶ (in basso) | Schermo intero |
 
 In basso a sinistra ci sono la scala e le coordinate WGS84 del puntatore. Sui telefoni e
@@ -124,14 +124,14 @@ sorgenti in Liguria sono visibili solo ai gruppi `r_caves` e `w_caves`.
 ![Ricerca sulla mappa](manual/it/06_map_search.png)
 
 Scrivendo nella casella *Search* compaiono le grotte con quel numero o nome; sceglierne una
-porta la mappa sull'ingresso. Sulla mappa principale un clic su un simbolo apre la scheda
-in una nuova finestra; con la modalità **Info** attiva, invece, compare solo il riquadro
-con foto, quota, sviluppo e dislivello, e i link *apri* (la scheda) e *vai a* (il percorso
-su Google Maps):
+porta la mappa sull'ingresso. Un clic su un simbolo mostra il riquadro con foto, quota,
+sviluppo e dislivello, e i link *apri* (la scheda, in una nuova finestra) e *vai a* (il
+percorso su Google Maps):
 
 ![Riquadro di una grotta sulla mappa](manual/it/07_map_popup.png)
 
-Se più simboli sono sovrapposti, il riquadro elenca i punti vicini. Con la modalità Info,
+Se più simboli sono sovrapposti, il riquadro elenca i punti vicini: il nome apre la scheda,
+l'icona accanto mostra il riquadro del punto. Con la modalità **Info**,
 un clic in un punto vuoto mostra le coordinate (con il pulsante *Copia coordinate*),
 l'indirizzo e quante grotte ci sono in quel comune e in quella provincia.
 

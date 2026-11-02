@@ -97,7 +97,7 @@ map explains them. *Open map in full screen* enlarges it to the whole screen.
 | ⦿ | Centres the map on the device position (GPS) and follows it; dragging the map stops following |
 | Search | Finds a cave by number or name among those loaded; with `lat,lon` in decimal degrees it moves the map there |
 | + / − | Zoom |
-| (i) Info | Info mode: a click shows the data without opening the sheet (see below) |
+| (i) Info | Info mode: a click on an empty spot shows coordinates, address and number of caves of the municipality (see below) |
 | ⛶ (bottom) | Full screen |
 
 At the bottom left are the scale bar and the WGS84 coordinates of the pointer. On phones and
@@ -126,13 +126,14 @@ springs are visible only to the `r_caves` and `w_caves` groups.
 ![Search on the map](manual/en/06_map_search.png)
 
 Typing in the *Search* box lists the caves with that number or name; choosing one moves the
-map to the entrance. On the main map a click on a symbol opens the sheet in a new window;
-with **Info** mode on, only the popup appears, with photo, elevation, length and depth and
-the links *open* (the sheet) and *go to* (the route on Google Maps):
+map to the entrance. A click on a symbol shows the popup with photo, elevation, length and
+depth and the links *open* (the sheet, in a new window) and *go to* (the route on Google
+Maps):
 
 ![Popup of a cave on the map](manual/en/07_map_popup.png)
 
-When several symbols overlap, the popup lists the nearby points. In Info mode a click on an
+When several symbols overlap, the popup lists the nearby points: the name opens the sheet,
+the icon next to it shows the popup of the point. In **Info** mode a click on an
 empty spot shows the coordinates (with a *Copy coordinates* button), the address, and how
 many caves there are in that municipality and province.
 

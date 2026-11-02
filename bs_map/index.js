@@ -369,9 +369,9 @@ function GoToMarker(text) {
 }
 
 /**
- * Click on the map. A single record under the pointer is opened at once
- * (one click instead of point, popup, link); more records close together
- * are listed in a popup, closest first.
+ * Click on the map. A single record under the pointer shows its popup, whose
+ * "open" link opens the record; more records close together are listed in a
+ * popup, closest first.
  * @param {ol.MapBrowserEvent} evt
  * @returns {undefined}
  */
@@ -379,16 +379,8 @@ OPS_Map.onMapClick = function (evt)
 {
     var coordinates = ol.proj.transform(evt.coordinate, OPS_Map.viewMapProjectonEPSG, OPS_Map.inputProjectonEPSG);
     var hits = OPS_Map.getFeaturesNearPixel(evt.pixel, OPS_Map.getHitTolerance(evt.originalEvent));
-    // in "info" mode and in the map of a record the click is for the map
-    var directOpen = OPS_Map.mode != "info" && !OPS_Map.clickShowsCoordinates;
     if (hits.length === 1)
     {
-        if (directOpen && hits[0].url)
-        {
-            OPS_Map.openRecord(hits[0].url);
-        }
-        // the popup stays on the map: it marks the opened point and its
-        // link works if the browser blocked the new window
         OPS_Map.showHitPopup(hits[0]);
         return;
     }
