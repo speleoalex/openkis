@@ -4,7 +4,7 @@
 	<type>search</type>
 	<parent></parent>
 	<position>10</position>
-	<title>search</title>
+	<title>Cerca</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -18,9 +18,9 @@
 	<group_edit></group_edit>
 	<blocksmode>hide</blocksmode>
 	<blocks>search</blocks>
-	<title_it>search</title_it>
+	<title_it>Cerca</title_it>
 	<description_it></description_it>
-	<title_en></title_en>
+	<title_en>Search</title_en>
 	<description_en></description_en>
 	<link>index.php?mod=search</link>
 	<image>http://localhost/speleoalex/speleo/openkis_work/images/section.png</image>
