@@ -780,7 +780,7 @@ function openkis_GetIcon($itemvalues, $mod)
     {
         $iconparams['meteorology'] = "suck_during_cold";
     }
-    if (!empty($itemvalues['meteorology']) || $itemvalues['meteorology'] == "blow_during_heat")
+    if (!empty($itemvalues['meteorology']) || (isset($itemvalues['meteorology']) && $itemvalues['meteorology'] == "blow_during_heat"))
     {
         $iconparams['meteorology'] = "blow_during_heat";
     }

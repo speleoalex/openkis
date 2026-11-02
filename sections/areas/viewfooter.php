@@ -1,79 +1,91 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Karst area sheet footer. Runs before viewheader.php: echoed html goes below
+ * the sheet at full width, blocks pushed into $GLOBALS['openkis_view_side'] go
+ * in the side column. Lists the caves and the springs of the area (field
+ * "areas", the codes of the areas separated by commas), with a summary of
+ * the caves in the side column.
  */
-
-
-
-
-$zoom = 8;
-$baselayer = "";
-$lat = 45;
-$lon = 9;
-
-$config = FN_LoadConfig("modules/dbview/config.php", "caves");
-$params['fields'] = "code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,filelox,lenght_total";
-
-
-$params['navigate_groups'] = array("nv_areas" => $row['code']);
-$dbview = new FNDBVIEW($config);
-$items = $dbview->GetResults($config, $params);
-
-
-
-$num = count($items);
-$html = "";
-if ($num > 0) {
-    echo "<h3>Grotte conosciute in quest'area: $num</h3>";
-    $lat = 0;
-    $lon = 0;
-    $lat_min = 100;
-    $lon_min = 100;
-    $lat_max = 0;
-    $lon_max = 0;
-    $i = 0;
-    $num = array();
-    foreach ($items as $item) {
-        $num[] = $item['code'];
-        if (!empty($item['latitude'])) {
-            $_lat = floatval($item['latitude']);
-            $_lon = floatval($item['longitude']);
-            $lat_max = max($lat_max, $_lat);
-            $lat_min = min($lat_min, $_lat);
-            $lon_max = max($lon_max, $_lon);
-            $lon_min = min($lon_min, $_lon);
-            $latlon = " <span style=\"color:grey\">wgs84: " . $_lat . "N " . $_lon . "E</span>";
-            $i++;
-        } else {
-            $latlon = "";
+global $_FN;
+require_once "extra/openkis/openkis_sheet.inc.php";
+$GLOBALS['openkis_view_side'] = array();
+$area_code = trim((string) $row['code']);
+if ($area_code !== "")
+{
+    $c = addslashes(str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $area_code));
+    $area_filter = "(areas LIKE '$c' OR areas LIKE '$c,%' OR areas LIKE '%,$c,%' OR areas LIKE '%,$c')";
+    //---- caves of the area --------------------------------------------------->
+    $config = FN_LoadConfig("modules/dbview/config.php", "caves");
+    $dbview = new FNDBVIEW($config);
+    $params = array();
+    $params['fields'] = "id,code,name,comune,latitude,longitude,elevation,elevation_map,elevation_gps,lenght_total,depth_total";
+    $params['appendquery'] = $area_filter;
+    $items = $dbview->GetResults($config, $params);
+    if (is_array($items) && count($items))
+    {
+        // the map selects the caves by their codes; for a large area the url would be
+        // too long, so it takes the caves whose field is exactly this area
+        $map = (count($items) > 300) ? "nv_areas=" . rawurlencode($area_code) : "";
+        echo openkis_SheetCavesCard(FN_Translate("caves of the area"), $items, array("map" => $map));
+        //---- the area in numbers, in the side column ------------------------->
+        $total = 0;
+        $longest = $deepest = null;
+        $elevations = array();
+        foreach ($items as $item)
+        {
+            $length = floatval(str_replace(",", ".", $item['lenght_total']));
+            $depth = abs(floatval(str_replace(",", ".", $item['depth_total'])));
+            $total += $length;
+            if ($length > 0 && ($longest === null || $length > floatval(str_replace(",", ".", $longest['lenght_total']))))
+                $longest = $item;
+            if ($depth > 0 && ($deepest === null || $depth > abs(floatval(str_replace(",", ".", $deepest['depth_total'])))))
+                $deepest = $item;
+            foreach (array("elevation", "elevation_map", "elevation_gps") as $f)
+            {
+                if (is_numeric(str_replace(",", ".", trim((string) $item[$f]))) && floatval(str_replace(",", ".", $item[$f])) != 0)
+                {
+                    $elevations[] = floatval(str_replace(",", ".", $item[$f]));
+                    break;
+                }
+            }
         }
-        // dprint_r($item);
-
-        $html .= "<br /><b>{$item['code']}</b> <a target = \"_blank\" href=\"" . FN_Rewritelink("index.php?mod=caves&op=view&id={$item['id']}") . "\">{$item['name']}</a> $latlon Q.{$item['elevation']}";
+        $line = function ($title, $value)
+        {
+            return "<div class=\"row openkis-field\"><div class=\"col-6 openkis-field-title\">$title</div><div class=\"col-6 openkis-field-value text-right text-end\">$value</div></div>";
+        };
+        $cave_link = function ($item, $value)
+        {
+            $url = FN_RewriteLink("index.php?mod=caves&op=view&id={$item['id']}");
+            return "<a href=\"$url\">" . htmlspecialchars($item['code'] . " " . $item['name']) . "</a><div class=\"small text-muted\">$value</div>";
+        };
+        $body = $line(FN_Translate("caves"), count($items));
+        if ($total > 0)
+            $body .= $line(FN_Translate("total development"), number_format($total, 0, ",", ".") . " m");
+        if (count($elevations))
+            $body .= $line(FN_Translate("elevation"), number_format(min($elevations), 0, ",", ".") . " - " . number_format(max($elevations), 0, ",", ".") . " m");
+        if ($longest !== null)
+            $body .= "<div class=\"openkis-field\"><div class=\"openkis-field-title\">" . FN_Translate("longest cave") . "</div>" . $cave_link($longest, htmlspecialchars($longest['lenght_total']) . " m") . "</div>";
+        if ($deepest !== null)
+            $body .= "<div class=\"openkis-field\"><div class=\"openkis-field-title\">" . FN_Translate("deepest cave") . "</div>" . $cave_link($deepest, htmlspecialchars($deepest['depth_total']) . " m") . "</div>";
+        $GLOBALS['openkis_view_side'][] = openkis_SheetCard(FN_Translate("the area in numbers"), "<div class=\"card-body p-2 px-3\">$body</div>", array("side" => true));
+        //---- the area in numbers ---------------------------------------------<
     }
-    if ($i > 0) {
-        $lon = (($lon_max - $lon_min) / 2) + $lon_min;
-        $lat = (($lat_max - $lat_min) / 2) + $lat_min;
-
-        $lat = str_replace(",", ".", $lat);
-        $lon = str_replace(",", ".", $lon);
-        $zoom = 13;
-        echo "<iframe id=\"mapframe\" name=\"mapframe\" 
-    frameborder=\"0\" src=\"{$_FN['siteurl']}bs_map.htm?nv_areas={$row['code']}&zoom=$zoom&mod=caves&lat=$lat&lon=$lon\" width=\"100%\" height=\"500\" ></iframe>";
+    //---- caves of the area ---------------------------------------------------<
+    //---- springs of the area (when the springs table has the field) --------->
+    if (file_exists("sections/springs") && FN_UserCanViewSection("springs"))
+    {
+        $config = FN_LoadConfig("modules/dbview/config.php", "springs");
+        $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
+        if ($table && isset($table->fields['areas']))
+        {
+            $dbview = new FNDBVIEW($config);
+            $params = array();
+            $params['fields'] = "id,code,name,comune,latitude,longitude,elevation,elevation_map,elevation_gps";
+            $params['appendquery'] = $area_filter;
+            $items = $dbview->GetResults($config, $params);
+            echo openkis_SheetCavesCard(FN_Translate("springs of the area"), $items, array("mod" => "springs", "columns" => array("comune", "elevation")));
+        }
     }
+    //---- springs of the area -------------------------------------------------<
 }
-
-
-
-if ($row['filelox']) {
-    $file = urlencode("misc/fndatabase/ctl_areas/{$row['id']}/filelox/{$row['filelox']}");
-    $iframe_href = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
-    //$html.= "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
-    $html .= "<br/><a style=\"btn btn-primary\" href=\"$iframe_href\" target=\"_blank\">" . FN_Translate("open 3d") . "</a><br /><br />";
-}
-
-
-echo $html;

@@ -7,7 +7,7 @@
  * The section template sections/caves/detail.tp.html suppresses the default
  * field rendering, so this file is responsible for showing every field.
  *
- * Output layout:
+ * Output layout (openkis_SheetRender(), extra/openkis/openkis_sheet.inc.php):
  *   - title block (icon, code, name, place, status badges)
  *   - <div class="row"><div class="col-lg-8"> thematic cards </div>
  *     <div class="col-lg-4"> photo card + side blocks pushed by viewfooter.php
@@ -19,6 +19,7 @@
  * the array $openkis_cards (title => list of field names).
  */
 global $_FN;
+require_once "extra/openkis/openkis_sheet.inc.php";
 
 $frm = FN_XMDBForm($Table->tablename);
 $values = $frm->GetRecordTranslatedByPrimarykey($id_record);
@@ -63,69 +64,7 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
     include("extra/openkis/custom/{$_FN['openkis_custom']}/viewheader_cards_{$_FN['mod']}.php");
 }
 
-// leftover fields go into a final "other data" card
-$used = array_merge($openkis_cards_exclude, array_keys($openkis_sheet_codes));
-foreach ($openkis_cards as $cardfields)
-{
-    $used = array_merge($used, $cardfields);
-}
-$other = array();
-foreach ($frm->formvals as $fname => $fdef)
-{
-    if (!isset($fdef['name']) || in_array($fname, $used))
-        continue;
-    if (isset($fdef['frm_show']) && (string) $fdef['frm_show'] === "0" && empty($fdef['view_show']))
-        continue;
-    $other[] = $fname;
-}
-if (count($other))
-{
-    $openkis_cards["other data"] = $other;
-}
 //---- card definition ---------------------------------------------------------<
-
-/**
- * Render a set of fields of the current record with the view engine.
- *
- * @param XMETADBForm $frm
- * @param array $values translated record
- * @param array $fields field names to render, in order
- * @param array $longtext fields rendered as blocks
- * @param array $author fields rendered as credit lines
- * @return string html, empty when no field has a value
- */
-function openkis_ViewCardFields($frm, $values, $fields, $longtext = array(), $author = array())
-{
-    $tpl = "<!-- contents --><!-- group --> <!-- end_group --><!-- endgroup --> <!-- end_endgroup --><!-- item --> <!-- end_item -->";
-    foreach ($fields as $f)
-    {
-        if (!isset($frm->formvals[$f]))
-            continue;
-        if (in_array($f, $author))
-        {
-            $rowtpl = "<div class=\"openkis-field-author text-right text-muted small\">{input}</div>";
-        }
-        elseif (in_array($f, $longtext))
-        {
-            $rowtpl = "<div class=\"openkis-field openkis-field-block\"><div class=\"openkis-field-title\">{title}</div><div class=\"openkis-field-value\">{input}</div></div>";
-        }
-        elseif ($f == "import_rawdata")
-        {
-            $rowtpl = "<details class=\"openkis-field small\"><summary class=\"text-muted\">{title}</summary><div class=\"openkis-field-value\">{input}</div></details>";
-        }
-        else
-        {
-            $rowtpl = "<div class=\"row openkis-field\"><div class=\"col-sm-4 col-lg-3 openkis-field-title\">{title}</div><div class=\"col-sm-8 col-lg-9 openkis-field-value\">{input}</div></div>";
-        }
-        $tpl .= "<!-- item_$f -->$rowtpl<!-- end_item_$f -->";
-    }
-    $tpl .= "<!-- end_contents -->";
-    $frm->SetlayoutTemplateView($tpl);
-    $html = $frm->HtmlShowView($values);
-    if (trim(strip_tags((string) $html, "<img><a><iframe>")) === "")
-        return "";
-    return $html;
-}
 
 //---- title block ------------------------------------------------------------->
 $icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
@@ -163,65 +102,28 @@ if (!empty($row['marine']) && $row['marine'] == "Y")
     $badges .= "<span class=\"badge badge-primary\">" . FN_Translate("marine") . "</span> ";
 if (!empty($row['status']))
     $badges .= "<span class=\"badge badge-light border\">" . FN_Translate($row['status']) . "</span> ";
-
-// name and place on the left, badges and cave icon on the right
-echo "<div class=\"openkis-sheet-title d-flex align-items-start mb-3\">";
-echo "<div class=\"openkis-sheet-heading\">";
-echo "<h2 class=\"openkis-sheet-name mb-1\">" . htmlspecialchars((string) $row['name']) . "</h2>";
-if ($placetxt != "")
-    echo "<div class=\"text-muted\">$placetxt</div>";
-echo "</div>";
-echo "<div class=\"openkis-sheet-tags d-flex align-items-start\">";
-echo "<div class=\"openkis-sheet-badges\"><span class=\"badge badge-dark openkis-sheet-code\">" . htmlspecialchars((string) $row['code']) . "</span> ";
+$codes = "<span class=\"badge badge-dark openkis-sheet-code\">" . htmlspecialchars((string) $row['code']) . "</span> ";
 foreach ($openkis_sheet_codes as $codefield => $codelabel)
 {
     if (!empty($row[$codefield]))
     {
         $codetitle = isset($frm->formvals[$codefield]['title']) ? $frm->formvals[$codefield]['title'] : $codelabel;
-        echo "<span class=\"badge badge-primary openkis-sheet-code openkis-sheet-code-$codefield\" title=\"" . htmlspecialchars(strip_tags($codetitle)) . "\">"
+        $codes .= "<span class=\"badge badge-primary openkis-sheet-code openkis-sheet-code-$codefield\" title=\"" . htmlspecialchars(strip_tags($codetitle)) . "\">"
             . htmlspecialchars($codelabel) . " " . htmlspecialchars((string) $row[$codefield]) . "</span> ";
     }
 }
-echo "$badges</div>";
-echo "<img class=\"openkis-sheet-icon\" src=\"" . htmlspecialchars($icon) . "\" alt=\"\" />";
-echo "</div></div>";
 //---- title block -------------------------------------------------------------<
 
-echo "<div class=\"row openkis-sheet\">";
-echo "<div class=\"col-lg-8 openkis-sheet-main\">";
-foreach ($openkis_cards as $cardtitle => $cardfields)
-{
-    $html = openkis_ViewCardFields($frm, $values, $cardfields, $openkis_cards_longtext, $openkis_cards_author);
-    if ($html === "")
-        continue;
-    $cardid = "card_" . preg_replace('/[^a-z0-9]+/', '_', strtolower($cardtitle));
-    echo "<div class=\"card openkis-card mb-3\" id=\"$cardid\">";
-    echo "<div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate($cardtitle) . "</h5></div>";
-    echo "<div class=\"card-body\">$html</div>";
-    echo "</div>";
-}
-echo "</div>";
-echo "<div class=\"col-lg-4 openkis-sheet-side\">";
-//---- entrance photo ----------------------------------------------------------->
-$tpl = "<!-- contents --><!-- group --> <!-- end_group --><!-- endgroup --> <!-- end_endgroup --><!-- item --> <!-- end_item -->"
-    . "<!-- item_photo1 --><div class=\"text-center openkis-photo\">{input}</div><!-- end_item_photo1 -->"
-    . "<!-- item_authorphoto1 --><div class=\"text-center text-muted small mt-1\">{input}</div><!-- end_item_authorphoto1 -->"
-    . "<!-- end_contents -->";
-$frm->SetlayoutTemplateView($tpl);
-$html = $frm->HtmlShowView($values);
-if (trim(strip_tags((string) $html, "<img>")) !== "")
-{
-    echo "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("entrance photo") . "</h5></div>";
-    echo "<div class=\"card-body p-2\">$html</div></div>";
-}
-//---- entrance photo -----------------------------------------------------------<
-//---- side blocks prepared by viewfooter.php ---------------------------------->
-if (!empty($GLOBALS['openkis_view_side']) && is_array($GLOBALS['openkis_view_side']))
-{
-    foreach ($GLOBALS['openkis_view_side'] as $block)
-    {
-        echo $block;
-    }
-}
-//---- side blocks prepared by viewfooter.php ----------------------------------<
+openkis_SheetRender($frm, $values, array(
+    "title" => htmlspecialchars((string) $row['name']),
+    "place" => $placetxt,
+    "badges" => $codes . $badges,
+    "icon" => $icon,
+    "cards" => $openkis_cards,
+    "exclude" => array_merge($openkis_cards_exclude, array_keys($openkis_sheet_codes)),
+    "longtext" => $openkis_cards_longtext,
+    "author" => $openkis_cards_author,
+    "photos" => array("photo1" => "authorphoto1"),
+    "photos_title" => "entrance photo",
+));
 // the side column and the row are closed by detail.tp.html after {innertables}

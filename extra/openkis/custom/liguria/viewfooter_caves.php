@@ -9,42 +9,9 @@ if (!isset($GLOBALS['openkis_view_side']) || !is_array($GLOBALS['openkis_view_si
 {
     $GLOBALS['openkis_view_side'] = array();
 }
-if (!empty($row['latitude']))
-{
-    $zoom = 17;
-    $baselayer = "";
-    if (false !== strstr($row['coordinates_type'], "IGM") || false !== strstr($row['original_coordinates_type'], "IGM")) //
-    {
-        $baselayer = "IGM 1:25000";
-    }
-    //---- map card ---------------------------------------------------------->
-    $side = "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("map") . "</h5></div>";
-    $side .= "<iframe style=\"border:0px;width:100%;height:300px;\" src=\"{$_FN['siteurl']}bs_map.htm?mod={$_FN['mod']}&baselayer={$baselayer}&point=circle&lat={$row['latitude']}&lon={$row['longitude']}&zoom=$zoom&history={$row['id']}\"></iframe>";
-    $side .= "<div class=\"card-body p-2\">";
-    $side .= "<div class=\"small text-muted mb-1\">" . FN_Translate("calculate the route") . "</div>";
-    $gmap_link = "//www.google.it/maps/dir//" . $row['latitude'] . "," . $row['longitude'] . "/@" . $row['latitude'] . "," . $row['longitude'] . ",18z";
-    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"$gmap_link\">GMaps</a>";
-    $ors_link = "https://maps.openrouteservice.org/directions?n1=44.075342&n2=9.807849&n3=17&a=null,null," . $row['latitude'] . "," . $row['longitude'] . "&b=0&c=0&k1=it&k2=km";
-    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"$ors_link\">OpenRouteService</a>";
-    $osmanLink = "https://www.openstreetmap.org/directions?engine=graphhopper_foot&route={$row['latitude']}%2C{$row['longitude']}%3B{$row['latitude']}%2C{$row['longitude']}";
-    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"$osmanLink\">OpenStreetmap</a>";
-    $forcename = openkis_TextToAscii($row['name']);
-    $side .= "<a class=\"btn btn-sm btn-outline-secondary m-1\" target=\"_blank\" href=\"{$_FN['siteurl']}openkis_kml.php?mod={$_FN['mod']}&big_icons=1&filter_code=" . urlencode($row['code']) . "&filename=$forcename&absolute=1\">KML</a>";
-    $side .= "</div></div>";
-    $GLOBALS['openkis_view_side'][] = $side;
-    //---- map card ----------------------------------------------------------<
-
-    //---- coordinates card: decimal degrees, sexagesimal (DMS) and UTM ------>
-    $position = openkis_GetItemPosition($row);
-    $side = "<div class=\"card openkis-side-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("coordinates WGS84") . "</h5></div>";
-    $side .= "<div class=\"card-body p-2 small\">";
-    $side .= "<div class=\"text-muted\">Gradi decimali (Lon, Lat)</div><input class=\"form-control form-control-sm mb-2\" readonly value=\"{$row['longitude']},{$row['latitude']}\" onclick=\"this.select();\" />";
-    $side .= "<div class=\"text-muted\">Gradi sessagesimali (Lon, Lat)</div><input class=\"form-control form-control-sm mb-2\" readonly value=\"{$position['lon_dms']},{$position['lat_dms']}\" onclick=\"this.select();\" />";
-    $side .= "<div class=\"text-muted\">UTM (X, Y, fuso)</div><input class=\"form-control form-control-sm\" readonly value=\"{$position['x']},{$position['y']},{$position['zone']}\" onclick=\"this.select();\" />";
-    $side .= "</div></div>";
-    $GLOBALS['openkis_view_side'][] = $side;
-    //---- coordinates card --------------------------------------------------<
-}
+//---- map, route links and coordinates (decimal, DMS, UTM) in the side column -->
+require_once "extra/openkis/openkis_sheet.inc.php";
+$GLOBALS['openkis_view_side'] = array_merge($GLOBALS['openkis_view_side'], openkis_SheetMapCards($_FN['mod'], $row));
 // items linked to this code, through the bibliography link table
 $biblio_items = array();
 $biblio_filter = openkis_BibliographyFilter($row['code'], "codecaves");
@@ -57,17 +24,7 @@ if ($biblio_filter !== false)
     $biblio_items = $biblio->GetResults(false, $params);
     $biblio_items = FN_ArraySortByKey($biblio_items, "year");
 }
-if (is_array($biblio_items) && count($biblio_items))
-{
-    echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("bibliography") . "</h5></div>";
-    echo "<div class=\"card-body p-0\"><div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
-    foreach ($biblio_items as $biblio_item)
-    {
-        $url = FN_RewriteLink("index.php?mod=bibliography&op=view&id={$biblio_item['id']}");
-        echo "<tr><td class=\"text-nowrap\">{$biblio_item['year']}</td><td><a href=\"$url\">{$biblio_item['title']}</a></td><td>{$biblio_item['authors']}</td><td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
-    }
-    echo "</table></div></div></div>";
-}
+echo openkis_SheetBibliographyCard($biblio_items);
 //----tracer tests: the ones starting or ending in this cave------------------->
 if (function_exists("openkis_TracingsCaveCard"))
 {

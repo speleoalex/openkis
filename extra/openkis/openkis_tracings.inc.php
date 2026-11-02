@@ -8,6 +8,8 @@
  * (a cave or a spring). Several detection points of the same campaign are
  * separate records sharing the same code.
  */
+// list cards of the sheets
+require_once __DIR__ . "/openkis_sheet.inc.php";
 defined('_FNEXEC') or die('Restricted access');
 
 /**
@@ -376,6 +378,30 @@ function openkis_TracingsArrows($tracings)
  */
 function openkis_TracingsCaveCard($code)
 {
+    return openkis_TracingsPointCard($code, "cave");
+}
+
+/**
+ * Card listing the tracings detected at a spring, for the spring sheet.
+ *
+ * @param string $code spring code
+ * @return string html, empty when the spring has no tracing visible to the user
+ */
+function openkis_TracingsSpringCard($code)
+{
+    return openkis_TracingsPointCard($code, "spring");
+}
+
+/**
+ * Card listing the tracings of a cave (injection or detection) or of a spring
+ * (detection), as the other list cards of the sheets.
+ *
+ * @param string $code cave or spring code
+ * @param string $point "cave" or "spring"
+ * @return string html, empty when there is no tracing visible to the user
+ */
+function openkis_TracingsPointCard($code, $point)
+{
     global $_FN;
     if ($code === "" || !file_exists("sections/tracings") || !FN_XMDBTable("ctl_tracings") || !FN_UserCanViewSection("tracings"))
         return "";
@@ -386,7 +412,7 @@ function openkis_TracingsCaveCard($code)
     $code_sql = addslashes($code);
     $params = array();
     $params['fields'] = "id,name,type,air_regime,release_date,cave_injection,cave_detection,spring_detection,result";
-    $params['appendquery'] = "(cave_injection LIKE '$code_sql' OR cave_detection LIKE '$code_sql')";
+    $params['appendquery'] = ($point == "spring") ? "spring_detection LIKE '$code_sql'" : "(cave_injection LIKE '$code_sql' OR cave_detection LIKE '$code_sql')";
     $tracings = $dbview->GetResults($config, $params);
     if (!is_array($tracings) || count($tracings) == 0)
         return "";
@@ -395,14 +421,13 @@ function openkis_TracingsCaveCard($code)
         "water" => array("#1e9be9", FN_Translate("water")),
         "air_summer" => array("#0b2a80", FN_Translate("summer air (cold air)")),
         "air_winter" => array("#f07d00", FN_Translate("winter air")));
-    $html = "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("tracer tests") . "</h5></div>";
-    $html .= "<div class=\"card-body p-0\"><div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
+    $rows = array();
     foreach ($tracings as $tracing)
     {
         $kind = $kinds[openkis_TracingKind($tracing)];
         $url = FN_RewriteLink("index.php?mod=tracings&op=view&id={$tracing['id']}");
         $date = !empty($tracing['release_date']) ? date("d/m/Y", strtotime($tracing['release_date'])) : "";
-        if ($tracing['cave_detection'] == $code)
+        if ($point == "spring" || $tracing['cave_detection'] == $code)
         {
             $direction = "&larr; " . htmlspecialchars($tracing['cave_injection'] !== "" ? $tracing['cave_injection'] : FN_Translate("free coordinates"));
         }
@@ -412,13 +437,13 @@ function openkis_TracingsCaveCard($code)
             $direction = "&rarr; " . htmlspecialchars($target !== "" ? $target : FN_Translate("free coordinates"));
         }
         $result = !empty($tracing['result']) ? FN_Translate($tracing['result']) : "";
-        $html .= "<tr><td class=\"text-nowrap\">$date</td>";
-        $html .= "<td class=\"text-nowrap\"><span style=\"display:inline-block;width:12px;height:12px;border-radius:2px;background:{$kind[0]};vertical-align:middle\"></span> {$kind[1]}</td>";
-        $html .= "<td><a href=\"$url\">" . htmlspecialchars($tracing['name']) . "</a></td><td class=\"text-nowrap\">$direction</td><td>$result</td>";
-        $html .= "<td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
+        $rows[] = array($date,
+            "<span style=\"display:inline-block;width:12px;height:12px;border-radius:2px;background:{$kind[0]};vertical-align:middle\"></span> {$kind[1]}",
+            "<a href=\"$url\">" . htmlspecialchars($tracing['name']) . "</a>", $direction, $result, openkis_SheetViewButton($url));
     }
-    $html .= "</table></div></div>";
-    $map = "{$_FN['siteurl']}bs_map.htm?tracing_cave=" . urlencode($code);
-    $html .= "<div class=\"card-footer bg-transparent\"><a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a></div></div>";
-    return $html;
+    $head = array(array(FN_Translate("date"), "text-nowrap"), array(FN_Translate("type"), "text-nowrap"), FN_Translate("name"),
+        array(FN_Translate($point == "spring" ? "from" : "from / to"), "text-nowrap"), FN_Translate("result"), array("", "text-right text-end"));
+    $map = "{$_FN['siteurl']}bs_map.htm?tracing_$point=" . urlencode($code);
+    $footer = "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a>";
+    return openkis_SheetListCard(FN_Translate("tracer tests"), $head, $rows, array("footer" => $footer, "id" => "card_tracings"));
 }

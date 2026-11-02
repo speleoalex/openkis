@@ -1522,3 +1522,137 @@ details > summary {
 .okis-form > input.btn {
     margin-top: 8px;
 }
+
+/* ---------------------------------------------------------------------
+   Record sheets of caves, karst areas, springs and species
+   (extra/openkis/openkis_sheet.inc.php): title with badges and icon,
+   cards of the fields, side column, cards listing the linked records
+   --------------------------------------------------------------------- */
+.openkis-sheet-heading {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.openkis-sheet-name {
+    margin-top: 0;
+    font-size: 1.6rem;
+    color: var(--gc-brown-dark);
+    overflow-wrap: anywhere;
+}
+
+.openkis-sheet-tags {
+    flex: 0 1 auto;
+    max-width: 50%;
+    margin-left: 1rem;
+    gap: .5rem;
+}
+
+.openkis-sheet-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: .25rem;
+    padding-top: .3rem;
+}
+
+.openkis-sheet-code {
+    font-size: .9rem;
+}
+
+.openkis-sheet-icon {
+    flex: none;
+    height: 48px;
+    border: 1px solid var(--gc-line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.openkis-card .card-header,
+.openkis-side-card .card-header {
+    padding: .5rem 1rem;
+}
+
+.openkis-card .card-header h5,
+.openkis-side-card .card-header h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gc-brown);
+}
+
+.openkis-card .card-body {
+    padding: .75rem 1rem;
+}
+
+.openkis-field {
+    margin-left: 0;
+    margin-right: 0;
+    padding: .3rem 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.openkis-card .card-body > .openkis-field:last-child {
+    border-bottom: 0;
+}
+
+.openkis-field-title {
+    font-size: .9rem;
+    color: var(--gc-muted);
+}
+
+.openkis-field-block .openkis-field-title {
+    margin-bottom: .25rem;
+}
+
+.openkis-field-value {
+    overflow-wrap: anywhere;
+}
+
+.openkis-field-value img,
+.openkis-side-card img {
+    max-width: 100%;
+    height: auto;
+}
+
+.openkis-field-author {
+    margin-top: -.25rem;
+    margin-bottom: .5rem;
+}
+
+.openkis-photo a img {
+    border-radius: 4px;
+}
+
+/* list cards: the table touches the card border, indent the outer cells */
+.openkis-card .table th:first-child,
+.openkis-card .table td:first-child {
+    padding-left: 1rem;
+}
+
+.openkis-card .table th:last-child,
+.openkis-card .table td:last-child {
+    padding-right: 1rem;
+}
+
+.openkis-card .table td {
+    vertical-align: middle;
+}
+
+.openkis-card .card-footer {
+    padding: .5rem 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .openkis-sheet-name {
+        font-size: 1.25rem;
+    }
+
+    .openkis-sheet-icon {
+        height: 36px;
+    }
+
+    .openkis-field-title {
+        font-size: .85rem;
+        font-weight: 600;
+    }
+}

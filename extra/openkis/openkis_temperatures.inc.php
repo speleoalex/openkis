@@ -12,6 +12,8 @@
  * See docs/TEMPERATURES.md.
  */
 defined('_FNEXEC') or die('Restricted access');
+// list cards of the sheets
+require_once __DIR__ . "/openkis_sheet.inc.php";
 
 /**
  * Fills the computed fields of ctl_temperatures:
@@ -418,11 +420,18 @@ function openkis_TemperatureClass($value)
  * @param array $records records of ctl_temperatures, visible to the user
  * @param bool $links with a link to the record (false in the popup, which
  *                    opens the records in the "r" window)
+ * @param bool $head with the column titles (the list card of the cave sheet)
  * @return string html
  */
-function openkis_TemperaturesTable($records, $links = true)
+function openkis_TemperaturesTable($records, $links = true, $head = false)
 {
     $html = "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
+    if ($head)
+    {
+        $html .= "<thead><tr><th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("date")) . "</th><th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("type")) . "</th>";
+        $html .= "<th>" . openkis_SheetUcfirst(FN_Translate("measured medium")) . "</th><th>" . openkis_SheetUcfirst(FN_Translate("measurement point")) . "</th>";
+        $html .= "<th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("temperature")) . "</th>" . ($links ? "<th></th>" : "") . "</tr></thead>";
+    }
     foreach ($records as $record)
     {
         $url = FN_RewriteLink("index.php?mod=temperatures&op=view&id={$record['id']}");
@@ -439,7 +448,7 @@ function openkis_TemperaturesTable($records, $links = true)
         $html .= "<td>" . htmlspecialchars(strval($record['position'])) . "</td><td class=\"text-nowrap\"><b>$reading</b></td>";
         if ($links)
         {
-            $html .= "<td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td>";
+            $html .= "<td class=\"text-right text-end\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td>";
         }
         $html .= "</tr>";
     }
@@ -480,11 +489,10 @@ function openkis_TemperaturesCaveCard($code, $exclude_id = 0)
         return "";
     $records = FN_ArraySortByKey($records, "sort_date");
     $title = ($exclude_id > 0) ? FN_Translate("other measurements of the cave") : FN_Translate("temperatures");
-    $html = "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">$title</h5></div>";
-    $html .= "<div class=\"card-body p-0\">" . openkis_TemperaturesTable($records) . "</div>";
     $map = "{$_FN['siteurl']}bs_map.htm?temperature_cave=" . urlencode($code);
-    $html .= "<div class=\"card-footer bg-transparent\"><a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a></div></div>";
-    return $html;
+    $footer = "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a>";
+    return openkis_SheetCard($title, "<div class=\"card-body p-0\">" . openkis_TemperaturesTable($records, true, true) . "</div>",
+        array("count" => count($records), "footer" => $footer, "id" => "card_temperatures"));
 }
 
 /**

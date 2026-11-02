@@ -5,6 +5,7 @@
  * (section fauna). Shown only to the users who can view the fauna_surveys section; the
  * sightings and the caves restricted with groupview are left out by FNDBVIEW.
  */
+require_once __DIR__ . "/openkis_sheet.inc.php";
 
 /**
  * Sightings visible to the user that match an SQL condition.
@@ -87,9 +88,7 @@ function openkis_FaunaCaveCard($code)
         return "";
     $sightings = FN_ArraySortByKey($sightings, "name");
     $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($sightings, "name"), "id,scientific_name,name,type");
-    $html = "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("cave fauna") . "</h5></div>";
-    $html .= "<div class=\"card-body p-0\"><div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
-    $html .= "<tr><th>" . FN_Translate("species") . "</th><th>" . FN_Translate("category") . "</th><th>" . FN_Translate("specimens") . "</th><th>" . FN_Translate("date") . "</th><th>" . FN_Translate("observer") . "</th><th></th></tr>";
+    $rows = array();
     foreach ($sightings as $sighting)
     {
         $url = FN_RewriteLink("index.php?mod=fauna_surveys&op=view&id={$sighting['id']}");
@@ -104,45 +103,10 @@ function openkis_FaunaCaveCard($code)
             // the categories are stored in Italian (TROGLOBIO, STIGOFILO, ...)
             $type = htmlspecialchars(ucfirst(strtolower($sp['type'])));
         }
-        $html .= "<tr><td>$name</td><td>$type</td><td>" . htmlspecialchars($sighting['ammount']) . "</td>";
-        $html .= "<td class=\"text-nowrap\">" . openkis_FaunaDate($sighting['date']) . "</td><td>" . htmlspecialchars($sighting['caver']) . "</td>";
-        $html .= "<td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
+        $rows[] = array($name, $type, htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
-    $html .= "</table></div></div></div>";
-    return $html;
-}
-
-/**
- * Map of the caves (only these caves, as in the cave systems), centred and zoomed on them.
- *
- * @param array $caves records with code, latitude, longitude
- * @return string html, empty when no cave has coordinates
- */
-function openkis_FaunaCavesMap($caves)
-{
-    global $_FN;
-    $codes = array();
-    $lats = array();
-    $lons = array();
-    foreach ($caves as $cave)
-    {
-        $codes[] = rawurlencode($cave['code']);
-        if (!empty($cave['latitude']) && !empty($cave['longitude']))
-        {
-            $lats[] = floatval(str_replace(",", ".", $cave['latitude']));
-            $lons[] = floatval(str_replace(",", ".", $cave['longitude']));
-        }
-    }
-    if (!count($lats))
-        return "";
-    $lat = (max($lats) + min($lats)) / 2;
-    $lon = (max($lons) + min($lons)) / 2;
-    // zoom that fits the extent in a map about 800x400 px (256 px tiles), between 8 and 14
-    $span = max(max($lons) - min($lons), (max($lats) - min($lats)) * 3);
-    $zoom = $span > 0 ? floor(log(3 * 360 / ($span * 1.3), 2)) : 14;
-    $zoom = max(8, min(14, $zoom));
-    $src = "{$_FN['siteurl']}bs_map.htm?mod=caves&zoom=$zoom&lat=" . sprintf("%.6F", $lat) . "&lon=" . sprintf("%.6F", $lon) . "&filter_code=" . implode(",", array_unique($codes));
-    return "<iframe style=\"border:0px;width:100%;height:400px;display:block\" src=\"" . htmlspecialchars($src) . "\"></iframe>";
+    $head = array(FN_Translate("species"), FN_Translate("category"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
+    return openkis_SheetListCard(FN_Translate("cave fauna"), $head, $rows, array("id" => "card_cave_fauna"));
 }
 
 /**
@@ -173,10 +137,7 @@ function openkis_FaunaSpeciesCard($scientific_name)
     {
         return strnatcmp($a['cave']['code'], $b['cave']['code']);
     });
-    $html = "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">" . FN_Translate("observed in") . " (" . count($rows) . ")</h5></div>";
-    $html .= "<div class=\"card-body p-0\">" . openkis_FaunaCavesMap($caves);
-    $html .= "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
-    $html .= "<tr><th>" . FN_Translate("cave") . "</th><th></th><th>" . FN_Translate("specimens") . "</th><th>" . FN_Translate("date") . "</th><th>" . FN_Translate("observer") . "</th><th></th></tr>";
+    $cells = array();
     foreach ($rows as $r)
     {
         $cave = $r['cave'];
@@ -184,11 +145,11 @@ function openkis_FaunaSpeciesCard($scientific_name)
         $cave_url = FN_RewriteLink("index.php?mod=caves&op=view&id={$cave['id']}");
         $url = FN_RewriteLink("index.php?mod=fauna_surveys&op=view&id={$sighting['id']}");
         $place = trim($cave['comune'] . ($cave['provincia'] != "" ? " ({$cave['provincia']})" : ""));
-        $html .= "<tr><td class=\"text-nowrap\"><a href=\"$cave_url\">" . htmlspecialchars($cave['code']) . "</a></td>";
-        $html .= "<td><a href=\"$cave_url\">" . htmlspecialchars($cave['name']) . "</a><br /><small>" . htmlspecialchars($place) . "</small></td>";
-        $html .= "<td>" . htmlspecialchars($sighting['ammount']) . "</td><td class=\"text-nowrap\">" . openkis_FaunaDate($sighting['date']) . "</td><td>" . htmlspecialchars($sighting['caver']) . "</td>";
-        $html .= "<td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
+        $cells[] = array("<a href=\"$cave_url\">" . htmlspecialchars($cave['code']) . "</a>",
+            "<a href=\"$cave_url\">" . htmlspecialchars($cave['name']) . "</a><br /><small>" . htmlspecialchars($place) . "</small>",
+            htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
-    $html .= "</table></div></div></div>";
-    return $html;
+    $head = array(array(FN_Translate("number"), "text-nowrap openkis-card-code"), FN_Translate("cave"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
+    $options = array_merge(array("id" => "card_observed_in"), openkis_SheetMapOptions(openkis_SheetCavesMapUrl($caves)));
+    return openkis_SheetListCard(FN_Translate("observed in"), $head, $cells, $options);
 }
