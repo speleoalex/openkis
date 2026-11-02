@@ -1,0 +1,366 @@
+[
+ {
+  "name": "01_home",
+  "url": "index.php"
+ },
+ {
+  "name": "02_login",
+  "url": "index.php",
+  "actions": [
+   {
+    "click": "button:text-matches('^\\\\s*(Accedi|Login)\\\\s*$')"
+   }
+  ],
+  "crop": [
+   800,
+   0,
+   566,
+   420
+  ]
+ },
+ {
+  "name": "03_menu",
+  "url": "index.php?mod=caves",
+  "login": true,
+  "actions": [
+   {
+    "click": "a.dropdown-toggle:text-matches('Configurazione|Settings')"
+   }
+  ],
+  "crop": [
+   0,
+   0,
+   1366,
+   300
+  ]
+ },
+ {
+  "name": "04_map",
+  "url": "index.php?mod=map_caves",
+  "wait": 4000
+ },
+ {
+  "name": "05_map_layers",
+  "url": "index.php?mod=map_caves",
+  "wait": 4000,
+  "actions": [
+   {
+    "frame": "#iframemap",
+    "click": "button.dropdown-toggle",
+    "wait": 1500
+   }
+  ]
+ },
+ {
+  "name": "06_map_search",
+  "url": "index.php?mod=map_caves",
+  "wait": 4000,
+  "actions": [
+   {
+    "frame": "#iframemap",
+    "type": "#searchText",
+    "value": "CAPO NOLI",
+    "wait": 2000
+   }
+  ]
+ },
+ {
+  "name": "07_map_popup",
+  "url": "index.php?mod=map_caves",
+  "wait": 4000,
+  "actions": [
+   {
+    "frame": "#iframemap",
+    "type": "#searchText",
+    "value": "CAPO NOLI",
+    "wait": 2000
+   },
+   {
+    "frame": "#iframemap",
+    "click": "text=LI202-GROTTA",
+    "wait": 3500
+   },
+   {
+    "frame": "#iframemap",
+    "click": "#mode_info",
+    "wait": 800
+   },
+   {
+    "frame": "#iframemap",
+    "click": "#map",
+    "pos": [
+     552,
+     305
+    ],
+    "wait": 2500
+   }
+  ]
+ },
+ {
+  "name": "08_caves_list",
+  "url": "index.php?mod=caves&q=NOLI",
+  "wait": 3000,
+  "actions": [
+   {
+    "js": "window.scrollTo(0,420)"
+   }
+  ]
+ },
+ {
+  "name": "09_caves_filters",
+  "url": "index.php?mod=caves",
+  "wait": 2500,
+  "actions": [
+   {
+    "click": "button[data-target='#collapseOne']",
+    "wait": 1500
+   },
+   {
+    "js": "window.scrollTo(0,420)"
+   }
+  ]
+ },
+ {
+  "name": "10_caves_categories",
+  "url": "index.php?mod=caves",
+  "wait": 2500,
+  "actions": [
+   {
+    "click": "button[data-target='#collapseFilters']",
+    "wait": 1500
+   },
+   {
+    "js": "window.scrollTo(0,420)"
+   }
+  ]
+ },
+ {
+  "name": "11_cave_sheet",
+  "url": "index.php?mod=caves&op=view&id=204",
+  "h": 900,
+  "wait": 2500
+ },
+ {
+  "name": "12_cave_map_coords",
+  "url": "index.php?mod=caves&op=view&id=204",
+  "wait": 2500,
+  "clip_union": [
+   ".card >> nth=9",
+   ".card >> nth=10"
+  ]
+ },
+ {
+  "name": "13_cave_tools",
+  "url": "index.php?mod=caves&op=view&id=204",
+  "wait": 2500,
+  "clip_union": [
+   ".card >> nth=11",
+   ".card >> nth=13"
+  ]
+ },
+ {
+  "name": "14_cave_surveys",
+  "url": "index.php?mod=caves&op=view&id=204",
+  "wait": 2500,
+  "clip_union": [
+   ".card >> nth=14",
+   ".card >> nth=15"
+  ]
+ },
+ {
+  "name": "15_cave_bibliography",
+  "url": "index.php?mod=caves&op=view&id=204",
+  "wait": 2500,
+  "clip_union": [
+   ".card >> nth=21"
+  ]
+ },
+ {
+  "name": "16_viewer3d",
+  "url": "openkis_cave_viewer.php?f=misc%2Ffndatabase%2Fctl_surveys%2F1533%2Ffilelox%2FgrottaPozzoCapoNoli.th.lox",
+  "wait": 7000
+ },
+ {
+  "name": "17_cadastral_sheet",
+  "url": "index.php?mod=caves&op=view&id=204&export_pdf=1",
+  "h": 1000,
+  "wait": 2000
+ },
+ {
+  "name": "18_cave_history",
+  "url": "index.php?mod=caves&op=history&id=204",
+  "login": true,
+  "actions": [
+   {
+    "js": "document.querySelectorAll('table td').forEach(td=>{ if(/^[a-z][a-z0-9._-]{2,}$/.test(td.innerText.trim())) td.innerText=('$LANG'=='it'?'curatore':'curator') })",
+    "wait": 300
+   }
+  ]
+ },
+ {
+  "name": "19_cave_edit",
+  "url": "index.php?mod=caves&op=edit&id=204",
+  "login": true,
+  "h": 900
+ },
+ {
+  "name": "20_cave_edit_position",
+  "url": "index.php?mod=caves&op=edit&id=204",
+  "login": true,
+  "h": 900,
+  "actions": [
+   {
+    "js": "const e=document.querySelector('[name=latitude_txt]'); window.scrollTo(0, e.getBoundingClientRect().top+scrollY-120)"
+   }
+  ]
+ },
+ {
+  "name": "21_cave_edit_visibility",
+  "url": "index.php?mod=caves&op=edit&id=204",
+  "login": true,
+  "h": 900,
+  "actions": [
+   {
+    "js": "const e=document.querySelector('[name^=__xmetadb_multicheck_groupview]'); window.scrollTo(0, e.getBoundingClientRect().top+scrollY-330)"
+   }
+  ]
+ },
+ {
+  "name": "22_map_coordinates",
+  "url": "openkis_map_coordinates.php?lat=44.196396&lon=8.425158&coordinates_type=GPS%20Geografiche%20WGS84",
+  "nolang": true,
+  "w": 900,
+  "h": 600,
+  "wait": 4000
+ },
+ {
+  "name": "23_cave_users",
+  "url": "index.php?mod=caves&op=users&id=204",
+  "login": true,
+  "crop": [
+   0,
+   0,
+   1366,
+   330
+  ]
+ },
+ {
+  "name": "24_artificials",
+  "url": "index.php?mod=artificials",
+  "wait": 3000,
+  "actions": [
+   {
+    "js": "window.scrollTo(0,300)"
+   }
+  ]
+ },
+ {
+  "name": "25_tracings",
+  "url": "index.php?mod=tracings",
+  "wait": 4000
+ },
+ {
+  "name": "26_bibliography",
+  "url": "index.php?mod=bibliography",
+  "wait": 2000
+ },
+ {
+  "name": "27_fauna",
+  "url": "index.php?mod=fauna",
+  "wait": 2000
+ },
+ {
+  "name": "28_associations",
+  "url": "index.php?mod=associations",
+  "wait": 2000
+ },
+ {
+  "name": "29_gc_overview",
+  "url": "index.php?mod=grottocenter",
+  "login": true,
+  "h": 900
+ },
+ {
+  "name": "30_gc_proposals",
+  "url": "index.php?mod=grottocenter&status=proposed&q=PAGLIARINA",
+  "login": true,
+  "clip_union": [
+   ".nav-tabs",
+   "table"
+  ]
+ },
+ {
+  "name": "31_gc_confirmed",
+  "url": "index.php?mod=grottocenter&status=confirmed",
+  "login": true,
+  "clip_union": [
+   ".nav-tabs",
+   "table"
+  ]
+ },
+ {
+  "name": "32_gc_settings",
+  "url": "index.php?mod=grottocenter&op=settings",
+  "login": true,
+  "crop": [
+   0,
+   0,
+   1366,
+   450
+  ]
+ },
+ {
+  "name": "33_mcp",
+  "url": "index.php?mod=openkis_mcp",
+  "login": "editor",
+  "full": true
+ },
+ {
+  "name": "34_cc_sitemap",
+  "url": "index.php?fnapp=controlcenter&opt=contents/sitemap",
+  "login": true
+ },
+ {
+  "name": "35_cc_caves_options",
+  "url": "index.php?fnapp=controlcenter&opt=rnt_ccnf_config_section_caves",
+  "login": true,
+  "h": 900
+ },
+ {
+  "name": "36_cc_groups",
+  "url": "index.php?fnapp=controlcenter&opt=users_and_groups/groups",
+  "login": true
+ },
+ {
+  "name": "37_cc_user",
+  "url": "index.php?fnapp=controlcenter&opt=users_and_groups/users&pk___xdb_fn_users=speleologo&op___xdb_fn_users=insnew",
+  "login": true,
+  "full": true
+ },
+ {
+  "name": "38_cc_settings",
+  "url": "index.php?fnapp=controlcenter&opt=settings/cms",
+  "login": true
+ },
+ {
+  "name": "39_cc_look",
+  "url": "index.php?fnapp=controlcenter&opt=settings/look",
+  "login": true
+ },
+ {
+  "name": "40_configopenkis",
+  "url": "index.php?mod=configopenkis",
+  "login": true,
+  "crop": [
+   0,
+   0,
+   1366,
+   360
+  ]
+ },
+ {
+  "name": "41_coordinate_types",
+  "url": "index.php?mod=coordinate_types",
+  "login": true
+ }
+]

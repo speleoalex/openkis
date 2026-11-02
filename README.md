@@ -11,6 +11,11 @@
 - REST API endpoints
 - MCP server (`openkis_mcp.php`) for AI assistants, with personal API keys and
   read only access by default
+- Grottocenter: Karstlink export (`openkis_karstlink.php`) and links between the caves
+  and the Grottocenter entrances
+
+User and administrator manual: [docs/MANUAL.md](docs/MANUAL.md) (English),
+[docs/MANUAL_IT.md](docs/MANUAL_IT.md) (Italian).
 
 ## Requirements
 
@@ -127,6 +132,14 @@ the first time each section is opened. No SQL dump is needed.
   the administrator allows the write tools (group `mcp_write`). Connect with:
   `claude mcp add --transport http openkis https://<site>/openkis_mcp.php --header "X-API-Key: <key>"`.
   See [docs/MCP_SERVER.md](docs/MCP_SERVER.md).
+
+- **Grottocenter** (optional): `openkis_karstlink.php?mod=caves` exports the public caves
+  in the Karstlink format of the UIS (CSV, or JSON-LD with `&format=jsonld`).
+  **Configuration > Grottocenter** proposes for each cave the matching entrance of
+  [Grottocenter](https://grottocenter.org) (public API, nothing is written there); the
+  administrators of the caves section confirm the links, which then appear on the cave
+  sheet. Set the source name and the license of the export there before giving it to
+  Grottocenter. See [docs/GROTTOCENTER.md](docs/GROTTOCENTER.md).
 
 - **Temperatures**: the section *Temperatures* stores the underground temperature
   measurements after the data sheets of the UCC project (Underground Climate Change,

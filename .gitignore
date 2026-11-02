@@ -38,3 +38,5 @@ CLAUDE.md
 *.swo
 *.tmp
 *~
+# Playwright MCP logs
+.playwright-mcp/
