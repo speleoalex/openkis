@@ -332,6 +332,23 @@ mysql_q "$TEST_DB" -e "UPDATE fn_users SET apikey='$(openssl rand -hex 24)' WHER
 s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$AT2"); [ "$s" = 401 ] && ok "a new API key revokes the OAuth tokens" || fail "access token still valid after a new API key: HTTP $s"
 mysql_q "$TEST_DB" -e "UPDATE fn_users SET apikey='$key' WHERE username='$ADMIN_USER'"
 
+say "6f. temperatures (section temperatures, openkis_temperatures.php)"
+DEMO_ID=$(mysql_q "$TEST_DB" -e "SELECT id FROM ctl_caves WHERE code='$DEMO_CODE'")
+page "temperatures: list with the map and the UCC export links (admin)" "$COOKIES" "${TEST_URL}index.php?mod=temperatures" "openkis_temperatures.php?format=ucc"
+page "temperatures: new record form (admin)" "$COOKIES" "${TEST_URL}index.php?mod=temperatures&op=new" "name=\"temperature\""
+# the id is computed by the framework (varchar, max + 1), so direct inserts give it
+TID=$(mysql_q "$TEST_DB" -e "SELECT COALESCE(MAX(CAST(id AS UNSIGNED)),0)+1 FROM ctl_temperatures")
+mysql_q "$TEST_DB" -e "INSERT INTO ctl_temperatures (id,name,type,medium,cave,position,temperature,year,month,day,instrument,bibliography,username) VALUES ($TID,'','spot','air','$DEMO_CODE','ingresso','7.2',1962,0,0,'termometro a mercurio','Smoke test, 1962','$ADMIN_USER')"
+mysql_q "$TEST_DB" -e "INSERT INTO ctl_temperatures (id,name,type,medium,cave,position,t_mean,t_min,t_max,start_date,end_date,acq_interval,username) VALUES ($TID+1,'','monitoring','air','$DEMO_CODE','Sala Grande','8.5','8.1','8.9','2024-01-01','2024-12-31',30,'$ADMIN_USER')"
+# direct SQL does not touch the table stamp (misc/fndatabase/.../ctl_temperatures/updated) the computed pass looks at
+tstamp=$(find "$TEST_DIR/misc/fndatabase" -path "*/ctl_temperatures/updated" 2>/dev/null | head -1); [ -n "$tstamp" ] && sudo -n -u daemon touch "$tstamp" 2>/dev/null || sudo -n -u daemon touch "$TEST_DIR/misc/fndatabase/ctl_temperatures/updated" 2>/dev/null || touch "$TEST_DIR/misc/fndatabase/ctl_temperatures/updated"
+page "temperatures: list after the inserts, computed name and date" "$ANON" "${TEST_URL}index.php?mod=temperatures" "$DEMO_CODE - ingresso - 1962"
+page "cave sheet: temperatures card" "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$DEMO_ID" "temperature_cave=$DEMO_CODE"
+s=$(fetch "$WORK/t1" "${TEST_URL}openkis_temperatures.php"); [ "$s" = 200 ] && grep -aq '"type":"Point"' "$WORK/t1" && grep -aEq '"id":"cave:'"$DEMO_CODE"'".*"value":[0-9]+(\.[0-9]+)?' "$WORK/t1" && ok "openkis_temperatures.php: one point per cave, mean of the readings" || fail "openkis_temperatures.php GeoJSON (HTTP $s): $(head -c 300 "$WORK/t1")"
+s=$(fetch "$WORK/t2" "${TEST_URL}openkis_temperatures.php?cave=NOSUCHCODE"); [ "$s" = 200 ] && grep -aq '"features":\[\]' "$WORK/t2" && ok "openkis_temperatures.php: unknown cave gives no feature" || fail "openkis_temperatures.php?cave=NOSUCHCODE (HTTP $s)"
+s=$(fetch "$WORK/t3" "${TEST_URL}openkis_temperatures.php?format=ucc&type=spot"); [ "$s" = 200 ] && head -1 "$WORK/t3" | grep -q 'nome grotta";"num. Catasto";' && grep -aq ";ingresso;" "$WORK/t3" && ! grep -aq "Sala Grande" "$WORK/t3" && ok "UCC export: spot sheet with the spot records only" || fail "UCC spot export (HTTP $s)"
+s=$(fetch "$WORK/t4" "${TEST_URL}openkis_temperatures.php?format=ucc&type=monitoring"); [ "$s" = 200 ] && head -1 "$WORK/t4" | grep -q 'inizio misurazione";"fine misurazione";' && grep -aq "Sala Grande" "$WORK/t4" && ! grep -aq ";ingresso;" "$WORK/t4" && ok "UCC export: monitoring sheet with the monitorings only" || fail "UCC monitoring export (HTTP $s)"
+
 say "7. PHP errors logged by the web server during the test"
 if [ -f "$PHP_ERROR_LOG" ]; then
     new=$(tail -n +"$((ERRLOG_START + 1))" "$PHP_ERROR_LOG" | grep -E "PHP (Fatal|Parse|Warning|Deprecated|Notice)" | sed 's/^\[[^]]*\] //' | sort | uniq -c | sort -rn)

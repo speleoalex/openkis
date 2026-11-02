@@ -128,6 +128,13 @@ the first time each section is opened. No SQL dump is needed.
   `claude mcp add --transport http openkis https://<site>/openkis_mcp.php --header "X-API-Key: <key>"`.
   See [docs/MCP_SERVER.md](docs/MCP_SERVER.md).
 
+- **Temperatures**: the section *Temperatures* stores the underground temperature
+  measurements after the data sheets of the UCC project (Underground Climate Change,
+  [progettoucc.it](https://www.progettoucc.it)): spot readings and data logger monitorings
+  of the air, water and rock of a cave. `openkis_temperatures.php` draws the points on the
+  map and exports the records in the layout of the UCC sheets (`?format=ucc&type=spot` or
+  `monitoring`). See [docs/TEMPERATURES.md](docs/TEMPERATURES.md).
+
 ### XAMPP notes (Linux, `/opt/lampp`)
 
 - Apache runs as user `daemon`; `setup.sh` without `-w` uses `chmod -R a+w`,

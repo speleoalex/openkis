@@ -1227,7 +1227,8 @@ var OPS_Map = {
     /**
      * Tracer tests layer configured from the page url: hidden (all the
      * tracings, can be switched on) unless the url asks for them, in which
-     * case it is shown and the view is framed on the arrows:
+     * case it is shown on a light base layer and the view is framed on the
+     * arrows:
      *   tracings=1            all the tracings
      *   tracing=id            one tracing
      *   tracing_cave=code     the tracings starting or ending in a cave
@@ -1252,7 +1253,149 @@ var OPS_Map = {
             path += "?spring=" + encodeURIComponent(spring);
         }
         var shown = (getUrlVar("tracings", "") !== "" || path !== "openkis_tracings.php");
+        if (shown)
+        {
+            // the arrows read better on a light background
+            OPS_Map.defaultBaseLayer = "light";
+        }
         return this.addTracingsLayer(title, path, shown, shown);
+    },
+    /**
+     * Colours of the temperature points (openkis_temperatures.php "kind":
+     * classes of the mean air temperature of the point).
+     */
+    temperatureColors: {
+        cold: "#313695",
+        cool: "#4575b4",
+        mild: "#74add1",
+        warm: "#fdae61",
+        hot: "#d73027",
+        unknown: "#999999"
+    },
+    /**
+     * Style of a measurement point: a disc coloured by its mean temperature,
+     * with the value written next to it.
+     * @param {ol.Feature} feature
+     * @returns {ol.style.Style}
+     */
+    temperatureStyle: function (feature)
+    {
+        var color = OPS_Map.temperatureColors[feature.get("kind")] || OPS_Map.temperatureColors.unknown;
+        var value = feature.get("value");
+        var label = (value === "" || value === null || value === undefined) ? "" : String(value).replace(".", ",") + " °C";
+        return new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 8,
+                fill: new ol.style.Fill({color: color}),
+                stroke: new ol.style.Stroke({color: "#ffffff", width: 2})
+            }),
+            text: new ol.style.Text({
+                text: label,
+                font: "bold 11px sans-serif",
+                offsetX: 12,
+                textAlign: "left",
+                fill: new ol.style.Fill({color: "#222222"}),
+                stroke: new ol.style.Stroke({color: "#ffffff", width: 3})
+            })
+        });
+    },
+    /**
+     * Legend of the temperature points.
+     * @param {Object} labels "legend" member of openkis_temperatures.php
+     * @returns {String} html
+     */
+    temperatureLegendHtml: function (labels)
+    {
+        var esc = function (text) {
+            return $("<div>").text(text === undefined ? "" : text).html();
+        };
+        var html = "<b>" + esc(labels.title) + "</b><br />";
+        var classes = ["cold", "cool", "mild", "warm", "hot", "unknown"];
+        for (var i = 0; i < classes.length; i++)
+        {
+            html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:6px;border:1px solid #fff;background:" + OPS_Map.temperatureColors[classes[i]] + ";vertical-align:middle;margin-right:4px\"></span>" + esc(labels[classes[i]]) + "<br />";
+        }
+        return html;
+    },
+    /**
+     * Temperatures layer: the measurement points of openkis_temperatures.php
+     * (GeoJSON), coloured by their mean temperature, with a popup listing
+     * the measurements. The legend is shown while the layer is visible and
+     * has points.
+     * @param {String} title layer name in the layer switcher
+     * @param {String} path url of openkis_temperatures.php with its filters
+     * @param {Boolean} visible
+     * @param {Boolean} fit zoom the view on the points once they are loaded
+     * @returns {ol.layer.Vector}
+     */
+    addTemperaturesLayer: function (title, path, visible, fit)
+    {
+        var source = new ol.source.Vector();
+        var layer = new ol.layer.Vector({
+            name: title,
+            visible: visible,
+            source: source,
+            style: OPS_Map.temperatureStyle
+        });
+        // above the cave icons: the point carries the measurements of the cave
+        layer.setZIndex(11);
+        this.addLayer(layer, false);
+        var legend = document.createElement("div");
+        legend.className = "ol-unselectable ol-control";
+        legend.style.cssText = "position:fixed;left:8px;bottom:40px;z-index:6;padding:4px 8px;background:rgba(255,255,255,0.9);color:#222;font-size:12px;line-height:18px;display:none";
+        document.body.appendChild(legend);
+        var updateLegend = function () {
+            legend.style.display = (layer.getVisible() && source.getFeatures().length > 0) ? "block" : "none";
+        };
+        layer.on("change:visible", updateLegend);
+        $.getJSON(path, function (data) {
+            var features = new ol.format.GeoJSON().readFeatures(data, {
+                dataProjection: OPS_Map.inputProjectonEPSG,
+                featureProjection: OPS_Map.view.getProjection()
+            });
+            source.addFeatures(features);
+            if (data.legend)
+            {
+                legend.innerHTML = OPS_Map.temperatureLegendHtml(data.legend);
+            }
+            updateLegend();
+            if (fit && features.length > 0)
+            {
+                OPS_Map.view.fit(source.getExtent(), {padding: [60, 60, 60, 60], maxZoom: 15});
+            }
+        });
+        return layer;
+    },
+    /**
+     * Temperatures layer configured from the page url: hidden (all the
+     * points, can be switched on) unless the url asks for them, in which
+     * case it is shown on a light base layer and the view is framed on the
+     * points:
+     *   temperatures=1          all the measurement points
+     *   temperature=id          the point of one measurement
+     *   temperature_cave=code   the measurements of a cave
+     * @param {String} title layer name in the layer switcher
+     * @returns {ol.layer.Vector}
+     */
+    addTemperaturesLayerFromUrl: function (title)
+    {
+        var path = "openkis_temperatures.php";
+        var temperature = getUrlVar("temperature", "");
+        var cave = getUrlVar("temperature_cave", "");
+        if (temperature !== "")
+        {
+            path += "?id=" + encodeURIComponent(temperature);
+        } else if (cave !== "")
+        {
+            path += "?cave=" + encodeURIComponent(cave);
+        }
+        var shown = (getUrlVar("temperatures", "") !== "" || path !== "openkis_temperatures.php");
+        if (shown)
+        {
+            // the coloured points read better on a light background
+            OPS_Map.defaultBaseLayer = "light";
+        }
+        return this.addTemperaturesLayer(title, path, shown, shown && temperature === "");
     },
     addJsonLayer: function (title, path, isBaselayer, visible)
     {
@@ -1904,9 +2047,52 @@ var OPS_Map = {
         }
         );
     },
+    /**
+     * Names of the light base layers of the layer configurations, in order of
+     * preference: "light" as base layer name picks the first one present.
+     */
+    lightBaseLayers: ["Bianco", "Light Gray"],
+    /**
+     * Base layer used when the url has no "basemap" parameter ("" = the first
+     * one); a layer can ask for one, e.g. "light" for the temperatures.
+     */
+    defaultBaseLayer: "",
+    /**
+     * Name of the base layer to show at start: the "basemap" url parameter,
+     * else defaultBaseLayer; "light" is resolved through lightBaseLayers.
+     * Unknown names give "" (the first base layer).
+     * @param {Array} tlayers the base layers
+     * @returns {String}
+     */
+    startBaseLayerName: function (tlayers)
+    {
+        var wanted = this.getUrlVar("basemap", "");
+        if (wanted === "")
+        {
+            wanted = OPS_Map.defaultBaseLayer;
+        }
+        var names = [];
+        for (var i = 0; i < tlayers.length; i++)
+        {
+            if (!tlayers[i].getLayers && tlayers[i].get('name'))
+            {
+                names.push(tlayers[i].get('name'));
+            }
+        }
+        var candidates = (wanted === "light") ? OPS_Map.lightBaseLayers : [wanted];
+        for (var j = 0; j < candidates.length; j++)
+        {
+            if (names.indexOf(candidates[j]) !== -1)
+            {
+                return candidates[j];
+            }
+        }
+        return "";
+    },
     HtmlLayerItemsBaselayers: function (tlayers)
     {
         var html = "";
+        var getname = this.startBaseLayerName(tlayers);
         for (var i = 0; i < tlayers.length; i++)
         {
             var layer = tlayers[i];
@@ -1917,7 +2103,6 @@ var OPS_Map = {
             } else
             {
                 var checked = "";
-                var getname = this.getUrlVar("basemap", "");
                 if ((i == 0 && getname == "") || getname == name)
                 {
                     checked = "checked";

@@ -306,6 +306,8 @@ $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] =
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 // tracer tests: computed fields, save callbacks and map arrows
 require_once(__DIR__ . "/openkis/openkis_tracings.inc.php");
+// underground temperatures (UCC project sheets): computed fields, save callbacks, map points, exports
+require_once(__DIR__ . "/openkis/openkis_temperatures.inc.php");
 
 /**
  * Stops the request unless the current user may view the section that a data

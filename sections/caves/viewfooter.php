@@ -75,6 +75,11 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
     // species observed in this cave (section fauna_surveys)
     require_once "extra/openkis/openkis_fauna.inc.php";
     echo openkis_FaunaCaveCard($row['code']);
+    // temperature measurements and monitorings in this cave
+    if (function_exists("openkis_TemperaturesCaveCard"))
+    {
+        echo openkis_TemperaturesCaveCard($row['code']);
+    }
     //survey------------------------------------------------------------------->
     $config = FN_LoadConfig("", "survey");
     $survey = new FNDBVIEW($config);

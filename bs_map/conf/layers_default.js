@@ -4,6 +4,8 @@ OPS_Map.MyAddLayers = function ()
     OPS_Map.addOSMLayer("Topo", 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png', true, false, null, 17);
     OPS_Map.addOSMLayer("Satellite", "https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=" + API_KEYS.MAPTILER, true, false);
     OPS_Map.addOSMLayer("OSM Landscape", "https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=" + API_KEYS.THUNDERFOREST, true, false);
+    // light background (Esri Light Gray Canvas, keyless, native tiles up to z16)
+    OPS_Map.addOSMLayer("Bianco", "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", true, false, "Anonymous", 16);
     OPS_Map.addWMSLayer("IGM 1:25000 Piemonte", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/igm25k_piemonte_wgs/ImageServer/WMSServer", 'igm25k_piemonte_wgs', false, false, "png", 'EPSG:4326');
     OPS_Map.addWMSLayer("IGM 1:25000 Liguria", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/igm25k_liguria_wgs/ImageServer/WMSServer", 'igm25k_piemonte_wgs', false, false, "png", 'EPSG:4326');
 
@@ -49,6 +51,7 @@ OPS_Map.MyAddLayers = function ()
     OPS_Map.addKmlLayer("Sorgenti carsiche", "openkis_kml.php?mod=springs", false, mod === "springs");
     OPS_Map.addKmlLayer("Cavita artificiali", "openkis_kml.php?mod=artificials&minimal=1", false, mod === "artificials");
     OPS_Map.addTracingsLayerFromUrl("Tracciamenti");
+    OPS_Map.addTemperaturesLayerFromUrl("Temperature");
     OPS_Map.addKmlLayer("Catasto grotte Liguria", "openkis_proxy.php/https://catastogrotte.net/liguria/openkis_kml.php?mod=caves&time=1&minimal=1", false, false);
 
     splx.include("bs_surveys.js.php?mod=" + mod);
