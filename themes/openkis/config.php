@@ -1,6 +1,6 @@
 <?php
 
-#show search form {0=no,1=yes}
+//[i18n]show search form {1=yes,0=no}
 $config['show_search_form']="1";
 
 ?>
