@@ -8,6 +8,7 @@
     <field>
         <name>code</name>
         <frm_it>Numero</frm_it>
+        <frm_default>LO</frm_default>
         <type>string</type>
         <frm_size>8</frm_size>
         <frm_help_i18n>leave blank for self assignment</frm_help_i18n>
@@ -25,10 +26,12 @@
     <field>
         <name>name</name>
         <frm_it>Nome</frm_it>
+        <type>uppercase</type>
         <view_tag>h2</view_tag>
         <view_hiddentitle>1</view_hiddentitle>
         <frm_size>80</frm_size>
-        <frm_help_it>Nome principale della cavit&agrave;</frm_help_it>
+        <frm_help_it>Nome principale della cavit&agrave; (scrivere tutto in maiuscolo)</frm_help_it>
+        
     </field>
     <field>
         <name>synonyms</name>
@@ -48,6 +51,11 @@
         <foreignkey>ctl_caves</foreignkey>
         <fk_link_field>code</fk_link_field>
         <fk_show_field>provincia,code,name</fk_show_field>
+    </field>
+    <field>
+        <name>alias</name>
+        <type>string</type>
+        <frm_help_it>Se la cavità è stata messa a catasto con più numeri indicarli separati da virgola (es. LO1,LO12)</frm_help_it>
     </field>
 
     <field>
@@ -89,7 +97,7 @@
     </field>
     <field>
         <name>firstreference</name>
-        <frm_it>rilevatori</frm_it>
+        <frm_it>Rilevatori</frm_it>
         <type>uppercase</type>
         <frm_show>1</frm_show>
         <view_show>1</view_show>
@@ -161,6 +169,11 @@
         <fk_show_field>code,name</fk_show_field>
     </field>
     <field>
+        <name>lithology</name>
+        <type>string</type>
+        <frm_it>Litologia</frm_it>
+    </field>
+    <field>
         <name>age</name>
         <type>string</type>
 	    <frm_it>Et&agrave;</frm_it>
@@ -203,6 +216,18 @@
         <frm_it>Estensione</frm_it>
         <frm_suffix> m</frm_suffix>
         <frm_size>8</frm_size>
+    </field>
+    <field>
+        <name>lenght_scope</name>
+        <frm_it>Sviluppo riferito a</frm_it>
+        <frm_en>Development refers to</frm_en>
+        <type>radio</type>
+        <frm_options>total,partial</frm_options>
+        <frm_options_it>complessivo (intera grotta),parziale (solo questo ingresso)</frm_options_it>
+        <frm_options_en>whole cave,this entrance only</frm_options_en>
+        <frm_default>total</frm_default>
+        <frm_help_it>Indica se sviluppo e dislivelli della scheda si riferiscono all'intera grotta (complessivo) o solo al ramo di questo ingresso (parziale). Parziale con sviluppo vuoto = ingresso che non aggiunge sviluppo proprio. Le schede storiche non ancora classificate restano vuote.</frm_help_it>
+        <frm_help_en>States whether development and depth refer to the whole cave (total) or only to the branch of this entrance (partial). Partial with empty development = entrance adding no development of its own. Unclassified historic records stay empty.</frm_help_en>
     </field>
     <field>
         <name>depth_positive</name>
@@ -266,7 +291,9 @@
     <field>
         <name>original_coordinates_type</name>
         <frm_i18n>original coordinates type</frm_i18n>
-        
+        <frm_help_it>Tipologia di Coordinate precedente alla conversione in UTM WGS84 (dato modificabile solo dagli Amministratori)</frm_help_it>
+        <frm_setonlyadmin>1</frm_setonlyadmin>
+        <frm_allowupdate>onlyadmin</frm_allowupdate>
     </field>
     <field>
         <name>elevation</name>
@@ -536,14 +563,14 @@
         <frm_i18n>surveys</frm_i18n>
         <frm_it>Rilievi cavit&agrave;</frm_it>
         <linkfield>code,codecave</linkfield>
-        <innertablefields>id,name,photo1,filekml,date,author</innertablefields>
-        <view></view>
+        <innertablefields>id,name,photo1,filekml,date,author,license</innertablefields>
+        <view>r_caves</view>
     </innertable>
     <innertable>
         <tablename>ctl_photos</tablename>
         <frm_it>Foto della cavit&agrave;</frm_it>
         <linkfield>code,codecave</linkfield>
-        <innertablefields>id,name,photo</innertablefields>
+        <innertablefields>id,name,photo,license</innertablefields>
         <view></view>
     </innertable>
     <innertable>
@@ -612,6 +639,15 @@
         <fk_show_field>groupname</fk_show_field>
         <frm_type>multicheck</frm_type>
         <type>string</type>
+    </field>
+    <field>
+        <name>public_map</name>
+        <frm_it>Visibile sulla mappa pubblica</frm_it>
+        <type>radio</type>
+        <frm_options>Y,N</frm_options>
+        <frm_options_it>Si,No</frm_options_it>
+        <frm_default>Y</frm_default>
+        <frm_help_it>Se Si, la posizione e i dati principali della cavit&agrave; compaiono sulla mappa vista da chi non ha fatto l'accesso. Le cavit&agrave; con visualizzazione limitata a dei gruppi non compaiono comunque.</frm_help_it>
     </field>
     <field>
         <name>groupinsert</name>

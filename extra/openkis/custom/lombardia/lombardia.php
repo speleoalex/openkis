@@ -1,9 +1,13 @@
 <?php
 
 /*
- * Funzioni specifiche per il catasto speleologico piemontese
+ * Funzioni specifiche per il Catasto Speleologico Lombardo (FSLo), caricate con
+ * $_FN['openkis_custom'] = "lombardia": numero di catasto LO<n> assegnato alle nuove
+ * grotte e cavita' artificiali, codici FSLo (LO<provincia><n>), controllo della
+ * provincia di una grotta rispetto ai gruppi dei curatori (RW_<provincia>),
+ * definizioni delle tabelle ctl_caves e ctl_surveys di questa cartella.
  */
-global $_FN; //variabile globale condivisa da tutto il programma Flatnux
+global $_FN; //variabile globale condivisa da tutto il programma Finis
 //questa riga di codiceassegna la funzione da richiamare dopo 
 //l'inserimento di una grotta, la funzione riceve come parametro un array con i 
 //dati appena inseriti:
@@ -47,7 +51,7 @@ function GeneraNumeroArtificials($values)
         }
     }
     $max++;
-//se è in Piemonte aggiunge "PI", altrimenti "AO"
+//prefisso del catasto lombardo
     $regione="LO";
 
 //cerca il primo numero libero
@@ -85,6 +89,9 @@ function GeneraNumero($values)
     $grotte_by_code=array(); //array che contiene le grotte per codice
     foreach($grotte as $k=> $grotta)
     {
+//le chiavi 0..(numero di schede - 1) restano occupate: il numero assegnato e' il primo
+//libero sopra il totale delle schede, i numeri liberi sotto (numeri bianchi) non vengono
+//riassegnati. Voluto (confermato 2026-11-02): non cambiare.
         $grotte_by_code[$k]=$grotta;
 //elimino a destra del "." esempio PI1210.2
         $tmp=explode(".",$grotta['code']);
@@ -153,53 +160,54 @@ function InizializzaDB()
 
 
 /**
- * 
+ * Validatore della provincia di una grotta (frm_validator di ctl_caves.provincia,
+ * chiamato da Finis solo se la provincia non e' vuota): i curatori salvano solo le
+ * grotte delle province del proprio gruppo, RW_<provincia> (RW_BG, RW_BS, RW_VA) o
+ * RW_CO_LC_SO_MI_PV per quelle cinque province; gli utenti abilitati alla modifica
+ * di una singola scheda ("Gestisci gli utenti abilitati alla modifica") possono
+ * salvarla qualunque sia la provincia.
+ *
  * @global array $_FN
- * @param type $prov
- * @return boolean
+ * @param string $prov provincia da salvare
+ * @param bool $update true se si salva una scheda esistente
+ * @param array $newvalues valori da salvare
+ * @return bool|string true, oppure il messaggio di errore mostrato nel modulo
  */
-
-//echo '<script>console.log("Lombardia"); </script>';
-//wh_log("Lombardia");
-//wh_log($group);
-
-function cglombardia_checkprovincia($prov)
+function cglombardia_checkprovincia($prov, $update = false, $newvalues = array())
 {
     global $_FN;
-    //echo "<script>console.log('".$_FN."');</script>";
-    syslog(LOG_WARNING, "User #14 is logged from two different places.");
     if (FN_IsAdmin())
     {
         return true;
     }
-    $group="RW_CO_LC_SO_MI_PV";
-    if (false!== stripos($_FN['uservalues']['group'],"RW_$prov"))
+    $prov = strtoupper(trim((string) $prov));
+    if ($_FN['user'] != "" && $prov != "")
     {
-        return true;
-    }
-    if (false!== stripos("CO_LC_SO_MI_PV","$prov") && FN_UserInGroup($_FN['user'],"RW_CO_LC_SO_MI_PV"))
-    { 
-        return true;
-    }
-
-    $table=FN_XMDBTable("ctl_caves");
-    $id=FN_GetParam("id",$_GET);
-    if ($id)
-    {
-        $oldvalues=$table->GetRecordByPk($id);
-        //dprint_r($oldvalues);
-        //dprint_r($_FN['user'],$oldvalues);
-        require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
-        $cavesconfig=FN_LoadConfig("modules/dbview/config.php","caves");
-        $cavesview=new FNDBVIEW($cavesconfig);
-        if ($cavesview->UserCanEditField($_FN['user'],$oldvalues))
+        if (FN_UserInGroup($_FN['user'], "RW_$prov"))
+        {
+            return true;
+        }
+        if (in_array($prov, array("CO", "LC", "SO", "MI", "PV")) && FN_UserInGroup($_FN['user'], "RW_CO_LC_SO_MI_PV"))
         {
             return true;
         }
     }
-
-
-    return "Non puoi inserire dati nella provincia di $prov";
+    // utente abilitato alla modifica della scheda che si sta salvando
+    $id = ($update && !empty($newvalues['id'])) ? $newvalues['id'] : FN_GetParam("id", $_GET);
+    if ($_FN['user'] != "" && $id != "")
+    {
+        $oldvalues = FN_XMDBTable("ctl_caves")->GetRecordByPk($id);
+        if (is_array($oldvalues))
+        {
+            require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+            $cavesview = new FNDBVIEW(FN_LoadConfig("modules/dbview/config.php", "caves"));
+            if ($cavesview->UserCanEditField($_FN['user'], $oldvalues))
+            {
+                return true;
+            }
+        }
+    }
+    return "Non puoi inserire dati nella provincia di " . htmlspecialchars($prov);
 }
 
 

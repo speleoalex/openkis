@@ -54,6 +54,9 @@ $openkis_cards_longtext = array("description", "itinerary", "history", "geology"
     "chronology", "closed_notes", "changelog", "firstreference");
 // fields rendered as a small right-aligned credit line
 $openkis_cards_author = array("authordescription", "authoritinerary", "authorfauna", "authorhistory");
+// other codes of the cave shown as badges next to the cadastre code instead of
+// inside a card, set by the regional file: field => label, e.g. "code_fslo" => "FSLo"
+$openkis_sheet_codes = array();
 
 if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['openkis_custom']}/viewheader_cards_{$_FN['mod']}.php"))
 {
@@ -61,7 +64,7 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
 }
 
 // leftover fields go into a final "other data" card
-$used = $openkis_cards_exclude;
+$used = array_merge($openkis_cards_exclude, array_keys($openkis_sheet_codes));
 foreach ($openkis_cards as $cardfields)
 {
     $used = array_merge($used, $cardfields);
@@ -169,7 +172,17 @@ if ($placetxt != "")
     echo "<div class=\"text-muted\">$placetxt</div>";
 echo "</div>";
 echo "<div class=\"openkis-sheet-tags d-flex align-items-start\">";
-echo "<div class=\"openkis-sheet-badges\"><span class=\"badge badge-dark openkis-sheet-code\">" . htmlspecialchars((string) $row['code']) . "</span> $badges</div>";
+echo "<div class=\"openkis-sheet-badges\"><span class=\"badge badge-dark openkis-sheet-code\">" . htmlspecialchars((string) $row['code']) . "</span> ";
+foreach ($openkis_sheet_codes as $codefield => $codelabel)
+{
+    if (!empty($row[$codefield]))
+    {
+        $codetitle = isset($frm->formvals[$codefield]['title']) ? $frm->formvals[$codefield]['title'] : $codelabel;
+        echo "<span class=\"badge badge-primary openkis-sheet-code openkis-sheet-code-$codefield\" title=\"" . htmlspecialchars(strip_tags($codetitle)) . "\">"
+            . htmlspecialchars($codelabel) . " " . htmlspecialchars((string) $row[$codefield]) . "</span> ";
+    }
+}
+echo "$badges</div>";
 echo "<img class=\"openkis-sheet-icon\" src=\"" . htmlspecialchars($icon) . "\" alt=\"\" />";
 echo "</div></div>";
 //---- title block -------------------------------------------------------------<

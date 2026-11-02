@@ -18,6 +18,13 @@ echo FN_HtmlStaticContent("sections/".$_FN['mod']);
             }
             ?></div>
 </details>
+<?php
+// regional content below the map (e.g. the summary of the caves, extra/openkis/cavestats)
+if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['openkis_custom']}/footer_{$_FN['mod']}.php"))
+{
+    include("extra/openkis/custom/{$_FN['openkis_custom']}/footer_{$_FN['mod']}.php");
+}
+?>
 <script>
     /* View in fullscreen */
     function openFullscreen() {
@@ -47,3 +54,6 @@ echo FN_HtmlStaticContent("sections/".$_FN['mod']);
         }
     }
 </script>
+<?php
+// the static content is printed above the map: the "finis" module must not print it again after this file
+$SECTION = null;

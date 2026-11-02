@@ -50,3 +50,6 @@ echo FN_HtmlStaticContent("sections/".$_FN['mod']);
 </script>
 
 <hr />
+<?php
+// the static content is printed above the map: the "finis" module must not print it again after this file
+$SECTION = null;
