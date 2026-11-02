@@ -79,7 +79,7 @@
 	<enable_export>1</enable_export>
 	<enable_delete>0</enable_delete>
 	<hide_on_delete>1</hide_on_delete>
-	<default_show_groups>0</default_show_groups>
+	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>1</enable_offlineform>
