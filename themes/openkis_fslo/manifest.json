@@ -1,0 +1,17 @@
+{
+    "description": "Catasto Speleologico Lombardo - Federazione Speleologica Lombarda",
+    "version": "1.0",
+    "icons": [
+    {
+      "src": "themes/openkis_fslo/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "themes/openkis_fslo/img/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]    
+}
+ 
