@@ -1656,3 +1656,10 @@ details > summary {
         font-weight: 600;
     }
 }
+
+/* side column: buttons with long file names wrap instead of widening the page */
+.openkis-side-card .btn {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+}
