@@ -367,6 +367,19 @@ function openkis_SectionMapAccess($mod)
 }
 
 /**
+ * Sections that show the records of a table with the dbview configuration
+ * (fncf_<section>): dbview, and caveview, the read-only module of WISH.
+ * The map data and the MCP server work on these sections.
+ *
+ * @param array $sectionvalues from FN_GetSectionValues()
+ * @return bool
+ */
+function openkis_IsRecordSection($sectionvalues)
+{
+    return !empty($sectionvalues['type']) && in_array($sectionvalues['type'], array("dbview", "caveview"));
+}
+
+/**
  * Keeps only the records marked public_map = "Y" when $access is "public".
  *
  * @param string $access result of openkis_SectionAccess()

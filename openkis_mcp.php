@@ -1409,7 +1409,7 @@ function mcp_DbviewSections()
         $ret = array();
         foreach (FN_GetAllSections() as $id => $section)
         {
-            if (isset($section['type']) && $section['type'] == "dbview")
+            if (openkis_IsRecordSection($section))
                 $ret[$id] = $section;
         }
     }

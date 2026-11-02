@@ -17,7 +17,7 @@ foreach (is_array($dirs) ? $dirs : array() as $dir)
     // only the record sections have map data; the map loads a layer of a
     // section that is not listed, as before
     $values = FN_GetSectionValues($mod);
-    if (!empty($values['type']) && $values['type'] == "dbview")
+    if (openkis_IsRecordSection($values))
         $access[$mod] = openkis_SectionMapAccess($mod);
 }
 while (false !== @ob_end_clean());

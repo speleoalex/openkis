@@ -307,7 +307,7 @@ function okmcp_UserAccess($user)
         $isadmin = FN_IsAdmin();
         foreach (FN_GetAllSections() as $id => $section)
         {
-            if (!isset($section['type']) || $section['type'] != "dbview")
+            if (!openkis_IsRecordSection($section))
                 continue;
             $config = FN_LoadConfig("modules/dbview/config.php", $id);
             $tables = explode(",", $config['tables']);
