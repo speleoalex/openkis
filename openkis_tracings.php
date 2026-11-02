@@ -34,6 +34,12 @@ if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
     $dbview = new FNDBVIEW($config);
     $params = array();
     $params['fields'] = "id,name,code,type,air_regime,tracer,release_date,cave_injection,cave_detection,spring_detection,latitude,longitude,elevation,result,sensor_type,path_length";
+    // detection coordinates, when the installed definition has them
+    $table = FN_XMDBTable("ctl_tracings");
+    if (is_object($table) && isset($table->fields['detection_latitude']))
+    {
+        $params['fields'] .= ",detection_latitude,detection_longitude,detection_elevation";
+    }
     $where = array("result LIKE 'positive'");
     if ($id !== "")
     {
@@ -57,7 +63,9 @@ if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
         "air_winter" => FN_Translate("winter air tracing"));
     $point_label = function ($point) {
         $label = trim($point['code'] . " " . $point['name']);
-        return htmlspecialchars($label !== "" ? $label : FN_Translate("free coordinates"));
+        if ($label === "")
+            return htmlspecialchars(FN_Translate("free coordinates"));
+        return htmlspecialchars($label) . (!empty($point['free']) ? " (" . htmlspecialchars(FN_Translate("free coordinates")) . ")" : "");
     };
     foreach ($arrows as $arrow)
     {

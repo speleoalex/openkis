@@ -16,7 +16,7 @@ $arrow = $arrows[0];
 if ($row['result'] == "positive")
 {
     echo "<div class=\"card openkis-card mb-3\"><div class=\"card-body p-0\">";
-    echo "<iframe style=\"border:0px;width:100%;height:450px;display:block\" src=\"{$_FN['siteurl']}bs_map.htm?mod=caves&tracing=" . intval($row['id']) . "\"></iframe>";
+    echo "<iframe style=\"border:0px;width:100%;height:450px;display:block\" src=\"{$_FN['siteurl']}bs_map.htm?tracing=" . intval($row['id']) . "\"></iframe>";
     echo "</div></div>";
 }
 $points = array(FN_Translate("injection") => $arrow['from'], FN_Translate("detection") => $arrow['to']);
@@ -29,7 +29,7 @@ foreach ($points as $title => $point)
     {
         $label = "<a href=\"" . FN_RewriteLink("index.php?mod={$point['mod']}&op=view&id={$point['id']}") . "\">$label</a>";
     }
-    if ($point === $arrow['from'] && floatval($row['latitude']) != 0)
+    if (!empty($point['free']))
     {
         $label .= ($label != "" ? " - " : "") . FN_Translate("free coordinates");
     }

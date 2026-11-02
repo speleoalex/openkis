@@ -76,23 +76,37 @@ class xmetadbfrm_field_latlon
         $html.= "<input id=\"$id\" onkeyup=\"check_$fn(this,false)\" onchange=\"check_$fn(this,true)\" onblur=\"check_$fn(this,true)\"  title=\"$tooltip\" name=\"$name\"  value=\"".add_db_sl($value)."\" />";
         $html.= "<script>check_$fn(document.getElementById('$id'),false)</script>";
         //----mappa---->
+        // the map link reads the latitude, longitude and coordinates type of the
+        // same point: the fields share the prefix of this one ("" for
+        // latitude_txt/longitude_txt/coordinates_type, "detection_" for
+        // detection_latitude_txt/detection_longitude_txt/detection_coordinates_type)
         if($params['name']!="latitude")
         {
-            $html.= " <a onclick=\"refreshmap()\" style=\"cursor:pointer\">Apri mappa a queste coordinate</a>";
+            $prefix=preg_replace('/(latitude|longitude)_txt$/','',$name);
+            if($prefix===$name)
+            {
+                $prefix="";
+            }
+            $prefix_js=htmlspecialchars(json_encode($prefix),ENT_QUOTES);
+            $html.= " <a onclick=\"openkis_refreshmap($prefix_js)\" style=\"cursor:pointer\">Apri mappa a queste coordinate</a>";
             //echo "<iframe id=\"mapframe\" src=\"\" frameborder=\"0\" width=\"200\" height=\"200\"></iframe>";
             //http://localhost/speleoalex/speleo/dbcave/bs_map.htm?point=circle&lat=45.463588&lon=7.5065431&zoom=18
             $html.="
 
 <script type=\"text/javascript\">
+		openkis_refreshmap = function(prefix)
+		{
+			prefix = prefix || '';
+			var lat = document.getElementById('latlon_' + prefix + 'latitude_txt').value;
+			var lon = document.getElementById('latlon_' + prefix + 'longitude_txt').value;
+			var select = document.getElementsByName(prefix + 'coordinates_type')[0];
+			var TC_01 = (select && select.selectedIndex >= 0) ? select.options[select.selectedIndex].value : '';
+			var href=\"{$_FN['siteurl']}openkis_map_coordinates.php?lat=\"+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon)+'&coordinates_type='+encodeURIComponent(TC_01);
+			window.open(href, \"map\", \"width=400,height=400 ,toolbar=no, location=no,status=no,menubar=no	,scrollbars=no,resizable=yes\");
+		}
 		refreshmap = function()
 		{
-			var lat = document.getElementById('latlon_latitude_txt').value;
-			var lon = document.getElementById('latlon_longitude_txt').value;
-			var index =  document.getElementsByName(\"coordinates_type\")[0].selectedIndex;
-			var TC_01 = document.getElementsByName(\"coordinates_type\")[0].options[index].value;
-			var href=\"{$_FN['siteurl']}openkis_map_coordinates.php?lat=\"+lat+'&lon='+lon+'&coordinates_type='+TC_01; 
-			window.open(href, \"map\", \"width=400,height=400 ,toolbar=no, location=no,status=no,menubar=no	,scrollbars=no,resizable=yes\");
-                        //alert(href);
+			openkis_refreshmap('');
 		}
 </script>
 		";

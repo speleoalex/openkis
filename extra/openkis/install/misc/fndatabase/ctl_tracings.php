@@ -105,7 +105,7 @@
         <name>cave_detection</name>
         <frm_functionview>openkis_TracingViewValue</frm_functionview>
         <frm_i18n>detection cave</frm_i18n>
-        <frm_help_i18n>Fill in either the detection cave or the detection spring. For several detection points enter one tracing each, with the same campaign code.</frm_help_i18n>
+        <frm_help_i18n>Fill in the detection cave or the detection spring; for a point that is not in the register leave both empty and give its coordinates below. For several detection points enter one tracing each, with the same campaign code.</frm_help_i18n>
         <type>string</type>
         <frm_type>selectfilter</frm_type>
         <foreignkey>ctl_caves</foreignkey>
@@ -123,8 +123,38 @@
         <foreignkey>ctl_springs</foreignkey>
         <fk_link_field>code</fk_link_field>
         <fk_show_field>code,name</fk_show_field>
-        <frm_endgroup></frm_endgroup>
         <frm_showinlist>1</frm_showinlist>
+    </field>
+    <field>
+        <name>detection_latitude_txt</name>
+        <frm_i18n>latitude</frm_i18n>
+        <frm_help_i18n>When the detection point is not the entrance of the cave or of the spring (a sensor inside the cave, a resurgence in a stream bed, a point that is not in the register). When latitude and longitude are empty the coordinates and elevation of the detection cave or spring are used.</frm_help_i18n>
+        <type>varchar</type>
+        <frm_type>latlon</frm_type>
+    </field>
+    <field>
+        <name>detection_longitude_txt</name>
+        <frm_i18n>longitude</frm_i18n>
+        <type>varchar</type>
+        <frm_type>latlon</frm_type>
+    </field>
+    <field>
+        <name>detection_coordinates_type</name>
+        <frm_i18n>coordinates type</frm_i18n>
+        <frm_help_i18n>Geographic when given as 44° 12' 32'' or 44.23456, kilometric (projected) when given as 189992.</frm_help_i18n>
+        <type>string</type>
+        <foreignkey>ctl_coordinatestypes</foreignkey>
+        <fk_link_field>coordinates_type</fk_link_field>
+        <fk_show_field>coordinates_type</fk_show_field>
+    </field>
+    <field>
+        <name>detection_elevation</name>
+        <frm_i18n>elevation</frm_i18n>
+        <type>string</type>
+        <frm_type>os_lenght</frm_type>
+        <frm_suffix> m s.l.m</frm_suffix>
+        <frm_size>8</frm_size>
+        <frm_endgroup></frm_endgroup>
     </field>
     <field>
         <name>sensor_type</name>
@@ -181,6 +211,19 @@
     </field>
     <field>
         <name>longitude</name>
+        <type>float</type>
+        <frm_show>0</frm_show>
+        <view_show>0</view_show>
+    </field>
+    <field>
+        <!-- WGS84 of the free detection coordinates, computed (empty when the point is the cave or spring entrance) -->
+        <name>detection_latitude</name>
+        <type>float</type>
+        <frm_show>0</frm_show>
+        <view_show>0</view_show>
+    </field>
+    <field>
+        <name>detection_longitude</name>
         <type>float</type>
         <frm_show>0</frm_show>
         <view_show>0</view_show>

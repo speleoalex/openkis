@@ -50,7 +50,15 @@ function openkis_UpdateTracings($forceall = false)
     {
         return;
     }
-    $tracings = FN_XMETADBQuery("SELECT id,name,type,air_regime,release_date,cave_injection,cave_detection,spring_detection,latitude_txt,longitude_txt,coordinates_type,elevation,latitude,longitude,groupview FROM ctl_tracings");
+    // the detection coordinates exist only when the installed definition
+    // (misc/fndatabase/ctl_tracings.php, never overwritten) has them
+    $detection = isset($tracings_table->fields['detection_latitude']);
+    $fields = "id,name,type,air_regime,release_date,cave_injection,cave_detection,spring_detection,latitude_txt,longitude_txt,coordinates_type,elevation,latitude,longitude,groupview";
+    if ($detection)
+    {
+        $fields .= ",detection_latitude_txt,detection_longitude_txt,detection_coordinates_type,detection_latitude,detection_longitude";
+    }
+    $tracings = FN_XMETADBQuery("SELECT $fields FROM ctl_tracings");
     if (!is_array($tracings) || count($tracings) == 0)
     {
         @touch($file_lastUpdate);
@@ -69,33 +77,27 @@ function openkis_UpdateTracings($forceall = false)
     foreach ($tracings as $tracing)
     {
         $new = array();
-        //---- injection coordinates ------------------------------------------>
-        $lat = "";
-        $lon = "";
-        if (trim(strval($tracing['latitude_txt'])) !== "" && trim(strval($tracing['longitude_txt'])) !== "")
+        //---- free coordinates of the injection and detection points --------->
+        $points = array("" => "tracing {$tracing['id']}");
+        if ($detection)
         {
-            $position = openkis_GetItemPosition(array(
-                "code" => "tracing {$tracing['id']}",
-                "latitude_txt" => $tracing['latitude_txt'],
-                "longitude_txt" => $tracing['longitude_txt'],
-                "coordinates_type" => $tracing['coordinates_type'],
-                "latitude" => "",
-                "longitude" => "",
-                "elevation" => $tracing['elevation']));
-            if (floatval($position['lat']) != 0 && floatval($position['lon']) != 0)
-            {
-                $lat = $position['lat'];
-                $lon = $position['lon'];
-            }
+            $points["detection_"] = "tracing {$tracing['id']} detection";
         }
-        // FLOAT columns: compare with a tolerance (about 1 m), or every pass
-        // would rewrite the record and mark the table as changed again
-        $stored = (floatval($tracing['latitude']) != 0 && floatval($tracing['longitude']) != 0);
-        if ($lat === "" ? $stored : (!$stored || abs(floatval($tracing['latitude']) - floatval($lat)) > 0.00001 || abs(floatval($tracing['longitude']) - floatval($lon)) > 0.00001))
+        $free = array();
+        foreach ($points as $prefix => $label)
         {
-            $new['latitude'] = $lat;
-            $new['longitude'] = $lon;
-            $new['coordnatesupdated'] = FN_Now();
+            $free[$prefix] = openkis_TracingFreePosition($tracing, $prefix, $label);
+            $lat = $free[$prefix][0];
+            $lon = $free[$prefix][1];
+            // FLOAT columns: compare with a tolerance (about 1 m), or every pass
+            // would rewrite the record and mark the table as changed again
+            $stored = (floatval($tracing["{$prefix}latitude"]) != 0 && floatval($tracing["{$prefix}longitude"]) != 0);
+            if ($lat === "" ? $stored : (!$stored || abs(floatval($tracing["{$prefix}latitude"]) - floatval($lat)) > 0.00001 || abs(floatval($tracing["{$prefix}longitude"]) - floatval($lon)) > 0.00001))
+            {
+                $new["{$prefix}latitude"] = $lat;
+                $new["{$prefix}longitude"] = $lon;
+                $new['coordnatesupdated'] = FN_Now();
+            }
         }
         //---- air regime from the release date ------------------------------->
         if ($tracing['type'] == "air" && trim(strval($tracing['air_regime'])) === "" && !empty($tracing['release_date']))
@@ -111,6 +113,10 @@ function openkis_UpdateTracings($forceall = false)
         {
             $from = trim(strval($tracing['cave_injection']));
             $to = trim(strval($tracing['cave_detection'])) !== "" ? trim(strval($tracing['cave_detection'])) : trim(strval($tracing['spring_detection']));
+            if ($to === "" && isset($free["detection_"]) && $free["detection_"][0] !== "")
+            {
+                $to = round(floatval($free["detection_"][0]), 5) . "," . round(floatval($free["detection_"][1]), 5);
+            }
             if ($from !== "" || $to !== "")
             {
                 $new['name'] = ($from !== "" ? $from : "?") . " -> " . ($to !== "" ? $to : "?");
@@ -149,6 +155,39 @@ function openkis_UpdateTracings($forceall = false)
         }
     }
     @touch($file_lastUpdate);
+}
+
+/**
+ * WGS84 position of the free coordinates of a tracing point.
+ *
+ * @param array $tracing record of ctl_tracings
+ * @param string $prefix "" for the injection point, "detection_" for the
+ *                       detection point
+ * @param string $label name of the point in the coordinates log
+ * @return array array(lat, lon), both "" when the point has no free
+ *               coordinates (it is the entrance of the cave or spring)
+ */
+function openkis_TracingFreePosition($tracing, $prefix, $label)
+{
+    $lat_txt = isset($tracing["{$prefix}latitude_txt"]) ? trim(strval($tracing["{$prefix}latitude_txt"])) : "";
+    $lon_txt = isset($tracing["{$prefix}longitude_txt"]) ? trim(strval($tracing["{$prefix}longitude_txt"])) : "";
+    if ($lat_txt === "" || $lon_txt === "")
+    {
+        return array("", "");
+    }
+    $position = openkis_GetItemPosition(array(
+        "code" => $label,
+        "latitude_txt" => $lat_txt,
+        "longitude_txt" => $lon_txt,
+        "coordinates_type" => isset($tracing["{$prefix}coordinates_type"]) ? $tracing["{$prefix}coordinates_type"] : "",
+        "latitude" => "",
+        "longitude" => "",
+        "elevation" => ""));
+    if (floatval($position['lat']) == 0 || floatval($position['lon']) == 0)
+    {
+        return array("", "");
+    }
+    return array($position['lat'], $position['lon']);
 }
 
 /**
@@ -215,13 +254,16 @@ function openkis_TracingKind($tracing)
 
 /**
  * Start and end of the arrows of a list of tracings, using only the caves
- * and springs the current user can see: a tracing that touches a cave
- * hidden to the user is left out, even when its injection point has free
- * coordinates.
+ * and springs the current user can see: a tracing that touches a cave or a
+ * spring hidden to the user is left out, even when its points have free
+ * coordinates. Free coordinates replace the entrance of the cave or spring
+ * (a point inside the cave, a resurgence in a stream bed) and are the only
+ * position of a point that is not in the register.
  *
  * @param array $tracings records of ctl_tracings
  * @return array one item per drawable tracing: tracing, from, to; from/to are
- *               array(lat, lon, elevation, code, name, mod, id)
+ *               array(lat, lon, elevation, code, name, mod, id, free), free
+ *               true when the position comes from the free coordinates
  */
 function openkis_TracingsArrows($tracings)
 {
@@ -269,7 +311,8 @@ function openkis_TracingsArrows($tracings)
                 "code" => $row['code'],
                 "name" => $row['name'],
                 "mod" => $mod,
-                "id" => $row['id']);
+                "id" => $row['id'],
+                "free" => false);
         }
     }
     $arrows = array();
@@ -278,37 +321,46 @@ function openkis_TracingsArrows($tracings)
         $injection = trim(strval($tracing['cave_injection']));
         $detection_cave = trim(strval($tracing['cave_detection']));
         $detection_spring = trim(strval($tracing['spring_detection']));
-        // a linked cave the user cannot see hides the whole tracing
+        // a linked cave or spring the user cannot see hides the whole tracing
         if (($injection !== "" && !isset($points["caves"][$injection])) || ($detection_cave !== "" && !isset($points["caves"][$detection_cave])))
             continue;
-        $from = false;
-        if (floatval($tracing['latitude']) != 0 && floatval($tracing['longitude']) != 0)
-        {
-            $from = array(
-                "lat" => floatval($tracing['latitude']),
-                "lon" => floatval($tracing['longitude']),
-                "elevation" => $tracing['elevation'],
-                "code" => $injection,
-                "name" => $injection !== "" ? $points["caves"][$injection]['name'] : "",
-                "mod" => $injection !== "" ? "caves" : "",
-                "id" => $injection !== "" ? $points["caves"][$injection]['id'] : "");
-        }
-        elseif ($injection !== "")
-        {
-            $from = $points["caves"][$injection];
-        }
-        $to = false;
+        if ($detection_cave === "" && $detection_spring !== "" && !isset($points["springs"][$detection_spring]))
+            continue;
+        // the linked cave or spring of each point, or an empty point
+        $none = array("lat" => 0, "lon" => 0, "elevation" => "", "code" => "", "name" => "", "mod" => "", "id" => "", "free" => false);
+        $from = ($injection !== "") ? $points["caves"][$injection] : $none;
         if ($detection_cave !== "")
         {
             $to = $points["caves"][$detection_cave];
         }
-        elseif ($detection_spring !== "" && isset($points["springs"][$detection_spring]))
+        elseif ($detection_spring !== "")
         {
             $to = $points["springs"][$detection_spring];
         }
-        if (!$from || !$to || $from['lat'] == 0 || $to['lat'] == 0)
+        else
+        {
+            $to = $none;
+        }
+        // free coordinates (computed WGS84) replace the entrance, with the
+        // elevation given for the point
+        if (floatval($tracing['latitude']) != 0 && floatval($tracing['longitude']) != 0)
+        {
+            $from['lat'] = floatval($tracing['latitude']);
+            $from['lon'] = floatval($tracing['longitude']);
+            $from['elevation'] = isset($tracing['elevation']) ? $tracing['elevation'] : "";
+            $from['free'] = true;
+        }
+        if (isset($tracing['detection_latitude']) && floatval($tracing['detection_latitude']) != 0 && floatval($tracing['detection_longitude']) != 0)
+        {
+            $to['lat'] = floatval($tracing['detection_latitude']);
+            $to['lon'] = floatval($tracing['detection_longitude']);
+            $to['elevation'] = isset($tracing['detection_elevation']) ? $tracing['detection_elevation'] : "";
+            $to['free'] = true;
+        }
+        if ($from['lat'] == 0 || $to['lat'] == 0)
             continue;
-        // tracings inside one cave (from a branch to another) have no arrow
+        // a tracing inside one cave without the coordinates of its points
+        // (from a branch to another) has no arrow
         if ($from['lat'] == $to['lat'] && $from['lon'] == $to['lon'])
             continue;
         $arrows[] = array("tracing" => $tracing, "from" => $from, "to" => $to);
@@ -356,7 +408,8 @@ function openkis_TracingsCaveCard($code)
         }
         else
         {
-            $direction = "&rarr; " . htmlspecialchars($tracing['cave_detection'] !== "" ? $tracing['cave_detection'] : $tracing['spring_detection']);
+            $target = $tracing['cave_detection'] !== "" ? $tracing['cave_detection'] : $tracing['spring_detection'];
+            $direction = "&rarr; " . htmlspecialchars($target !== "" ? $target : FN_Translate("free coordinates"));
         }
         $result = !empty($tracing['result']) ? FN_Translate($tracing['result']) : "";
         $html .= "<tr><td class=\"text-nowrap\">$date</td>";
@@ -365,7 +418,7 @@ function openkis_TracingsCaveCard($code)
         $html .= "<td class=\"text-right\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td></tr>";
     }
     $html .= "</table></div></div>";
-    $map = "{$_FN['siteurl']}bs_map.htm?mod=caves&tracing_cave=" . urlencode($code);
+    $map = "{$_FN['siteurl']}bs_map.htm?tracing_cave=" . urlencode($code);
     $html .= "<div class=\"card-footer bg-transparent\"><a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a></div></div>";
     return $html;
 }

@@ -12,3 +12,8 @@ if (function_exists("openkis_TemperaturesUccLinks"))
     echo " - " . openkis_TemperaturesUccLinks();
 }
 echo "</div></div>";
+// results as a list by default, with the grid/list switch
+if (function_exists("openkis_ListViewSwitch"))
+{
+    echo openkis_ListViewSwitch("temperatures", "list");
+}
