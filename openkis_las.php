@@ -17,7 +17,8 @@ $id = count($parts) ? array_pop($parts) : "";
 $table = count($parts) ? array_pop($parts) : "";
 $real = realpath($f);
 $datadir = realpath("{$_FN['datadir']}/$database");
-$t = (preg_match('/^[A-Za-z0-9_]+$/', $table . $field) && strtolower(pathinfo($name, PATHINFO_EXTENSION)) == "las") ? FN_XMDBTable($table) : false;
+$t = (preg_match('/^[A-Za-z0-9_]+$/', $table) && preg_match('/^[A-Za-z0-9_]+$/', $field) && $id !== "" && strtolower(pathinfo($name, PATHINFO_EXTENSION)) == "las"
+    && file_exists("{$_FN['datadir']}/$database/$table.php")) ? FN_XMDBTable($table) : false;
 $record = $t ? $t->GetRecordByPrimaryKey($id) : false;
 if (!$real || !$datadir || strpos($real, $datadir . DIRECTORY_SEPARATOR) !== 0 || !is_file($real)
     || !is_array($record) || !isset($record[$field]) || strval($record[$field]) !== $name || realpath($t->getFilePath($record, $field)) !== $real)

@@ -72,6 +72,27 @@ function openkis_ProtectedFiles()
 }
 
 /**
+ * Cipher of the file tokens: sodium (secretbox) when the extension is there,
+ * otherwise OpenSSL AES-256-GCM; "" when neither is available, and then the
+ * files keep their direct links.
+ *
+ * @return string "sodium", "openssl" or ""
+ */
+function openkis_FileCipher()
+{
+    static $cipher = null;
+    if ($cipher === null)
+    {
+        $cipher = "";
+        if (function_exists("sodium_crypto_secretbox"))
+            $cipher = "sodium";
+        elseif (function_exists("openssl_encrypt") && in_array("aes-256-gcm", openssl_get_cipher_methods()))
+            $cipher = "openssl";
+    }
+    return $cipher;
+}
+
+/**
  * Secret key for the file tokens, derived from the site secret so it never
  * appears in the code or in the data folder; one key per purpose ("enc" to
  * encrypt, "nonce" to derive the nonce).
@@ -96,16 +117,32 @@ function openkis_FileKey($purpose)
  * @param string $field
  * @param string $filename stored value of the field
  * @param bool $thumb
- * @return string|false base64url(nonce . box), false without sodium
+ * @return string|false base64url of the encrypted data, false without a cipher
  */
 function openkis_FileToken($table, $id, $field, $filename, $thumb = false)
 {
-    if (!function_exists("sodium_crypto_secretbox"))
-        return false;
     $plain = json_encode(array((string) $table, (string) $id, (string) $field, (string) $filename, $thumb ? 1 : 0));
-    $nonce = substr(hash_hmac("sha256", $plain, openkis_FileKey("nonce"), true), 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-    $box = sodium_crypto_secretbox($plain, $nonce, openkis_FileKey("enc"));
-    return rtrim(strtr(base64_encode($nonce . $box), "+/", "-_"), "=");
+    $mac = hash_hmac("sha256", $plain, openkis_FileKey("nonce"), true);
+    switch (openkis_FileCipher())
+    {
+        case "sodium":
+            $nonce = substr($mac, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $raw = $nonce . sodium_crypto_secretbox($plain, $nonce, openkis_FileKey("enc"));
+            break;
+        case "openssl":
+            // the iv comes from the content as the nonce above: the same iv is
+            // used again only for the same file, which gives the same token
+            $iv = substr($mac, 0, 12);
+            $tag = "";
+            $box = openssl_encrypt($plain, "aes-256-gcm", openkis_FileKey("enc"), OPENSSL_RAW_DATA, $iv, $tag, "", 16);
+            if ($box === false)
+                return false;
+            $raw = $iv . $tag . $box;
+            break;
+        default:
+            return false;
+    }
+    return rtrim(strtr(base64_encode($raw), "+/", "-_"), "=");
 }
 
 /**
@@ -117,14 +154,23 @@ function openkis_FileToken($table, $id, $field, $filename, $thumb = false)
  */
 function openkis_FileTokenDecode($token)
 {
-    if (!function_exists("sodium_crypto_secretbox_open") || !is_string($token) || $token == "")
+    if (!is_string($token) || $token == "")
         return false;
     $raw = base64_decode(strtr($token, "-_", "+/"), true);
-    if ($raw === false || strlen($raw) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)
+    if ($raw === false)
         return false;
-    $nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-    $box = substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-    $plain = sodium_crypto_secretbox_open($box, $nonce, openkis_FileKey("enc"));
+    $plain = false;
+    switch (openkis_FileCipher())
+    {
+        case "sodium":
+            if (strlen($raw) > SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)
+                $plain = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), openkis_FileKey("enc"));
+            break;
+        case "openssl":
+            if (strlen($raw) > 28)
+                $plain = openssl_decrypt(substr($raw, 28), "aes-256-gcm", openkis_FileKey("enc"), OPENSSL_RAW_DATA, substr($raw, 0, 12), substr($raw, 12, 16));
+            break;
+    }
     if ($plain === false)
         return false;
     $data = json_decode($plain, true);
@@ -186,7 +232,7 @@ function openkis_FileUrl($xmltable, $recordvalues, $recordkey, $thumb = false)
     if ($value === "" || $value === null || $id === "")
         return false;
     $token = openkis_FileToken($xmltable->tablename, $id, $recordkey, $value, $thumb);
-    // without sodium the file stays reachable the old way rather than
+    // without a cipher the file stays reachable the old way rather than
     // breaking the page (the folder guard is not written either)
     if ($token === false)
         return $siteurl . $path;
@@ -363,7 +409,7 @@ function openkis_FileAccess($table, $id, $field)
 function openkis_FileGuardFolders()
 {
     global $_FN;
-    if (!openkis_ProtectedFiles() || !function_exists("sodium_crypto_secretbox"))
+    if (!openkis_ProtectedFiles() || openkis_FileCipher() == "")
         return;
     $database = empty($_FN['database']) ? "fndatabase" : $_FN['database'];
     $rules = "# OpenKIS: the files of this table are served by openkis_file.php after a\n"

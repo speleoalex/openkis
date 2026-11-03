@@ -285,6 +285,17 @@ else
     echo "  (tests/record_permissions_test.sh missing, skipped)"
 fi
 
+say "6c2. protected files and records of the restricted caves (tests/protected_files_test.sh)"
+if [ -x "$REPO/tests/protected_files_test.sh" ]; then
+    if TEST_DIR="$TEST_DIR" TEST_URL="$TEST_URL" TEST_DB="$TEST_DB" ADMIN_USER="$ADMIN_USER" ADMIN_PASS="$ADMIN_PASS" "$REPO/tests/protected_files_test.sh" > "$WORK/files.log" 2>&1; then
+        ok "protected files: $(tail -1 "$WORK/files.log")"
+    else
+        fail "protected files: $(tail -1 "$WORK/files.log")"; grep "FAIL" "$WORK/files.log" | head -20
+    fi
+else
+    echo "  (tests/protected_files_test.sh missing, skipped)"
+fi
+
 say "6d. MCP servers with OAuth (index.php?fnapp=oauthserver)"
 OA="${TEST_URL}index.php?fnapp=oauthserver&op="
 REDIR=https://claude.ai/api/mcp/auth_callback

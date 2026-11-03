@@ -10,7 +10,7 @@
 defined('_FNEXEC') or die('Restricted access');
 global $_FN;
 $_FN['dbview_excluded_values'] = "openkis_HiddenRecordValues";
-if (openkis_ProtectedFiles() && function_exists("sodium_crypto_secretbox"))
+if (openkis_ProtectedFiles() && openkis_FileCipher() != "")
 {
     $_FN['xmetadb_file_url'] = "openkis_FileUrl";
     $_FN['xmetadb_file_access'] = "openkis_FileAccess";
