@@ -91,9 +91,113 @@ function openkis_ViewCardFields($frm, $values, $fields, $longtext = array(), $au
     }
     $tpl .= "<!-- end_contents -->";
     $frm->SetlayoutTemplateView($tpl);
+    // HtmlShowView() renders every field of the table and the template keeps
+    // only the ones of the card: hide the others for this call, so that their
+    // field classes (linked caves, areas...) do not run their queries once per card
+    $hidden = array();
+    foreach ($frm->formvals as $fname => $fdef)
+    {
+        if (!in_array($fname, $fields))
+        {
+            $hidden[$fname] = array_key_exists('view_show', $fdef) ? $fdef['view_show'] : null;
+            $frm->formvals[$fname]['view_show'] = "0";
+        }
+    }
     $html = $frm->HtmlShowView($values);
+    foreach ($hidden as $fname => $old)
+    {
+        if ($old === null)
+            unset($frm->formvals[$fname]['view_show']);
+        else
+            $frm->formvals[$fname]['view_show'] = $old;
+    }
     if (trim(strip_tags((string) $html, "<img><a><iframe>")) === "")
         return "";
+    return $html;
+}
+
+/**
+ * Surveys of a cave visible to the user (section and per-record permissions
+ * apply), every field, read once per request.
+ *
+ * @param string $code cadastre code of the cave
+ * @return array records of ctl_surveys, empty without code or section
+ */
+function openkis_SheetCaveSurveys($code)
+{
+    global $_FN;
+    static $cache = array();
+    $code = trim((string) $code);
+    if (isset($cache[$code]))
+        return $cache[$code];
+    $items = array();
+    if ($code !== "" && file_exists("sections/survey") && FN_UserCanViewSection("survey"))
+    {
+        require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+        $config = FN_LoadConfig("modules/dbview/config.php", "survey");
+        $dbview = new FNDBVIEW($config);
+        // every column (the default is the few fields of the list), so that the
+        // records can be rendered without reading them again one by one
+        $table = FN_XMDBTable("ctl_surveys");
+        $fields = is_array($table->fields) ? implode(",", array_keys($table->fields)) : "";
+        $params = array("appendquery" => "codecave LIKE '" . addslashes($code) . "'");
+        if ($fields != "")
+            $params['fields'] = $fields;
+        $items = $dbview->GetResults($config, $params);
+    }
+    $cache[$code] = is_array($items) ? $items : array();
+    return $cache[$code];
+}
+
+/**
+ * Records of an inner table of a sheet (e.g. the surveys of a cave) rendered
+ * as the generic inner tables of dbview do, with the template
+ * sections/<mod>/detail_inner.tp.html, but from records already read: one
+ * query for all of them instead of four queries and a template per record.
+ * The records are sorted as dbview does (date, then priority, descending).
+ *
+ * @param string $tablename table of the records
+ * @param array $records full records (every field), as read by FNDBVIEW::GetResults()
+ * @param string $title title printed before the first record
+ * @return string html, empty when there is no record
+ */
+function openkis_SheetInnerCards($tablename, $records, $title)
+{
+    global $_FN;
+    if (!is_array($records) || !count($records))
+        return "";
+    $tplfile = "{$_FN['src_application']}/sections/{$_FN['mod']}/detail_inner.tp.html";
+    if (!file_exists($tplfile))
+        $tplfile = FN_FromTheme("modules/dbview/detail_inner.tp.html", false);
+    if (!$tplfile || !file_exists($tplfile))
+        return "";
+    $template = file_get_contents($tplfile);
+    $frm = FN_XMDBForm($tablename);
+    // same starting order as the generic inner tables (records read in primary key order)
+    $pk = $frm->xmltable->primarykey;
+    if (!is_array($pk))
+    {
+        usort($records, function ($a, $b) use ($pk)
+        {
+            return strcmp((string) (isset($a[$pk]) ? $a[$pk] : ""), (string) (isset($b[$pk]) ? $b[$pk] : ""));
+        });
+    }
+    if (!empty($frm->xmltable->fields['date']))
+        $records = xmetadb_array_natsort_by_key($records, "date", true);
+    if (!empty($frm->xmltable->fields['priority']))
+        $records = xmetadb_array_natsort_by_key($records, "priority", true);
+    $html = "";
+    $tpvars = array("navigationbar" => array(), "url_offlineform" => "", "header" => "", "footer" => "", "innertables" => "", "title_inner" => $title);
+    foreach ($records as $rec)
+    {
+        // only the columns of the table: with any other key GetRecordTranslated()
+        // would read the record again from the database
+        if (is_array($frm->xmltable->fields))
+            $rec = array_intersect_key($rec, $frm->xmltable->fields);
+        $frm->SetlayoutTemplateView(FN_TPL_ApplyTplString($template, $tpvars));
+        $html .= $frm->HtmlShowView($frm->GetRecordTranslated($rec));
+        $tpvars['title_inner'] = "";
+    }
     return $html;
 }
 

@@ -44,28 +44,37 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
     {
         echo openkis_TemperaturesCaveCard($row['code']);
     }
-    //survey------------------------------------------------------------------->
-    $config = FN_LoadConfig("", "survey");
-    $survey = new FNDBVIEW($config);
-    $params['appendquery'] = "codecave LIKE '{$row['code']}'";
-    $params['fields'] = "id,title,filelox,priority";
-    $items = $survey->GetResults(false, $params);
-    $items = FN_ArraySortByKey($items, "priority");
-    if (is_array($items) && count($items))
+    //survey: 3D viewer of the lox files, below the sheet ---------------------->
+    foreach (openkis_SheetCaveSurveys($row['code']) as $survey_item)
     {
-        foreach ($items as $survey_item)
+        if (!empty($survey_item['filelox']))
         {
-            if (!empty($survey_item['filelox']))
-            {
-                $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
-                $iframe_href = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
-                //echo "<br/><a href=\"$iframe_href\" target=\"_blank\">" . FN_Translate("open") . "</a><br />";
-                echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
-            }
+            $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
+            $iframe_href = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
+            echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
         }
     }
     //survey-------------------------------------------------------------------<
 
+}
+// The surveys of the cave: the inner table ctl_surveys is rendered here from
+// one query (openkis_SheetInnerCards, same template detail_inner.tp.html) and
+// removed from the inner tables that FNDBVIEW::ViewRecordPage() would render
+// one record at a time (four queries each). $Table is the form of the sheet,
+// in scope because this file is included by ViewRecordPage().
+if (isset($Table) && is_object($Table) && !empty($Table->innertables) && is_array($Table->innertables))
+{
+    foreach ($Table->innertables as $k => $v)
+    {
+        if (isset($v['tablename']) && $v['tablename'] == "ctl_surveys")
+        {
+            $title = isset($v["frm_{$_FN['lang']}"]) ? $v["frm_{$_FN['lang']}"] : $v['tablename'];
+            $surveys_html = openkis_SheetInnerCards("ctl_surveys", openkis_SheetCaveSurveys($row['code']), $title);
+            if ($surveys_html != "")
+                $GLOBALS['openkis_view_side'][] = $surveys_html;
+            unset($Table->innertables[$k]);
+        }
+    }
 }
 // the same cave on Grottocenter, when the link is confirmed (section "grottocenter"),
 // also with the regional sheets

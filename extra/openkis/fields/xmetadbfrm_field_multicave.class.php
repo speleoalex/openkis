@@ -147,16 +147,33 @@ var dofilter{$inputid_prefix}_{$params['name']} = function(id, text) {
             $valueEnc=str_replace(".","__DOT__",$v['value']);
             $bykey["{$valueEnc}"]=$v['title'];
         }
+        // primary key of every record of the linked table by link field, read
+        // once per request (two columns) instead of one query per linked record
+        static $index = array();
+        $fk = $params['foreignkey'];
+        $linkfield = $params['fk_link_field'];
+        $primarykey = $table->primarykey;
+        if (!isset($index[$fk]))
+        {
+            $index[$fk] = array();
+            $rows = $table->GetRecords(false, false, false, false, false, array($primarykey, $linkfield));
+            if (is_array($rows))
+            {
+                foreach ($rows as $r)
+                {
+                    if (isset($r[$linkfield]) && !isset($index[$fk][$r[$linkfield]]))
+                        $index[$fk][$r[$linkfield]] = $r[$primarykey];
+                }
+            }
+        }
         $htmlout=false;
         $htmlout_s=array();
         $caves=explode("$separator",$params['values'][$params['name']]);
         foreach($caves as $cave)
         {
-            if (isset($bykey[$cave]))
+            if (isset($bykey[$cave]) && isset($index[$fk][$cave]))
             {
-                $item=$table->GetRecord(array($params['fk_link_field']=>$cave));
-                $primarykey=$table->primarykey;
-                $link=FN_RewriteLink("index.php?mod=$mod&amp;op=view&amp;id={$item[$primarykey]}");
+                $link=FN_RewriteLink("index.php?mod=$mod&amp;op=view&amp;id={$index[$fk][$cave]}");
                 $htmlout_s[]="\n<li><a href=\"$link\" >{$bykey[$cave]}</a></li> ";
             }
         }
