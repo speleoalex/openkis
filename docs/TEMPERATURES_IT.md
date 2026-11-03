@@ -12,7 +12,7 @@ storiche e attuali d'Italia e installa stazioni di monitoraggio standard.
 Il progetto raccoglie i dati in due fogli Google, una scheda per regione, con una struttura
 fissa che i referenti regionali non devono modificare:
 
-- **Misure spot** (`UCC_misure spot T aria`, v3.2): una riga per ogni lettura della
+- **Misure spot** (`UCC_misure spot T aria`, v3.3): una riga per ogni lettura della
   temperatura dell'aria fatta con un termometro, per lo più storica (dagli anni '20 in poi)
   e recuperata da pubblicazioni, schede catastali e appunti di campagna.
 - **Monitoraggi** (`UCC_monitoraggi T aria`, v1.2): una riga per ogni punto di misura di
@@ -102,13 +102,18 @@ ordine e con le intestazioni italiane, così le righe si incollano nella scheda 
 del foglio nazionale. I link sono nel piè di pagina della mappa della sezione.
 L'esportazione contiene i record visibili all'utente; il campo `ucc` segna quelli già
 inviati e l'opzione di ricerca *nella banca dati nazionale UCC* elenca gli altri.
+`openkis_temperatures.php?format=ods` scarica le due schede in un unico foglio di calcolo
+OpenDocument (`Format_UCC_<data>.ods`, fogli `MISURE_SPOT` e `MONITORAGGI`): il formato del
+file `Format_UCC.ods` che il referente ligure del progetto distribuisce per raccogliere i dati
+(dicembre 2025), le cui colonne sono quelle dei fogli nazionali *UCC_misure spot T aria* v3.3
+e *UCC_monitoraggi T aria* v1.2 (novembre 2026). Numeri, date e ore sono celle tipizzate.
 
 ## Fonti
 
 - Sito del progetto UCC: <https://www.progettoucc.it> (documentazione, stazioni, WebGIS)
 - Società Speleologica Italiana, commissione UCC: <https://speleo.it/site/underground-climate-change/>
 - Schede dati (fogli Google del progetto, accesso dato dai coordinatori):
-  *UCC_misure spot T aria* v3.2 e *UCC_monitoraggi T aria* v1.2, di Leonardo Piccini
+  *UCC_misure spot T aria* v3.3 e *UCC_monitoraggi T aria* v1.2, di Leonardo Piccini
   (2023), con le indicazioni sui formati date in lista UCC (maggio 2024)
 - *Criteri per l'installazione di una stazione termometrica sotterranea*, comitato
   scientifico del progetto UCC (L. Piccini, B. Vigna, F. Catalano, R. Bruschi), giugno 2024

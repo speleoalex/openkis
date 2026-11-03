@@ -496,8 +496,8 @@ function openkis_TemperaturesCaveCard($code, $exclude_id = 0)
 }
 
 /**
- * Links to the exports in the layout of the UCC project sheets (one per
- * sheet: spot measurements, monitorings).
+ * Links to the exports in the layout of the UCC project sheets (one CSV per
+ * sheet: spot measurements, monitorings; both in one spreadsheet).
  *
  * @return string html
  */
@@ -506,13 +506,14 @@ function openkis_TemperaturesUccLinks()
     global $_FN;
     $html = FN_Translate("export for the UCC project") . ": ";
     $html .= "<a href=\"{$_FN['siteurl']}openkis_temperatures.php?format=ucc&type=spot\">" . FN_Translate("spot measurements") . " (CSV)</a>, ";
-    $html .= "<a href=\"{$_FN['siteurl']}openkis_temperatures.php?format=ucc&type=monitoring\">" . FN_Translate("monitorings") . " (CSV)</a>";
+    $html .= "<a href=\"{$_FN['siteurl']}openkis_temperatures.php?format=ucc&type=monitoring\">" . FN_Translate("monitorings") . " (CSV)</a>, ";
+    $html .= "<a href=\"{$_FN['siteurl']}openkis_temperatures.php?format=ods\">" . FN_Translate("both sheets in a spreadsheet") . " (ODS)</a>";
     return $html;
 }
 
 /**
  * Rows of the UCC project sheet of a type, from the visible records: the
- * columns of the sheets "misure spot" (UCC_misure spot T aria v3.2) and
+ * columns of the sheets "misure spot" (UCC_misure spot T aria v3.3) and
  * "monitoraggi" (UCC_monitoraggi T aria v1.2), in their order and with their
  * Italian headers, so the export can be pasted into the national sheet.
  * Numbers keep the point as decimal separator (the sheets ask for the comma
@@ -588,4 +589,131 @@ function openkis_TemperaturesUccRows($type, $items)
         }
     }
     return $rows;
+}
+
+/**
+ * The two UCC sheets in one OpenDocument spreadsheet (the "Format_UCC.ods"
+ * file the Liguria referent of the project circulates: sheet MISURE_SPOT and
+ * sheet MONITORAGGI with the same columns as the national sheets). Numbers
+ * are numeric cells, the monitoring dates are date cells and the hour of a
+ * spot reading a time cell, so the spreadsheet shows them in its locale.
+ *
+ * @param array $items output of openkis_TemperaturesPoints()
+ * @return string the .ods file
+ */
+function openkis_TemperaturesUccOds($items)
+{
+    $sheets = array(
+        "MISURE_SPOT" => array("rows" => openkis_TemperaturesUccRows("spot", $items), "string" => array(0, 1, 8, 12, 13, 14, 15, 20, 21, 22), "date" => array(), "time" => array(19)),
+        "MONITORAGGI" => array("rows" => openkis_TemperaturesUccRows("monitoring", $items), "string" => array(0, 1, 7, 11, 12, 13, 14, 26, 27, 28, 29), "date" => array(17, 18), "time" => array()));
+    $esc = function ($s) {
+        return htmlspecialchars(FN_FixEncoding(strval($s)), ENT_QUOTES | ENT_XML1, "UTF-8");
+    };
+    $cell = function ($value, $col, $sheet) use ($esc) {
+        $value = strval($value);
+        if ($value === "")
+        {
+            return "<table:table-cell/>";
+        }
+        if (in_array($col, $sheet['date']) && preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $value, $m))
+        {
+            $iso = sprintf("%04d-%02d-%02d", $m[3], $m[2], $m[1]);
+            return "<table:table-cell table:style-name=\"ce2\" office:value-type=\"date\" office:date-value=\"$iso\"><text:p>" . $esc($value) . "</text:p></table:table-cell>";
+        }
+        if (in_array($col, $sheet['time']) && preg_match('/^(\d{1,2})[:.](\d{2})$/', $value, $m))
+        {
+            return "<table:table-cell table:style-name=\"ce3\" office:value-type=\"time\" office:time-value=\"PT" . intval($m[1]) . "H" . intval($m[2]) . "M0S\"><text:p>" . $esc($value) . "</text:p></table:table-cell>";
+        }
+        if (!in_array($col, $sheet['string']) && is_numeric($value))
+        {
+            return "<table:table-cell office:value-type=\"float\" office:value=\"" . $esc($value) . "\"><text:p>" . $esc(str_replace(".", ",", $value)) . "</text:p></table:table-cell>";
+        }
+        $lines = preg_split('/\r\n|\r|\n/', $value);
+        $html = "<table:table-cell office:value-type=\"string\">";
+        foreach ($lines as $line)
+        {
+            $html .= "<text:p>" . $esc($line) . "</text:p>";
+        }
+        return $html . "</table:table-cell>";
+    };
+    $body = "";
+    foreach ($sheets as $name => $sheet)
+    {
+        $columns = count($sheet['rows'][0]);
+        $body .= "<table:table table:name=\"$name\" table:style-name=\"ta1\">";
+        $body .= "<table:table-column table:style-name=\"co1\" table:number-columns-repeated=\"$columns\" table:default-cell-style-name=\"ce1\"/>";
+        foreach ($sheet['rows'] as $i => $row)
+        {
+            $body .= "<table:table-row table:style-name=\"ro1\">";
+            foreach ($row as $col => $value)
+            {
+                if ($i == 0)
+                {
+                    $body .= "<table:table-cell table:style-name=\"ce4\" office:value-type=\"string\"><text:p>" . $esc($value) . "</text:p></table:table-cell>";
+                }
+                else
+                {
+                    $body .= $cell($value, $col, $sheet);
+                }
+            }
+            $body .= "</table:table-row>";
+        }
+        $body .= "</table:table>";
+    }
+    $ns = "xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\" xmlns:style=\"urn:oasis:names:tc:opendocument:xmlns:style:1.0\" xmlns:text=\"urn:oasis:names:tc:opendocument:xmlns:text:1.0\" xmlns:table=\"urn:oasis:names:tc:opendocument:xmlns:table:1.0\" xmlns:fo=\"urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0\" xmlns:number=\"urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0\" xmlns:meta=\"urn:oasis:names:tc:opendocument:xmlns:meta:1.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" office:version=\"1.2\"";
+    $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<office:document-content $ns>"
+            . "<office:automatic-styles>"
+            . "<style:style style:name=\"co1\" style:family=\"table-column\"><style:table-column-properties style:column-width=\"2.258cm\"/></style:style>"
+            . "<style:style style:name=\"ro1\" style:family=\"table-row\"><style:table-row-properties style:use-optimal-row-height=\"true\"/></style:style>"
+            . "<style:style style:name=\"ta1\" style:family=\"table\"><style:table-properties table:display=\"true\"/></style:style>"
+            . "<number:date-style style:name=\"N1\"><number:day number:style=\"long\"/><number:text>/</number:text><number:month number:style=\"long\"/><number:text>/</number:text><number:year number:style=\"long\"/></number:date-style>"
+            . "<number:time-style style:name=\"N2\"><number:hours number:style=\"long\"/><number:text>:</number:text><number:minutes number:style=\"long\"/></number:time-style>"
+            . "<style:style style:name=\"ce1\" style:family=\"table-cell\"><style:table-cell-properties fo:wrap-option=\"wrap\" style:vertical-align=\"top\"/><style:text-properties fo:font-size=\"10pt\"/></style:style>"
+            . "<style:style style:name=\"ce2\" style:family=\"table-cell\" style:parent-style-name=\"Default\" style:data-style-name=\"N1\"><style:table-cell-properties fo:wrap-option=\"wrap\" style:vertical-align=\"top\"/><style:text-properties fo:font-size=\"10pt\"/></style:style>"
+            . "<style:style style:name=\"ce3\" style:family=\"table-cell\" style:parent-style-name=\"Default\" style:data-style-name=\"N2\"><style:table-cell-properties fo:wrap-option=\"wrap\" style:vertical-align=\"top\"/><style:text-properties fo:font-size=\"10pt\"/></style:style>"
+            . "<style:style style:name=\"ce4\" style:family=\"table-cell\"><style:table-cell-properties fo:wrap-option=\"wrap\" fo:background-color=\"#eeeeee\" style:vertical-align=\"top\"/><style:text-properties fo:font-size=\"10pt\" fo:font-weight=\"bold\"/></style:style>"
+            . "</office:automatic-styles>"
+            . "<office:body><office:spreadsheet>$body</office:spreadsheet></office:body></office:document-content>";
+    $meta = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<office:document-meta $ns><office:meta>"
+            . "<meta:generator>OpenKIS</meta:generator><dc:title>Format UCC</dc:title>"
+            . "<meta:creation-date>" . date("Y-m-d\TH:i:s") . "</meta:creation-date></office:meta></office:document-meta>";
+    $manifest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest:manifest xmlns:manifest=\"urn:oasis:names:tc:opendocument:xmlns:manifest:1.0\" manifest:version=\"1.2\">"
+            . "<manifest:file-entry manifest:full-path=\"/\" manifest:version=\"1.2\" manifest:media-type=\"application/vnd.oasis.opendocument.spreadsheet\"/>"
+            . "<manifest:file-entry manifest:full-path=\"content.xml\" manifest:media-type=\"text/xml\"/>"
+            . "<manifest:file-entry manifest:full-path=\"meta.xml\" manifest:media-type=\"text/xml\"/>"
+            . "</manifest:manifest>";
+    return openkis_ZipString(array(
+        "mimetype" => "application/vnd.oasis.opendocument.spreadsheet",
+        "META-INF/manifest.xml" => $manifest,
+        "meta.xml" => $meta,
+        "content.xml" => $content));
+}
+
+/**
+ * A zip archive in memory, without the zip extension: the first entry is
+ * stored (an OpenDocument package wants its mimetype first and uncompressed),
+ * the others are deflated.
+ *
+ * @param array $files name => content, in the order of the archive
+ * @return string the zip file
+ */
+function openkis_ZipString($files)
+{
+    $local = "";
+    $central = "";
+    $count = 0;
+    $t = getdate();
+    $dostime = ($t['hours'] << 11) | ($t['minutes'] << 5) | intval($t['seconds'] / 2);
+    $dosdate = (($t['year'] - 1980) << 9) | ($t['mon'] << 5) | $t['mday'];
+    foreach ($files as $name => $data)
+    {
+        $method = $count == 0 ? 0 : 8;
+        $packed = $method == 8 ? gzdeflate($data, 6) : $data;
+        $crc = crc32($data);
+        $header = pack("vvvvvVVVvv", 20, 0, $method, $dostime, $dosdate, $crc, strlen($packed), strlen($data), strlen($name), 0) . $name;
+        $central .= pack("VvvvvvvVVVvvvvvVV", 0x02014b50, 20, 20, 0, $method, $dostime, $dosdate, $crc, strlen($packed), strlen($data), strlen($name), 0, 0, 0, 0, 0, strlen($local)) . $name;
+        $local .= pack("V", 0x04034b50) . $header . $packed;
+        $count++;
+    }
+    return $local . $central . pack("VvvvvVVv", 0x06054b50, 0, 0, $count, $count, strlen($central), strlen($local), 0);
 }

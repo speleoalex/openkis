@@ -14,7 +14,8 @@
  *   id      only this record
  *   cave    only the measurements of this cave (code)
  *   format  "ucc": CSV in the layout of the UCC sheets, with
- *   type    "spot" (default) or "monitoring" choosing the sheet
+ *   type    "spot" (default) or "monitoring" choosing the sheet;
+ *           "ods": both sheets in one OpenDocument spreadsheet (Format_UCC.ods)
  *
  * Besides the features the collection carries a "legend" member with the
  * translated labels of the colour classes.
@@ -57,6 +58,18 @@ if (file_exists("sections/temperatures") && FN_UserCanViewSection("temperatures"
         $records = FN_ArraySortByKey($records, "sort_date");
         $items = openkis_TemperaturesPoints($records);
     }
+}
+
+if ($format == "ods")
+{
+    $ods = openkis_TemperaturesUccOds($items);
+    while (false !== @ob_end_clean());
+    header('Content-Type: application/vnd.oasis.opendocument.spreadsheet');
+    header('Content-Disposition: attachment; filename="Format_UCC_' . date("Ymd") . '.ods"');
+    header('Content-Length: ' . strlen($ods));
+    header('Cache-Control: no-cache');
+    echo $ods;
+    exit;
 }
 
 if ($format == "ucc")
