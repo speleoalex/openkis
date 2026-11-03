@@ -48,8 +48,8 @@
 	<search_fields>code</search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
-	<image_size>400</image_size>
-	<image_size_h>300</image_size_h>
+	<image_size>450</image_size>
+	<image_size_h>600</image_size_h>
 	<table_rules></table_rules>
 	<enable_permissions_each_records>0</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>

@@ -33,3 +33,14 @@ img{
 body{
         font-family: "Trebuchet MS", sans-serif
 }
+/* outline buttons (view button of the list cards) in the colour of the theme */
+.btn-outline-primary {
+    color: #00aadd;
+    border-color: #00aadd;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:not(:disabled):not(.disabled):active {
+    color: #fff;
+    background-color: #00aadd;
+    border-color: #00aadd;
+}

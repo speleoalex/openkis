@@ -29,3 +29,14 @@ img{
     color: hsla(0,0%,100%,.8) !important;
     font-weight: bold;
 }
+/* outline buttons (view button of the list cards) in the colour of the theme */
+.btn-outline-primary {
+    color: #d67e36;
+    border-color: #d67e36;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:not(:disabled):not(.disabled):active {
+    color: #fff;
+    background-color: #d67e36;
+    border-color: #d67e36;
+}

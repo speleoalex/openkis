@@ -2,8 +2,10 @@
 
 /**
  * Grid/list switch for the results of a dbview section that uses the list
- * template of the module (or of the site/theme override with the same
- * structure: #pageresults, .card-group, .card with .card-body/.card-title).
+ * template of the module: #pageresults with the record cards of finis
+ * (.dbview-cards, .dbview-card, .dbview-card-media, .card-body/.card-title,
+ * .dbview-card-values), or a site/theme override of the older template
+ * (.card-group, .card with .card-body/.card-title).
  *
  * The caves section has the same switch in its own list.tp.html; the other
  * sections get it from their top.php, without a copy of the template:
@@ -37,6 +39,16 @@ function openkis_ListViewSwitch($section, $default = "list")
     .openkis-viewswitch svg { width: 16px; height: 16px; vertical-align: -2px; }
     #pageresults:not(.openkis-view-list) .openkis-viewswitch [data-view="grid"],
     #pageresults.openkis-view-list .openkis-viewswitch [data-view="list"] { color: #fff; background-color: #6c757d; border-color: #6c757d; }
+    #pageresults.openkis-view-list .dbview-cards { display: block; margin-bottom: 1rem; }
+    #pageresults.openkis-view-list .dbview-card { flex-direction: row; flex-wrap: wrap; align-items: center; height: auto; border-style: solid; border-color: rgba(0, 0, 0, .125); border-width: 0 0 1px 0; border-radius: 0; box-shadow: none; transform: none; }
+    #pageresults.openkis-view-list .dbview-cards > div:first-child .dbview-card { border-top-width: 1px; }
+    #pageresults.openkis-view-list .dbview-card-media { display: none; }
+    #pageresults.openkis-view-list .dbview-card .card-body { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 1rem; text-align: left; }
+    #pageresults.openkis-view-list .dbview-card .card-title { flex: 0 1 24rem; min-width: 0; }
+    #pageresults.openkis-view-list .dbview-card-values { display: flex; flex-wrap: wrap; column-gap: 1rem; }
+    #pageresults.openkis-view-list .dbview-card-values > div { padding: 0; gap: .3rem; border: 0; }
+    #pageresults.openkis-view-list .dbview-card-values dd { text-align: left; }
+    #pageresults.openkis-view-list .dbview-card .card-footer .dbview-card-view { flex: none; }
     #pageresults.openkis-view-list .card-group { display: block; }
     #pageresults.openkis-view-list .card-group > div { width: 100%; max-width: 100%; padding: 0; }
     #pageresults.openkis-view-list .card { flex-direction: row; flex-wrap: wrap; align-items: center; height: auto !important; margin-bottom: 0 !important; border-style: solid; border-color: rgba(0, 0, 0, .125); border-width: 0 0 1px 0; border-radius: 0; box-shadow: none; }

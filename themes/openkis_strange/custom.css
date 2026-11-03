@@ -34,3 +34,14 @@ body{
     background-repeat: repeat-x;
     background-size: 500px;
 }
+/* outline buttons (view button of the list cards) in the colour of the theme */
+.btn-outline-primary {
+    color: #950083;
+    border-color: #950083;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:not(:disabled):not(.disabled):active {
+    color: #fff;
+    background-color: #950083;
+    border-color: #950083;
+}

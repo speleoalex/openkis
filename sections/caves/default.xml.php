@@ -49,7 +49,6 @@
 	<search_fields>code</search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
-	<image_size>100</image_size>
 	<table_rules>ctl_caves_rules</table_rules>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
@@ -62,7 +61,7 @@
 	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<image_size_h>300</image_size_h>
+	<image_size_h>600</image_size_h>
 	<enable_offlineform>1</enable_offlineform>
 	<documents_folder></documents_folder>
 	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
@@ -73,7 +72,7 @@
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>1</generate_googlesitemap>
 	<enable_comments_notify>0</enable_comments_notify>
-	<image_size>400</image_size>
+	<image_size>450</image_size>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
 	<permissions_records_groups>dbview_rw,dbview_ro</permissions_records_groups>
 	<enable_export>1</enable_export>

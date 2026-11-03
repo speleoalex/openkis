@@ -28,3 +28,15 @@ img{
 .bg-dark {
     background-color: #598d29!important;
 }
+
+/* outline buttons (view button of the list cards) in the colour of the theme */
+.btn-outline-primary {
+    color: #0076a8;
+    border-color: #0076a8;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:not(:disabled):not(.disabled):active {
+    color: #fff;
+    background-color: #0076a8;
+    border-color: #0076a8;
+}
