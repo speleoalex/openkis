@@ -135,7 +135,7 @@ HTML;
  * (extra/openkis/templates/list.tp.html, the layout of the caves list) for a
  * section, as $_FN values that the template reads:
  *  - openkis_list_map: "1" for the sections whose records are drawn on the map
- *    of the results (artificial and glacial cavities), "" otherwise;
+ *    of the results (artificial and glacial cavities, springs), "" otherwise;
  *  - openkis_list_class: classes of #pageresults, "openkis-view-list" for the
  *    sections shown as a list by default (tracings, temperatures) and
  *    "openkis-list-nophotos" for the sections without a photo field;
@@ -153,7 +153,7 @@ function openkis_ListSettings($mod)
     $_FN['openkis_list_placeholder'] = FN_Translate("search records");
     if ($mod == "" || !file_exists("sections/$mod") || !function_exists("openkis_IsRecordSection") || !openkis_IsRecordSection(FN_GetSectionValues($mod)))
         return;
-    $map = in_array($mod, array("artificials", "glacial"));
+    $map = in_array($mod, array("artificials", "glacial", "springs"));
     $classes = array();
     if (in_array($mod, array("tracings", "temperatures")))
         $classes[] = "openkis-view-list";

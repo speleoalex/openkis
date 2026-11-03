@@ -83,9 +83,13 @@ if ($fhtml!= "")
 
     $config=FN_LoadConfig("","bibliography");
     $biblio=new FNDBVIEW($config);
+    // the bibliography of a site may have no link to the glacial cavities
+    $biblio_table=FN_XMDBTable("ctl_bibliography");
+    if (!isset($biblio_table->fields['codeglacial']))
+        $config=false;
     $params['appendquery']="codeglacial LIKE '{$row['code']}' OR codeglacial LIKE '{$row['code']},%' OR codeglacial LIKE '%,{$row['code']},%' OR codeglacial LIKE '%,{$row['code']}' ";
     $params['fields']="id,title,authors,year";
-    $biblio_items=$biblio->GetResults(false,$params);
+    $biblio_items=$config ? $biblio->GetResults(false,$params) : array();
     $biblio_items=FN_ArraySortByKey($biblio_items,"year");
     if (is_array($biblio_items) && count($biblio_items))
     {
