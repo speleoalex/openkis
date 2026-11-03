@@ -47,6 +47,14 @@
     .openkis-status-verify { background-color: #ffc107; color: #212529; }
     .openkis-status-validated { background-color: #28a745; }
     .openkis-status-rejected { background-color: #dc3545; }
+    /* Search bar: the box takes the room the tools leave, and the tools go below it when they
+       would leave it less than 20rem (narrow screens, or the menu open beside the page); the
+       search button always stays attached to the box */
+    .openkis-searchbar .form-row { row-gap: .5rem; }
+    .openkis-searchbar .form-row > .openkis-searchbar-main { flex: 1 1 20rem; max-width: 100%; }
+    .openkis-searchbar .form-row > .openkis-searchbar-tools { flex: 0 1 auto; max-width: 100%; margin-top: 0 !important; }
+    .openkis-searchbar .input-group { flex-wrap: nowrap; }
+    .openkis-searchbar .input-group > .form-control { min-width: 0; }
 </style>
 <script>
     /**
@@ -99,7 +107,7 @@
             <form onsubmit="return call_ajax_form(this, 'pageresults,collapseFilters,mapresults');" id="formfilters" name="filter" method="get" action="{formaction}">
                 <input name="mod" type="hidden" value="{mod}">
                 <div class="form-row align-items-center">
-                    <div class="col-12 col-md">
+                    <div class="col-12 col-md openkis-searchbar-main">
                         <div class="input-group">
                             <input type="search" class="form-control" id="searchtext" name="q" value="{q}" placeholder="{i18n:Search caves}" aria-label="{i18n:Text}" />
                             <div class="input-group-append">
