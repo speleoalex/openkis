@@ -362,7 +362,8 @@ febbraio 2011, precisione 4 m" oppure "posizionamento cartografico").
   gruppo la scheda è visibile a tutti quelli che vedono l'archivio; scegliendo uno o più
   gruppi (es. `hidden_caves` per una grotta da proteggere, `archaeologists` per un sito
   archeologico) la vedono solo quei gruppi, i curatori e gli amministratori. Le schede
-  riservate spariscono anche da elenchi, mappe ed esportazioni.
+  riservate spariscono anche da elenchi, mappe ed esportazioni, e con loro i rilievi, le
+  foto, i rilievi faunistici e i file, qualunque siano i loro gruppi.
 - **Stato dei dati**: *Bozza*, *Verificare*, *Validato*, *Rifiutato*; compare come etichetta
   nell'elenco e nella scheda.
 - **Data curatore**: campo riservato al curatore.
@@ -753,6 +754,12 @@ La cartella `custom/example` è il modello da copiare per un nuovo catasto.
   modifiche fatte dal sito aggiornano la cache da sole.
 - **Indici del database**: `sql/openkis_indexes.sql` velocizza le pagine con molte schede
   (vedi [INDEXES.md](../INDEXES.md)); va rieseguito dopo gli aggiornamenti.
+- **File caricati** (foto, rilievi, allegati, PDF, modelli 3D degli archivi): sono serviti da
+  `openkis_file.php` con gli stessi permessi della scheda a cui appartengono e il loro
+  indirizzo non mostra dove sono salvati. Le cartelle di quelle tabelle in `misc/fndatabase/`
+  ricevono un `.htaccess` che blocca le richieste dirette (Apache); con nginx o Caddy vanno
+  bloccate nella configurazione del server. `$_FN['openkis_protected_files'] = false` in
+  `extra/openkis_config.local.php` torna ai link diretti.
 - **Backup**: salvare il database MySQL, la cartella `misc/` (definizioni delle tabelle,
   impostazioni e tutti i file caricati: foto, rilievi, allegati) e
   `extra/openkis_config.local.php`.

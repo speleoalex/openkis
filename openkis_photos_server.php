@@ -52,7 +52,7 @@ if ($id && $op== "")
     if (is_array($photolist))
         foreach($photolist as $recordvalues)
         {
-            $url=$table_photos->getThumbPath($recordvalues,"photo");
+            $url=$table_photos->getFileUrl($recordvalues,"photo",true);
             if ($url)
             {
                 $files_arr[]=$url;

@@ -162,12 +162,11 @@ foreach($results as $item)
         {
             if ($item['photo1'])
             {
-                $img=$table->getThumbPath($item,"photo1");
-                if (file_exists($img))
+                $img=$table->getFileUrl($item,"photo1",true);
+                if ($img)
                 {
-                    $img=$_FN['siteurl'].$img;
+                    $description.="<img style=\"height:100px;\" src=\"$img\" /><br />";
                 }
-                $description.="<img style=\"height:100px;\" src=\"$img\" /><br />";
             }
             $description.="$elevation_txt $lenght_total_txt $depth_total_txt<br />";
             $description.="<div class=\"text-right\"><a  onclick=\"try{window.open(this.href,'r','scrollbars=yes').focus();return false;}catch(e){return true;}\" target=\"_blank\"  href=\"$url\" ><span class=\"glyphicon glyphicon-eye-open\"></span> <b>".FN_Translate("open")."</b></a> <a target=\"_blank\" href='https://www.google.it/maps/dir//$lat_,$lon_/@$lat_,$lon_,18z' ><span class=\"glyphicon glyphicon-road\"></span> <b>".FN_Translate("go to")."</b></a></div>";
@@ -181,8 +180,9 @@ foreach($results as $item)
             }
             if ($item['photo1'])
             {
-                $img=$_FN['siteurl'].$table->getThumbPath($item,"photo1");
-                $description.="<img style=\"height:100px;\" src=\"$img\" /><br />";
+                $img=$table->getFileUrl($item,"photo1",true);
+                if ($img)
+                    $description.="<img style=\"height:100px;\" src=\"$img\" /><br />";
             }
             $description.="$elevation_txt $lenght_total_txt $depth_total_txt<br />";
             $description.="<div class=\"text-right\"><a  onclick=\"try{window.open(this.href,'r','scrollbars=yes').focus();return false;}catch(e){return true;}\" target=\"_blank\"  href=\"$url\" ><span class=\"glyphicon glyphicon-eye-open\"></span> <b>".FN_Translate("open")."</b></a> <a target=\"_blank\" href='https://www.google.it/maps/dir//$lat_,$lon_/@$lat_,$lon_,18z' ><span class=\"glyphicon glyphicon-road\"></span> <b>".FN_Translate("go to")."</b></a></div>";

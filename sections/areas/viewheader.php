@@ -76,9 +76,9 @@ if (trim(strip_tags($files, "<a>")) === "")
     $files = "";
 }
 $loxfile = "{$_FN['datadir']}/{$_FN['database']}/{$Table->tablename}/{$row['id']}/filelox/" . (isset($row['filelox']) ? $row['filelox'] : "");
-if (!empty($row['filelox']) && file_exists($loxfile))
+if (!empty($row['filelox']) && file_exists($loxfile) && openkis_FileAccess($Table->tablename, $row['id'], "filelox"))
 {
-    $file = urlencode($loxfile);
+    $file = urlencode(openkis_CaveViewerFile($Table->tablename, $row['id'], "filelox", $row['filelox']));
     $files .= "<a class=\"btn btn-sm btn-primary m-1\" href=\"{$_FN['siteurl']}openkis_cave_viewer.php?f=$file\" target=\"_blank\">&#10696; " . FN_Translate("3D model") . "</a>";
 }
 if ($files !== "")

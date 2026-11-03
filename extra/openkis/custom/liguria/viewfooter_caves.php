@@ -56,19 +56,19 @@ if (is_array($items) && count($items))
     foreach ($items as $survey_item)
     {
         // LAS point cloud: embedded viewer, same as artificial cavities
-        if (!empty($survey_item['filelas']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelas/{$survey_item['filelas']}"))
+        if (!empty($survey_item['filelas']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelas/{$survey_item['filelas']}") && openkis_FileAccess("ctl_surveys", $survey_item['id'], "filelas"))
         {
-            $lasurl = "{$_FN['siteurl']}misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelas/" . rawurlencode($survey_item['filelas']);
+            $lasurl = "{$_FN['siteurl']}" . openkis_CaveViewerFile("ctl_surveys", $survey_item['id'], "filelas", $survey_item['filelas']);
             $las_href = "{$_FN['siteurl']}lasviewer/viewer.html?url=" . urlencode($lasurl);
             $htmllas .= "<h5>" . FN_Translate("3D Viewer") . ": " . htmlspecialchars($survey_item['name']) . "</h5>";
             $htmllas .= "<a class=\"btn btn-primary m-1\" href=\"$lasurl\" target=\"_blank\">" . FN_Translate("download") . " 3D</a>";
             $htmllas .= "<a class=\"btn btn-primary m-1\" href=\"$las_href\" target=\"_blank\">" . FN_Translate("open") . " 3D</a>";
             $htmllas .= "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$las_href\" allowfullscreen allow=\"fullscreen\"></iframe>";
         }
-        if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}"))
+        if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}") && openkis_FileAccess("ctl_surveys", $survey_item['id'], "filelox"))
         {
             $count3d++;
-            $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
+            $file = urlencode(openkis_CaveViewerFile("ctl_surveys", $survey_item['id'], "filelox", $survey_item['filelox']));
             $iframe_href = "{$_FN['siteurl']}openkis_cave_viewer.php?f={$file}";
             // Use the survey name as button label, fall back to a numbered generic label
             $title3d = trim((string) $survey_item['name']);

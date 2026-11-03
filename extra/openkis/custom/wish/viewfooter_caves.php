@@ -97,9 +97,9 @@ if (is_array($items) && count($items))
     $items = FN_ArraySortByKey($items, "priority");
     foreach ($items as $survey_item)
     {
-        if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}"))
+        if (!empty($survey_item['filelox']) && file_exists("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}") && openkis_FileAccess("ctl_surveys", $survey_item['id'], "filelox"))
         {
-            $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
+            $file = urlencode(openkis_CaveViewerFile("ctl_surveys", $survey_item['id'], "filelox", $survey_item['filelox']));
             $iframe_href = "{$_FN['siteurl']}openkis_cave_viewer.php?f={$file}";
 //            echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
  //           dprint_r($survey_item);

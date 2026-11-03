@@ -356,7 +356,8 @@ ellipsoid, not to sea level. *Location evaluation* describes how reliable the po
   visible to everyone who can see the archive; choosing one or more groups (e.g.
   `hidden_caves` for a cave to protect, `archaeologists` for an archaeological site) only
   those groups, the curators and the administrators see it. Restricted records also
-  disappear from lists, maps and exports.
+  disappear from lists, maps and exports, and so do their surveys, photos, fauna surveys
+  and files, whatever their own groups.
 - **Data status**: *Draft*, *Verify*, *Validated*, *Rejected*; it appears as a badge in the
   list and on the sheet.
 - **Curator date**: a field reserved to the curator.
@@ -734,6 +735,12 @@ The `custom/example` folder is the template to copy for a new register.
   made through the site refresh the cache by themselves.
 - **Database indexes**: `sql/openkis_indexes.sql` speeds up the pages with many records (see
   [INDEXES.md](../INDEXES.md)); run it again after updates.
+- **Uploaded files** (photos, surveys, attachments, PDFs, 3D models of the archives) are
+  served by `openkis_file.php` with the same permissions as the record they belong to; their
+  address does not show where they are stored. The folders of those tables in
+  `misc/fndatabase/` get an `.htaccess` that denies direct requests (Apache); on nginx or
+  Caddy deny them in the server configuration. `$_FN['openkis_protected_files'] = false` in
+  `extra/openkis_config.local.php` goes back to the direct links.
 - **Backup**: save the MySQL database, the `misc/` folder (table definitions, settings and
   all uploaded files: photos, surveys, attachments) and `extra/openkis_config.local.php`.
 - **Updates**: update the code (`git pull` and `git submodule update`), then run the indexes

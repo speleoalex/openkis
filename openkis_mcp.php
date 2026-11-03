@@ -589,7 +589,7 @@ function mcp_Tool_query($args)
     {
         if ($total === null)
         {
-            $records = $Table->GetRecords($restr, false, false, false, false, array_keys(array_intersect_key($Table->fields, array_flip(array($src['pk'], "recorddeleted", "groupview", "username")))));
+            $records = $Table->GetRecords($restr, false, false, false, false, array_keys(array_intersect_key($Table->fields, array_flip(array_merge(mcp_RowFilterFields($src), array("recorddeleted"))))));
             if (!$native && $hideDeleted)
                 $records = mcp_FilterDeleted($records);
             $total = count(mcp_FilterViewable($src, $records));
@@ -617,7 +617,7 @@ function mcp_Tool_query($args)
         $getfields[] = "recorddeleted";
     if ($rowFilter)
     {
-        foreach (array($src['pk'], "groupview", "username") as $f)
+        foreach (mcp_RowFilterFields($src) as $f)
         {
             if (isset($Table->fields[$f]) && !in_array($f, $getfields))
                 $getfields[] = $f;
@@ -1239,7 +1239,20 @@ function mcp_NeedsRowFilter($src)
     if (mcp_FullAccess() || empty($src['section']))
         return false;
     $config = $src['config'];
+    // records hidden by the application, as the surveys of the restricted caves
+    if (count(mcp_Dbview($src)->ExcludedValues($config['tables'])))
+        return true;
     return !empty($config['viewonlycreator']) || (!empty($config['enable_permissions_each_records']) && $config['enable_permissions_each_records'] == 1);
+}
+
+/**
+ * Fields a row needs for mcp_CanViewRow()
+ * @param array $src
+ * @return array
+ */
+function mcp_RowFilterFields($src)
+{
+    return array_merge(array($src['pk'], "groupview", "username"), array_keys(mcp_Dbview($src)->ExcludedValues($src['config']['tables'])));
 }
 
 /**
@@ -1253,6 +1266,10 @@ function mcp_CanViewRow($src, $row)
     if (!mcp_NeedsRowFilter($src))
         return true;
     $config = $src['config'];
+    if (!mcp_Dbview($src)->RecordAllowedByApplication($config['tables'], $row))
+        return false;
+    if (empty($config['viewonlycreator']) && (empty($config['enable_permissions_each_records']) || $config['enable_permissions_each_records'] != 1))
+        return true;
     if (!empty($config['viewonlycreator']))
         return mcp_Dbview($src)->CanViewRecord($row[$src['Table']->primarykey], $src['table'], $config);
     // enable_permissions_each_records: same rule of FNDBVIEW::CanViewRecord, evaluated on the loaded row

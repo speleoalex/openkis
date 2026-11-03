@@ -16,6 +16,12 @@ require_once(__DIR__ . "/openkis/install/openkis_install.php");
 // FN_LoadConfig is not available yet at this point of the bootstrap
 FN_IncludeScript("extra/openkis/openkis_defaults.php");
 
+// Files of the register served by openkis_file.php after a permission check
+// (extra/openkis/openkis_files.inc.php); the finis hooks are registered after
+// the local configuration, which may turn them off
+require_once(__DIR__ . "/openkis/openkis_files.inc.php");
+FN_IncludeScript("extra/openkis/openkis_files_hooks.php");
+
 /**
  * Map position for a regional customisation: the region's own centre, unless
  * the administrator changed the map defaults (admin section "configopenkis",

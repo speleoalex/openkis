@@ -1,9 +1,8 @@
 <?php
 
-if (!empty($row['filelox']))
+if (!empty($row['filelox']) && openkis_FileAccess("ctl_surveys", $row['id'], "filelox"))
 {
-    $file = "misc/fndatabase/ctl_surveys/{$row['id']}/filelox/{$row['filelox']}";
-    $file = urlencode($file);
+    $file = urlencode(openkis_CaveViewerFile("ctl_surveys", $row['id'], "filelox", $row['filelox']));
     $fileiframe = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
     echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$fileiframe\"></iframe>";
     echo "<br/><a href=\"$fileiframe\" target=\"_blank\">".FN_Translate("open")."</a>";

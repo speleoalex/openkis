@@ -49,7 +49,11 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
     {
         if (!empty($survey_item['filelox']))
         {
-            $file = urlencode("misc/fndatabase/ctl_surveys/{$survey_item['id']}/filelox/{$survey_item['filelox']}");
+            // only who may read the survey file gets the viewer; the model is
+            // loaded through openkis_file.php, which checks again
+            if (!openkis_FileAccess("ctl_surveys", $survey_item['id'], "filelox"))
+                continue;
+            $file = urlencode(openkis_CaveViewerFile("ctl_surveys", $survey_item['id'], "filelox", $survey_item['filelox']));
             $iframe_href = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
             echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
         }
