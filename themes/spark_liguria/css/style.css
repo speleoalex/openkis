@@ -1,0 +1,134 @@
+/* https://fontawesome.com/icons/users?f=classic&s=solid */
+
+.fa-aicv:before,.fa-aicv-lg-alt:before,.fa-aicv:before,.fa-aicv:before{
+    content:"\f2bb"
+}
+.fa-applications:before,.fa-applications-lg-alt:before,.fa-applications:before,.fa-applications:before{
+    content:"\f144"
+}
+.fa-files:before,.fa-files-lg-alt:before,.fa-files:before,.fa-files:before{
+    content:"\f802"
+}
+.fa-assistants:before,.fa-assistants-lg-alt:before,.fa-assistants:before,.fa-assistants:before{
+    content:"\f0c0"
+}
+.fa-privacy:before,.fa-privacy-lg-alt:before,.fa-privacy:before,.fa-privacy:before{
+    content:"\f3ed"
+}
+
+.fa-login:before,.fa-login-lg-alt:before,.fa-login:before,.fa-login:before{
+    content:"\f007"
+}
+
+
+
+/* ---- OpenKIS caves sheet and list (2026-10-27) ---- */
+/* ---- cave sheet (thematic cards) ---- */
+.openkis-sheet-icon{height:48px;border:1px solid #ddd;border-radius:8px;background:#fff}
+.openkis-sheet-name{font-size:1.6rem}
+.openkis-sheet-code{font-size:.9rem;vertical-align:middle}
+.openkis-card .card-header,.openkis-side-card .card-header{background:#fdf3e7;padding:.5rem 1rem}
+.openkis-card .card-header h5,.openkis-side-card .card-header h5{font-size:1rem;color:#8a4e17}
+.openkis-card .card-body{padding:.75rem 1rem}
+.openkis-field{padding:.3rem 0;border-bottom:1px solid #f1f1f1;margin-left:0;margin-right:0}
+.openkis-card .card-body > .openkis-field:last-child{border-bottom:0}
+.openkis-field-title{color:#6c757d;font-size:.9rem}
+.openkis-field-block .openkis-field-title{margin-bottom:.25rem}
+.openkis-field-value{word-wrap:break-word;overflow-wrap:anywhere}
+.openkis-field-value img{max-width:100%}
+.openkis-field-author{margin-top:-.25rem;margin-bottom:.5rem}
+.openkis-side-card img{max-width:100%;height:auto}
+.openkis-side-card .card-body{font-size:.95rem}
+.openkis-side-title{font-size:1rem;color:#8a4e17}
+.openkis-photo a img{border-radius:6px}
+/* ---- list: legend, badges, search bar ---- */
+.openkis-legend img{height:24px;border:1px solid #ddd;border-radius:6px;margin-right:.25rem;background:#fff}
+.openkis-legend .col-4{padding:.15rem .5rem}
+.openkis-badge-open{background:#28a745;color:#fff}
+.openkis-badge-closed{background:#dc3545;color:#fff}
+.card[data-closed="Y"] .openkis-badge-open,.card[data-closed="S"] .openkis-badge-open{display:none}
+.card:not([data-closed="Y"]):not([data-closed="S"]) .openkis-badge-closed{display:none}
+.openkis-searchbar .form-control{font-size:1.05rem}
+.openkis-exports .btn{white-space:nowrap}
+@media (max-width:575.98px){
+  .openkis-sheet-name{font-size:1.25rem}
+  .openkis-sheet-icon{height:36px}
+  .openkis-field-title{font-weight:600;font-size:.85rem}
+}
+/* caves list: search bar and legend */
+.openkis-searchbar .btn-link { padding-left: .25rem; }
+.openkis-advanced-filters .form-group { margin-bottom: .5rem; }
+.openkis-legend summary { cursor: pointer; }
+.openkis-card-code { font-weight: 600; }
+#pageresults.openkis-view-list .openkis-exports { display: inline-block; }
+.openkis-legend .row > div{display:flex;align-items:center;line-height:1.2;padding-right:.25rem}
+.openkis-legend .row > div img{flex:none}
+.openkis-sheet-code,.openkis-sheet-code.badge-dark{background-color:#343a40;color:#fff}
+/* Bootstrap 4 badge colours used by OpenKIS templates (the theme ships Bootstrap 5) */
+.badge.badge-success{background-color:#28a745;color:#fff}
+.badge.badge-danger{background-color:#dc3545;color:#fff}
+.badge.badge-warning{background-color:#ffc107;color:#212529}
+.badge.badge-info{background-color:#17a2b8;color:#fff}
+.badge.badge-dark{background-color:#343a40;color:#fff}
+.badge.badge-light{background-color:#f8f9fa;color:#212529}
+/* cave sheet header: name on the left, badges and icon on the right */
+.openkis-sheet-heading{flex:1 1 auto;min-width:0}
+.openkis-sheet-name{margin-top:0;overflow-wrap:anywhere}
+.openkis-sheet-tags{flex:0 1 auto;max-width:50%;margin-left:1rem;gap:.5rem}
+.openkis-sheet-badges{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.25rem;padding-top:.3rem}
+.openkis-sheet-badges .badge{margin:0}
+.openkis-sheet-tags .openkis-sheet-icon{flex:none}
+/* home: summary of the natural caves in the cadastre */
+.openkis-home-number{font-size:1.8rem;font-weight:600;line-height:1.1;color:#8a4e17}
+.openkis-home-total{background:#fdf3e7}
+.openkis-home-ranking td,.openkis-home-ranking th{vertical-align:middle;padding-left:.75rem;padding-right:.75rem}
+.openkis-home-ranking .openkis-sheet-code{font-size:.7rem;font-weight:500}
+/* global search: menu box and results grouped by section */
+.openkis-menu-search{padding:0 .75rem .75rem}
+.openkis-search-summary .btn{margin-right:.25rem}
+.openkis-search-title{font-weight:600}
+.openkis-search-group .list-group-item{padding:.5rem 1rem}
+/* mobile menu: submenus open inside the menu instead of floating over the other items */
+#mobileSidebar .dropdown-menu{position:static !important;transform:none !important;inset:auto !important;float:none;border:0;box-shadow:none;background:transparent;margin:0;padding:0 0 .25rem .75rem}
+#mobileSidebar .dropdown-menu .nav-link{padding:.3rem .5rem}
+#mobileSidebar .nav-link.dropdown-toggle{font-weight:600}
+#mobileSidebar .openkis-menu-search{padding:0 0 .75rem}
+/* mobile lists: compact stacked cards */
+@media (max-width: 575.98px){
+  #pageresults .card.box-shadow{height:auto !important;margin-bottom:.75rem !important}
+  #pageresults .card .card-body{padding:.6rem .8rem}
+  #pageresults .card .card-title{margin-bottom:.35rem}
+  #pageresults .card .card-footer{padding:.4rem .8rem}
+  #pageresults .card .card-footer .btn{padding:.2rem .7rem;font-size:.875rem}
+}
+/* generic record sheets (artificial cavities, areas, bibliography...): group titles and field rows */
+.openkis-generic-sheet .openkis-group{margin-top:1rem}
+.openkis-group-title{background:#fdf3e7;color:#8a4e17;font-size:1rem;font-weight:600;padding:.45rem .75rem;border-radius:.375rem;margin-bottom:.25rem}
+.openkis-generic-sheet .openkis-field-title{color:#6c757d}
+.openkis-generic-sheet .openkis-field-image img{max-width:100%;height:auto}
+@media (max-width: 767.98px){
+  .openkis-generic-sheet .openkis-field-title{font-size:.85rem}
+  .openkis-group-title{margin-left:-.25rem;margin-right:-.25rem}
+}
+.viewrecordpage img{max-width:100%;height:auto}
+.viewrecordpage .row.openkis-field{margin-left:0;margin-right:0}
+.openkis-inner-title{font-size:1.25rem;margin-top:1.5rem;padding-top:.75rem;border-top:2px solid #fdf3e7}
+.openkis-inner-name{font-size:1.05rem;font-weight:600;margin:.75rem 0 .25rem}
+/* caves list: the map of the results spans the whole content area (cancels the side padding of main.content) */
+main.content > .openkis-map-full{margin-left:-10px;margin-right:-10px}
+/* sheets of areas, springs, species (2026-11-02): cards listing the linked records */
+.openkis-card .table th:first-child,.openkis-card .table td:first-child{padding-left:1rem}
+.openkis-card .table th:last-child,.openkis-card .table td:last-child{padding-right:1rem}
+.openkis-card .table thead th{font-size:.9rem;color:#8a4e17;background:#fffaf4;border-top:0}
+.openkis-card .table td{vertical-align:middle}
+.openkis-card .card-footer{padding:.5rem 1rem}
+.openkis-side-card .btn{white-space:normal;overflow-wrap:anywhere;text-align:left}
+/* record toolbar of the sheets (finis modules/dbview/toolbar.tp.html, base rules in finis modules/dbview/style.css) */
+.dbview-toolbar .nav-link{color:#D67E36}
+.dbview-toolbar .nav-link:hover,.dbview-toolbar .nav-link:focus{color:#8a4e17}
+.dbview-toolbar .nav-link.active{color:#212529;border-top:2px solid #D67E36}
+.dbview-toolbar .dbview-toolbar-icon{font-size:1.1em}
+@media (max-width: 575.98px){
+  .dbview-toolbar .nav-link{padding:.55rem .4rem}
+  .dbview-toolbar .dbview-toolbar-icon{font-size:1.4em}
+}

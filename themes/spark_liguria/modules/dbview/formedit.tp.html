@@ -1,0 +1,54 @@
+  <!-- if {navigationbar} -->
+  {toolbar_html}
+  <!-- end if {navigationbar} -->
+
+<form id="frmedit"
+      class="okis-form"
+      onchange="set_changed();"
+      enctype="multipart/form-data"
+      action="{formaction}"
+      method="post">
+
+    <!-- contents -->
+<div class="form-group row">
+    <!-- group -->
+    <fieldset class="okis-fieldset"><legend>{groupname}</legend>
+        <!-- end_group -->
+        <!-- item -->
+        <div class="form-group row okis-field">
+            <label class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em class="okis-error"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10">
+                <!-- inputattributes radio:class="form-check-input" style=""  --> <!-- inputattributes:class="form-control"  -->{input}
+                <div class="form-text okis-help"><span class="okis-help-icon" aria-hidden="true">&#x1F4A1;</span><span>{help}</span></div>
+            </div>
+        </div>
+        <!-- end_item -->
+
+        <!-- item_type_radio -->
+        <div class="form-group row okis-field">
+            <label class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em class="okis-error"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check okis-check">
+                    <!-- inputattributes:class=""  -->{input}
+                </div>
+                <div class="form-text okis-help"><span class="okis-help-icon" aria-hidden="true">&#x1F4A1;</span><span>{help}</span></div>
+            </div>
+        </div>
+        <!-- end_item_type_radio -->
+        <!-- item_type_check -->
+        <div class="form-group row okis-field">
+            <label class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em class="okis-error"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check okis-check">
+                    <!-- inputattributes:class="form-check-input"  -->{input}
+                </div>
+                <div class="form-text okis-help"><span class="okis-help-icon" aria-hidden="true">&#x1F4A1;</span><span>{help}</span></div>
+            </div>
+        </div>
+        <!-- end_item_type_check -->
+        <!-- endgroup -->
+    </fieldset>
+    <!-- end_endgroup -->
+</div>
+<!-- end_contents -->
+    <input name="xmetadbsave" type="submit" value="{i18n:Save}" />
+    <input id="exitform" type="button" value="{i18n:Cancel}" onclick="window.location = '{urlcancel}'" />
+</form>

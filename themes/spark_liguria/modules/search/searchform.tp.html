@@ -1,0 +1,54 @@
+<div class="container-fluid openkis-search px-0">
+    <form class="card openkis-searchbar mb-3" method="get" action="{form_action}" role="search">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" value="{q}" placeholder="Cerca grotte, cavità artificiali, aree, bibliografia..." aria-label="{i18n:Search}" />
+                        <button class="btn btn-primary" type="submit">&#128269; {i18n:Search}</button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <select class="form-select form-select-sm" name="method" aria-label="{i18n:Search}">
+                        <option value="AND">{i18n:All word}</option>
+                        <option value="OR">{i18n:Any word}</option>
+                        <option value="" >{i18n:Exact phrase}</option>
+                    </select>
+                </div>
+            </div>
+            <input type="hidden" name="where" value="{where}" />
+            <input type="hidden" name="op" value="{op}" />
+        </div>
+    </form>
+    <!-- if {text_result} -->
+    <p class="text-muted mb-2">{text_result}</p>
+    <!-- end if {text_result} -->
+    <!-- if {sections_results} -->
+    <div class="openkis-search-summary mb-3">
+        <!-- foreach {sections_results} -->
+        <a class="btn btn-sm btn-outline-secondary mb-1" href="#{anchor}">{title} <span class="badge badge-dark">{count}<!-- if {more} -->+<!-- end if {more} --></span></a>
+        <!-- end foreach {sections_results} -->
+    </div>
+    <!-- foreach {sections_results} -->
+    <div class="card openkis-card openkis-search-group mb-3" id="{anchor}">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+            <h5 class="mb-0">{title} <small class="text-muted">({count}<!-- if {more} -->+<!-- end if {more} -->)</small></h5>
+            <!-- if {url_list} -->
+            <a class="btn btn-sm btn-outline-primary" href="{url_list}">Apri nell'elenco</a>
+            <!-- end if {url_list} -->
+        </div>
+        <div class="list-group list-group-flush">
+            <!-- foreach {results} -->
+            <a class="list-group-item list-group-item-action" href="{link}">
+                <span class="openkis-search-title">{title}</span>
+                <!-- if {text} --><br /><small class="text-muted">{text}</small><!-- end if {text} -->
+            </a>
+            <!-- end foreach {results} -->
+        </div>
+        <!-- if {more} -->
+        <div class="card-footer small text-muted">Sono mostrati i primi {count} risultati: gli altri sono nell'elenco.</div>
+        <!-- end if {more} -->
+    </div>
+    <!-- end foreach {sections_results} -->
+    <!-- end if {sections_results} -->
+</div>
