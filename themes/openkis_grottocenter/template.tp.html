@@ -2,7 +2,13 @@
 <html lang="{lang}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">
+        <script>
+            // no pinch or double-tap zoom of the page on mobile, it fights with the zoom of the map
+            // (iOS Safari ignores user-scalable=no)
+            document.documentElement.style.touchAction = "manipulation";
+            document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+        </script>
         <meta name="description" content="">
         <meta name="author" content="">
         <meta name="msapplication-config" content="{siteurl}themes/{theme}/browserconfig.xml" />
