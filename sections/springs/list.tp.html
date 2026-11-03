@@ -83,7 +83,7 @@
 
             <div id="collapseOne" class="collapse" aria-labelledby="headingOne" >
                 <div class="card-body">
-                    <form onsubmit="fn_FormToAjax(this, 'pageresults,mapresults', 'post');return false;" id="formfilters" name="filter" method="get" action="{formaction}">
+                    <form onsubmit="return call_ajax_form(this, 'pageresults,collapseFilters,mapresults');" id="formfilters" name="filter" method="get" action="{formaction}">
                         <input name="mod" type="hidden" value="{mod}">
                         <!-- if {table_rules} -->
                         <div class="form-group row">        
@@ -287,14 +287,14 @@
                     <nav aria-label="{i18n:Pages}">
                         <ul class="pagination">
                             <!-- if {linkpreviouspage} -->
-                            <li class="page-item"><a  title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
+                            <li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters,mapresults');return false" title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
                             <!-- end if {linkpreviouspage} -->
                             <!-- foreach {pages} -->
                             <!-- if not {active} --><li class="page-item"><a  onclick="call_ajax(this.href, 'pageresults,collapseFilters,mapresults');return false"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
                             <!-- if {active} --><li class="page-item active"><a class="page-link" href="{link}">{txt_page}</a></li><!-- end if {active} -->
                             <!-- end foreach {pages} -->
                             <!-- if {linknextpage} -->
-                            <li class="page-item"><a title="{i18n:Next}" class="page-link" href="{linknextpage}">&gt;</a></li>
+                            <li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters,mapresults');return false" title="{i18n:Next}" class="page-link" href="{linknextpage}">&gt;</a></li>
                             <!-- end if {linknextpage} -->
                         </ul>
                     </nav>      
@@ -334,14 +334,14 @@
                     <nav aria-label="{i18n:Pages}">
                         <ul class="pagination">
                             <!-- if {linkpreviouspage} -->
-                            <li class="page-item"><a  title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
+                            <li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters,mapresults');return false" title="{i18n:Previous}" class="page-link" href="{linkpreviouspage}">&lt;</a></li>
                             <!-- end if {linkpreviouspage} -->
                             <!-- foreach {pages} -->
                             <!-- if not {active} --><li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters,mapresults');return false"   class="page-link" href="{link}">{txt_page}</a></li><!-- end if not {active} -->
                             <!-- if {active} --><li class="page-item active"><a class="page-link" href="{link}">{txt_page}</a></li><!-- end if {active} -->
                             <!-- end foreach {pages} -->
                             <!-- if {linknextpage} -->
-                            <li class="page-item"><a title="{i18n:Next}" class="page-link" href="{linknextpage}">&gt;</a></li>
+                            <li class="page-item"><a onclick="call_ajax(this.href, 'pageresults,collapseFilters,mapresults');return false" title="{i18n:Next}" class="page-link" href="{linknextpage}">&gt;</a></li>
                             <!-- end if {linknextpage} -->
                         </ul>
                     </nav>      
