@@ -365,8 +365,8 @@ mysql_q "$TEST_DB" -e "DELETE FROM ctl_grottocenter WHERE id='999999'"
 
 say "6f. temperatures (section temperatures, openkis_temperatures.php)"
 page "temperatures: list with the map and the UCC export links (admin)" "$COOKIES" "${TEST_URL}index.php?mod=temperatures" "openkis_temperatures.php?format=ucc"
-page "temperatures: results as a list by default (grid/list switch)" "$ANON" "${TEST_URL}index.php?mod=temperatures" "openkis_view_temperatures"
-page "tracings: results as a list by default (grid/list switch)" "$ANON" "${TEST_URL}index.php?mod=tracings" "openkis_view_tracings"
+page "temperatures: results as a list by default (grid/list switch)" "$ANON" "${TEST_URL}index.php?mod=temperatures" "openkis-view-list[^\"]*\" id=\"pageresults\""
+page "tracings: results as a list by default (grid/list switch)" "$ANON" "${TEST_URL}index.php?mod=tracings" "openkis-view-list[^\"]*\" id=\"pageresults\""
 page "temperatures: new record form (admin)" "$COOKIES" "${TEST_URL}index.php?mod=temperatures&op=new" "name=\"temperature\""
 # the id is computed by the framework (varchar, max + 1), so direct inserts give it
 TID=$(mysql_q "$TEST_DB" -e "SELECT COALESCE(MAX(CAST(id AS UNSIGNED)),0)+1 FROM ctl_temperatures")
