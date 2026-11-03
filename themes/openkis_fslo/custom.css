@@ -183,7 +183,7 @@ img {
     height: 32px;
     flex: 0 0 32px;
     margin-right: 10px;
-    background: url("img/icons/default.svg?v=20261103c") center / contain no-repeat;
+    background: url("img/icons/default.svg?v=20261103d") center / contain no-repeat;
 }
 
 .gc-ico-lg {
@@ -207,7 +207,7 @@ img {
     height: 20px;
     margin-left: auto;
     opacity: .6;
-    background: url("img/icons/external.svg?v=20261103c") center / contain no-repeat;
+    background: url("img/icons/external.svg?v=20261103d") center / contain no-repeat;
 }
 
 .gc-contribute {
@@ -336,7 +336,7 @@ body.gc-collapsed .gc-chevron {
     height: 24px;
     flex: 0 0 24px;
     margin-right: 8px;
-    background: url("img/icons/search-white.svg?v=20261103c") center / contain no-repeat;
+    background: url("img/icons/search-white.svg?v=20261103d") center / contain no-repeat;
 }
 
 .gc-search-input {
@@ -386,7 +386,7 @@ body.gc-collapsed .gc-chevron {
     width: 24px;
     height: 24px;
     margin-right: 6px;
-    background: url("img/icons/translate-white.svg?v=20261103c") center / contain no-repeat;
+    background: url("img/icons/translate-white.svg?v=20261103d") center / contain no-repeat;
 }
 
 .gc-lang .dropdown-item img {
@@ -590,7 +590,7 @@ body.gc-collapsed .gc-plus {
    Hero (home page only)
    --------------------------------------------------------------------- */
 .gc-hero {
-    background: var(--gc-paper) url("img/hero-bg.svg?v=20261103c") center / cover no-repeat;
+    background: var(--gc-paper) url("img/hero-bg.svg?v=20261103d") center / cover no-repeat;
     text-align: center;
     padding: 40px 24px 24px;
     border-bottom: 1px solid rgba(0, 0, 0, .08);
@@ -1018,6 +1018,7 @@ label,
 .page-item.active .page-link {
     background-color: var(--gc-orange);
     border-color: var(--gc-orange);
+    color: #fff;
 }
 
 .dropdown-item.active,
@@ -1180,123 +1181,123 @@ details > summary {
 .gc-ico-menu_natural,
 .gc-ico-cavesystem,
 .gc-ico-wish {
-    background-image: url("img/icons/cave.svg?v=20261103c");
+    background-image: url("img/icons/cave.svg?v=20261103d");
 }
 
 .gc-ico-map_caves,
 .gc-ico-map_artificials,
 .gc-ico-map_glacial {
-    background-image: url("img/icons/map.svg?v=20261103c");
+    background-image: url("img/icons/map.svg?v=20261103d");
 }
 
 .gc-ico-springs {
-    background-image: url("img/icons/drop.svg?v=20261103c");
+    background-image: url("img/icons/drop.svg?v=20261103d");
 }
 
 .gc-ico-bibliography {
-    background-image: url("img/icons/book.svg?v=20261103c");
+    background-image: url("img/icons/book.svg?v=20261103d");
 }
 
 .gc-ico-survey,
 .gc-ico-survey_artificials {
-    background-image: url("img/icons/ruler.svg?v=20261103c");
+    background-image: url("img/icons/ruler.svg?v=20261103d");
 }
 
 .gc-ico-tracings {
-    background-image: url("img/icons/route.svg?v=20261103c");
+    background-image: url("img/icons/route.svg?v=20261103d");
 }
 
 .gc-ico-areas,
 .gc-ico-geological_formations {
-    background-image: url("img/icons/layers.svg?v=20261103c");
+    background-image: url("img/icons/layers.svg?v=20261103d");
 }
 
 .gc-ico-fauna,
 .gc-ico-fauna_surveys,
 .gc-ico-menu_fauna {
-    background-image: url("img/icons/bug.svg?v=20261103c");
+    background-image: url("img/icons/bug.svg?v=20261103d");
 }
 
 .gc-ico-artificials,
 .gc-ico-menu_artificials {
-    background-image: url("img/icons/pick.svg?v=20261103c");
+    background-image: url("img/icons/pick.svg?v=20261103d");
 }
 
 .gc-ico-art_categorie,
 .gc-ico-art_tipologie,
 .gc-ico-reports {
-    background-image: url("img/icons/list.svg?v=20261103c");
+    background-image: url("img/icons/list.svg?v=20261103d");
 }
 
 .gc-ico-glacial,
 .gc-ico-glaciers,
 .gc-ico-glacial_surveys,
 .gc-ico-speleologia_glaciale {
-    background-image: url("img/icons/snow.svg?v=20261103c");
+    background-image: url("img/icons/snow.svg?v=20261103d");
 }
 
 .gc-ico-associations,
 .gc-ico-commissione,
 .gc-ico-federation {
-    background-image: url("img/icons/groups.svg?v=20261103c");
+    background-image: url("img/icons/groups.svg?v=20261103d");
 }
 
 .gc-ico-regioni,
 .gc-ico-wish_regioni {
-    background-image: url("img/icons/flag.svg?v=20261103c");
+    background-image: url("img/icons/flag.svg?v=20261103d");
 }
 
 .gc-ico-menu_settings,
 .gc-ico-configopenkis {
-    background-image: url("img/icons/settings.svg?v=20261103c");
+    background-image: url("img/icons/settings.svg?v=20261103d");
 }
 
 .gc-ico-coordinate_types {
-    background-image: url("img/icons/gps.svg?v=20261103c");
+    background-image: url("img/icons/gps.svg?v=20261103d");
 }
 
 .gc-ico-licenses {
-    background-image: url("img/icons/shield.svg?v=20261103c");
+    background-image: url("img/icons/shield.svg?v=20261103d");
 }
 
 .gc-ico-Imports {
-    background-image: url("img/icons/download.svg?v=20261103c");
+    background-image: url("img/icons/download.svg?v=20261103d");
 }
 
 .gc-ico-grottocenter {
-    background-image: url("img/icons/cloud.svg?v=20261103c");
+    background-image: url("img/icons/cloud.svg?v=20261103d");
 }
 
 .gc-ico-openkis_mcp {
-    background-image: url("img/icons/api.svg?v=20261103c");
+    background-image: url("img/icons/api.svg?v=20261103d");
 }
 
 .gc-ico-login {
-    background-image: url("img/icons/account.svg?v=20261103c");
+    background-image: url("img/icons/account.svg?v=20261103d");
 }
 
 .gc-ico-home {
-    background-image: url("img/icons/home.svg?v=20261103c");
+    background-image: url("img/icons/home.svg?v=20261103d");
 }
 
 .gc-ico-search {
-    background-image: url("img/icons/search.svg?v=20261103c");
+    background-image: url("img/icons/search.svg?v=20261103d");
 }
 
 .gc-ico-guide {
-    background-image: url("img/icons/guide.svg?v=20261103c");
+    background-image: url("img/icons/guide.svg?v=20261103d");
 }
 
 .gc-ico-chart {
-    background-image: url("img/icons/chart.svg?v=20261103c");
+    background-image: url("img/icons/chart.svg?v=20261103d");
 }
 
 .gc-ico-inline.gc-ico-map {
-    background-image: url("img/icons/map-white.svg?v=20261103c");
+    background-image: url("img/icons/map-white.svg?v=20261103d");
 }
 
 .gc-ico-inline.gc-ico-search {
-    background-image: url("img/icons/search-white.svg?v=20261103c");
+    background-image: url("img/icons/search-white.svg?v=20261103d");
 }
 
 /* app bar dropdowns: static placement, anchored to the right edge */
