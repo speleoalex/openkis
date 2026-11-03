@@ -258,15 +258,18 @@ del browser può nascondere per qualche minuto una risorsa che il worker non ser
 | `$_FN['openkis_offline'] = 0` | worker deregistrato e cache cancellate |
 | Smoke test su installazione pulita | 193 superati, 0 falliti (12 nuovi in 6h) |
 
-Da fare prima della produzione Liguria:
+In produzione Liguria dal 03/11/2026 19:25 (resoconto `assistance/2026-11-03_uso_offline.md` nella copia
+locale di www.catastogrotte.net): finis condiviso aggiornato a 82c90b4 per i tre file; `extra/openkis.inc.php`
+di produzione con le sole righe dell'offline; tema `spark_liguria` messo in git e reso installabile.
+Verificato in produzione con la rete tolta davvero (proxy con CONNECT spento a comando): home, schede viste e
+scaricate con le foto, riepilogo di una grotta non scaricata, mappa (2323 elementi), ricerca.
 
-- `spark_liguria` (tema di produzione, fuori da git) non ha manifest: aggiungere
-  `manifest.json`, icone e meta come in `openkis_liguria`; serve un logo in alta risoluzione
-  per icone nitide.
-- Deploy: prima finis condiviso (`website.php`, `theme.php`, `auth/local.php`), poi openkis.
-- `openkis_offline_concurrency` = 1 o 2 su Aruba (9 connessioni MySQL per l'account).
-- Possibile ottimizzazione: un endpoint che rende molte schede in una sola richiesta, per
-  scaricare una sezione con meno avvii di PHP.
+Ancora aperto:
+
+- il download di tutte le grotte dalla produzione dura circa 40 minuti (2 s a scheda, 2 richieste in
+  parallelo): un endpoint che rende molte schede per richiesta, o la cache delle schede del piano
+  prestazioni, lo accorcerebbe;
+- icone dell'app nitide: serve il logo in alta risoluzione.
 
 ## TODO successivo: app parallela con dati in IndexedDB
 
