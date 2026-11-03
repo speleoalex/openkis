@@ -401,6 +401,19 @@ check "X-Finis-Visitor: public on the map layer for an anonymous visitor" test "
 page "theme shell (fnshell=1) with the place of the section" "$ANON" "${TEST_URL}index.php?mod=caves&fnshell=1" "<!--fnsection-->"
 check "theme shell: the login form does not post back to the shell" sh -c "! grep -q 'fnshell=1&amp;fnlogin' '$WORK/page.html'"
 page "sheet fragment (fnajax=1) with the title of the record" "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$DEMO_ID&fnajax=1" "<title>[^<]*$DEMO_CODE"
+# the sheet cache (finis traits/FNDBVIEWViewCache.php) serves the fragments too: one file for both
+VC_DIR="$TEST_DIR/misc/_cache/pages/caves"
+vcfile() { find "$VC_DIR" -name "$DEMO_ID.html" 2>/dev/null | head -1; }
+f=$(vcfile); [ -n "$f" ] && as_web_user rm -f "$f"
+# a file written in the same second as a change of its tables counts as old (stamps have a
+# resolution of one second): the sections above have just touched some of them
+sleep 1
+fetch "$WORK/vc1.html" -b "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$DEMO_ID&fnajax=1" >/dev/null
+f=$(vcfile)
+check "sheet cache: an anonymous fragment (fnajax=1) writes the cached sheet" test -n "$f"
+m1=$(stat -c %Y "$f" 2>/dev/null); sleep 1
+fetch "$WORK/vc2.html" -b "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$DEMO_ID" >/dev/null
+check "sheet cache: the full page then reads the same file" test -n "$m1" -a "$(stat -c %Y "$f" 2>/dev/null)" = "$m1"
 page "pages carry the offline script" "$ANON" "${TEST_URL}index.php?mod=caves" "openkis_offline.js?v="
 page "offline page (sections/offline)" "$ANON" "${TEST_URL}index.php?mod=offline" 'id="okis-offline-app"'
 s=$(fetch "$WORK/off_info.json" -b "$ANON" "${TEST_URL}openkis_offline.php?op=info")
