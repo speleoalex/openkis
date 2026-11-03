@@ -45,6 +45,9 @@ site_php() { # file
 }
 
 say "setup"
+# the survey archive public, as in Liguria (the default install shows it to the registered users)
+ORIG_LEVEL=$(q "SELECT level FROM fn_sections WHERE id='survey'")
+q "UPDATE fn_sections SET level='' WHERE id='survey'"
 cat > "$WORK/setup.php" <<PHP
 <?php
 chdir("$TEST_DIR");
@@ -71,8 +74,10 @@ foreach (array("TFPUB" => "", "TFRES" => "hidden_caves") as \$code => \$groups) 
     put("ctl_caves", \$c['id'], "photo1", "entrance.png", \$png);
     \$s = \$surveys->InsertRecord(array("codecave" => \$code, "name" => "Survey \$code", "file" => "survey_\$code.txt", "groupview" => ""));
     put("ctl_surveys", \$s['id'], "file", "survey_\$code.txt", "survey of \$code");
+    // the links relative to the site (from the command line siteurl is not the web one)
+    \$rel = function (\$url) { return preg_replace('#^.*?(openkis_file\\.php\\?|misc/)#', '\$1', (string) \$url); };
     \$out[] = \$code . "=" . \$c['id'] . "," . \$s['id'] . ","
-        . \$caves->getFileUrl(\$c, "photo1") . "," . \$surveys->getFileUrl(\$s, "file");
+        . \$rel(\$caves->getFileUrl(\$c, "photo1")) . "," . \$rel(\$surveys->getFileUrl(\$s, "file"));
 }
 echo implode("\n", \$out) . "\n";
 PHP
@@ -81,6 +86,7 @@ cat "$WORK/setup.txt" | grep -v "^TF" | head -5
 line_pub=$(grep '^TFPUB=' "$WORK/setup.txt"); line_res=$(grep '^TFRES=' "$WORK/setup.txt")
 IFS=, read -r PUB_CAVE PUB_SURVEY PUB_PHOTO_URL PUB_FILE_URL <<< "${line_pub#TFPUB=}"
 IFS=, read -r RES_CAVE RES_SURVEY RES_PHOTO_URL RES_FILE_URL <<< "${line_res#TFRES=}"
+PUB_PHOTO_URL=$TEST_URL$PUB_PHOTO_URL; PUB_FILE_URL=$TEST_URL$PUB_FILE_URL; RES_PHOTO_URL=$TEST_URL$RES_PHOTO_URL; RES_FILE_URL=$TEST_URL$RES_FILE_URL
 [ -n "$RES_SURVEY" ] && ok "records created (public cave $PUB_CAVE, restricted cave $RES_CAVE)" || { fail "setup: $(cat "$WORK/setup.txt" | head -3)"; echo "passed: $PASS  failed: $FAIL"; exit 1; }
 case "$RES_FILE_URL" in *openkis_file.php?f=*) ok "file links go through openkis_file.php" ;; *) fail "file link is $RES_FILE_URL" ;; esac
 case "$RES_FILE_URL" in *ctl_surveys*|*survey_TFRES*) fail "the link shows the storage path: $RES_FILE_URL" ;; *) ok "the link does not show table or file name" ;; esac
@@ -121,6 +127,14 @@ check_file "hidden_caves reader, restricted cave thumbnail" "$WORK/reader.jar" "
 check_file "thumbnail of a raw path in the data folder" "$WORK/anon.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&f=misc/fndatabase/ctl_caves/$RES_CAVE/photo1/entrance.png" 403
 check_file "thumbnail from another database folder" "$WORK/anon.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&d=other&t=ctl_caves&i=$PUB_CAVE&c=photo1" 403
 
+say "pages"
+fetch "$WORK/clist.html" "$WORK/anon.jar" "${TEST_URL}index.php?mod=caves&q=TFPUB" > /dev/null
+grep -q "fnapp=thumb[^\"']*t=ctl_caves[^\"']*i=$PUB_CAVE" "$WORK/clist.html" && ok "caves list: the card thumbnail is asked by record" || fail "caves list: no thumbnail by record"
+! grep -q "misc/fndatabase/ctl_caves" "$WORK/clist.html" && ok "caves list: no data folder path" || fail "caves list: data folder path in the page"
+fetch "$WORK/csheet.html" "$WORK/anon.jar" "${TEST_URL}index.php?mod=caves&op=view&id=$PUB_CAVE" > /dev/null
+grep -q "openkis_file.php?f=" "$WORK/csheet.html" && ok "cave sheet: the photo through openkis_file.php" || fail "cave sheet: no openkis_file.php link"
+! grep -q "misc/fndatabase/ctl_" "$WORK/csheet.html" && ok "cave sheet: no data folder path" || fail "cave sheet: data folder path in the page"
+
 say "survey records of the restricted cave"
 fetch "$WORK/list_anon.html" "$WORK/anon.jar" "${TEST_URL}index.php?mod=survey&q=Survey" > /dev/null
 grep -q "Survey TFPUB" "$WORK/list_anon.html" && ok "anonymous: the public cave's survey is listed" || fail "anonymous: public survey missing from the list"
@@ -159,6 +173,7 @@ foreach (array("ctl_caves" => "code", "ctl_surveys" => "codecave") as \$table =>
 echo "done\n";
 PHP
 site_php "$WORK/cleanup.php" | tail -1
+q "UPDATE fn_sections SET level='$ORIG_LEVEL' WHERE id='survey'"
 echo
 echo "passed: $PASS  failed: $FAIL"
 [ "$FAIL" = 0 ]
