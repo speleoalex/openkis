@@ -158,6 +158,22 @@ dati, non dalle richieste:
 - Export KML 3,4 s: era un miss della cache mappa (valida fino al cambio tabella);
   verificare che in produzione la cache venga scritta (permessi di `misc/_cache`).
 
+## Liguria (2026-11-03, 20:11): fasi 1-3 in produzione
+
+Resoconto `assistance/2026-11-03_prestazioni_schede.md` nella copia locale di www.catastogrotte.net. I file
+con altre modifiche più recenti in git (non in produzione) hanno ricevuto solo la differenza dei commit
+prestazioni. La cache serve anche i frammenti `fnajax=1` (finis 52fa3d4: download offline).
+
+| Schede grotte | prima | primo accesso | dalla cache | frammento |
+| --- | --- | --- | --- | --- |
+| produzione Liguria | 1,4-3,5 s | 0,7-2,3 s | 0,31-0,50 s | 0,24-0,32 s |
+
+HTML di 10 schede identico a prima, dopo aver corretto l'ordine dei rilievi (openkis 10b61ce: gli id erano
+confrontati come testo, 1232 prima di 2; la copia del Piemonte ha ancora il codice precedente). Restano due
+difetti preesistenti, non toccati: il campo "Dati pre importazione" mostra un numero e `{_` al posto della prima
+graffa del JSON (motore dei template), e il titolo di una grotta riservata compare a un anonimo nel `<title>` e
+in `og:title` (finis `modules/dbview/header.php` in produzione è ae0af7f, la correzione è 7f0fe8b).
+
 ## Stato finale (2026-11-03, 11:30): fasi 1a, 2a, 2b, 2c e 3 fatte e in produzione
 
 Commit: openkis 0632cc7 + 5061664, finis b8cb447 + f4bd89b (submodule). Deploy su
