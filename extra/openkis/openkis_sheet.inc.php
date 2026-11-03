@@ -173,13 +173,18 @@ function openkis_SheetInnerCards($tablename, $records, $title)
         return "";
     $template = file_get_contents($tplfile);
     $frm = FN_XMDBForm($tablename);
-    // same starting order as the generic inner tables (records read in primary key order)
+    // same starting order as the generic inner tables (records read in primary key order:
+    // numeric for a numeric key, 2 before 1232, as MySQL orders an integer column)
     $pk = $frm->xmltable->primarykey;
     if (!is_array($pk))
     {
         usort($records, function ($a, $b) use ($pk)
         {
-            return strcmp((string) (isset($a[$pk]) ? $a[$pk] : ""), (string) (isset($b[$pk]) ? $b[$pk] : ""));
+            $x = (string) (isset($a[$pk]) ? $a[$pk] : "");
+            $y = (string) (isset($b[$pk]) ? $b[$pk] : "");
+            if (is_numeric($x) && is_numeric($y))
+                return ($x + 0) <=> ($y + 0);
+            return strcmp($x, $y);
         });
     }
     if (!empty($frm->xmltable->fields['date']))
