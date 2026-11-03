@@ -1,33 +1,6 @@
   <!-- if {navigationbar} -->
-    <ul class="nav nav-tabs">
-        <!-- if {viewlist} -->
-        <li class="nav-item">
-            <a class="nav-link" href="{link}">{title}</a>
-        </li>
-        <!-- end if {viewlist} -->
-        <!-- if {viewprev} -->
-        <li class="nav-item">
-            <a class="nav-link" href="{link}"><span aria-hidden="true">←</span> {title}</a>
-        </li>
-        <!-- end if {viewprev} -->
-        <!-- if {viewnext} -->
-        <li class="nav-item">
-            <a class="nav-link" href="{link}">{title} <span aria-hidden="true">→</span></a>
-        </li>
-        <!-- end if {viewnext} -->
-        <!-- foreach {user_options} -->
-        <li class="nav-item">
-            <!-- if {active} -->
-            <a class="nav-link active" href="{link}">{title}</a>
-            <!-- end if {active} -->
-            <!-- if not {active} -->
-            <a class="nav-link" href="{link}">{title}</a>
-            <!-- end if not {active} -->
-
-        </li>
-        <!-- end foreach {user_options} -->
-    </ul>
-    <!-- end if {navigationbar} -->
+  {toolbar_html}
+  <!-- end if {navigationbar} -->
 
 <form id="frmedit" class="okis-form"
       onchange="set_changed();" 

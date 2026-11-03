@@ -1004,6 +1004,14 @@ label,
     border-bottom: 2px solid var(--gc-brown);
 }
 
+/* record toolbar: narrower tabs so the uppercase labels stay on one row */
+@media (min-width: 768px) {
+    .dbview-toolbar .nav-link {
+        padding-left: .6rem;
+        padding-right: .6rem;
+    }
+}
+
 /* pagination and dropdowns */
 .page-link {
     color: var(--gc-brown);
