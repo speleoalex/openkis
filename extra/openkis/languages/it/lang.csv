@@ -195,6 +195,8 @@
 "data holder","detentore dei dati"
 "Who keeps the full series: a caving club, a university, an agency.","Chi conserva la serie completa: un gruppo speleologico, un'università, un ente."
 "Source of the data, at least author(s) and year; or the unpublished notes it comes from.","Fonte dei dati, almeno autore/i e anno; oppure gli appunti inediti da cui provengono."
+"bibliography sheets","schede bibliografiche"
+"The publications of the section Bibliography the data come from: the sheet of each publication lists this measurement. When the field bibliography is empty, the UCC export takes the citation from these sheets.","Le pubblicazioni della sezione Bibliografia da cui vengono i dati: la scheda di ogni pubblicazione elenca questa misura. Se il campo bibliografia è vuoto, l'esportazione UCC prende la citazione da queste schede."
 "data file","file dei dati"
 "The readings of the data logger or the report. To upload several files, put them in a compressed archive (zip).","Le letture del data logger o la relazione. Per caricare più file creare un archivio compresso (zip)."
 "in the UCC national database","nella banca dati nazionale UCC"

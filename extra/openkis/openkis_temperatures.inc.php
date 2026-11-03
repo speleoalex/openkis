@@ -421,14 +421,21 @@ function openkis_TemperatureClass($value)
  * @param bool $links with a link to the record (false in the popup, which
  *                    opens the records in the "r" window)
  * @param bool $head with the column titles (the list card of the cave sheet)
+ * @param array|null $caves with a column of the cave (the list card of the
+ *                          bibliography sheet): the caves by code (id, code, name)
  * @return string html
  */
-function openkis_TemperaturesTable($records, $links = true, $head = false)
+function openkis_TemperaturesTable($records, $links = true, $head = false, $caves = null)
 {
     $html = "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
     if ($head)
     {
-        $html .= "<thead><tr><th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("date")) . "</th><th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("type")) . "</th>";
+        $html .= "<thead><tr><th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("date")) . "</th>";
+        if (is_array($caves))
+        {
+            $html .= "<th>" . openkis_SheetUcfirst(FN_Translate("cave")) . "</th>";
+        }
+        $html .= "<th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("type")) . "</th>";
         $html .= "<th>" . openkis_SheetUcfirst(FN_Translate("measured medium")) . "</th><th>" . openkis_SheetUcfirst(FN_Translate("measurement point")) . "</th>";
         $html .= "<th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("temperature")) . "</th>" . ($links ? "<th></th>" : "") . "</tr></thead>";
     }
@@ -444,7 +451,19 @@ function openkis_TemperaturesTable($records, $links = true, $head = false)
         {
             $reading = FN_Translate("mean") . " " . $reading;
         }
-        $html .= "<tr><td class=\"text-nowrap\">$date</td><td class=\"text-nowrap\">$type</td><td>$medium</td>";
+        $html .= "<tr><td class=\"text-nowrap\">$date</td>";
+        if (is_array($caves))
+        {
+            $code = trim(strval($record['cave']));
+            $cave = "";
+            if ($code !== "" && isset($caves[$code]))
+            {
+                $cave_url = FN_RewriteLink("index.php?mod=caves&op=view&id={$caves[$code]['id']}");
+                $cave = "<span class=\"text-nowrap\">" . htmlspecialchars($caves[$code]['code']) . "</span> <a href=\"$cave_url\">" . htmlspecialchars($caves[$code]['name']) . "</a>";
+            }
+            $html .= "<td>$cave</td>";
+        }
+        $html .= "<td class=\"text-nowrap\">$type</td><td>$medium</td>";
         $html .= "<td>" . htmlspecialchars(strval($record['position'])) . "</td><td class=\"text-nowrap\"><b>$reading</b></td>";
         if ($links)
         {
@@ -496,6 +515,105 @@ function openkis_TemperaturesCaveCard($code, $exclude_id = 0)
 }
 
 /**
+ * Card listing the temperature measurements taken from a publication (field
+ * bibliography_ids), for the bibliography sheet: one row per measurement with
+ * its cave, sorted by cave and date. A measurement of a cave hidden to the
+ * user is left out, as on the map.
+ *
+ * @param string $id id of the bibliography record
+ * @return string html, empty when no measurement visible to the user cites it
+ */
+function openkis_TemperaturesBibliographyCard($id)
+{
+    global $_FN;
+    $id = trim(strval($id));
+    if ($id === "" || !file_exists("sections/temperatures") || !FN_UserCanViewSection("temperatures"))
+        return "";
+    // installs whose table definition predates the field
+    $table = FN_XMDBTable("ctl_temperatures");
+    if (!is_object($table) || !isset($table->fields['bibliography_ids']))
+        return "";
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    openkis_UpdateTemperatures();
+    $config = FN_LoadConfig("modules/dbview/config.php", "temperatures");
+    $dbview = new FNDBVIEW($config);
+    $q = addslashes($id);
+    $params = array();
+    $params['fields'] = "id,name,type,medium,cave,position,temperature,t_mean,year,month,day,hour,start_date,end_date,sort_date";
+    $params['appendquery'] = "(bibliography_ids LIKE '$q' OR bibliography_ids LIKE '$q,%' OR bibliography_ids LIKE '%,$q,%' OR bibliography_ids LIKE '%,$q')";
+    $records = $dbview->GetResults($config, $params);
+    if (!is_array($records) || count($records) == 0)
+        return "";
+    $codes = array();
+    foreach ($records as $record)
+    {
+        $codes[] = trim(strval($record['cave']));
+    }
+    $caves = array();
+    foreach (openkis_SheetRecordsByCode("caves", $codes, "id,code,name") as $cave)
+    {
+        $caves[trim($cave['code'])] = $cave;
+    }
+    $records = array_values(array_filter($records, function ($record) use ($caves) {
+        $code = trim(strval($record['cave']));
+        return $code === "" || isset($caves[$code]);
+    }));
+    if (count($records) == 0)
+        return "";
+    usort($records, function ($a, $b) {
+        $by_cave = strnatcmp(trim(strval($a['cave'])), trim(strval($b['cave'])));
+        return $by_cave != 0 ? $by_cave : strcmp(strval($a['sort_date']), strval($b['sort_date']));
+    });
+    return openkis_SheetCard(FN_Translate("temperatures"), "<div class=\"card-body p-0\">" . openkis_TemperaturesTable($records, true, true, $caves) . "</div>",
+        array("count" => count($records), "id" => "card_temperatures"));
+}
+
+/**
+ * Citations of bibliography records ("AUTHORS, year. Title. Magazine, issue:
+ * pages"), read once, for the UCC export of the records whose field
+ * bibliography is empty but that link the sheets of their sources.
+ * Only the records visible to the user are read.
+ *
+ * @param array $ids ids of ctl_bibliography
+ * @return array id => citation
+ */
+function openkis_TemperaturesBibliographyCitations($ids)
+{
+    global $_FN;
+    $ids = array_unique(array_filter(array_map("trim", $ids), "strlen"));
+    if (!count($ids) || !file_exists("sections/bibliography") || !FN_UserCanViewSection("bibliography"))
+        return array();
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    $config = FN_LoadConfig("modules/dbview/config.php", "bibliography");
+    $dbview = new FNDBVIEW($config);
+    $in = array();
+    foreach ($ids as $id)
+    {
+        $in[] = "'" . addslashes($id) . "'";
+    }
+    $rows = $dbview->GetResults($config, array("fields" => "id,authors,year,title,magazine,number,pages", "appendquery" => "id IN (" . implode(",", $in) . ")"));
+    $citations = array();
+    foreach (is_array($rows) ? $rows : array() as $row)
+    {
+        $clean = function ($field) use ($row) {
+            return trim(preg_replace('/\s+/', " ", strip_tags(isset($row[$field]) ? strval($row[$field]) : "")), " ,;");
+        };
+        $citation = implode(", ", array_filter(array($clean("authors"), $clean("year")), "strlen"));
+        foreach (array($clean("title"), implode(", ", array_filter(array($clean("magazine"), $clean("number")), "strlen"))) as $part)
+        {
+            // the dot of an abbreviation ("ROSSI M.") ends the part too
+            if ($part !== "")
+                $citation = ($citation !== "" ? rtrim($citation, ".") . ". " : "") . $part;
+        }
+        $citation = rtrim($citation, ".");
+        if ($clean("pages") !== "")
+            $citation .= ": " . $clean("pages");
+        $citations[strval($row['id'])] = $citation;
+    }
+    return $citations;
+}
+
+/**
  * Links to the exports in the layout of the UCC project sheets (one CSV per
  * sheet: spot measurements, monitorings; both in one spreadsheet).
  *
@@ -544,6 +662,25 @@ function openkis_TemperaturesUccRows($type, $items)
         $value = trim(strval($value));
         return ($value === "" || substr($value, 0, 10) === "0000-00-00") ? "" : date("d/m/Y", strtotime($value));
     };
+    // citation from the bibliography sheets when the field bibliography is empty
+    $sheet_ids = array();
+    foreach ($items as $item)
+    {
+        if (trim(strval($item['record']['bibliography'])) === "" && !empty($item['record']['bibliography_ids']))
+            $sheet_ids = array_merge($sheet_ids, explode(",", $item['record']['bibliography_ids']));
+    }
+    $citations = openkis_TemperaturesBibliographyCitations($sheet_ids);
+    $bibliography = function ($r) use ($citations) {
+        if (trim(strval($r['bibliography'])) !== "" || empty($r['bibliography_ids']))
+            return $r['bibliography'];
+        $list = array();
+        foreach (explode(",", $r['bibliography_ids']) as $id)
+        {
+            if (isset($citations[trim($id)]))
+                $list[] = $citations[trim($id)];
+        }
+        return implode("; ", $list);
+    };
     if ($type == "monitoring")
     {
         $rows[] = array("nome grotta", "num. Catasto", "Long. E (gg.ddddd)", "Lat. N (gg.ddddd)", "area carsica", "comune", "quota ingresso [m s.l.m.]", "posizione", "quota misura [m s.l.m]", "distanza spaziale ingresso [m]", "numero ingressi", "ventilazione", "neve/ghiaccio", "idrologia", "strumentazione", "accuratezza [°C]", "risoluzione [°C]", "inizio misurazione", "fine misurazione", "intervallo acquisizione [min]", "T media [°C]", "T massima [°C]", "T minima [°C]", "T moda [°C]", "T mediana [°C]", "deviazione standard", "detentore dati", "bibliografia", "note", "compilatore");
@@ -577,7 +714,7 @@ function openkis_TemperaturesUccRows($type, $items)
                 $r['instrument'], $number($r['accuracy']), $number($r['resolution']),
                 $date($r['start_date']), ($date($r['end_date']) !== "" ? $date($r['end_date']) : ($date($r['start_date']) !== "" ? "in atto" : "")), $number($r['acq_interval']),
                 $number($r['t_mean']), $number($r['t_max']), $number($r['t_min']), $number($r['t_mode']), $number($r['t_median']), $number($r['t_stddev']),
-                $r['data_holder'], $r['bibliography'], $notes, $r['username']));
+                $r['data_holder'], $bibliography($r), $notes, $r['username']));
         }
         else
         {
@@ -585,7 +722,7 @@ function openkis_TemperaturesUccRows($type, $items)
                 $number($r['temperature']), $r['position'], $number($r['measure_elevation']), $number($r['entrance_distance']), "",
                 $option("ventilation", $r['ventilation']), $option("snow_ice_spot", $r['snow_ice']), $option("water", $r['water']),
                 $r['instrument'], intval($r['day']) > 0 ? intval($r['day']) : "", intval($r['month']) > 0 ? intval($r['month']) : "", intval($r['year']) > 0 ? intval($r['year']) : "", $r['hour'],
-                $r['bibliography'], $notes, $r['username']));
+                $bibliography($r), $notes, $r['username']));
         }
     }
     return $rows;

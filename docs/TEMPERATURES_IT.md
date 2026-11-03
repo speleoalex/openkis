@@ -72,6 +72,7 @@ un sito non a catasto o per un punto lontano dall'ingresso.
 | | `t_mean`, `t_min`, `t_max`, `t_median`, `t_mode`, `t_stddev` | T media, minima, massima, mediana, moda, deviazione standard | °C |
 | | `data_holder` | detentore dati | |
 | | `bibliography` | bibliografia | |
+| | `bibliography_ids` | (bibliografia) | Schede della sezione Bibliografia da cui vengono i dati (id separati da virgola); la loro citazione è esportata quando `bibliography` è vuoto |
 | | `file` | | Letture o relazione (zip per più file) |
 | | `ucc` | | Spuntato quando il record è nel foglio nazionale |
 | | `notes` | note | |
@@ -80,6 +81,12 @@ un sito non a catasto o per un punto lontano dall'ingresso.
 
 La colonna *numero ingressi* dei fogli resta vuota nell'esportazione (il catasto non ha
 questo campo): compilarla a mano quando è nota.
+
+Il campo `bibliography_ids` collega il record alle schede delle sue fonti nella sezione
+*Bibliografia*: la scheda della misura le mostra come link e la scheda di una pubblicazione
+elenca le misure tratte da essa nel riquadro *Temperature* (con la grotta di ciascuna; le
+misure di grotte nascoste all'utente sono escluse). Il testo di `bibliography` resta la
+citazione dell'esportazione UCC.
 
 ## Mappa
 

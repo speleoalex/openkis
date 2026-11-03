@@ -8,8 +8,10 @@
  *   for each of them (survey, updated survey, updated data);
  * - the artificial cavities (codeartificials);
  * - the species (fauna), linked to their sheet when it exists;
- * - where the section speleopaleo exists, the caves with fossils.
- * Caves, cavities and species hidden to the user are left out.
+ * - where the section speleopaleo exists, the caves with fossils;
+ * - the temperature measurements taken from the publication (field
+ *   bibliography_ids of the section temperatures).
+ * Caves, cavities, species and measurements hidden to the user are left out.
  */
 global $_FN;
 require_once "extra/openkis/openkis_sheet.inc.php";
@@ -145,3 +147,9 @@ if (file_exists("sections/speleopaleo") && !empty($row['fossils']))
     }
 }
 //---- caves with fossils ------------------------------------------------------<
+//---- temperature measurements taken from the publication -------------------->
+if (function_exists("openkis_TemperaturesBibliographyCard") && !empty($row['id']))
+{
+    echo openkis_TemperaturesBibliographyCard($row['id']);
+}
+//---- temperature measurements ------------------------------------------------<

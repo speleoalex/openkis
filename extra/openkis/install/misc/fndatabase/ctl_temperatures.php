@@ -304,6 +304,16 @@
         <frm_cols>80</frm_cols>
     </field>
     <field>
+        <name>bibliography_ids</name>
+        <frm_i18n>bibliography sheets</frm_i18n>
+        <frm_help_i18n>The publications of the section Bibliography the data come from: the sheet of each publication lists this measurement. When the field bibliography is empty, the UCC export takes the citation from these sheets.</frm_help_i18n>
+        <type>string</type>
+        <frm_type>multicave</frm_type>
+        <foreignkey>ctl_bibliography</foreignkey>
+        <fk_link_field>id</fk_link_field>
+        <fk_show_field>year,authors,title</fk_show_field>
+    </field>
+    <field>
         <name>file</name>
         <frm_i18n>data file</frm_i18n>
         <frm_help_i18n>The readings of the data logger or the report. To upload several files, put them in a compressed archive (zip).</frm_help_i18n>

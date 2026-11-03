@@ -73,6 +73,7 @@ the register or for a point far from the entrance.
 | | `t_mean`, `t_min`, `t_max`, `t_median`, `t_mode`, `t_stddev` | T media, minima, massima, mediana, moda, deviazione standard | °C |
 | | `data_holder` | detentore dati | |
 | | `bibliography` | bibliografia | |
+| | `bibliography_ids` | (bibliografia) | Sheets of the section Bibliography the data come from (ids, comma separated); their citation is exported when `bibliography` is empty |
 | | `file` | | Readings or report (zip for several files) |
 | | `ucc` | | Ticked when the record is in the national sheet |
 | | `notes` | note | |
@@ -81,6 +82,12 @@ the register or for a point far from the entrance.
 
 The column *numero ingressi* of the sheets is left empty in the export (the register has
 no such field): fill it in by hand when known.
+
+The field `bibliography_ids` links the record to the sheets of its sources in the section
+*Bibliography*: the sheet of the measurement shows them as links, and the sheet of a
+publication lists the measurements taken from it in the card *Temperatures* (with the cave
+of each one; measurements of caves hidden to the user are left out). The text of
+`bibliography` stays the citation of the UCC export.
 
 ## Map
 
