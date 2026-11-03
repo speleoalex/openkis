@@ -16,6 +16,7 @@
  *  map page, css, js, fonts, images        kept copy at once, refreshed in the background
  *  map layers (kml) and map data           network first, kept copy offline
  *  record images (thumbnails, files)       kept copy at once, refreshed in the background
+ *                                          (direct misc/fndatabase files: only for a public page)
  *  map tiles                               kept copy, else network (kept, up to a limit)
  *  css, scripts, fonts of public CDNs      kept copy at once, refreshed in the background
  */
@@ -97,6 +98,13 @@ self.addEventListener('fetch', function (event) {
         }
         return;
     }
+    if (path.indexOf('misc/fndatabase/') === 0) {
+        // record images served directly by the web server (sites without openkis_file.php)
+        if (req.destination === 'image') {
+            event.respondWith(media(event, true));
+        }
+        return;
+    }
     if (path === 'bs_map.htm') {
         // the map reads its parameters from the address: one copy for every view
         event.respondWith(staticAsset(event, OKIS.key(SCOPE + 'bs_map.htm')));
@@ -132,6 +140,22 @@ function extend(event, promise) {
     return promise;
 }
 var putCount = 0;
+// X-Finis-Visitor of the page shown by each client (window or frame), for the record images
+// served directly by the web server: they carry no header, they are kept only for a public
+// page. Lost when the worker restarts: then they are not kept (the safe side).
+var clientVisitor = {};
+var clientVisitorCount = 0;
+function rememberClient(event, resp) {
+    var id = event.resultingClientId || event.clientId;
+    if (!id) {
+        return;
+    }
+    if (++clientVisitorCount > 300) {
+        clientVisitor = {};
+        clientVisitorCount = 0;
+    }
+    clientVisitor[id] = resp.headers.get('X-Finis-Visitor') || 'private';
+}
 /** stores an answer, and now and then trims the cache to its limit */
 function keep(cacheName, key, resp) {
     return caches.open(cacheName).then(function (c) {
@@ -258,6 +282,7 @@ function page(event) {
     var key = OKIS.key(req.url);
     var isFragment = OKIS.isFragment(req.url);
     var network = fetch(req).then(function (resp) {
+        rememberClient(event, resp);
         if (OKIS.isPublic(resp)) {
             extend(event, keep(C.visited, key, resp.clone()));
         }
@@ -345,12 +370,13 @@ function data(event) {
 }
 
 //---- record images -----------------------------------------------------------------
-function media(event) {
+function media(event, direct) {
     var req = event.request;
     var key = OKIS.key(req.url);
     return lookup([C.images, C.media], key).then(function (cached) {
         var network = fetch(req).then(function (resp) {
-            if (OKIS.isPublic(resp)) {
+            var fromPublicPage = direct && clientVisitor[event.clientId] === 'public' && resp.status === 200 && resp.type === 'basic';
+            if (OKIS.isPublic(resp) || fromPublicPage) {
                 extend(event, keep(C.media, key, resp.clone()));
             }
             return resp;
