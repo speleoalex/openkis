@@ -129,3 +129,64 @@ function openkis_ListViewSwitch($section, $default = "list")
 </script>
 HTML;
 }
+
+/**
+ * Settings of the shared list template of the dbview sections
+ * (extra/openkis/templates/list.tp.html, the layout of the caves list) for a
+ * section, as $_FN values that the template reads:
+ *  - openkis_list_map: "1" for the sections whose records are drawn on the map
+ *    of the results (artificial and glacial cavities), "" otherwise;
+ *  - openkis_list_class: classes of #pageresults, "openkis-view-list" for the
+ *    sections shown as a list by default (tracings, temperatures) and
+ *    "openkis-list-nophotos" for the sections without a photo field;
+ *  - openkis_list_placeholder: text of the search box.
+ * Called for the section of the request by openkis_list_settings.php.
+ *
+ * @param string $mod section id
+ * @return void
+ */
+function openkis_ListSettings($mod)
+{
+    global $_FN;
+    $_FN['openkis_list_map'] = "";
+    $_FN['openkis_list_class'] = "";
+    $_FN['openkis_list_placeholder'] = FN_Translate("search records");
+    if ($mod == "" || !file_exists("sections/$mod") || !function_exists("openkis_IsRecordSection") || !openkis_IsRecordSection(FN_GetSectionValues($mod)))
+        return;
+    $map = in_array($mod, array("artificials", "glacial"));
+    $classes = array();
+    if (in_array($mod, array("tracings", "temperatures")))
+        $classes[] = "openkis-view-list";
+    $config = FN_LoadConfig("modules/dbview/config.php", $mod);
+    if (empty($config['image_titlefield']))
+        $classes[] = "openkis-list-nophotos";
+    $_FN['openkis_list_map'] = $map ? "1" : "";
+    $_FN['openkis_list_class'] = implode(" ", $classes);
+    if ($map)
+        $_FN['openkis_list_placeholder'] = FN_Translate("search caves");
+}
+
+/**
+ * Collapsible legend of the map icons of a section (extra/openkis/icons/<dir>),
+ * printed by the grid_header.php of the sections into {html_header} of the list,
+ * right below the map.
+ *
+ * @param string $dir folder of the icons in extra/openkis/icons
+ * @return string html, empty without icons
+ */
+function openkis_ListLegend($dir)
+{
+    global $_FN;
+    $icons = glob("extra/openkis/icons/" . preg_replace('/[^A-Za-z0-9_]/', '', $dir) . "/*.png");
+    if (!is_array($icons) || count($icons) == 0)
+        return "";
+    $html = "<details class=\"openkis-legend small mb-2\">";
+    $html .= "<summary class=\"text-muted\">" . FN_Translate("legend") . "</summary>";
+    $html .= "<div class=\"row no-gutters mt-1\">";
+    foreach ($icons as $icon)
+    {
+        $name = FN_Translate(str_replace("_", " ", str_replace(".png", "", basename($icon))));
+        $html .= "<div class=\"col-4 col-sm-3 col-md-2 mb-1\"><img style=\"height:24px;border:1px solid #ccc;border-radius:6px;margin-right:4px\" src=\"{$_FN['siteurl']}$icon\" alt=\"\" /> " . htmlspecialchars($name) . "</div>";
+    }
+    return $html . "</div></details>";
+}

@@ -314,6 +314,8 @@ $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] =
 require_once(__DIR__ . "/openkis/openkis_tracings.inc.php");
 // grid/list switch of the results of the sections without their own list template
 require_once(__DIR__ . "/openkis/openkis_listview.inc.php");
+// the dbview sections without their own list template use the layout of the caves list
+FN_IncludeScript("extra/openkis/openkis_list_settings.php");
 // underground temperatures (UCC project sheets): computed fields, save callbacks, map points, exports
 require_once(__DIR__ . "/openkis/openkis_temperatures.inc.php");
 // Grottocenter: Karstlink export and links to the Grottocenter entrances
