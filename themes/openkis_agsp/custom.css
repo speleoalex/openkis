@@ -3,8 +3,10 @@
    Made from openkis_fslo: layout of openkis_grottocenter (fixed white left
    drawer, top app bar, white "paper" cards, footer with columns) in the
    blue of the official site of the catasto (catastogrotte-piemonte.net,
-   Bootstrap primary #0d6efd). The charcoal and red version is kept as
-   openkis_default.
+   Bootstrap primary #0d6efd) for the app bar, the menu, titles and links,
+   with the dark footer and the dark secondary buttons of the first version
+   and an accent colour for the main buttons. The charcoal and red version
+   is kept as openkis_default.
    ===================================================================== */
 
 :root {
@@ -16,6 +18,12 @@
     --gc-orange-dark: #0a58ca;
     --gc-orange-light: #9ec5fe;
     --gc-bg: #f8f9fa;
+    /* footer and secondary buttons: the charcoal of the AGSP lettering */
+    --gc-dark: #262626;
+    --gc-dark-deep: #141414;
+    /* main buttons, current page, "contribute": a burnt orange, apart from the blue of the menu */
+    --gc-accent: #c2410c;
+    --gc-accent-dark: #9a3412;
     --gc-paper: #ffffff;
     --gc-text: rgba(0, 0, 0, .95);
     --gc-text-2: rgba(0, 0, 0, .75);
@@ -217,8 +225,8 @@ img {
 }
 
 .gc-btn-outline-orange {
-    color: var(--gc-orange);
-    border: 1px solid rgba(13, 110, 253, .5);
+    color: var(--gc-accent);
+    border: 1px solid rgba(194, 65, 12, .5);
     background: transparent;
     text-transform: uppercase;
     font-weight: 500;
@@ -230,9 +238,9 @@ img {
 
 .gc-btn-outline-orange:hover,
 .gc-btn-outline-orange:focus {
-    background: rgba(13, 110, 253, .08);
-    border-color: var(--gc-orange);
-    color: var(--gc-orange);
+    background: rgba(194, 65, 12, .08);
+    border-color: var(--gc-accent);
+    color: var(--gc-accent);
     text-decoration: none;
 }
 
@@ -242,7 +250,7 @@ img {
     height: 20px;
     line-height: 19px;
     border-radius: 50%;
-    background: var(--gc-orange);
+    background: var(--gc-accent);
     color: #fff;
     text-align: center;
     font-weight: 700;
@@ -640,7 +648,7 @@ body.gc-collapsed .gc-plus {
    Footer
    --------------------------------------------------------------------- */
 .gc-footer {
-    background: var(--gc-brown);
+    background: var(--gc-dark);
     color: rgba(255, 255, 255, .7);
     margin-top: 24px;
 }
@@ -704,7 +712,7 @@ body.gc-collapsed .gc-plus {
 }
 
 .gc-footer-bottom {
-    background: var(--gc-brown-dark);
+    background: var(--gc-dark-deep);
 }
 
 .gc-footer-bottom .gc-footer-inner {
@@ -779,41 +787,41 @@ a:hover {
 .gc-body .btn-primary:not(:disabled):not(.disabled):active,
 .gc-body .btn-primary:not(:disabled):not(.disabled).active,
 .gc-body .show > .btn-primary.dropdown-toggle {
-    background-color: var(--gc-orange);
+    background-color: var(--gc-accent);
     background-image: none;
-    border-color: var(--gc-orange);
+    border-color: var(--gc-accent);
     color: #fff;
     box-shadow: var(--gc-shadow-1);
 }
 
 .gc-body .btn-primary:hover,
 .gc-body .btn-primary:focus {
-    background-color: var(--gc-orange-dark);
+    background-color: var(--gc-accent-dark);
     background-image: none;
-    border-color: var(--gc-orange-dark);
+    border-color: var(--gc-accent-dark);
     color: #fff;
 }
 
 .btn-primary:focus,
 .btn-primary.focus {
-    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .35);
+    box-shadow: 0 0 0 .2rem rgba(194, 65, 12, .35);
 }
 
 .gc-body .btn-secondary,
 .gc-body .btn-secondary:not(:disabled):not(.disabled):active,
 .gc-body .show > .btn-secondary.dropdown-toggle {
-    background-color: var(--gc-brown);
+    background-color: var(--gc-dark);
     background-image: none;
-    border-color: var(--gc-brown);
+    border-color: var(--gc-dark);
     color: #fff;
     box-shadow: var(--gc-shadow-1);
 }
 
 .gc-body .btn-secondary:hover,
 .gc-body .btn-secondary:focus {
-    background-color: var(--gc-brown-dark);
+    background-color: var(--gc-dark-deep);
     background-image: none;
-    border-color: var(--gc-brown-dark);
+    border-color: var(--gc-dark-deep);
     color: #fff;
 }
 
@@ -833,23 +841,23 @@ a:hover {
 }
 
 .btn-outline-primary {
-    color: var(--gc-orange);
-    border-color: var(--gc-orange);
+    color: var(--gc-accent);
+    border-color: var(--gc-accent);
 }
 
 .btn-outline-primary:hover {
-    background-color: var(--gc-orange);
-    border-color: var(--gc-orange);
+    background-color: var(--gc-accent);
+    border-color: var(--gc-accent);
 }
 
 .btn-outline-secondary {
-    color: var(--gc-brown);
-    border-color: rgba(10, 88, 202, .5);
+    color: var(--gc-dark);
+    border-color: rgba(38, 38, 38, .5);
 }
 
 .btn-outline-secondary:hover {
-    background-color: var(--gc-brown);
-    border-color: var(--gc-brown);
+    background-color: var(--gc-dark);
+    border-color: var(--gc-dark);
     color: #fff;
 }
 
@@ -933,9 +941,9 @@ a:hover {
 .table thead th,
 .table-dark thead th,
 .thead-dark th {
-    background-color: var(--gc-brown);
+    background-color: var(--gc-dark);
     color: #fff;
-    border-color: var(--gc-brown-light);
+    border-color: var(--gc-dark);
     font-weight: 500;
     vertical-align: middle;
 }
@@ -1019,13 +1027,14 @@ label,
 }
 
 .page-item.active .page-link {
-    background-color: var(--gc-orange);
-    border-color: var(--gc-orange);
+    background-color: var(--gc-accent);
+    border-color: var(--gc-accent);
+    color: #fff;
 }
 
 .dropdown-item.active,
 .dropdown-item:active {
-    background-color: var(--gc-orange);
+    background-color: var(--gc-accent);
 }
 
 .breadcrumb {
@@ -1038,7 +1047,7 @@ label,
 }
 
 .progress-bar {
-    background-color: var(--gc-orange);
+    background-color: var(--gc-accent);
 }
 
 .modal-header {
@@ -1338,7 +1347,7 @@ details > summary {
 }
 
 .gc-body .badge-dark.openkis-sheet-code {
-    background-color: var(--gc-brown);
+    background-color: var(--gc-dark);
 }
 
 /* ---------------------------------------------------------------------
