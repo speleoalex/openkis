@@ -40,6 +40,7 @@ function openkis_FileTables()
         "ctl_artificials" => array("artificials", array(), ""),
         "ctl_glacial" => array("glacial", array(), ""),
         "ctl_springs" => array("springs", array(), ""),
+        "ctl_uncatalogued" => array("uncatalogued", array(), ""),
         "ctl_areas" => array("areas", array(), ""),
         "ctl_glaciers" => array("glaciers", array(), ""),
         "ctl_cavesystems" => array("cavesystem", array(), ""),
