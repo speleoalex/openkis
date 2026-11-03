@@ -2,19 +2,20 @@
    openkis_agsp theme (Catasto Speleologico Piemontese e Valdostano, AGSP)
    Made from openkis_fslo: layout of openkis_grottocenter (fixed white left
    drawer, top app bar, white "paper" cards, footer with columns) in the
-   colours of the catasto logo: charcoal of the AGSP lettering, red of the
-   cave surveys.
+   blue of the official site of the catasto (catastogrotte-piemonte.net,
+   Bootstrap primary #0d6efd). The charcoal and red version is kept as
+   openkis_default.
    ===================================================================== */
 
 :root {
-    --gc-brown: #262626;
-    --gc-brown-dark: #141414;
-    --gc-brown-light: #484848;
-    --gc-beige: #e6e6e6;
-    --gc-orange: #c62828;
-    --gc-orange-dark: #a31d1d;
-    --gc-orange-light: #f05252;
-    --gc-bg: #f5f5f5;
+    --gc-brown: #0d6efd;
+    --gc-brown-dark: #0a58ca;
+    --gc-brown-light: #3d8bfd;
+    --gc-beige: #e7f1ff;
+    --gc-orange: #0d6efd;
+    --gc-orange-dark: #0a58ca;
+    --gc-orange-light: #9ec5fe;
+    --gc-bg: #f8f9fa;
     --gc-paper: #ffffff;
     --gc-text: rgba(0, 0, 0, .95);
     --gc-text-2: rgba(0, 0, 0, .75);
@@ -167,7 +168,7 @@ img {
 }
 
 .gc-navitem.gc-active > .gc-navlink {
-    background: rgba(198, 40, 40, .12);
+    background: rgba(13, 110, 253, .12);
     color: var(--gc-brown);
     font-weight: 500;
 }
@@ -217,7 +218,7 @@ img {
 
 .gc-btn-outline-orange {
     color: var(--gc-orange);
-    border: 1px solid rgba(198, 40, 40, .5);
+    border: 1px solid rgba(13, 110, 253, .5);
     background: transparent;
     text-transform: uppercase;
     font-weight: 500;
@@ -229,7 +230,7 @@ img {
 
 .gc-btn-outline-orange:hover,
 .gc-btn-outline-orange:focus {
-    background: rgba(198, 40, 40, .08);
+    background: rgba(13, 110, 253, .08);
     border-color: var(--gc-orange);
     color: var(--gc-orange);
     text-decoration: none;
@@ -795,7 +796,7 @@ a:hover {
 
 .btn-primary:focus,
 .btn-primary.focus {
-    box-shadow: 0 0 0 .2rem rgba(198, 40, 40, .35);
+    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .35);
 }
 
 .gc-body .btn-secondary,
@@ -843,7 +844,7 @@ a:hover {
 
 .btn-outline-secondary {
     color: var(--gc-brown);
-    border-color: rgba(38, 38, 38, .5);
+    border-color: rgba(10, 88, 202, .5);
 }
 
 .btn-outline-secondary:hover {
@@ -968,7 +969,7 @@ a:hover {
 .form-control:focus,
 .custom-select:focus {
     border-color: var(--gc-orange);
-    box-shadow: 0 0 0 .2rem rgba(198, 40, 40, .25);
+    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25);
 }
 
 .form-control {
@@ -1333,7 +1334,7 @@ details > summary {
 }
 
 .gc-body .openkis-home-total {
-    background: #fdecec;
+    background: #e7f1ff;
 }
 
 .gc-body .badge-dark.openkis-sheet-code {
@@ -1373,7 +1374,7 @@ details > summary {
     align-items: center;
     gap: 6px;
     padding: 4px 6px 4px 12px;
-    border: 1px solid rgba(38, 38, 38, .35);
+    border: 1px solid rgba(10, 88, 202, .35);
     border-radius: 16px;
     background: var(--gc-paper);
     color: var(--gc-brown);
@@ -1383,7 +1384,7 @@ details > summary {
 
 .openkis-search-chip:hover,
 .openkis-search-chip:focus {
-    background: #fdecec;
+    background: #e7f1ff;
     color: var(--gc-brown-dark);
     text-decoration: none;
 }
@@ -1492,7 +1493,7 @@ details > summary {
 .okis-form .okis-field select:not([multiple]):not([size]):not(.form-control):not(.custom-select):focus {
     border-color: var(--gc-orange);
     outline: 0;
-    box-shadow: 0 0 0 .2rem rgba(198, 40, 40, .25);
+    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25);
 }
 
 .okis-form .okis-field > .col-form-label {
