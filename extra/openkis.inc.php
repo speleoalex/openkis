@@ -22,6 +22,12 @@ FN_IncludeScript("extra/openkis/openkis_defaults.php");
 require_once(__DIR__ . "/openkis/openkis_files.inc.php");
 FN_IncludeScript("extra/openkis/openkis_files_hooks.php");
 
+// Offline use of the site installed as an application (openkis_sw.js, openkis_offline.js,
+// openkis_offline.php, sections/offline): script in the head of the pages, queued so that
+// it runs after the login
+require_once(__DIR__ . "/openkis/openkis_offline.inc.php");
+FN_IncludeScript("extra/openkis/openkis_offline_hooks.php");
+
 /**
  * Map position for a regional customisation: the region's own centre, unless
  * the administrator changed the map defaults (admin section "configopenkis",

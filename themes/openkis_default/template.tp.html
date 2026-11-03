@@ -16,7 +16,7 @@
 
         <link rel="icon" href="favicon.ico">
         <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-        <!-- installable as an app: manifest.json, openkis_sw.js in the site root -->
+        <!-- installable as an app: manifest.json; the offline worker (openkis_sw.js) is registered by openkis_offline.js -->
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-title" content="Catasto Piemonte">
@@ -296,12 +296,5 @@
         <script src="assets/js/vendor/popper.min.js"></script>
         <script src="dist/js/bootstrap.min.js"></script>
         <script src="page.js"></script>
-        <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function () {
-                    navigator.serviceWorker.register('{siteurl}openkis_sw.js').catch(function () {});
-                });
-            }
-        </script>
     </body>
 </html>

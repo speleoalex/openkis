@@ -78,6 +78,26 @@ formations, coordinate types, Grottocenter, licence types, MCP server):
 
 ![Settings menu after login](manual/en/03_menu.png)
 
+### Using the register without network
+
+The site can be **installed as an application** on a phone or a computer (browser menu:
+*Add to Home screen* on Android and iPhone, *Install* on Chrome and Edge) and used where
+there is no coverage:
+
+- the pages already opened with the network stay available offline;
+- the **Offline use** page (in the menu) **downloads** the sheets of whole sections (caves,
+  areas, artificial cavities, bibliography...) and, optionally, their images; the *Update*
+  button downloads only the new or changed sheets;
+- the **search** of that page works without network too: code, name, synonyms,
+  municipality, area. For a sheet that was not downloaded it still shows the main data and
+  the coordinates;
+- the **map** shows the caves and the tiles already seen.
+
+Without network a label at the bottom left says that the page is a copy and how old it is.
+Only **public** content is kept: what a registered user sees in addition (restricted sheets,
+protected coordinates) is never saved on the device. Login, editing and exports need the
+network.
+
 ---
 
 ## 2. The map
@@ -741,6 +761,13 @@ The `custom/example` folder is the template to copy for a new register.
   `misc/fndatabase/` get an `.htaccess` that denies direct requests (Apache); on nginx or
   Caddy deny them in the server configuration. `$_FN['openkis_protected_files'] = false` in
   `extra/openkis_config.local.php` goes back to the direct links.
+- **Offline use**: on by default (*Offline use* page, `openkis_sw.js`,
+  `openkis_offline.php`). In `extra/openkis_config.local.php`: `$_FN['openkis_offline'] = 0`
+  turns it off and removes the service and the copies from the browsers that installed it;
+  `$_FN['openkis_offline_concurrency']` (default 2) limits the parallel requests of a
+  download, keep it low on hostings with few database connections. To be installable the
+  theme needs a `manifest.json` with a name and 192 and 512 pixel icons (see
+  `openkis_liguria`, `openkis_fslo`, `openkis_agsp`).
 - **Backup**: save the MySQL database, the `misc/` folder (table definitions, settings and
   all uploaded files: photos, surveys, attachments) and `extra/openkis_config.local.php`.
 - **Updates**: update the code (`git pull` and `git submodule update`), then run the indexes

@@ -77,6 +77,25 @@ Dopo l'accesso, il menu *Configurazione* raccoglie le tabelle di supporto e gli 
 
 ![Menu Configurazione dopo l'accesso](manual/it/03_menu.png)
 
+### Usare il catasto senza rete
+
+Il sito si può **installare come applicazione** sul telefono o sul computer (menu del
+browser: *Aggiungi a schermata Home* su Android e iPhone, *Installa* su Chrome ed Edge) e
+consultare anche dove non c'è copertura:
+
+- le pagine già aperte con la rete restano disponibili offline;
+- la pagina **Uso offline** (nel menu) **scarica** le schede di intere sezioni (grotte,
+  aree, cavità artificiali, bibliografia...) e, a scelta, le loro immagini; il pulsante
+  *Aggiorna* scarica solo le schede nuove o modificate;
+- la **ricerca** di quella pagina funziona anche senza rete: codice, nome, sinonimi, comune,
+  area. Per una scheda non scaricata mostra comunque i dati principali e le coordinate;
+- la **mappa** mostra le grotte e le tessere già viste.
+
+Senza rete un'etichetta in basso a sinistra indica che si sta guardando una copia e di quando
+è. Si conserva solo il contenuto **pubblico**: quello che un utente registrato vede in più
+(schede riservate, coordinate protette) non viene mai salvato sul dispositivo. Login,
+modifiche ed esportazioni richiedono la rete.
+
 ---
 
 ## 2. La mappa
@@ -760,6 +779,13 @@ La cartella `custom/example` è il modello da copiare per un nuovo catasto.
   ricevono un `.htaccess` che blocca le richieste dirette (Apache); con nginx o Caddy vanno
   bloccate nella configurazione del server. `$_FN['openkis_protected_files'] = false` in
   `extra/openkis_config.local.php` torna ai link diretti.
+- **Uso offline**: è attivo di default (pagina *Uso offline*, `openkis_sw.js`,
+  `openkis_offline.php`). In `extra/openkis_config.local.php`: `$_FN['openkis_offline'] = 0`
+  lo spegne e rimuove il servizio e le copie dai browser che lo avevano installato;
+  `$_FN['openkis_offline_concurrency']` (default 2) limita le richieste parallele di un
+  download, da tenere basso sugli hosting con poche connessioni al database. Per essere
+  installabile il tema deve avere un `manifest.json` con nome e icone da 192 e 512 pixel
+  (vedi `openkis_liguria`, `openkis_fslo`, `openkis_agsp`).
 - **Backup**: salvare il database MySQL, la cartella `misc/` (definizioni delle tabelle,
   impostazioni e tutti i file caricati: foto, rilievi, allegati) e
   `extra/openkis_config.local.php`.

@@ -391,6 +391,29 @@ s=$(fetch "$WORK/r5" "${TEST_URL}openkis_tracings.php?id=$RID")
 if [ "$s" = 200 ] && php -r '$j=json_decode(file_get_contents($argv[1]),true); $f=$j["features"][0]["geometry"]["coordinates"] ?? null; exit(($f && abs($f[1][0]-8.99)<0.00001 && abs($f[1][1]-44.43)<0.00001) ? 0 : 1);' "$WORK/r5"; then ok "openkis_tracings.php: the arrow ends at the free detection coordinates"; else fail "openkis_tracings.php?id=$RID (HTTP $s): $(head -c 300 "$WORK/r5")"; fi
 page "tracings: sheet with the free detection point" "$ANON" "${TEST_URL}index.php?mod=tracings&op=view&id=$RID" "44.43, 8.99"
 
+say "6h. offline use (openkis_offline.php, fnshell/fnajax, X-Finis-Visitor)"
+# what the service worker may keep: only what any anonymous visitor gets
+hdr() { curl -s -o /dev/null -D - --max-time 60 "$@" | tr -d '\r' | grep -i '^X-Finis-Visitor:' | cut -d' ' -f2; }
+check "X-Finis-Visitor: public on a page for an anonymous visitor" test "$(hdr -b "$ANON" "${TEST_URL}index.php?mod=caves")" = public
+check "X-Finis-Visitor: private on a page for a logged user" test "$(hdr -b "$COOKIES" "${TEST_URL}index.php?mod=caves")" = private
+check "X-Finis-Visitor: private on the map layer for a logged user" test "$(hdr -b "$COOKIES" "${TEST_URL}openkis_kml.php?mod=caves")" = private
+check "X-Finis-Visitor: public on the map layer for an anonymous visitor" test "$(hdr -b "$ANON" "${TEST_URL}openkis_kml.php?mod=caves")" = public
+page "theme shell (fnshell=1) with the place of the section" "$ANON" "${TEST_URL}index.php?mod=caves&fnshell=1" "<!--fnsection-->"
+check "theme shell: the login form does not post back to the shell" sh -c "! grep -q 'fnshell=1&amp;fnlogin' '$WORK/page.html'"
+page "sheet fragment (fnajax=1) with the title of the record" "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$DEMO_ID&fnajax=1" "<title>[^<]*$DEMO_CODE"
+page "pages carry the offline script" "$ANON" "${TEST_URL}index.php?mod=caves" "openkis_offline.js?v="
+page "offline page (sections/offline)" "$ANON" "${TEST_URL}index.php?mod=offline" 'id="okis-offline-app"'
+s=$(fetch "$WORK/off_info.json" -b "$ANON" "${TEST_URL}openkis_offline.php?op=info")
+if [ "$s" = 200 ] && php -r '$j=json_decode(file_get_contents($argv[1]),true); $m=array_column($j["sections"]??[],"mod"); exit((!empty($j["version"]) && in_array("caves",$m)) ? 0 : 1);' "$WORK/off_info.json"; then ok "openkis_offline.php?op=info: version and the caves section"; else fail "openkis_offline.php?op=info (HTTP $s): $(head -c 300 "$WORK/off_info.json")"; fi
+# a restricted cave never reaches the public index
+RCID=$(mysql_q "$TEST_DB" -e "SELECT COALESCE(MAX(CAST(id AS UNSIGNED)),0)+1 FROM ctl_caves")
+mysql_q "$TEST_DB" -e "INSERT INTO ctl_caves (id,code,name,groupview,username) VALUES ($RCID,'OFFR$RCID','OFFLINE RESTRICTED CAVE','r_caves','$ADMIN_USER')"
+s=$(fetch "$WORK/off_index.json" -b "$ANON" "${TEST_URL}openkis_offline.php?op=index&mod=caves&nocache=1")
+if [ "$s" = 200 ] && grep -q "\"$DEMO_CODE\"" "$WORK/off_index.json" && ! grep -q "OFFLINE RESTRICTED CAVE" "$WORK/off_index.json" && ! grep -q '"username"' "$WORK/off_index.json"; then ok "openkis_offline.php?op=index: public caves only, no user names"; else fail "openkis_offline.php?op=index (HTTP $s): $(head -c 300 "$WORK/off_index.json")"; fi
+s=$(fetch "$WORK/off_r.html" -b "$ANON" "${TEST_URL}index.php?mod=caves&op=view&id=$RCID&fnajax=1")
+check "restricted cave: its fragment does not show it to an anonymous visitor" sh -c "! grep -q 'OFFLINE RESTRICTED CAVE' '$WORK/off_r.html'"
+mysql_q "$TEST_DB" -e "DELETE FROM ctl_caves WHERE id=$RCID"
+
 say "7. PHP errors logged by the web server during the test"
 if [ -f "$PHP_ERROR_LOG" ]; then
     new=$(tail -n +"$((ERRLOG_START + 1))" "$PHP_ERROR_LOG" | grep -E "PHP (Fatal|Parse|Warning|Deprecated|Notice)" | sed 's/^\[[^]]*\] //' | sort | uniq -c | sort -rn)
