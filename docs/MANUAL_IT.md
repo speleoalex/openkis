@@ -696,8 +696,10 @@ indirizzi.
 
 *Aspetto* mostra l'anteprima dei temi, applica quello scelto e ne modifica le opzioni e il
 CSS. OpenKIS ha il tema base `openkis`, le varianti regionali (`openkis_liguria`,
-`openkis_lombardia`, `openkis_piemonte`, `openkis_umbria`, `openkis_wish`) e
-`openkis_grottocenter`, che riprende l'aspetto di grottocenter.org. Le opzioni di un tema
+`openkis_lombardia`, `openkis_umbria`, `openkis_wish`) e
+`openkis_grottocenter`, che riprende l'aspetto di grottocenter.org; `openkis_fslo` e
+`openkis_agsp` usano la stessa impaginazione con il logo e i colori del catasto lombardo e
+di quello piemontese. Le opzioni di un tema
 vengono copiate nel database al primo uso: le modifiche successive al file `config.php` del
 tema non cambiano un sito già installato, vanno fatte da questa pagina.
 

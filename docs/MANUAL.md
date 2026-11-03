@@ -677,8 +677,10 @@ registration (open, with email confirmation, captcha) and addresses.
 
 *Look and feel* previews the themes, applies the chosen one and edits its options and CSS.
 OpenKIS has the base theme `openkis`, the regional variants (`openkis_liguria`,
-`openkis_lombardia`, `openkis_piemonte`, `openkis_umbria`, `openkis_wish`) and
-`openkis_grottocenter`, which follows the look of grottocenter.org. The options of a theme
+`openkis_lombardia`, `openkis_umbria`, `openkis_wish`) and
+`openkis_grottocenter`, which follows the look of grottocenter.org; `openkis_fslo` and
+`openkis_agsp` use the same layout with the logo and colours of the Lombard and of the
+Piedmontese cadastre. The options of a theme
 are copied into the database the first time it is used: later changes to the theme's
 `config.php` do not change a site already installed, make them from this page.
 

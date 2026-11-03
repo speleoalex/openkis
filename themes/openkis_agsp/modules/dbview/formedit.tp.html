@@ -1,0 +1,80 @@
+  <!-- if {navigationbar} -->
+    <ul class="nav nav-tabs">
+        <!-- if {viewlist} -->
+        <li class="nav-item">
+            <a class="nav-link" href="{link}">{title}</a>
+        </li>
+        <!-- end if {viewlist} -->
+        <!-- if {viewprev} -->
+        <li class="nav-item">
+            <a class="nav-link" href="{link}"><span aria-hidden="true">←</span> {title}</a>
+        </li>
+        <!-- end if {viewprev} -->
+        <!-- if {viewnext} -->
+        <li class="nav-item">
+            <a class="nav-link" href="{link}">{title} <span aria-hidden="true">→</span></a>
+        </li>
+        <!-- end if {viewnext} -->
+        <!-- foreach {user_options} -->
+        <li class="nav-item">
+            <!-- if {active} -->
+            <a class="nav-link active" href="{link}">{title}</a>
+            <!-- end if {active} -->
+            <!-- if not {active} -->
+            <a class="nav-link" href="{link}">{title}</a>
+            <!-- end if not {active} -->
+
+        </li>
+        <!-- end foreach {user_options} -->
+    </ul>
+    <!-- end if {navigationbar} -->
+
+<form id="frmedit" class="okis-form"
+      onchange="set_changed();" 
+      enctype="multipart/form-data" 
+      action="{formaction}" 
+      method="post">
+
+    <!-- contents -->
+<div class="form-group row">
+    <!-- group -->
+    <fieldset class="okis-fieldset"><legend>{groupname}</legend>
+        <!-- end_group -->
+        <!-- item -->
+        <div class="form-group row okis-field">
+            <label class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em class="okis-error"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10">
+                <!-- inputattributes radio:class="form-check-input" style=""  --> <!-- inputattributes:class="form-control"  -->{input}
+                <div class="form-text okis-help"><span class="okis-help-icon" aria-hidden="true">&#x1F4A1;</span><span>{help}</span></div>
+            </div>        
+        </div> 
+        <!-- end_item -->
+
+        <!-- item_type_radio -->
+        <div class="form-group row okis-field">
+            <label class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em class="okis-error"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check okis-check">
+                    <!-- inputattributes:class=""  -->{input}
+                </div>
+                <div class="form-text okis-help"><span class="okis-help-icon" aria-hidden="true">&#x1F4A1;</span><span>{help}</span></div>
+            </div>
+        </div> 
+        <!-- end_item_type_radio -->       
+        <!-- item_type_check -->
+        <div class="form-group row okis-field">
+            <label class="col-sm-2 col-form-label" for="{fieldname}">{title}:<!-- error --><em class="okis-error"><br />{error}</em><!-- end_error --></label>
+            <div class="col-sm-10"><div class="form-check okis-check">
+                    <!-- inputattributes:class="form-check-input"  -->{input}
+                </div>
+                <div class="form-text okis-help"><span class="okis-help-icon" aria-hidden="true">&#x1F4A1;</span><span>{help}</span></div>
+            </div>
+        </div> 
+        <!-- end_item_type_check -->            
+        <!-- endgroup -->
+    </fieldset>
+    <!-- end_endgroup -->
+</div>
+<!-- end_contents -->
+    <input class="btn btn-primary" name="xmetadbsave" type="submit" value="{i18n:Save}" /> 
+    <input class="btn btn-default" id="exitform" type="button" value="{i18n:Cancel}" onclick="window.location = '{urlcancel}'" /> 
+</form>
