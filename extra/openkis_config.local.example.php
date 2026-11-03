@@ -21,6 +21,13 @@ $_FN['xmetadb_mysqlpassword'] = '';
 // Leave empty for a generic installation.
 $_FN['openkis_custom'] = '';
 
+// Cache of the sheets for the visitors who are not logged in, files in
+// misc/_cache/pages/ (defaults in extra/openkis_config.inc.php): section =>
+// seconds of validity, 0 switches it off; the sheets are rebuilt when their
+// tables or the code change.
+// $_FN['dbview_view_cache'] = array('caves' => 86400, 'artificials' => 86400, 'springs' => 86400, 'glacial' => 86400);
+// $_FN['dbview_view_cache'] = 0;
+
 if ($_FN['xmetadb_mysqldatabase'] == "")
 {
     die("insert db config in " . __FILE__);

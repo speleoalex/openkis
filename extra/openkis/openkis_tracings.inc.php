@@ -91,10 +91,11 @@ function openkis_UpdateTracings($forceall = false)
             $free[$prefix] = openkis_TracingFreePosition($tracing, $prefix, $label);
             $lat = $free[$prefix][0];
             $lon = $free[$prefix][1];
-            // FLOAT columns: compare with a tolerance (about 1 m), or every pass
-            // would rewrite the record and mark the table as changed again
+            // FLOAT columns come back with 6 significant digits (45.7673, 8.55287):
+            // compare with that resolution, or every pass would rewrite the
+            // record, mark the table as changed and run again at the next view
             $stored = (floatval($tracing["{$prefix}latitude"]) != 0 && floatval($tracing["{$prefix}longitude"]) != 0);
-            if ($lat === "" ? $stored : (!$stored || abs(floatval($tracing["{$prefix}latitude"]) - floatval($lat)) > 0.00001 || abs(floatval($tracing["{$prefix}longitude"]) - floatval($lon)) > 0.00001))
+            if ($lat === "" ? $stored : (!$stored || abs(floatval($tracing["{$prefix}latitude"]) - floatval($lat)) > 0.0001 || abs(floatval($tracing["{$prefix}longitude"]) - floatval($lon)) > 0.0001))
             {
                 $new["{$prefix}latitude"] = $lat;
                 $new["{$prefix}longitude"] = $lon;
