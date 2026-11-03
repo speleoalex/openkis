@@ -46,7 +46,7 @@ $filelox = FN_GetParam("f", $_GET);
                     }
                 });
                 const ui = new CV2.CaveViewUI(viewer);
-                ui.loadCave('<?php echo $filelox ?>');
+                ui.loadCave(<?php echo json_encode($filelox, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>);
             }
 
             function openFullscreen(elem) {

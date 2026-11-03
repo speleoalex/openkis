@@ -7,7 +7,8 @@ ini_set('display_errors', 1);
  * This script removes cache files 1000 at a time, processing oldest files first.
  * Uses directory handles to avoid loading all filenames into memory.
  *
- * Standalone script - does not require Finis framework.
+ * Standalone script from the command line; from the web it loads finis and
+ * runs only for the administrators of the site.
  *
  * Usage CLI:
  *   php clear_cache.php [cache_directory] [batch_size] [--all] [--verbose]
@@ -369,7 +370,14 @@ if ($is_cli) {
         }
     }
 } else {
-    // Web execution
+    // Web execution: only for the administrators of the site
+    global $_FN;
+    require_once "loadfinis.php";
+    if (!FN_IsAdmin()) {
+        http_response_code(403);
+        header("Cache-Control: no-store");
+        die("Forbidden");
+    }
     header('Content-Type: text/html; charset=UTF-8');
 
     // Get parameters from GET/POST
@@ -409,9 +417,11 @@ if ($is_cli) {
     if ($run) {
         echo "<h2>Results</h2>\n";
 
-        // Security check: path must contain "_cache"
-        if (strpos($cache_dir, '_cache') === false) {
-            echo "<div class=\"error\">Error: For safety, directory path must contain '_cache'</div>\n";
+        // Security check: path must contain "_cache" and stay inside the data folder
+        $real_cache = realpath($cache_dir);
+        $real_data = realpath($_FN['datadir']);
+        if (strpos($cache_dir, '_cache') === false || !$real_cache || !$real_data || strpos($real_cache . DIRECTORY_SEPARATOR, $real_data . DIRECTORY_SEPARATOR) !== 0) {
+            echo "<div class=\"error\">Error: For safety, directory path must contain '_cache' and be inside the data folder</div>\n";
         } elseif (!file_exists($cache_dir) || !is_dir($cache_dir)) {
             echo "<div class=\"error\">Error: Directory does not exist: " . htmlspecialchars($cache_dir) . "</div>\n";
         } else {

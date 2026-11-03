@@ -638,8 +638,8 @@ function openkis_GetItemPosition($row)
         }
         else
         {
-            // diagnostic only: shown with ?debug=1, never to the visitors
-            if (isset($_GET['debug']))
+            // diagnostic only: shown with ?debug=1 to the administrators, never to the visitors
+            if (isset($_GET['debug']) && FN_IsAdmin())
             {
                 dprint_r("$lat_ori,$lon_ori, coordinatestypes vuoto per {$row['code']} - force $coordinatestypes ", "", "red");
             }
