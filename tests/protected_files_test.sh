@@ -122,6 +122,9 @@ s=$(curl -s -D - -o /dev/null -b "$WORK/admin.jar" "$RES_FILE_URL" | tr -d '\r' 
 
 say "thumbnails by record (list cards)"
 check_file "anonymous, public cave thumbnail" "$WORK/anon.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&t=ctl_caves&i=$PUB_CAVE&c=photo1" 200
+cp "$WORK/f.out" "$WORK/thumb_record.png"
+fetch "$WORK/thumb_icon.png" "$WORK/anon.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&f=images/none.png" > /dev/null
+! cmp -s "$WORK/thumb_record.png" "$WORK/thumb_icon.png" && ok "the thumbnail by record is the photo, not the generic icon" || fail "the thumbnail by record is the generic icon (record not found)"
 check_file "anonymous, restricted cave thumbnail" "$WORK/anon.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&t=ctl_caves&i=$RES_CAVE&c=photo1" 403
 check_file "hidden_caves reader, restricted cave thumbnail" "$WORK/reader.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&t=ctl_caves&i=$RES_CAVE&c=photo1" 200
 check_file "thumbnail of a raw path in the data folder" "$WORK/anon.jar" "${TEST_URL}index.php?fnapp=thumb&format=png&h=50&w=50&f=misc/fndatabase/ctl_caves/$RES_CAVE/photo1/entrance.png" 403
