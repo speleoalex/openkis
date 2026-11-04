@@ -46,6 +46,12 @@ OPS_Map.MyAddLayers = function ()
         else
         {
             OPS_Map.addKmlLayer("Cavita naturali", "openkis_kml.php" + location.search+"&iconsize=1.5", false, mod === "caves");
+            // public map of the caves: the marker opens a window with the
+            // essential data (openkis_popup.php) instead of the small popover
+            if (mod === "caves")
+            {
+                OPENKIS_MapPopup.enable("caves");
+            }
         }
     }
 

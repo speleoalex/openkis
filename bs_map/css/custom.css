@@ -144,3 +144,55 @@ button[title=Attributions]{
 .ol-overlaycontainer-stopevent > .ops-popup-overlay{
     z-index: 101;
 }
+/* ---- modal with the essential data of a record (openkis_map_popup.js) ---- */
+.openkis-popup-modal .modal-body{
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+}
+.openkis-popup-modal .modal-title{
+    font-size: 17px;
+    font-weight: bold;
+}
+.openkis-popup-photo{
+    text-align: center;
+    margin-bottom: 10px;
+}
+.openkis-popup-photo img{
+    max-width: 100%;
+    max-height: 260px;
+    border-radius: 4px;
+}
+.openkis-popup-synonyms{
+    margin-bottom: 8px;
+}
+.openkis-popup .openkis-field{
+    margin: 0;
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+.openkis-popup .openkis-field-title{
+    color: #777;
+}
+/* label and value side by side at every width (the sheet stacks them on
+   phones, the window is small enough) */
+.openkis-popup .openkis-field-title,
+.openkis-popup .openkis-field-value{
+    float: left;
+    width: 42%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.openkis-popup .openkis-field-value{
+    width: 58%;
+}
+.openkis-popup .openkis-field-value{
+    font-weight: bold;
+}
+.openkis-popup-actions{
+    margin-top: 12px;
+    text-align: right;
+}
+.openkis-popup-loading{
+    padding: 20px;
+}
