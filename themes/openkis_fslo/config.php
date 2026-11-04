@@ -16,13 +16,13 @@ $config['show_contribute_button']="1";
 $config['hero_button1_label']="";
 
 //[i18n]hero: first button link (relative to site url, empty = hidden)
-$config['hero_button1_link']="index.php?mod=map_caves";
+$config['hero_button1_link']="";
 
 //[i18n]hero: second button label (empty = "Find a cave" translated)
 $config['hero_button2_label']="";
 
 //[i18n]hero: second button link (relative to site url, empty = hidden)
-$config['hero_button2_link']="index.php?mod=caves";
+$config['hero_button2_link']="";
 
 //[i18n]hero: footnote text (HTML allowed, empty = hidden)
 $config['hero_footnote']="";

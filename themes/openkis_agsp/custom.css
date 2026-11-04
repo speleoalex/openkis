@@ -1,43 +1,193 @@
 /* =====================================================================
    openkis_agsp theme (Catasto Speleologico Piemontese e Valdostano, AGSP)
-   Made from openkis_fslo: layout of openkis_grottocenter (fixed white left
-   drawer, top app bar, white "paper" cards, footer with columns) in the
-   blue of the official site of the catasto (catastogrotte-piemonte.net,
-   Bootstrap primary #0d6efd) for the app bar, the menu, titles and links,
-   the brown of agsp.it for the app bar, black menu icons, the dark footer
-   and the dark secondary buttons of the first version and an accent colour
-   for the main buttons. The charcoal and red version
-   is kept as openkis_default.
+   Made from openkis_fslo: layout of openkis_grottocenter (fixed left
+   drawer, top app bar, "paper" cards, footer with columns).
+   Colours: a dark blue app bar, footer, menu icons and secondary buttons,
+   a lighter blue of the same hue for titles, menu and links, and a burnt
+   orange accent (#c2410c, 5.2:1 with white) for the main buttons. The
+   charcoal and red version is kept as openkis_default.
+   Light and dark mode: every colour is a variable below; the dark values
+   apply with <html data-theme="dark"> (set before the styles by the script
+   at the top of template.tp.html: the choice made with the button of the
+   app bar, otherwise the setting of the system) and, without JavaScript,
+   with the dark setting of the system.
    ===================================================================== */
 
 :root {
-    --gc-brown: #0d6efd;
-    --gc-brown-dark: #0a58ca;
-    --gc-brown-light: #3d8bfd;
-    --gc-beige: #e7f1ff;
-    --gc-orange: #0d6efd;
-    --gc-orange-dark: #0a58ca;
-    --gc-orange-light: #9ec5fe;
-    --gc-bg: #f8f9fa;
-    /* app bar: the brown of the menu bar of agsp.it */
-    --gc-header: #ab813b;
-    /* footer and secondary buttons: the charcoal of the AGSP lettering */
-    --gc-dark: #262626;
-    --gc-dark-deep: #141414;
-    /* main buttons, current page, "contribute": a burnt orange, apart from the blue of the menu */
+    color-scheme: light;
+    /* blue of the titles, the menu, the card headers and the tabs (the names
+       come from the Grottocenter palette of openkis_grottocenter) */
+    --gc-brown: #1d5fa8;
+    --gc-brown-dark: #164a85;
+    --gc-brown-light: #5b8fd0;
+    --gc-orange: #1d5fa8;
+    /* blue backgrounds under white text (badges, modal headers, active items) */
+    --gc-solid: #1d5fa8;
+    /* links: 7.3:1 on white */
+    --gc-orange-dark: #1a56a0;
+    /* links on the dark footer */
+    --gc-orange-light: #9fc3ee;
+    --gc-beige: #e8f0fa;
+    --gc-tint: #e8f0fa;
+    --gc-tint-border: rgba(29, 95, 168, .3);
+    --gc-bg: #f3f5f8;
+    /* app bar: dark blue (12.4:1 with white) */
+    --gc-header: #15355c;
+    --gc-header-hover: rgba(255, 255, 255, .1);
+    /* footer, secondary buttons, table heads and code badges: the dark blue of the app bar */
+    --gc-dark: #15355c;
+    --gc-dark-deep: #0f2745;
+    --gc-footer: #15355c;
+    --gc-footer-deep: #0f2745;
+    --gc-secondary: #15355c;
+    --gc-secondary-dark: #0f2745;
+    --gc-table-head: #15355c;
+    --gc-code-badge: #15355c;
+    --gc-outline: #15355c;
+    --gc-outline-border: rgba(21, 53, 92, .45);
+    /* main buttons, current page, "contribute": burnt orange */
     --gc-accent: #c2410c;
     --gc-accent-dark: #9a3412;
+    --gc-accent-text: #c2410c;
+    --gc-accent-border: rgba(194, 65, 12, .5);
+    --gc-accent-tint: rgba(194, 65, 12, .08);
+    /* surfaces */
     --gc-paper: #ffffff;
+    --gc-paper-2: #f8f9fb;
+    --gc-raised: #ffffff;
+    --gc-hover: rgba(0, 0, 0, .04);
+    --gc-hover-row: #f2f5f9;
+    --gc-active-bg: rgba(29, 95, 168, .12);
+    --gc-media-bg: #e3e6e9;
     --gc-text: rgba(0, 0, 0, .95);
     --gc-text-2: rgba(0, 0, 0, .75);
     --gc-muted: rgba(0, 0, 0, .54);
     --gc-line: rgba(0, 0, 0, .12);
+    --gc-line-2: #e3e7ec;
+    --gc-line-dotted: rgba(0, 0, 0, .25);
+    /* form fields */
+    --gc-input-bg: #ffffff;
+    --gc-input-readonly: #eef1f5;
+    --gc-input-border: rgba(0, 0, 0, .23);
+    --gc-focus: rgba(29, 95, 168, .25);
+    --gc-danger-text: #c62828;
+    /* menu and page title icons (dark blue tiles) */
+    --gc-ico-filter: none;
+    --gc-hero-bg: url("img/hero-bg.svg?v=20261104a");
     --gc-sidebar-w: 240px;
     --gc-sidebar-mini-w: 57px;
     --gc-appbar-h: 56px;
     --gc-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
     --gc-shadow-1: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
     --gc-shadow-4: 0 2px 4px -1px rgba(0, 0, 0, .2), 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12);
+}
+
+/* dark mode: the same block twice, for the button choice and for the system
+   setting without JavaScript */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --gc-brown: #8ab8f0;
+    --gc-brown-dark: #b9d5f7;
+    --gc-brown-light: #5b8fd0;
+    --gc-orange: #8ab8f0;
+    --gc-solid: #2a5d9c;
+    --gc-orange-dark: #8ab8f0;
+    --gc-orange-light: #9fc3ee;
+    --gc-beige: #1b2d45;
+    --gc-tint: #1b2d45;
+    --gc-tint-border: rgba(138, 184, 240, .35);
+    --gc-bg: #0e1621;
+    --gc-header: #15355c;
+    --gc-dark: #0a111b;
+    --gc-dark-deep: #070c14;
+    --gc-footer: #0a111b;
+    --gc-footer-deep: #070c14;
+    --gc-secondary: #2a4f7c;
+    --gc-secondary-dark: #33608f;
+    --gc-table-head: #1d3a5f;
+    --gc-code-badge: #2a4f7c;
+    --gc-outline: #c9d6e6;
+    --gc-outline-border: rgba(201, 214, 230, .4);
+    --gc-accent: #c2410c;
+    --gc-accent-dark: #d4500f;
+    --gc-accent-text: #f0915a;
+    --gc-accent-border: rgba(240, 145, 90, .55);
+    --gc-accent-tint: rgba(240, 145, 90, .12);
+    --gc-paper: #16212f;
+    --gc-paper-2: #1b2838;
+    --gc-raised: #1f2d3f;
+    --gc-hover: rgba(255, 255, 255, .06);
+    --gc-hover-row: #1f2d3f;
+    --gc-active-bg: rgba(138, 184, 240, .16);
+    --gc-media-bg: #223042;
+    --gc-text: #e6edf5;
+    --gc-text-2: rgba(230, 237, 245, .8);
+    --gc-muted: rgba(230, 237, 245, .6);
+    --gc-line: rgba(255, 255, 255, .12);
+    --gc-line-2: rgba(255, 255, 255, .1);
+    --gc-line-dotted: rgba(255, 255, 255, .22);
+    --gc-input-bg: #0f1925;
+    --gc-input-readonly: #1b2838;
+    --gc-input-border: rgba(255, 255, 255, .22);
+    --gc-focus: rgba(138, 184, 240, .35);
+    --gc-danger-text: #ff8a80;
+    --gc-ico-filter: brightness(1.75);
+    --gc-hero-bg: url("img/hero-bg-dark.svg?v=20261104a");
+    --gc-shadow-1: 0 1px 3px rgba(0, 0, 0, .5), 0 1px 2px rgba(0, 0, 0, .6);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        color-scheme: dark;
+        --gc-brown: #8ab8f0;
+        --gc-brown-dark: #b9d5f7;
+        --gc-brown-light: #5b8fd0;
+        --gc-orange: #8ab8f0;
+        --gc-solid: #2a5d9c;
+        --gc-orange-dark: #8ab8f0;
+        --gc-orange-light: #9fc3ee;
+        --gc-beige: #1b2d45;
+        --gc-tint: #1b2d45;
+        --gc-tint-border: rgba(138, 184, 240, .35);
+        --gc-bg: #0e1621;
+        --gc-header: #15355c;
+        --gc-dark: #0a111b;
+        --gc-dark-deep: #070c14;
+        --gc-footer: #0a111b;
+        --gc-footer-deep: #070c14;
+        --gc-secondary: #2a4f7c;
+        --gc-secondary-dark: #33608f;
+        --gc-table-head: #1d3a5f;
+        --gc-code-badge: #2a4f7c;
+        --gc-outline: #c9d6e6;
+        --gc-outline-border: rgba(201, 214, 230, .4);
+        --gc-accent: #c2410c;
+        --gc-accent-dark: #d4500f;
+        --gc-accent-text: #f0915a;
+        --gc-accent-border: rgba(240, 145, 90, .55);
+        --gc-accent-tint: rgba(240, 145, 90, .12);
+        --gc-paper: #16212f;
+        --gc-paper-2: #1b2838;
+        --gc-raised: #1f2d3f;
+        --gc-hover: rgba(255, 255, 255, .06);
+        --gc-hover-row: #1f2d3f;
+        --gc-active-bg: rgba(138, 184, 240, .16);
+        --gc-media-bg: #223042;
+        --gc-text: #e6edf5;
+        --gc-text-2: rgba(230, 237, 245, .8);
+        --gc-muted: rgba(230, 237, 245, .6);
+        --gc-line: rgba(255, 255, 255, .12);
+        --gc-line-2: rgba(255, 255, 255, .1);
+        --gc-line-dotted: rgba(255, 255, 255, .22);
+        --gc-input-bg: #0f1925;
+        --gc-input-readonly: #1b2838;
+        --gc-input-border: rgba(255, 255, 255, .22);
+        --gc-focus: rgba(138, 184, 240, .35);
+        --gc-danger-text: #ff8a80;
+        --gc-ico-filter: brightness(1.75);
+        --gc-hero-bg: url("img/hero-bg-dark.svg?v=20261104a");
+        --gc-shadow-1: 0 1px 3px rgba(0, 0, 0, .5), 0 1px 2px rgba(0, 0, 0, .6);
+    }
 }
 
 html {
@@ -86,7 +236,7 @@ img {
     display: flex;
     align-items: center;
     padding: 0 16px;
-    color: #212121;
+    color: var(--gc-text);
     font-size: 17px;
     font-weight: 500;
     text-decoration: none;
@@ -173,13 +323,13 @@ img {
 
 .gc-navlink:hover,
 .gc-navlink:focus {
-    background: rgba(0, 0, 0, .04);
+    background: var(--gc-hover);
     color: var(--gc-text);
     text-decoration: none;
 }
 
 .gc-navitem.gc-active > .gc-navlink {
-    background: rgba(13, 110, 253, .12);
+    background: var(--gc-active-bg);
     color: var(--gc-brown);
     font-weight: 500;
 }
@@ -196,7 +346,8 @@ img {
     height: 32px;
     flex: 0 0 32px;
     margin-right: 10px;
-    background: url("img/icons/default.svg?v=20261103d") center / contain no-repeat;
+    background: url("img/icons/default.svg?v=20261104a") center / contain no-repeat;
+    filter: var(--gc-ico-filter);
 }
 
 .gc-ico-lg {
@@ -220,7 +371,7 @@ img {
     height: 20px;
     margin-left: auto;
     opacity: .6;
-    background: url("img/icons/external.svg?v=20261103d") center / contain no-repeat;
+    background: url("img/icons/external.svg?v=20261104a") center / contain no-repeat;
 }
 
 .gc-contribute {
@@ -228,8 +379,8 @@ img {
 }
 
 .gc-btn-outline-orange {
-    color: var(--gc-accent);
-    border: 1px solid rgba(194, 65, 12, .5);
+    color: var(--gc-accent-text);
+    border: 1px solid var(--gc-accent-border);
     background: transparent;
     text-transform: uppercase;
     font-weight: 500;
@@ -241,9 +392,9 @@ img {
 
 .gc-btn-outline-orange:hover,
 .gc-btn-outline-orange:focus {
-    background: rgba(194, 65, 12, .08);
-    border-color: var(--gc-accent);
-    color: var(--gc-accent);
+    background: var(--gc-accent-tint);
+    border-color: var(--gc-accent-text);
+    color: var(--gc-accent-text);
     text-decoration: none;
 }
 
@@ -349,7 +500,7 @@ body.gc-collapsed .gc-chevron {
     height: 24px;
     flex: 0 0 24px;
     margin-right: 8px;
-    background: url("img/icons/search-white.svg?v=20261103d") center / contain no-repeat;
+    background: url("img/icons/search-white.svg?v=20261104a") center / contain no-repeat;
 }
 
 .gc-search-input {
@@ -399,7 +550,7 @@ body.gc-collapsed .gc-chevron {
     width: 24px;
     height: 24px;
     margin-right: 6px;
-    background: url("img/icons/translate-white.svg?v=20261103d") center / contain no-repeat;
+    background: url("img/icons/translate-white.svg?v=20261104a") center / contain no-repeat;
 }
 
 .gc-lang .dropdown-item img {
@@ -452,6 +603,7 @@ body.gc-collapsed .gc-chevron {
 
 .gc-appbar .dropdown-menu {
     color: var(--gc-text);
+    background-color: var(--gc-raised);
     border: 0;
     box-shadow: var(--gc-shadow-4);
     margin-top: 8px;
@@ -603,10 +755,10 @@ body.gc-collapsed .gc-plus {
    Hero (home page only)
    --------------------------------------------------------------------- */
 .gc-hero {
-    background: var(--gc-paper) url("img/hero-bg.svg?v=20261103d") center / cover no-repeat;
+    background: var(--gc-paper) var(--gc-hero-bg) center / cover no-repeat;
     text-align: center;
     padding: 40px 24px 24px;
-    border-bottom: 1px solid rgba(0, 0, 0, .08);
+    border-bottom: 1px solid var(--gc-line);
 }
 
 .gc-hero-logo {
@@ -651,7 +803,7 @@ body.gc-collapsed .gc-plus {
    Footer
    --------------------------------------------------------------------- */
 .gc-footer {
-    background: var(--gc-dark);
+    background: var(--gc-footer);
     color: rgba(255, 255, 255, .7);
     margin-top: 24px;
 }
@@ -715,7 +867,7 @@ body.gc-collapsed .gc-plus {
 }
 
 .gc-footer-bottom {
-    background: var(--gc-dark-deep);
+    background: var(--gc-footer-deep);
 }
 
 .gc-footer-bottom .gc-footer-inner {
@@ -813,29 +965,29 @@ a:hover {
 .gc-body .btn-secondary,
 .gc-body .btn-secondary:not(:disabled):not(.disabled):active,
 .gc-body .show > .btn-secondary.dropdown-toggle {
-    background-color: var(--gc-dark);
+    background-color: var(--gc-secondary);
     background-image: none;
-    border-color: var(--gc-dark);
+    border-color: var(--gc-secondary);
     color: #fff;
     box-shadow: var(--gc-shadow-1);
 }
 
 .gc-body .btn-secondary:hover,
 .gc-body .btn-secondary:focus {
-    background-color: var(--gc-dark-deep);
+    background-color: var(--gc-secondary-dark);
     background-image: none;
-    border-color: var(--gc-dark-deep);
+    border-color: var(--gc-secondary-dark);
     color: #fff;
 }
 
 .btn-info {
-    background-color: var(--gc-brown-light);
-    border-color: var(--gc-brown-light);
+    background-color: var(--gc-solid);
+    border-color: var(--gc-solid);
 }
 
 .btn-info:hover {
-    background-color: var(--gc-brown);
-    border-color: var(--gc-brown);
+    background-color: var(--gc-secondary);
+    border-color: var(--gc-secondary);
 }
 
 .btn-success {
@@ -844,29 +996,30 @@ a:hover {
 }
 
 .btn-outline-primary {
-    color: var(--gc-accent);
-    border-color: var(--gc-accent);
+    color: var(--gc-accent-text);
+    border-color: var(--gc-accent-border);
 }
 
 .btn-outline-primary:hover {
     background-color: var(--gc-accent);
     border-color: var(--gc-accent);
+    color: #fff;
 }
 
 .btn-outline-secondary {
-    color: var(--gc-dark);
-    border-color: rgba(38, 38, 38, .5);
+    color: var(--gc-outline);
+    border-color: var(--gc-outline-border);
 }
 
 .btn-outline-secondary:hover {
-    background-color: var(--gc-dark);
-    border-color: var(--gc-dark);
+    background-color: var(--gc-secondary);
+    border-color: var(--gc-secondary);
     color: #fff;
 }
 
 .btn-default,
 .btn-light {
-    background-color: #fff;
+    background-color: var(--gc-paper);
     border-color: var(--gc-line);
     color: var(--gc-brown);
 }
@@ -880,11 +1033,11 @@ a:hover {
 }
 
 .bg-gradient-primary {
-    background: linear-gradient(135deg, var(--gc-brown), var(--gc-brown-light)) !important;
+    background: linear-gradient(135deg, var(--gc-solid), var(--gc-brown-light)) !important;
 }
 
 .bg-secondary {
-    background-color: var(--gc-beige) !important;
+    background-color: var(--gc-tint) !important;
 }
 
 .text-primary {
@@ -905,29 +1058,30 @@ a:hover {
 }
 
 .badge-primary {
-    background-color: var(--gc-orange);
+    background-color: var(--gc-solid);
 }
 
 .badge-secondary,
 .badge-info {
-    background-color: var(--gc-brown);
+    background-color: var(--gc-solid);
 }
 
 .alert-primary,
 .alert-info {
-    background-color: rgba(230, 230, 230, .6);
-    border-color: var(--gc-beige);
+    background-color: var(--gc-tint);
+    border-color: var(--gc-tint-border);
     color: var(--gc-brown-dark);
 }
 
 /* cards: flat white paper with a light border, brown header text */
 .card {
+    background-color: var(--gc-paper);
     border: 1px solid var(--gc-line);
     border-radius: 4px;
 }
 
 .card-header {
-    background-color: #fafafa;
+    background-color: var(--gc-paper-2);
     color: var(--gc-brown);
     font-weight: 600;
     border-bottom: 1px solid var(--gc-line);
@@ -944,9 +1098,9 @@ a:hover {
 .table thead th,
 .table-dark thead th,
 .thead-dark th {
-    background-color: var(--gc-dark);
+    background-color: var(--gc-table-head);
     color: #fff;
-    border-color: var(--gc-dark);
+    border-color: var(--gc-table-head);
     font-weight: 500;
     vertical-align: middle;
 }
@@ -957,34 +1111,35 @@ a:hover {
 
 .table td,
 .table th {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--gc-line-2);
     vertical-align: middle;
 }
 
 .table tbody th[scope="row"] {
     color: var(--gc-brown);
     font-weight: 600;
-    background-color: #fafafa;
+    background-color: var(--gc-paper-2);
     width: 30%;
 }
 
 .table-hover tbody tr:hover {
-    background-color: #f6f6f6;
+    background-color: var(--gc-hover-row);
+    color: var(--gc-text);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #fafafa;
+    background-color: var(--gc-paper-2);
 }
 
 /* forms */
 .form-control:focus,
 .custom-select:focus {
     border-color: var(--gc-orange);
-    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25);
+    box-shadow: 0 0 0 .2rem var(--gc-focus);
 }
 
 .form-control {
-    border-color: rgba(0, 0, 0, .23);
+    border-color: var(--gc-input-border);
 }
 
 label,
@@ -1044,9 +1199,10 @@ label,
     background-color: transparent;
 }
 
-.list-group-item.active {
-    background-color: var(--gc-brown);
-    border-color: var(--gc-brown);
+.gc-body .list-group-item.active {
+    background-color: var(--gc-solid);
+    border-color: var(--gc-solid);
+    color: #fff;
 }
 
 .progress-bar {
@@ -1054,7 +1210,7 @@ label,
 }
 
 .modal-header {
-    background-color: var(--gc-brown);
+    background-color: var(--gc-header);
     color: #fff;
 }
 
@@ -1195,123 +1351,123 @@ details > summary {
 .gc-ico-menu_natural,
 .gc-ico-cavesystem,
 .gc-ico-wish {
-    background-image: url("img/icons/cave.svg?v=20261103d");
+    background-image: url("img/icons/cave.svg?v=20261104a");
 }
 
 .gc-ico-map_caves,
 .gc-ico-map_artificials,
 .gc-ico-map_glacial {
-    background-image: url("img/icons/map.svg?v=20261103d");
+    background-image: url("img/icons/map.svg?v=20261104a");
 }
 
 .gc-ico-springs {
-    background-image: url("img/icons/drop.svg?v=20261103d");
+    background-image: url("img/icons/drop.svg?v=20261104a");
 }
 
 .gc-ico-bibliography {
-    background-image: url("img/icons/book.svg?v=20261103d");
+    background-image: url("img/icons/book.svg?v=20261104a");
 }
 
 .gc-ico-survey,
 .gc-ico-survey_artificials {
-    background-image: url("img/icons/ruler.svg?v=20261103d");
+    background-image: url("img/icons/ruler.svg?v=20261104a");
 }
 
 .gc-ico-tracings {
-    background-image: url("img/icons/route.svg?v=20261103d");
+    background-image: url("img/icons/route.svg?v=20261104a");
 }
 
 .gc-ico-areas,
 .gc-ico-geological_formations {
-    background-image: url("img/icons/layers.svg?v=20261103d");
+    background-image: url("img/icons/layers.svg?v=20261104a");
 }
 
 .gc-ico-fauna,
 .gc-ico-fauna_surveys,
 .gc-ico-menu_fauna {
-    background-image: url("img/icons/bug.svg?v=20261103d");
+    background-image: url("img/icons/bug.svg?v=20261104a");
 }
 
 .gc-ico-artificials,
 .gc-ico-menu_artificials {
-    background-image: url("img/icons/pick.svg?v=20261103d");
+    background-image: url("img/icons/pick.svg?v=20261104a");
 }
 
 .gc-ico-art_categorie,
 .gc-ico-art_tipologie,
 .gc-ico-reports {
-    background-image: url("img/icons/list.svg?v=20261103d");
+    background-image: url("img/icons/list.svg?v=20261104a");
 }
 
 .gc-ico-glacial,
 .gc-ico-glaciers,
 .gc-ico-glacial_surveys,
 .gc-ico-speleologia_glaciale {
-    background-image: url("img/icons/snow.svg?v=20261103d");
+    background-image: url("img/icons/snow.svg?v=20261104a");
 }
 
 .gc-ico-associations,
 .gc-ico-commissione,
 .gc-ico-federation {
-    background-image: url("img/icons/groups.svg?v=20261103d");
+    background-image: url("img/icons/groups.svg?v=20261104a");
 }
 
 .gc-ico-regioni,
 .gc-ico-wish_regioni {
-    background-image: url("img/icons/flag.svg?v=20261103d");
+    background-image: url("img/icons/flag.svg?v=20261104a");
 }
 
 .gc-ico-menu_settings,
 .gc-ico-configopenkis {
-    background-image: url("img/icons/settings.svg?v=20261103d");
+    background-image: url("img/icons/settings.svg?v=20261104a");
 }
 
 .gc-ico-coordinate_types {
-    background-image: url("img/icons/gps.svg?v=20261103d");
+    background-image: url("img/icons/gps.svg?v=20261104a");
 }
 
 .gc-ico-licenses {
-    background-image: url("img/icons/shield.svg?v=20261103d");
+    background-image: url("img/icons/shield.svg?v=20261104a");
 }
 
 .gc-ico-Imports {
-    background-image: url("img/icons/download.svg?v=20261103d");
+    background-image: url("img/icons/download.svg?v=20261104a");
 }
 
 .gc-ico-grottocenter {
-    background-image: url("img/icons/cloud.svg?v=20261103d");
+    background-image: url("img/icons/cloud.svg?v=20261104a");
 }
 
 .gc-ico-openkis_mcp {
-    background-image: url("img/icons/api.svg?v=20261103d");
+    background-image: url("img/icons/api.svg?v=20261104a");
 }
 
 .gc-ico-login {
-    background-image: url("img/icons/account.svg?v=20261103d");
+    background-image: url("img/icons/account.svg?v=20261104a");
 }
 
 .gc-ico-home {
-    background-image: url("img/icons/home.svg?v=20261103d");
+    background-image: url("img/icons/home.svg?v=20261104a");
 }
 
 .gc-ico-search {
-    background-image: url("img/icons/search.svg?v=20261103d");
+    background-image: url("img/icons/search.svg?v=20261104a");
 }
 
 .gc-ico-guide {
-    background-image: url("img/icons/guide.svg?v=20261103d");
+    background-image: url("img/icons/guide.svg?v=20261104a");
 }
 
 .gc-ico-chart {
-    background-image: url("img/icons/chart.svg?v=20261103d");
+    background-image: url("img/icons/chart.svg?v=20261104a");
 }
 
 .gc-ico-inline.gc-ico-map {
-    background-image: url("img/icons/map-white.svg?v=20261103d");
+    background-image: url("img/icons/map-white.svg?v=20261104a");
 }
 
 .gc-ico-inline.gc-ico-search {
-    background-image: url("img/icons/search-white.svg?v=20261103d");
+    background-image: url("img/icons/search-white.svg?v=20261104a");
 }
 
 /* app bar dropdowns: static placement, anchored to the right edge */
@@ -1346,11 +1502,11 @@ details > summary {
 }
 
 .gc-body .openkis-home-total {
-    background: #e7f1ff;
+    background: var(--gc-tint);
 }
 
 .gc-body .badge-dark.openkis-sheet-code {
-    background-color: var(--gc-dark);
+    background-color: var(--gc-code-badge);
 }
 
 /* ---------------------------------------------------------------------
@@ -1386,7 +1542,7 @@ details > summary {
     align-items: center;
     gap: 6px;
     padding: 4px 6px 4px 12px;
-    border: 1px solid rgba(10, 88, 202, .35);
+    border: 1px solid var(--gc-tint-border);
     border-radius: 16px;
     background: var(--gc-paper);
     color: var(--gc-brown);
@@ -1396,7 +1552,7 @@ details > summary {
 
 .openkis-search-chip:hover,
 .openkis-search-chip:focus {
-    background: #e7f1ff;
+    background: var(--gc-tint);
     color: var(--gc-brown-dark);
     text-decoration: none;
 }
@@ -1432,7 +1588,7 @@ details > summary {
 
 .openkis-search-group .list-group-item-action:hover,
 .openkis-search-group .list-group-item-action:focus {
-    background-color: #f6f6f6;
+    background-color: var(--gc-hover-row);
 }
 
 .openkis-search-title {
@@ -1474,7 +1630,7 @@ details > summary {
 .okis-form .okis-field {
     padding: 10px 0;
     margin: 0;
-    border-bottom: 1px solid #eef1f4;
+    border-bottom: 1px solid var(--gc-line-2);
 }
 
 .okis-form .okis-field:last-child {
@@ -1496,16 +1652,16 @@ details > summary {
     height: calc(1.5em + .75rem + 2px);
     padding: .375rem .75rem;
     font-size: 1rem;
-    color: #495057;
-    background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, .23);
+    color: var(--gc-text);
+    background-color: var(--gc-input-bg);
+    border: 1px solid var(--gc-input-border);
     border-radius: .25rem;
 }
 
 .okis-form .okis-field select:not([multiple]):not([size]):not(.form-control):not(.custom-select):focus {
     border-color: var(--gc-orange);
     outline: 0;
-    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25);
+    box-shadow: 0 0 0 .2rem var(--gc-focus);
 }
 
 .okis-form .okis-field > .col-form-label {
@@ -1514,7 +1670,7 @@ details > summary {
 }
 
 .okis-form .okis-error {
-    color: #c62828;
+    color: var(--gc-danger-text);
     font-style: normal;
     font-weight: 500;
 }
@@ -1532,9 +1688,9 @@ details > summary {
     max-width: 60rem;
     font-size: 14px;
     line-height: 1.4;
-    color: var(--gc-brown-dark);
-    background-color: #f6f6f6;
-    border-left: 3px solid var(--gc-orange-light);
+    color: var(--gc-text-2);
+    background-color: var(--gc-paper-2);
+    border-left: 3px solid var(--gc-brown-light);
     border-radius: 0 4px 4px 0;
 }
 
@@ -1552,4 +1708,410 @@ details > summary {
 
 .okis-form > input.btn {
     margin-top: 8px;
+}
+
+/* ---------------------------------------------------------------------
+   Light and dark mode: Bootstrap 4 components, the dbview cards of finis
+   (modules/dbview/style.css) and the OpenKIS list template on the
+   variables above (in the light mode they keep the usual look)
+   --------------------------------------------------------------------- */
+.gc-body .jumbotron,
+.gc-body .bg-light {
+    background-color: var(--gc-paper-2) !important;
+}
+
+.gc-body .bg-white {
+    background-color: var(--gc-paper) !important;
+}
+
+.gc-body .text-dark,
+.gc-body .text-body {
+    color: var(--gc-text) !important;
+}
+
+.gc-body .border,
+.gc-body .border-top,
+.gc-body .border-bottom,
+.gc-body .border-left,
+.gc-body .border-right,
+.gc-body hr,
+.gc-body .card-footer,
+.gc-body .modal-header,
+.gc-body .modal-footer {
+    border-color: var(--gc-line) !important;
+}
+
+.gc-body .table {
+    color: var(--gc-text);
+}
+
+.gc-body .table-bordered,
+.gc-body .table-bordered td,
+.gc-body .table-bordered th,
+.gc-body .table tbody + tbody {
+    border-color: var(--gc-line-2);
+}
+
+.gc-body .list-group-item {
+    background-color: var(--gc-paper);
+    border-color: var(--gc-line);
+    color: var(--gc-text);
+}
+
+.gc-body .list-group-item-action:hover,
+.gc-body .list-group-item-action:focus {
+    background-color: var(--gc-hover-row);
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-menu {
+    background-color: var(--gc-raised);
+    border-color: var(--gc-line);
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-item {
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-item:hover,
+.gc-body .dropdown-item:focus {
+    background-color: var(--gc-hover);
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-divider {
+    border-top-color: var(--gc-line);
+}
+
+.gc-body .modal-content,
+.gc-body .popover {
+    background-color: var(--gc-raised);
+    color: var(--gc-text);
+}
+
+.gc-body .close {
+    color: var(--gc-text);
+    text-shadow: none;
+}
+
+.gc-body .form-control,
+.gc-body .custom-select,
+.gc-body .custom-file-label {
+    background-color: var(--gc-input-bg);
+    border-color: var(--gc-input-border);
+    color: var(--gc-text);
+}
+
+.gc-body .form-control::placeholder {
+    color: var(--gc-muted);
+}
+
+.gc-body .form-control:disabled,
+.gc-body .form-control[readonly],
+.gc-body .custom-select:disabled {
+    background-color: var(--gc-input-readonly);
+}
+
+.gc-body .input-group-text {
+    background-color: var(--gc-paper-2);
+    border-color: var(--gc-input-border);
+    color: var(--gc-text-2);
+}
+
+.gc-body .page-link:hover,
+.gc-body .page-link:focus {
+    background-color: var(--gc-active-bg);
+}
+
+.gc-body .page-item.disabled .page-link {
+    color: var(--gc-muted);
+}
+
+/* the base theme (assets/css/theme.min.css) draws the box of an input group
+   on the group, with transparent fields inside */
+.gc-body .input-group:not(.input-group-alt) {
+    background-color: var(--gc-input-bg);
+    border-color: var(--gc-input-border);
+}
+
+.gc-body .input-group:not(.input-group-alt).focus,
+.gc-body .input-group:not(.input-group-alt):focus-within {
+    border-color: var(--gc-orange);
+}
+
+/* and paints every table cell white */
+:where(.gc-body) .table td,
+:where(.gc-body) .table th {
+    background-color: var(--gc-paper);
+}
+
+/* grid/list switch of the lists (extra/openkis/templates/list.tp.html) */
+.gc-body #pageresults:not(.openkis-view-list) .openkis-viewswitch [data-view="grid"],
+.gc-body #pageresults.openkis-view-list .openkis-viewswitch [data-view="list"] {
+    background-color: var(--gc-secondary);
+    border-color: var(--gc-secondary);
+    color: #fff;
+}
+
+.gc-body .breadcrumb-item + .breadcrumb-item::before,
+.gc-body .breadcrumb-item.active {
+    color: var(--gc-muted);
+}
+
+.gc-body .nav-tabs .nav-link.active,
+.gc-body .nav-tabs .nav-item.show .nav-link {
+    background-color: transparent;
+}
+
+.gc-body .btn-light:hover,
+.gc-body .btn-default:hover {
+    background-color: var(--gc-hover-row);
+    border-color: var(--gc-line);
+    color: var(--gc-brown);
+}
+
+.gc-body .dbview-card-media {
+    background-color: var(--gc-media-bg);
+}
+
+.gc-body .dbview-card-noimage {
+    color: var(--gc-muted);
+}
+
+.gc-body .dbview-card-values > div {
+    border-bottom-color: var(--gc-line-dotted);
+}
+
+.gc-body .dbview-card-badges .dbview-card-code {
+    background-color: var(--gc-code-badge);
+}
+
+.gc-body #pageresults.openkis-view-list .dbview-card {
+    border-color: var(--gc-line);
+}
+
+.gc-body #pageresults.openkis-view-list .openkis-photo-flag {
+    color: var(--gc-text-2);
+}
+
+.gc-body #pageresults.openkis-view-list .openkis-photo-no {
+    color: var(--gc-muted);
+}
+
+/* the base theme writes the warning, success and error boxes in pale
+   colours on white (about 2:1) */
+.gc-body .alert-warning {
+    background-color: #fff8e1;
+    border-color: #f7c46c;
+    color: #5c4400;
+}
+
+.gc-body .alert-warning a,
+.gc-body .alert-warning .alert-link {
+    color: #4a3600;
+}
+
+.gc-body .alert-success {
+    background-color: #edf7ee;
+    border-color: #81c784;
+    color: #1e5b26;
+}
+
+.gc-body .alert-danger {
+    background-color: #fdecea;
+    border-color: #ef9a9a;
+    color: #8a1c1c;
+}
+
+/* close button of Bootstrap 5 (pages written for a Bootstrap 5 theme, such
+   as the notice of the Liguria home): this theme loads Bootstrap 4, the
+   cross is drawn here and page.js closes the alert */
+.gc-body .btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: .25em;
+    border: 0;
+    border-radius: .25rem;
+    opacity: .6;
+    cursor: pointer;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center / 1em auto no-repeat;
+}
+
+.gc-body .btn-close:hover,
+.gc-body .btn-close:focus {
+    opacity: 1;
+}
+
+.gc-body .alert-dismissible .btn-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1.25rem 1rem;
+}
+
+/* dark mode only: what the variables cannot reach */
+/* the base theme draws the arrow of the menus over a white gradient */
+:root[data-theme="dark"] .gc-body .custom-select {
+    background: var(--gc-input-bg) url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='14' fill='%23c9d6e6' viewBox='0 0 1792 1792' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1408 704q0 26-19 45l-448 448q-19 19-45 19t-45-19L403 749q-19-19-19-45t19-45 45-19h896q26 0 45 19t19 45z'/%3E%3C/svg%3E") no-repeat right .75rem center;
+}
+
+/* short fields of the OpenKIS forms (lengths, depths...) come without the
+   form-control class */
+:root[data-theme="dark"] .okis-form .okis-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not(.form-control),
+:root[data-theme="dark"] .okis-form .okis-field textarea:not(.form-control) {
+    background-color: var(--gc-input-bg);
+    border: 1px solid var(--gc-input-border);
+    border-radius: .25rem;
+    color: var(--gc-text);
+}
+
+:root[data-theme="dark"] .gc-body .alert-success {
+    background-color: rgba(85, 139, 47, .2);
+    border-color: rgba(129, 199, 132, .35);
+    color: #b9e4bb;
+}
+
+:root[data-theme="dark"] .gc-body .alert-warning {
+    background-color: rgba(255, 193, 7, .14);
+    border-color: rgba(255, 213, 79, .35);
+    color: #ffe08a;
+}
+
+:root[data-theme="dark"] .gc-body .alert-warning a,
+:root[data-theme="dark"] .gc-body .alert-warning .alert-link {
+    color: #ffe08a;
+}
+
+:root[data-theme="dark"] .gc-body .btn-close {
+    filter: invert(1);
+}
+
+:root[data-theme="dark"] .gc-body .alert-danger {
+    background-color: rgba(220, 53, 69, .18);
+    border-color: rgba(255, 138, 128, .35);
+    color: #ffb4ab;
+}
+
+:root[data-theme="dark"] .gc-body .alert-secondary,
+:root[data-theme="dark"] .gc-body .alert-light,
+:root[data-theme="dark"] .gc-body .alert-dark {
+    background-color: var(--gc-paper-2);
+    border-color: var(--gc-line);
+    color: var(--gc-text);
+}
+
+:root[data-theme="dark"] .gc-body .badge-light {
+    background-color: var(--gc-paper-2);
+    color: var(--gc-text);
+}
+
+:root[data-theme="dark"] .gc-body code {
+    color: #f49ac1;
+}
+
+:root[data-theme="dark"] .gc-body pre {
+    color: var(--gc-text);
+}
+
+/* pictures that are drawings on white (surveys, logos) stay as they are;
+   photos a little less bright than the page around them */
+:root[data-theme="dark"] .gc-body .dbview-card-media img {
+    filter: brightness(.92);
+}
+
+/* ---------------------------------------------------------------------
+   Light/dark switch of the app bar (page.js); shown once the script at the
+   top of the page has set data-theme
+   --------------------------------------------------------------------- */
+.gc-theme-btn {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .5);
+    border-radius: 50%;
+    background: transparent;
+    color: #f5f5f5;
+    cursor: pointer;
+}
+
+:root[data-theme] .gc-theme-btn {
+    display: flex;
+}
+
+.gc-theme-btn:hover,
+.gc-theme-btn:focus {
+    background: var(--gc-header-hover);
+    border-color: #fff;
+    color: #fff;
+    outline: none;
+}
+
+.gc-theme-btn:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .6);
+}
+
+.gc-theme-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* the icon shows the mode a click switches to */
+.gc-theme-btn .gc-theme-sun,
+:root[data-theme="dark"] .gc-theme-btn .gc-theme-moon {
+    display: none;
+}
+
+:root[data-theme="dark"] .gc-theme-btn .gc-theme-sun {
+    display: block;
+}
+
+@media (max-width: 575.98px) {
+    .gc-theme-btn {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        margin-right: 6px;
+    }
+}
+
+@media print {
+    .gc-theme-btn {
+        display: none !important;
+    }
+
+    /* paper is white: dark text in both modes */
+    :root[data-theme="dark"] {
+        color-scheme: light;
+        --gc-brown: #1d5fa8;
+        --gc-brown-dark: #164a85;
+        --gc-orange: #1d5fa8;
+        --gc-orange-dark: #1a56a0;
+        --gc-bg: #ffffff;
+        --gc-paper: #ffffff;
+        --gc-paper-2: #f8f9fb;
+        --gc-text: rgba(0, 0, 0, .95);
+        --gc-text-2: rgba(0, 0, 0, .75);
+        --gc-muted: rgba(0, 0, 0, .54);
+        --gc-line: rgba(0, 0, 0, .12);
+        --gc-line-2: #e3e7ec;
+        --gc-input-bg: #ffffff;
+        --gc-input-readonly: #ffffff;
+        --gc-tint: #e8f0fa;
+        --gc-table-head: #15355c;
+        --gc-ico-filter: none;
+    }
+}
+
+/* black external-link arrow of the menu: white in the dark mode */
+:root[data-theme="dark"] .gc-ext {
+    filter: invert(1);
 }

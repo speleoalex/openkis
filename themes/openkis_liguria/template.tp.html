@@ -8,13 +8,25 @@
             // (iOS Safari ignores user-scalable=no)
             document.documentElement.style.touchAction = "manipulation";
             document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+            // light or dark mode, before the styles so that the page does not flash: the choice
+            // made with the button of the app bar (page.js), otherwise the setting of the system
+            (function () {
+                var t = null;
+                try {
+                    t = window.localStorage.getItem("gc_theme");
+                } catch (e) {
+                }
+                if (t !== "light" && t !== "dark") {
+                    t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                }
+                document.documentElement.setAttribute("data-theme", t);
+            })();
         </script>
         <meta name="description" content="">
         <meta name="author" content="">
         <meta name="msapplication-config" content="{siteurl}themes/{theme}/browserconfig.xml" />
-
-
         <meta name="theme-color" content="#d67e36">
+
         <link rel="icon" href="favicon.ico">
         <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
         <!-- installable as an app: manifest.json; the offline worker (openkis_sw.js) is registered by openkis_offline.js -->
@@ -26,158 +38,281 @@
 
         <!-- Bootstrap core CSS -->
         <link rel="stylesheet" href="dist/css/bootstrap.min.css"  />
-        <link rel="stylesheet"  href="assets/css/docs.min.css"  />
+        <link rel="stylesheet" href="assets/css/docs.min.css"  />
         <link rel="stylesheet" href="assets/css/theme.min.css" />
         <link rel="manifest" href="manifest.json" />
-        <!-- Custom styles for this template -->
-        <link rel="stylesheet" href="custom.css"  />
+        <!-- Grottocenter-like layout -->
+        <link rel="stylesheet" href="custom.css?v=20261104b"  />
+        <link href="no-more-tables.css" rel="stylesheet">
     </head>
-    <body><nav class="navbar navbar-dark bg-dark navbar-expand-md navbar-expand-md "><a class="navbar-brand" href="{siteurl}"><img alt="logo" style="max-height:30px" src="img/logo.png" /></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#MainNavBar" aria-controls="MainNavBar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+    <body class="gc-body">
+
+        <!-- ================= left drawer ================= -->
+        <div class="gc-backdrop" id="gcBackdrop"></div>
+        <aside class="gc-sidebar" id="gcSidebar" aria-label="Main navigation">
+            <a class="gc-brand" href="{siteurl}" title="{sitename}">
+                <img alt="logo" src="img/logo.png" />
+                <span class="gc-brand-name">{sitename}</span>
+            </a>
+            <div class="gc-sidebar-scroll">
+                <nav class="gc-sidenav">
+                    <ul class="gc-navlist">
+                        <!-- foreach {menuitems} -->
+                        <!-- if {havechilds} -->
+                        <li class="gc-divider" role="separator"></li>
+                        <li class="gc-subheader gc-subheader-{id}"><a href="{link}">{title}</a></li>
+                        <!-- foreach {childs} -->
+                        <li class="gc-navitem gc-navitem-child <!-- if {active} -->gc-active<!-- end if {active} --> <!-- if {opened} -->gc-active<!-- end if {opened} -->">
+                            <a class="gc-navlink" href="{link}" title="{title}" accesskey="{accesskey}">
+                                <span class="gc-ico gc-ico-{id}" aria-hidden="true"></span>
+                                <span class="gc-navtext">{title}</span>
+                            </a>
+                        </li>
+                        <!-- end foreach {childs} -->
+                        <!-- end if {havechilds} -->
+                        <!-- if not {havechilds} -->
+                        <li class="gc-divider" role="separator"></li>
+                        <li class="gc-navitem <!-- if {active} -->gc-active<!-- end if {active} -->">
+                            <a class="gc-navlink" href="{link}" title="{title}" accesskey="{accesskey}">
+                                <span class="gc-ico gc-ico-{id}" aria-hidden="true"></span>
+                                <span class="gc-navtext">{title}</span>
+                            </a>
+                        </li>
+                        <!-- end if not {havechilds} -->
+                        <!-- end foreach {menuitems} -->
+                    </ul>
+                </nav>
+                <!-- if {show_contribute_button} -->
+                <div class="gc-divider"></div>
+                <div class="gc-contribute">
+                    <!-- if not {user} -->
+                    <a class="btn gc-btn-outline-orange btn-block" href="{siteurl}index.php?mod=login">
+                        <span class="gc-plus" aria-hidden="true">+</span><span class="gc-label"> {i18n:Contribute}</span>
+                    </a>
+                    <!-- end if not {user} -->
+                    <!-- if {user} -->
+                    <a class="btn gc-btn-outline-orange btn-block" href="{siteurl}index.php?fnapp=controlcenter">
+                        <span class="gc-plus" aria-hidden="true">+</span><span class="gc-label"> {i18n:Contribute}</span>
+                    </a>
+                    <!-- end if {user} -->
+                </div>
+                <!-- end if {show_contribute_button} -->
+            </div>
+            <!-- if {federation_url} -->
+            <div class="gc-sidebar-bottom">
+                <div class="gc-divider"></div>
+                <a class="gc-navlink" href="{federation_url}" title="{federation_label}" target="_blank" rel="noopener">
+                    <span class="gc-ico gc-ico-federation" aria-hidden="true"></span>
+                    <span class="gc-navtext">{federation_label}</span>
+                    <span class="gc-ext" aria-hidden="true"></span>
+                </a>
+            </div>
+            <!-- end if {federation_url} -->
+        </aside>
+
+        <!-- ================= top app bar ================= -->
+        <header class="gc-appbar">
+            <button class="gc-menu-btn" id="gcMenuToggle" type="button" aria-label="Toggle menu" aria-controls="gcSidebar" aria-expanded="true">
+                <span class="gc-chevron" aria-hidden="true"></span>
             </button>
-            <div class="collapse navbar-collapse" id="MainNavBar">
 
-                <ul class="navbar-nav mr-auto">
-                    <!-- include menu -->
-                    <!-- menuitems -->
-                    <!-- menuitem -->
-                    <li class="nav-item" ><a class="nav-link" href="">{title}</a></li>
-                    <!-- endmenuitem -->
-                    <!-- menuitemactive -->
-                    <li class="nav-item active"><a  class="nav-link" href="">{title}</a></li>
-                    <!-- endmenuitemactive -->
+            <!-- if {show_search_form} -->
+            <form method="post" action="{siteurl}index.php?mod=search" class="gc-search" role="search">
+                <span class="gc-search-ico" aria-hidden="true"></span>
+                <input class="gc-search-input" name="q" type="search" placeholder="{i18n:Search}" aria-label="{i18n:Search}" />
+            </form>
+            <!-- end if {show_search_form} -->
+            <!-- if not {show_search_form} -->
+            <div class="gc-search gc-search-empty"></div>
+            <!-- end if not {show_search_form} -->
 
-                    <!-- menuitemdropdown -->
-                    <li class="nav-item dropdown"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">{title}&nbsp;</a>
-                        <!-- submenu -->
-                        <ul class="dropdown-menu" role="menu">
-                            <!-- submenuitems -->
-                            <!-- submenuitem -->
-                            <li class="" >
-                                <a  class="dropdown-item" href="#">{title}</a>
-                                {submenu}
-                            </li>
-                            <!-- endsubmenuitem -->
-                            <!-- endsubmenuitems -->
-                        </ul>
-                        <!-- endsubmenu -->
-                    </li>
-                    <!-- endmenuitemdropdown -->
+            <button class="gc-theme-btn" id="gcThemeToggle" type="button" title="{i18n:Light or dark theme}" aria-label="{i18n:Light or dark theme}">
+                <svg class="gc-theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.3 2.05a1 1 0 0 1 .27 1.06 7.5 7.5 0 0 0 9.32 9.32 1 1 0 0 1 1.31 1.18A10.5 10.5 0 1 1 11.12 1.79a1 1 0 0 1 1.18.26z"/></svg>
+                <svg class="gc-theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5a1 1 0 0 1 1 1v1.6a1 1 0 1 1-2 0V2.5a1 1 0 0 1 1-1zm0 17.4a1 1 0 0 1 1 1v1.6a1 1 0 1 1-2 0v-1.6a1 1 0 0 1 1-1zM22.5 12a1 1 0 0 1-1 1h-1.6a1 1 0 1 1 0-2h1.6a1 1 0 0 1 1 1zM5.1 12a1 1 0 0 1-1 1H2.5a1 1 0 1 1 0-2h1.6a1 1 0 0 1 1 1zm13.32-6.42a1 1 0 0 1 0 1.41l-1.13 1.13a1 1 0 1 1-1.42-1.41l1.14-1.13a1 1 0 0 1 1.41 0zM8.13 15.87a1 1 0 0 1 0 1.42L7 18.42A1 1 0 1 1 5.58 17l1.13-1.13a1 1 0 0 1 1.42 0zm10.29 2.55a1 1 0 0 1-1.41 0l-1.14-1.13a1 1 0 0 1 1.42-1.42l1.13 1.13a1 1 0 0 1 0 1.42zM8.13 8.13a1 1 0 0 1-1.42 0L5.58 7A1 1 0 0 1 7 5.58l1.13 1.13a1 1 0 0 1 0 1.42z"/></svg>
+            </button>
 
-                    <!-- menuitemdropdownactive -->
-                    <li class="nav-item dropdown active"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">{title}</a>
-                        <!-- submenu -->
-                        <ul class="dropdown-menu" role="menu">
-                            <!-- submenuitems -->
-                            <!-- submenuitem -->
-                            <li class="" >
-                                <a class="dropdown-item" href="#">{title}</a>
-                                {submenu}
-                            </li>
-                            <!-- endsubmenuitem -->
-                            <!-- endsubmenuitems -->
-                        </ul>
-                        <!-- endsubmenu -->
-                    </li>
-                    <!-- endmenuitemdropdownactive -->
-                    <!-- endmenuitems -->
-                    <!-- end include menu -->
-                </ul>
+            <!-- if {is_multilanguage} -->
+            <div class="dropdown gc-lang">
+                <a href="#" class="gc-lang-toggle dropdown-toggle" data-toggle="dropdown" data-display="static" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span class="gc-lang-ico" aria-hidden="true"></span>
+                    <span class="gc-lang-current">{lang}</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <!-- foreach {sitelanguages} -->
+                    <a class="dropdown-item" href='{siteurl}?lang={langname}'><img alt="" src="{langimg}" /> {langtitle}</a>
+                    <!-- end foreach {sitelanguages} -->
+                </div>
+            </div>
+            <!-- end if {is_multilanguage} -->
 
+            <!-- if {user} -->
+            <!-- include FN_HtmlLogoutForm -->
+            <div class="dropdown gc-user">
+                <button class="gc-btn-outline-white" type="button" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false">
+                    <img class="gc-avatar" src="{url_avatar}" alt="">
+                    <span class="gc-user-name d-none d-md-inline">{user}</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{siteurl}index.php?mod=login&op=editreg">{i18n:Profile}</a>
+                    <a class="dropdown-item" href="{siteurl}index.php?fnapp=controlcenter">{i18n:Control center}</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{siteurl}index.php?fnlogin=logout">{i18n:Logout}</a>
+                </div>
+            </div>
+            <!-- end include FN_HtmlLogoutForm -->
+            <!-- end if {user} -->
+            <!-- if not {user} -->
+            <div class="dropdown gc-user">
+                <button class="gc-btn-outline-white" type="button" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false">{i18n:Login}</button>
+                <div class="dropdown-menu dropdown-menu-right gc-login-menu">
+                    <!-- include FN_HtmlLoginForm -->
+                    <form class="p-3" role="form" enctype="multipart/form-data" action="{formaction}" method="post" name="login" >
+                        <div class="form-group mb-2">
+                            <input type="text" placeholder="{i18n:Username}" name="username" class="form-control" autocomplete="username">
+                        </div>
+                        <div class="form-group mb-2">
+                            <input type="password" placeholder="{i18n:Password}" name="password" class="form-control" autocomplete="current-password">
+                        </div>
+                        <!-- captcha -->
+                        <div class="form-group mb-2 small">{i18n:Enter this security code}:<br />{htmlcaptcha}</div>
+                        <!-- end captcha -->
+                        <button type="submit" class="btn btn-primary btn-block">{i18n:Login}</button>
+                        <!-- passwordrecovery -->
+                        <div class="mt-2 small"><a href="{urlpasswordrecovery}" >{i18n:Password recovery}</a></div>
+                        <!-- end passwordrecovery -->
+                        <!-- loginerror -->
+                        <script>window.setTimeout(function () {
+                                alert("{login_error}");
+                            }, 100);</script>
+                        <!-- end loginerror -->
+                    </form>
+                    <!-- end include FN_HtmlLoginForm -->
+                </div>
+            </div>
+            <!-- end if not {user} -->
+            <!-- end include FN_HtmlLoginLogout -->
+        </header>
 
+        <!-- ================= main column ================= -->
+        <div class="gc-main">
 
-                <!-- if {show_search_form} -->
-                <form method="post" action="{siteurl}index.php?mod=search" class="form-inline  d-block d-sm-block d-lg-inline d-md-inline mr-lg-3 " >
-                    <div class="input-group"><input class="form-control" name="q" type="text" placeholder="{i18n:Search}" aria-label="Search"><div class="input-group-append"><button class="btn btn-secondary " title="{i18n:Search}" type="submit"><span aria-hidden="true">⌕</span></button></div>
-                    </div>
-                </form>
-                <!-- end if {show_search_form} -->
-
-
-
-                <!-- if {user} -->
-                <!-- include FN_HtmlLogoutForm -->
-                <div class="nav navbar-nav navbar-right d-none d-sm-none d-lg-inline  ">
-                    <button class="btn btn-secondary d-flex " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="user-avatar user-avatar-md"><img style="max-height:20px;" src="{url_avatar}" alt=""></span> 
-                        <span class="account-summary pr-lg-4 d-none d-lg-block"><span class="account-name">{user}</span> 
-                        </span><span class="dropdown-arrow"></span>
-                    </button> 
-
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <div class="dropdown-arrow ml-3"></div>
-                        <a class="dropdown-item" href="{siteurl}index.php?mod=login&op=editreg">
-                            <span class="dropdown-icon" aria-hidden="true">☻</span> Profile</a> 
-                        <a class="dropdown-item" href="{siteurl}index.php?fnlogin=logout">
-                            <span class="dropdown-icon" aria-hidden="true">↪</span> {i18n:Logout}</a>
+            <!-- if {is_home} -->
+            <!-- if {show_hero} -->
+            <section class="gc-hero">
+                <div class="gc-hero-inner">
+                    <a href="{siteurl}"><img class="gc-hero-logo" alt="{sitename}" src="img/logo.png" /></a>
+                    <h1 class="gc-hero-title">{sitename}</h1>
+                    <p class="gc-hero-subtitle">{site_subtitle}</p>
+                    <div class="gc-hero-actions">
+                        <!-- if {hero_button1_link} -->
+                        <a class="btn btn-primary gc-btn-lg" href="{siteurl}{hero_button1_link}"><span class="gc-ico-inline gc-ico-map" aria-hidden="true"></span><!-- if {hero_button1_label} -->{hero_button1_label}<!-- end if {hero_button1_label} --><!-- if not {hero_button1_label} -->{i18n:Explore the map}<!-- end if not {hero_button1_label} --></a>
+                        <!-- end if {hero_button1_link} -->
+                        <!-- if {hero_button2_link} -->
+                        <a class="btn btn-secondary gc-btn-lg" href="{siteurl}{hero_button2_link}"><span class="gc-ico-inline gc-ico-search" aria-hidden="true"></span><!-- if {hero_button2_label} -->{hero_button2_label}<!-- end if {hero_button2_label} --><!-- if not {hero_button2_label} -->{i18n:Find a cave}<!-- end if not {hero_button2_label} --></a>
+                        <!-- end if {hero_button2_link} -->
                     </div>
                 </div>
-                <!-- end include FN_HtmlLogoutForm -->
-                <!-- end if {user} -->
-                <!-- if not {user} -->
-                <div class="nav navbar-nav navbar-right">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{i18n:Login}</button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <!-- include FN_HtmlLoginForm -->                         
-                        <form class="p-4" role="form" enctype="multipart/form-data" action="{formaction}" method="post" name="login" >
-                            <input type="text" placeholder="{i18n:Username}" name="username" class="form-control">
-                            <input type="password" placeholder="{i18n:Password}" name="password"  class="form-control">
-                            <button type="submit" class="btn btn-primary">{i18n:Login}</button> 
-                            <!-- captcha -->
-                            {i18n:Enter this security code}:<br />
-                            {htmlcaptcha}
-                            <!-- end captcha -->
-                            <!-- passwordrecovery -->
-                            <a href="{urlpasswordrecovery}" >{i18n:Password recovery}</a>
-                            <!-- end passwordrecovery -->
-                            <!-- loginerror -->
-                            <script>window.setTimeout(function () {
-                                    alert("{login_error}");
-                                }, 100);</script>
-                            <!-- end loginerror -->
-                        </form> 
-                        <!-- end include FN_HtmlLoginForm -->
+                <!-- if {hero_footnote} -->
+                <div class="gc-hero-footnote">{hero_footnote}</div>
+                <!-- end if {hero_footnote} -->
+            </section>
+            <!-- end if {show_hero} -->
+            <!-- end if {is_home} -->
+
+            <main role="main" class="gc-content">
+                <!-- if not {is_home} -->
+                <!-- if {show_page_header} -->
+                <div class="gc-page-header">
+                    <div class="gc-page-title">
+                        <span class="gc-ico gc-ico-lg gc-ico-{mod}" aria-hidden="true"></span>
+                        <h1>{section_title}</h1>
+                    </div>
+                    <nav aria-label="breadcrumb" class="gc-breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{siteurl}">{i18n:Home}</a></li>
+                            <!-- foreach {nav} -->
+                            <!-- if {active} -->
+                            <li class="breadcrumb-item active" aria-current="page">{title}</li>
+                            <!-- end if {active} -->
+                            <!-- if not {active} -->
+                            <li class="breadcrumb-item"><a href="{link}">{title}</a></li>
+                            <!-- end if not {active} -->
+                            <!-- end foreach {nav} -->
+                        </ol>
+                    </nav>
+                </div>
+                <!-- end if {show_page_header} -->
+                <!-- end if not {is_home} -->
+
+                <div class="gc-paper">
+                    <!-- include section -->
+                    <h1>Section</h1>
+                    <p class="lead">Section content goes here.</p>
+                    <!-- end include section -->
+                </div>
+            </main>
+
+            <!-- ================= footer ================= -->
+            <footer class="gc-footer">
+                <div class="gc-footer-inner">
+                    <div class="gc-footer-brand">
+                        <div class="gc-footer-logo">
+                            <img alt="" src="img/logo.png" />
+                            <span>{sitename}</span>
+                        </div>
+                        <!-- if {footer_text} -->
+                        <p>{footer_text}</p>
+                        <!-- end if {footer_text} -->
+                    </div>
+                    <div class="gc-footer-col">
+                        <div class="gc-footer-head">{i18n:Navigation}</div>
+                        <nav class="gc-footer-nav">
+                            <!-- foreach {menuitems} -->
+                            <a href="{link}">{title}</a>
+                            <!-- end foreach {menuitems} -->
+                        </nav>
+                    </div>
+                    <div class="gc-footer-col">
+                        <div class="gc-footer-head">{i18n:Resources}</div>
+                        <nav class="gc-footer-nav">
+                            <!-- if {federation_url} -->
+                            <a href="{federation_url}" target="_blank" rel="noopener">{federation_label}</a>
+                            <!-- end if {federation_url} -->
+                            <!-- if {show_search_form} -->
+                            <a href="{siteurl}index.php?mod=search">{i18n:Search}</a>
+                            <!-- end if {show_search_form} -->
+                            <a href="{siteurl}index.php?mod=login">{i18n:Login}</a>
+                            <!-- if {footer_link1_url} -->
+                            <a href="{footer_link1_url}" target="_blank" rel="noopener">{footer_link1_label}</a>
+                            <!-- end if {footer_link1_url} -->
+                            <!-- if {footer_link2_url} -->
+                            <a href="{footer_link2_url}" target="_blank" rel="noopener">{footer_link2_label}</a>
+                            <!-- end if {footer_link2_url} -->
+                        </nav>
+                    </div>
+                    <div class="gc-footer-col">
+                        <div class="gc-footer-head">{i18n:Technical}</div>
+                        <nav class="gc-footer-nav">
+                            <a href="https://github.com/speleoalex/openkis" target="_blank" rel="noopener">OpenKIS on GitHub</a>
+                            <a href="{siteurl}openkis_kml.php" target="_blank" rel="noopener">KML</a>
+                        </nav>
                     </div>
                 </div>
-                <!-- end if not {user} -->
-                <!-- end include FN_HtmlLoginLogout -->  
-                <!-- if {sitelanguages} -->
-                <ul class="nav navbar-nav navbar-left ">                            
-                    <li class="dropdown " >
+                <div class="gc-footer-bottom">
+                    <div class="gc-footer-inner">
+                        <!-- if {footer_license_text} -->
+                        <div class="gc-footer-license">{footer_license_text}</div>
+                        <!-- end if {footer_license_text} -->
+                        <div class="gc-footer-credits">{credits}</div>
+                    </div>
+                </div>
+            </footer>
+        </div>
 
-                    <li class="nav-item dropdown"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><img src="{siteurl}/images/flags/{lang}.png" /></a>
-                        <ul class="dropdown-menu dropdown-menu-right" role="menu" >
-                            <!-- foreach {sitelanguages} -->
-                            <li >                        
-                                <a class="dropdown-item" href='{siteurl}?lang={langname}'><img src="{siteurl}/images/flags/{langname}.png" /> {langtitle}</a>
-                            </li>    
-                            <!-- end foreach {sitelanguages} -->
-                        </ul>
-                    </li>
-                </ul>
-                <!-- end if {sitelanguages} -->
-            </div>
-
-
-        </nav>
-
-        <main role="main" class="container">
-            <div class="p-2 bg-white">
-                <!-- include section -->
-                <h1>Bootstrap starter template</h1>
-                <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
-                <!-- end include section -->
-            </div>
-
-        </main><!-- /.container -->
-
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
+        <!-- Bootstrap core JavaScript -->
         <script src="dist/js/jquery-3.7.1.slim.min.js"  ></script>
         <script src="assets/js/vendor/popper.min.js"></script>
         <script src="dist/js/bootstrap.min.js"></script>
-        <script src="page.js"></script>
+        <script src="page.js?v=20261104b"></script>
     </body>
 </html>

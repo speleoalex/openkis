@@ -86,6 +86,90 @@
     body.classList.add("gc-ready");
 })();
 
+/* light/dark mode: the script at the top of template.tp.html sets data-theme on
+   <html> before the styles; the button of the app bar switches it. A choice equal
+   to the setting of the system is not kept, so the page follows the system again */
+(function () {
+    var root = document.documentElement;
+    var btn = document.getElementById("gcThemeToggle");
+    var KEY = "gc_theme";
+    var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+    function systemTheme() {
+        return mq && mq.matches ? "dark" : "light";
+    }
+
+    function saved() {
+        try {
+            var t = window.localStorage.getItem(KEY);
+            return (t === "light" || t === "dark") ? t : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function apply(t) {
+        root.setAttribute("data-theme", t);
+        if (btn) {
+            btn.setAttribute("aria-pressed", t === "dark" ? "true" : "false");
+        }
+    }
+
+    apply(root.getAttribute("data-theme") === "dark" ? "dark" : "light");
+    if (btn) {
+        btn.addEventListener("click", function () {
+            var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            try {
+                if (next === systemTheme()) {
+                    window.localStorage.removeItem(KEY);
+                } else {
+                    window.localStorage.setItem(KEY, next);
+                }
+            } catch (e) {
+            }
+            apply(next);
+        });
+    }
+    if (mq) {
+        var onSystem = function () {
+            if (!saved()) {
+                apply(systemTheme());
+            }
+        };
+        if (mq.addEventListener) {
+            mq.addEventListener("change", onSystem);
+        } else if (mq.addListener) {
+            mq.addListener(onSystem);
+        }
+    }
+    // another tab changed the mode
+    window.addEventListener("storage", function (e) {
+        if (e.key === KEY) {
+            apply(saved() || systemTheme());
+        }
+    });
+})();
+
+/* close buttons of Bootstrap 5 (data-bs-dismiss="alert") in pages written for a
+   Bootstrap 5 theme: this theme loads Bootstrap 4. A native "close.bs.alert" event
+   is sent first, as Bootstrap 5 does (the Liguria home keeps its notice closed with it) */
+document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-bs-dismiss="alert"]') : null;
+    var a = b ? b.closest(".alert") : null;
+    if (!a) {
+        return;
+    }
+    var ev = null;
+    try {
+        ev = new CustomEvent("close.bs.alert", {bubbles: true, cancelable: true});
+    } catch (x) {
+    }
+    if (ev && !a.dispatchEvent(ev)) {
+        return;
+    }
+    a.parentNode.removeChild(a);
+});
+
 /* keep the original behaviour of nested dropdown items */
 if (window.jQuery) {
     jQuery(".dropdown-item a").click(function () {

@@ -1,42 +1,2106 @@
-/* put your own styles to customize and override the theme */
-.page{
-    background-color:#ffffff;
+/* =====================================================================
+   openkis_liguria theme (Catasto Speleologico Ligure)
+   Layout of openkis_grottocenter (fixed left drawer, top app bar, "paper"
+   cards, footer with columns) with the same rules as openkis_agsp (the
+   light and dark mode included) in the colours of the Liguria register:
+   the orange app bar of www.catastogrotte.net/liguria (#d67e36 with the
+   yellow line below), a dark brown for the footer, the menu icons and the
+   secondary buttons, a deeper orange for titles, links and main buttons.
+   Light and dark mode: every colour is a variable below; the dark values
+   apply with <html data-theme="dark"> (set before the styles by the script
+   at the top of template.tp.html: the choice made with the button of the
+   app bar, otherwise the setting of the system) and, without JavaScript,
+   with the dark setting of the system.
+   ===================================================================== */
+
+:root {
+    color-scheme: light;
+    --gc-brown: #8a4e17;
+    --gc-brown-dark: #6b3a0f;
+    --gc-brown-light: #e0a46a;
+    --gc-orange: #a8521a;
+    --gc-solid: #a8521a;
+    --gc-orange-dark: #9a4a12;
+    --gc-orange-light: #f6c08a;
+    --gc-beige: #fdf3e7;
+    --gc-tint: #fdf3e7;
+    --gc-tint-border: rgba(214, 126, 54, .4);
+    --gc-bg: #f7f5f2;
+    --gc-header: #d67e36;
+    --gc-header-hover: rgba(255, 255, 255, .1);
+    --gc-dark: #3d2a1c;
+    --gc-dark-deep: #2a1c12;
+    --gc-footer: #3d2a1c;
+    --gc-footer-deep: #2a1c12;
+    --gc-secondary: #3d2a1c;
+    --gc-secondary-dark: #2a1c12;
+    --gc-table-head: #3d2a1c;
+    --gc-code-badge: #3d2a1c;
+    --gc-outline: #3d2a1c;
+    --gc-outline-border: rgba(61, 42, 28, .45);
+    --gc-accent: #c2410c;
+    --gc-accent-dark: #9a3412;
+    --gc-accent-text: #c2410c;
+    --gc-accent-border: rgba(194, 65, 12, .5);
+    --gc-accent-tint: rgba(194, 65, 12, .08);
+    --gc-paper: #ffffff;
+    --gc-paper-2: #fbf8f5;
+    --gc-raised: #ffffff;
+    --gc-hover: rgba(0, 0, 0, .04);
+    --gc-hover-row: #fbf3ea;
+    --gc-active-bg: rgba(214, 126, 54, .14);
+    --gc-media-bg: #e3e6e9;
+    --gc-text: rgba(0, 0, 0, .95);
+    --gc-text-2: rgba(0, 0, 0, .75);
+    --gc-muted: rgba(0, 0, 0, .54);
+    --gc-line: rgba(0, 0, 0, .12);
+    --gc-line-2: #e3e7ec;
+    --gc-line-dotted: rgba(0, 0, 0, .25);
+    --gc-input-bg: #ffffff;
+    --gc-input-readonly: #eef1f5;
+    --gc-input-border: rgba(0, 0, 0, .23);
+    --gc-focus: rgba(214, 126, 54, .3);
+    --gc-danger-text: #c62828;
+    --gc-ico-filter: none;
+    --gc-hero-bg: url("img/hero-bg.svg?v=20261104a");
+    --gc-sidebar-w: 240px;
+    --gc-sidebar-mini-w: 57px;
+    --gc-appbar-h: 56px;
+    --gc-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+    --gc-shadow-1: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+    --gc-shadow-4: 0 2px 4px -1px rgba(0, 0, 0, .2), 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12);
 }
 
-.app-header-dark {
-    background-color: #d67e36;
-    color: hsla(0,0%,100%,.8);
+/* dark mode: the same block twice, for the button choice and for the system
+   setting without JavaScript */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --gc-brown: #f2b27a;
+    --gc-brown-dark: #f8d0aa;
+    --gc-brown-light: #d67e36;
+    --gc-orange: #f2b27a;
+    --gc-solid: #a8521a;
+    --gc-orange-dark: #f2b27a;
+    --gc-orange-light: #f6c08a;
+    --gc-beige: #3a2617;
+    --gc-tint: #3a2617;
+    --gc-tint-border: rgba(242, 178, 122, .35);
+    --gc-bg: #14110e;
+    --gc-header: #b8662a;
+    --gc-dark: #0d0a08;
+    --gc-dark-deep: #080605;
+    --gc-footer: #0d0a08;
+    --gc-footer-deep: #080605;
+    --gc-secondary: #5a3d27;
+    --gc-secondary-dark: #6b4a30;
+    --gc-table-head: #4a3220;
+    --gc-code-badge: #5a3d27;
+    --gc-outline: #e6d6c6;
+    --gc-outline-border: rgba(230, 214, 198, .4);
+    --gc-accent: #c2410c;
+    --gc-accent-dark: #d4500f;
+    --gc-accent-text: #f0915a;
+    --gc-accent-border: rgba(240, 145, 90, .55);
+    --gc-accent-tint: rgba(240, 145, 90, .12);
+    --gc-paper: #1e1915;
+    --gc-paper-2: #241e19;
+    --gc-raised: #29221c;
+    --gc-hover: rgba(255, 255, 255, .06);
+    --gc-hover-row: #29221c;
+    --gc-active-bg: rgba(242, 178, 122, .16);
+    --gc-media-bg: #30281f;
+    --gc-text: #efe7df;
+    --gc-text-2: rgba(239, 231, 223, .8);
+    --gc-muted: rgba(239, 231, 223, .6);
+    --gc-line: rgba(255, 255, 255, .12);
+    --gc-line-2: rgba(255, 255, 255, .1);
+    --gc-line-dotted: rgba(255, 255, 255, .22);
+    --gc-input-bg: #17130f;
+    --gc-input-readonly: #241e19;
+    --gc-input-border: rgba(255, 255, 255, .22);
+    --gc-focus: rgba(242, 178, 122, .35);
+    --gc-danger-text: #ff8a80;
+    --gc-ico-filter: none;
+    --gc-hero-bg: url("img/hero-bg-dark.svg?v=20261104a");
+    --gc-shadow-1: 0 1px 3px rgba(0, 0, 0, .5), 0 1px 2px rgba(0, 0, 0, .6);
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #ea8109;
-    border-color: #d67e36;
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        color-scheme: dark;
+        --gc-brown: #f2b27a;
+        --gc-brown-dark: #f8d0aa;
+        --gc-brown-light: #d67e36;
+        --gc-orange: #f2b27a;
+        --gc-solid: #a8521a;
+        --gc-orange-dark: #f2b27a;
+        --gc-orange-light: #f6c08a;
+        --gc-beige: #3a2617;
+        --gc-tint: #3a2617;
+        --gc-tint-border: rgba(242, 178, 122, .35);
+        --gc-bg: #14110e;
+        --gc-header: #b8662a;
+        --gc-dark: #0d0a08;
+        --gc-dark-deep: #080605;
+        --gc-footer: #0d0a08;
+        --gc-footer-deep: #080605;
+        --gc-secondary: #5a3d27;
+        --gc-secondary-dark: #6b4a30;
+        --gc-table-head: #4a3220;
+        --gc-code-badge: #5a3d27;
+        --gc-outline: #e6d6c6;
+        --gc-outline-border: rgba(230, 214, 198, .4);
+        --gc-accent: #c2410c;
+        --gc-accent-dark: #d4500f;
+        --gc-accent-text: #f0915a;
+        --gc-accent-border: rgba(240, 145, 90, .55);
+        --gc-accent-tint: rgba(240, 145, 90, .12);
+        --gc-paper: #1e1915;
+        --gc-paper-2: #241e19;
+        --gc-raised: #29221c;
+        --gc-hover: rgba(255, 255, 255, .06);
+        --gc-hover-row: #29221c;
+        --gc-active-bg: rgba(242, 178, 122, .16);
+        --gc-media-bg: #30281f;
+        --gc-text: #efe7df;
+        --gc-text-2: rgba(239, 231, 223, .8);
+        --gc-muted: rgba(239, 231, 223, .6);
+        --gc-line: rgba(255, 255, 255, .12);
+        --gc-line-2: rgba(255, 255, 255, .1);
+        --gc-line-dotted: rgba(255, 255, 255, .22);
+        --gc-input-bg: #17130f;
+        --gc-input-readonly: #241e19;
+        --gc-input-border: rgba(255, 255, 255, .22);
+        --gc-focus: rgba(242, 178, 122, .35);
+        --gc-danger-text: #ff8a80;
+        --gc-ico-filter: none;
+        --gc-hero-bg: url("img/hero-bg-dark.svg?v=20261104a");
+        --gc-shadow-1: 0 1px 3px rgba(0, 0, 0, .5), 0 1px 2px rgba(0, 0, 0, .6);
+    }
 }
 
-a {
-    color: #d67e36;
-    text-decoration: none;
+html {
+    scroll-padding-top: calc(var(--gc-appbar-h) + 8px);
+}
+
+body.gc-body {
+    margin: 0;
+    padding-top: var(--gc-appbar-h);
+    background-color: var(--gc-bg);
+    color: var(--gc-text);
+    font-family: var(--gc-font);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.page {
     background-color: transparent;
 }
 
-img{
-    max-width: 100%
+img {
+    max-width: 100% !important;
 }
 
-.bg-dark{
-    background-color: #d67e36 !important;
-    color: hsla(0,0%,100%,.8) !important;
-    font-weight: bold;
+/* ---------------------------------------------------------------------
+   Left drawer
+   --------------------------------------------------------------------- */
+.gc-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--gc-sidebar-w);
+    background: var(--gc-paper);
+    border-right: 1px solid var(--gc-line);
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform .2s ease, width .2s ease;
 }
-/* outline buttons (view button of the list cards) in the colour of the theme */
-.btn-outline-primary {
-    color: #d67e36;
-    border-color: #d67e36;
+
+.gc-brand {
+    flex: 0 0 var(--gc-appbar-h);
+    height: var(--gc-appbar-h);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    color: var(--gc-text);
+    font-size: 17px;
+    font-weight: 500;
+    text-decoration: none;
+    overflow: hidden;
+    white-space: nowrap;
 }
-.btn-outline-primary:hover,
-.btn-outline-primary:not(:disabled):not(.disabled):active {
+
+.gc-brand:hover {
+    color: var(--gc-brown);
+    text-decoration: none;
+}
+
+.gc-brand img {
+    height: 38px;
+    width: auto;
+    margin-right: 12px;
+}
+
+.gc-brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* long register names ("Catasto Speleologico Lombardo") on two lines */
+    white-space: normal;
+    font-size: 15px;
+    line-height: 1.2;
+}
+
+.gc-sidebar-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 8px 8px;
+}
+
+.gc-navlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.gc-subheader {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gc-brown);
+    padding: 10px 8px 4px;
+    line-height: 1.4;
+}
+
+.gc-subheader a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.gc-subheader a:hover {
+    color: var(--gc-orange);
+}
+
+.gc-divider {
+    height: 1px;
+    background: var(--gc-line);
+    margin: 4px 0;
+    list-style: none;
+}
+
+.gc-navlist > .gc-divider:first-child,
+.gc-divider + .gc-divider,
+.gc-navitem:not(.gc-navitem-child) + .gc-divider:has(+ .gc-navitem) {
+    display: none;
+}
+
+.gc-navlink {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: var(--gc-text);
+    text-decoration: none;
+    font-size: 16px;
+    line-height: 1.25;
+}
+
+.gc-navlink:hover,
+.gc-navlink:focus {
+    background: var(--gc-hover);
+    color: var(--gc-text);
+    text-decoration: none;
+}
+
+.gc-navitem.gc-active > .gc-navlink {
+    background: var(--gc-active-bg);
+    color: var(--gc-brown);
+    font-weight: 500;
+}
+
+.gc-navtext {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-ico {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    margin-right: 10px;
+    background: url("img/icons/default.svg?v=20261104a") center / contain no-repeat;
+    filter: var(--gc-ico-filter);
+}
+
+.gc-ico-lg {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    margin-right: 12px;
+}
+
+.gc-ico-inline {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: -4px;
+    background: center / contain no-repeat;
+}
+
+.gc-ext {
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    opacity: .6;
+    background: url("img/icons/external.svg?v=20261104a") center / contain no-repeat;
+}
+
+.gc-contribute {
+    padding: 8px 4px 4px;
+}
+
+.gc-btn-outline-orange {
+    color: var(--gc-accent-text);
+    border: 1px solid var(--gc-accent-border);
+    background: transparent;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: .02em;
+    border-radius: 4px;
+    padding: 7px 16px;
+}
+
+.gc-btn-outline-orange:hover,
+.gc-btn-outline-orange:focus {
+    background: var(--gc-accent-tint);
+    border-color: var(--gc-accent-text);
+    color: var(--gc-accent-text);
+    text-decoration: none;
+}
+
+.gc-plus {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 19px;
+    border-radius: 50%;
+    background: var(--gc-accent);
     color: #fff;
-    background-color: #d67e36;
-    border-color: #d67e36;
+    text-align: center;
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+.gc-sidebar-bottom {
+    flex: 0 0 auto;
+    padding: 0 8px 8px;
+}
+
+/* ---------------------------------------------------------------------
+   Top app bar
+   --------------------------------------------------------------------- */
+.gc-appbar {
+    border-bottom: 2px solid #fab941;
+    position: fixed;
+    top: 0;
+    left: var(--gc-sidebar-w);
+    right: 0;
+    height: var(--gc-appbar-h);
+    background: var(--gc-header);
+    color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 1100;
+    box-shadow: var(--gc-shadow-4);
+    transition: left .2s ease;
+}
+
+.gc-menu-btn {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, .5);
+    background: transparent;
+    color: #f5f5f5;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+.gc-menu-btn:hover,
+.gc-menu-btn:focus {
+    background: rgba(255, 255, 255, .08);
+    outline: none;
+}
+
+.gc-chevron {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    margin-left: 4px;
+    transition: transform .2s ease, margin .2s ease;
+}
+
+body.gc-collapsed .gc-chevron {
+    transform: rotate(-135deg);
+    margin-left: -4px;
+}
+
+.gc-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    background: rgba(0, 0, 0, .16);
+    border-radius: 4px;
+    margin: 0 12px;
+    padding: 0 8px;
+    transition: background .15s;
+}
+
+.gc-search:hover,
+.gc-search:focus-within {
+    background: rgba(0, 0, 0, .24);
+}
+
+.gc-search-empty {
+    background: transparent;
+}
+
+.gc-search-ico {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    margin-right: 8px;
+    background: url("img/icons/search-white.svg?v=20261104a") center / contain no-repeat;
+}
+
+.gc-search-input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.gc-search-input::placeholder {
+    color: rgba(255, 255, 255, .9);
+}
+
+.gc-lang,
+.gc-user {
+    flex: 0 0 auto;
+}
+
+.gc-lang {
+    margin-right: 16px;
+}
+
+.gc-lang-toggle {
+    display: flex;
+    align-items: center;
+    color: #f5f5f5;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 15px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .5);
+}
+
+.gc-lang-toggle:hover,
+.gc-lang-toggle:focus {
+    color: #fff;
+    text-decoration: none;
+    border-bottom-color: #fff;
+}
+
+.gc-lang-ico {
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+    background: url("img/icons/translate-white.svg?v=20261104a") center / contain no-repeat;
+}
+
+.gc-lang .dropdown-item img {
+    margin-right: 6px;
+    vertical-align: -2px;
+}
+
+.gc-btn-outline-white {
+    height: 37px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, .85);
+    border-radius: 4px;
+    background: transparent;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: .02em;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.gc-btn-outline-white:hover,
+.gc-btn-outline-white:focus {
+    background: rgba(255, 255, 255, .08);
+    border-color: #fff;
+    color: #fff;
+    outline: none;
+}
+
+.gc-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+}
+
+.gc-user .gc-user-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gc-login-menu {
+    min-width: 280px;
+}
+
+.gc-appbar .dropdown-menu {
+    color: var(--gc-text);
+    background-color: var(--gc-raised);
+    border: 0;
+    box-shadow: var(--gc-shadow-4);
+    margin-top: 8px;
+}
+
+/* ---------------------------------------------------------------------
+   Main column
+   --------------------------------------------------------------------- */
+.gc-main {
+    margin-left: var(--gc-sidebar-w);
+    min-height: calc(100vh - var(--gc-appbar-h));
+    display: flex;
+    flex-direction: column;
+    transition: margin-left .2s ease;
+}
+
+.gc-content {
+    flex: 1 0 auto;
+    padding: 24px;
+}
+
+.gc-paper {
+    background: var(--gc-paper);
+    border-radius: 4px;
+    box-shadow: var(--gc-shadow-1);
+    padding: 16px;
+}
+
+.gc-paper iframe {
+    max-width: 100%;
+}
+
+/* collapsed: mini drawer with icons only (desktop) */
+body.gc-collapsed .gc-sidebar {
+    width: var(--gc-sidebar-mini-w);
+}
+
+body.gc-collapsed .gc-appbar {
+    left: var(--gc-sidebar-mini-w);
+}
+
+body.gc-collapsed .gc-main {
+    margin-left: var(--gc-sidebar-mini-w);
+}
+
+body.gc-collapsed .gc-brand {
+    justify-content: center;
+    padding: 0;
+}
+
+body.gc-collapsed .gc-brand img {
+    margin-right: 0;
+}
+
+body.gc-collapsed .gc-brand-name,
+body.gc-collapsed .gc-subheader,
+body.gc-collapsed .gc-navtext,
+body.gc-collapsed .gc-ext,
+body.gc-collapsed .gc-contribute .gc-label {
+    display: none;
+}
+
+body.gc-collapsed .gc-sidebar-scroll,
+body.gc-collapsed .gc-sidebar-bottom {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+body.gc-collapsed .gc-navlink {
+    justify-content: center;
+    padding: 4px;
+}
+
+body.gc-collapsed .gc-sidebar .gc-ico {
+    margin-right: 0;
+}
+
+body.gc-collapsed .gc-divider {
+    display: block;
+}
+
+body.gc-collapsed .gc-navitem:not(.gc-navitem-child) + .gc-divider:has(+ .gc-navitem) {
+    display: none;
+}
+
+body.gc-collapsed .gc-contribute {
+    padding: 8px 0 4px;
+}
+
+body.gc-collapsed .gc-btn-outline-orange {
+    padding: 14px 0;
+}
+
+body.gc-collapsed .gc-plus {
+    width: 32px;
+    height: 32px;
+    line-height: 31px;
+    font-size: 22px;
+    margin-right: 0;
+}
+
+.gc-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, .5);
+    z-index: 1150;
+}
+
+/* page header: icon + orange title, breadcrumb on the right */
+.gc-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-bottom: 16px;
+}
+
+.gc-page-title {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.gc-page-title h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--gc-orange);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.gc-breadcrumb .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+}
+
+.gc-breadcrumb .breadcrumb-item.active {
+    color: var(--gc-text-2);
+}
+
+/* ---------------------------------------------------------------------
+   Hero (home page only)
+   --------------------------------------------------------------------- */
+.gc-hero {
+    background: var(--gc-paper) var(--gc-hero-bg) center / cover no-repeat;
+    text-align: center;
+    padding: 40px 24px 24px;
+    border-bottom: 1px solid var(--gc-line);
+}
+
+.gc-hero-logo {
+    height: 96px;
+    width: auto;
+}
+
+.gc-hero-title {
+    font-size: 55px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--gc-text);
+    margin: 8px 0 0;
+    line-height: 1.2;
+}
+
+.gc-hero-subtitle {
+    font-size: 16px;
+    color: var(--gc-text-2);
+    margin: 4px 0 32px;
+}
+
+.gc-hero-actions .btn {
+    margin: 4px 8px;
+}
+
+.gc-btn-lg {
+    padding: 10px 32px;
+    font-size: 15px;
+    border-radius: 22px;
+}
+
+.gc-hero-footnote {
+    text-align: left;
+    padding: 24px 0 0;
+    font-size: 14px;
+    color: var(--gc-text-2);
+}
+
+/* ---------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------- */
+.gc-footer {
+    background: var(--gc-footer);
+    color: rgba(255, 255, 255, .7);
+    margin-top: 24px;
+}
+
+.gc-footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+}
+
+.gc-footer-brand {
+    flex: 1 1 260px;
+}
+
+.gc-footer-brand p {
+    margin: 12px 0 0;
+    font-size: 14px;
+}
+
+.gc-footer-logo {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.gc-footer-logo img {
+    height: 32px;
+    width: auto;
+    margin-right: 12px;
+}
+
+.gc-footer-col {
+    flex: 0 1 170px;
+}
+
+.gc-footer-head {
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 12px;
+}
+
+.gc-footer-nav a {
+    display: block;
+    color: rgba(255, 255, 255, .7);
+    padding: 4px 0;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.gc-footer-nav a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.gc-footer-bottom {
+    background: var(--gc-footer-deep);
+}
+
+.gc-footer-bottom .gc-footer-inner {
+    display: block;
+    padding: 16px 24px;
+    font-size: 13px;
+}
+
+.gc-footer-bottom a {
+    color: var(--gc-orange-light);
+}
+
+.gc-footer-credits {
+    margin-top: 8px;
+    opacity: .8;
+}
+
+/* ---------------------------------------------------------------------
+   Typography and Bootstrap overrides (Grottocenter palette)
+   --------------------------------------------------------------------- */
+h1, .h1, h2, .h2, h3, .h3 {
+    color: var(--gc-orange);
+    font-weight: 600;
+}
+
+h1, .h1 {
+    font-size: 28px;
+}
+
+h2, .h2 {
+    font-size: 22px;
+}
+
+h3, .h3 {
+    font-size: 18px;
+}
+
+h4, .h4, h5, .h5, h6, .h6 {
+    color: var(--gc-brown);
+    font-weight: 600;
+}
+
+a {
+    color: var(--gc-orange-dark);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--gc-orange);
+}
+
+.article .postmetadataheader {
+    border-bottom: 1px solid var(--gc-line);
+    margin-bottom: 12px;
+}
+
+.article .postheader {
+    font-size: 22px;
+    color: var(--gc-orange);
+    margin: 0 0 8px;
+}
+
+.btn {
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: .02em;
+    border-radius: 4px;
+}
+
+.gc-body .btn-primary,
+.gc-body .btn-primary:not(:disabled):not(.disabled):active,
+.gc-body .btn-primary:not(:disabled):not(.disabled).active,
+.gc-body .show > .btn-primary.dropdown-toggle {
+    background-color: var(--gc-accent);
+    background-image: none;
+    border-color: var(--gc-accent);
+    color: #fff;
+    box-shadow: var(--gc-shadow-1);
+}
+
+.gc-body .btn-primary:hover,
+.gc-body .btn-primary:focus {
+    background-color: var(--gc-accent-dark);
+    background-image: none;
+    border-color: var(--gc-accent-dark);
+    color: #fff;
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+    box-shadow: 0 0 0 .2rem rgba(194, 65, 12, .35);
+}
+
+.gc-body .btn-secondary,
+.gc-body .btn-secondary:not(:disabled):not(.disabled):active,
+.gc-body .show > .btn-secondary.dropdown-toggle {
+    background-color: var(--gc-secondary);
+    background-image: none;
+    border-color: var(--gc-secondary);
+    color: #fff;
+    box-shadow: var(--gc-shadow-1);
+}
+
+.gc-body .btn-secondary:hover,
+.gc-body .btn-secondary:focus {
+    background-color: var(--gc-secondary-dark);
+    background-image: none;
+    border-color: var(--gc-secondary-dark);
+    color: #fff;
+}
+
+.btn-info {
+    background-color: var(--gc-solid);
+    border-color: var(--gc-solid);
+}
+
+.btn-info:hover {
+    background-color: var(--gc-secondary);
+    border-color: var(--gc-secondary);
+}
+
+.btn-success {
+    background-color: #558b2f;
+    border-color: #558b2f;
+}
+
+.btn-outline-primary {
+    color: var(--gc-accent-text);
+    border-color: var(--gc-accent-border);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--gc-accent);
+    border-color: var(--gc-accent);
+    color: #fff;
+}
+
+.btn-outline-secondary {
+    color: var(--gc-outline);
+    border-color: var(--gc-outline-border);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--gc-secondary);
+    border-color: var(--gc-secondary);
+    color: #fff;
+}
+
+.btn-default,
+.btn-light {
+    background-color: var(--gc-paper);
+    border-color: var(--gc-line);
+    color: var(--gc-brown);
+}
+
+.bg-dark,
+.bg-primary,
+.navbar-dark,
+.app-header-dark {
+    background-color: var(--gc-header) !important;
+    color: #f5f5f5;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--gc-solid), var(--gc-brown-light)) !important;
+}
+
+.bg-secondary {
+    background-color: var(--gc-tint) !important;
+}
+
+.text-primary {
+    color: var(--gc-orange) !important;
+}
+
+.text-secondary,
+.text-info {
+    color: var(--gc-brown) !important;
+}
+
+.text-muted {
+    color: var(--gc-muted) !important;
+}
+
+.border-primary {
+    border-color: var(--gc-orange) !important;
+}
+
+.badge-primary {
+    background-color: var(--gc-solid);
+}
+
+.badge-secondary,
+.badge-info {
+    background-color: var(--gc-solid);
+}
+
+.alert-primary,
+.alert-info {
+    background-color: var(--gc-tint);
+    border-color: var(--gc-tint-border);
+    color: var(--gc-brown-dark);
+}
+
+/* cards: flat white paper with a light border, brown header text */
+.card {
+    background-color: var(--gc-paper);
+    border: 1px solid var(--gc-line);
+    border-radius: 4px;
+}
+
+.card-header {
+    background-color: var(--gc-paper-2);
+    color: var(--gc-brown);
+    font-weight: 600;
+    border-bottom: 1px solid var(--gc-line);
+}
+
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5 {
+    margin: 0;
+}
+
+/* tables: brown header row, light separators, hover highlight */
+.table thead th,
+.table-dark thead th,
+.thead-dark th {
+    background-color: var(--gc-table-head);
+    color: #fff;
+    border-color: var(--gc-table-head);
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.table thead th a {
+    color: #fff;
+}
+
+.table td,
+.table th {
+    border-top: 1px solid var(--gc-line-2);
+    vertical-align: middle;
+}
+
+.table tbody th[scope="row"] {
+    color: var(--gc-brown);
+    font-weight: 600;
+    background-color: var(--gc-paper-2);
+    width: 30%;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--gc-hover-row);
+    color: var(--gc-text);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--gc-paper-2);
+}
+
+/* forms */
+.form-control:focus,
+.custom-select:focus {
+    border-color: var(--gc-orange);
+    box-shadow: 0 0 0 .2rem var(--gc-focus);
+}
+
+.form-control {
+    border-color: var(--gc-input-border);
+}
+
+label,
+.col-form-label {
+    color: var(--gc-text-2);
+    font-weight: 500;
+}
+
+/* tabs like the detail page of Grottocenter */
+.nav-tabs {
+    border-bottom: 1px solid var(--gc-line);
+}
+
+.nav-tabs .nav-link {
+    color: var(--gc-muted);
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: .02em;
+    border: 0;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--gc-brown);
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--gc-brown);
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--gc-brown);
+}
+
+/* pagination and dropdowns */
+.page-link {
+    color: var(--gc-brown);
+}
+
+.page-link:hover {
+    color: var(--gc-orange);
+}
+
+.page-item.active .page-link {
+    background-color: var(--gc-accent);
+    border-color: var(--gc-accent);
+    color: #fff;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--gc-accent);
+}
+
+.breadcrumb {
+    background-color: transparent;
+}
+
+.gc-body .list-group-item.active {
+    background-color: var(--gc-solid);
+    border-color: var(--gc-solid);
+    color: #fff;
+}
+
+.progress-bar {
+    background-color: var(--gc-accent);
+}
+
+.modal-header {
+    background-color: var(--gc-header);
+    color: #fff;
+}
+
+.modal-header .close {
+    color: #fff;
+    text-shadow: none;
+}
+
+details > summary {
+    color: var(--gc-brown);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------
+   Responsive: drawer becomes an overlay below 992px
+   --------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+    .gc-sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    body.gc-sidebar-open .gc-sidebar {
+        transform: none;
+        box-shadow: 0 8px 10px -5px rgba(0, 0, 0, .2), 0 16px 24px 2px rgba(0, 0, 0, .14), 0 6px 30px 5px rgba(0, 0, 0, .12);
+    }
+
+    body.gc-sidebar-open .gc-backdrop {
+        display: block;
+    }
+
+    body.gc-sidebar-open {
+        overflow: hidden;
+    }
+
+    .gc-appbar,
+    body.gc-collapsed .gc-appbar {
+        left: 0;
+        padding: 0 8px;
+    }
+
+    .gc-main,
+    body.gc-collapsed .gc-main {
+        margin-left: 0;
+    }
+
+    .gc-chevron,
+    body.gc-collapsed .gc-chevron {
+        transform: rotate(-135deg);
+        margin-left: -4px;
+    }
+
+    body.gc-sidebar-open .gc-chevron {
+        transform: rotate(45deg);
+        margin-left: 4px;
+    }
+
+    .gc-search {
+        margin: 0 8px;
+    }
+
+    .gc-lang {
+        margin-right: 8px;
+    }
+
+    .gc-content {
+        padding: 12px;
+    }
+
+    .gc-paper {
+        padding: 12px;
+    }
+
+    .gc-hero {
+        padding: 24px 16px 16px;
+    }
+
+    .gc-hero-logo {
+        height: 72px;
+    }
+
+    .gc-hero-title {
+        font-size: 36px;
+    }
+
+    .gc-page-title h1 {
+        font-size: 22px;
+    }
+
+    .gc-footer-inner {
+        padding: 24px 16px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .gc-lang-current {
+        display: none;
+    }
+
+    .gc-btn-outline-white {
+        padding: 0 10px;
+    }
+
+    .gc-menu-btn {
+        margin-right: 4px;
+    }
+}
+
+@media print {
+    .gc-sidebar,
+    .gc-appbar,
+    .gc-footer,
+    .gc-backdrop,
+    .gc-hero-actions {
+        display: none !important;
+    }
+
+    body.gc-body {
+        padding-top: 0;
+        background: #fff;
+    }
+
+    .gc-main {
+        margin-left: 0;
+    }
+
+    .gc-paper {
+        box-shadow: none;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Section icons (generated by make_icons.py; add your own rules below)
+   --------------------------------------------------------------------- */
+.gc-ico-caves,
+.gc-ico-menu_natural,
+.gc-ico-cavesystem,
+.gc-ico-wish {
+    background-image: url("img/icons/cave.svg?v=20261104a");
+}
+
+.gc-ico-map_caves,
+.gc-ico-map_artificials,
+.gc-ico-map_glacial {
+    background-image: url("img/icons/map.svg?v=20261104a");
+}
+
+.gc-ico-springs {
+    background-image: url("img/icons/drop.svg?v=20261104a");
+}
+
+.gc-ico-bibliography {
+    background-image: url("img/icons/book.svg?v=20261104a");
+}
+
+.gc-ico-survey,
+.gc-ico-survey_artificials {
+    background-image: url("img/icons/ruler.svg?v=20261104a");
+}
+
+.gc-ico-tracings {
+    background-image: url("img/icons/route.svg?v=20261104a");
+}
+
+.gc-ico-areas,
+.gc-ico-geological_formations {
+    background-image: url("img/icons/layers.svg?v=20261104a");
+}
+
+.gc-ico-fauna,
+.gc-ico-fauna_surveys,
+.gc-ico-menu_fauna {
+    background-image: url("img/icons/bug.svg?v=20261104a");
+}
+
+.gc-ico-artificials,
+.gc-ico-menu_artificials {
+    background-image: url("img/icons/pick.svg?v=20261104a");
+}
+
+.gc-ico-art_categorie,
+.gc-ico-art_tipologie,
+.gc-ico-reports {
+    background-image: url("img/icons/list.svg?v=20261104a");
+}
+
+.gc-ico-glacial,
+.gc-ico-glaciers,
+.gc-ico-glacial_surveys,
+.gc-ico-speleologia_glaciale {
+    background-image: url("img/icons/snow.svg?v=20261104a");
+}
+
+.gc-ico-associations,
+.gc-ico-commissione,
+.gc-ico-federation {
+    background-image: url("img/icons/groups.svg?v=20261104a");
+}
+
+.gc-ico-regioni,
+.gc-ico-wish_regioni {
+    background-image: url("img/icons/flag.svg?v=20261104a");
+}
+
+.gc-ico-menu_settings,
+.gc-ico-configopenkis {
+    background-image: url("img/icons/settings.svg?v=20261104a");
+}
+
+.gc-ico-coordinate_types {
+    background-image: url("img/icons/gps.svg?v=20261104a");
+}
+
+.gc-ico-licenses {
+    background-image: url("img/icons/shield.svg?v=20261104a");
+}
+
+.gc-ico-Imports {
+    background-image: url("img/icons/download.svg?v=20261104a");
+}
+
+.gc-ico-grottocenter {
+    background-image: url("img/icons/cloud.svg?v=20261104a");
+}
+
+.gc-ico-openkis_mcp {
+    background-image: url("img/icons/api.svg?v=20261104a");
+}
+
+.gc-ico-login {
+    background-image: url("img/icons/account.svg?v=20261104a");
+}
+
+.gc-ico-home {
+    background-image: url("img/icons/home.svg?v=20261104a");
+}
+
+.gc-ico-search {
+    background-image: url("img/icons/search.svg?v=20261104a");
+}
+
+.gc-ico-guide {
+    background-image: url("img/icons/guide.svg?v=20261104a");
+}
+
+.gc-ico-chart {
+    background-image: url("img/icons/chart.svg?v=20261104a");
+}
+
+.gc-ico-inline.gc-ico-map {
+    background-image: url("img/icons/map-white.svg?v=20261104a");
+}
+
+.gc-ico-inline.gc-ico-search {
+    background-image: url("img/icons/search-white.svg?v=20261104a");
+}
+
+/* app bar dropdowns: static placement, anchored to the right edge */
+.gc-appbar .dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+/* ---------------------------------------------------------------------
+   Cave statistics below the map (extra/openkis/cavestats, shown by
+   custom/lombardia/footer_map_caves.php, whose inline style is orange)
+   and cave codes: theme colours
+   --------------------------------------------------------------------- */
+.gc-body .openkis-home-number {
+    /* the four provinces and the total on one row */
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--gc-orange);
+}
+
+.gc-body .openkis-home-ranking td,
+.gc-body .openkis-home-ranking th {
+    vertical-align: middle;
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+
+.gc-body .openkis-home-ranking .openkis-sheet-code {
+    font-size: .7rem;
+    font-weight: 500;
+}
+
+.gc-body .openkis-home-total {
+    background: var(--gc-tint);
+}
+
+.gc-body .badge-dark.openkis-sheet-code {
+    background-color: var(--gc-code-badge);
+}
+
+/* ---------------------------------------------------------------------
+   Site search (modules/search/searchform.tp.html): search bar, chips with
+   the results of each section, one card per section
+   --------------------------------------------------------------------- */
+.openkis-searchbar .form-control,
+.openkis-searchbar .custom-select {
+    height: 44px;
+    font-size: 16px;
+}
+
+.openkis-searchbar .btn {
+    display: inline-flex;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.openkis-search-count {
+    color: var(--gc-text-2);
+    margin: 0 0 8px;
+}
+
+.openkis-search-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.openkis-search-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 12px;
+    border: 1px solid var(--gc-tint-border);
+    border-radius: 16px;
+    background: var(--gc-paper);
+    color: var(--gc-brown);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.openkis-search-chip:hover,
+.openkis-search-chip:focus {
+    background: var(--gc-tint);
+    color: var(--gc-brown-dark);
+    text-decoration: none;
+}
+
+.openkis-search-chip .badge {
+    border-radius: 10px;
+}
+
+.openkis-search-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.openkis-search-group-header h2 {
+    color: var(--gc-brown);
+    font-size: 18px;
+    margin: 0;
+}
+
+.openkis-search-group-header h2 small {
+    color: var(--gc-muted);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.openkis-search-group .list-group-item {
+    display: block;
+    padding: 10px 16px;
+}
+
+.openkis-search-group .list-group-item-action:hover,
+.openkis-search-group .list-group-item-action:focus {
+    background-color: var(--gc-hover-row);
+}
+
+.openkis-search-title {
+    display: block;
+    color: var(--gc-orange-dark);
+    font-weight: 600;
+}
+
+.openkis-search-text {
+    display: block;
+    color: var(--gc-text-2);
+    font-size: 14px;
+}
+
+.openkis-search-more {
+    color: var(--gc-muted);
+    font-size: 14px;
+}
+
+/* ---------------------------------------------------------------------
+   Insert and edit forms of the records (modules/dbview/form.tp.html,
+   formedit.tp.html, forminner.tp.html), as the Liguria theme: group
+   titles underlined, one row per field, help as a note with a light bulb
+   --------------------------------------------------------------------- */
+.okis-form .okis-fieldset {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.okis-form .okis-fieldset > legend {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gc-brown);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--gc-orange);
+}
+
+.okis-form .okis-field {
+    padding: 10px 0;
+    margin: 0;
+    border-bottom: 1px solid var(--gc-line-2);
+}
+
+.okis-form .okis-field:last-child {
+    border-bottom: none;
+}
+
+/* wide widgets (double lists of the multiple choice fields) scroll inside
+   their column instead of widening the page on phones */
+.okis-form .okis-field > .col-sm-10 {
+    min-width: 0;
+    overflow-x: auto;
+}
+
+/* single choice menus of the OpenKIS fields (region, province,
+   municipality...) come without the form-control class */
+.okis-form .okis-field select:not([multiple]):not([size]):not(.form-control):not(.custom-select) {
+    min-width: 12rem;
+    max-width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    color: var(--gc-text);
+    background-color: var(--gc-input-bg);
+    border: 1px solid var(--gc-input-border);
+    border-radius: .25rem;
+}
+
+.okis-form .okis-field select:not([multiple]):not([size]):not(.form-control):not(.custom-select):focus {
+    border-color: var(--gc-orange);
+    outline: 0;
+    box-shadow: 0 0 0 .2rem var(--gc-focus);
+}
+
+.okis-form .okis-field > .col-form-label {
+    font-weight: 600;
+    color: var(--gc-text-2);
+}
+
+.okis-form .okis-error {
+    color: var(--gc-danger-text);
+    font-style: normal;
+    font-weight: 500;
+}
+
+.okis-form .okis-check {
+    padding-top: calc(.375rem + 1px);
+}
+
+.okis-form .okis-help {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 6px 12px;
+    max-width: 60rem;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--gc-text-2);
+    background-color: var(--gc-paper-2);
+    border-left: 3px solid var(--gc-brown-light);
+    border-radius: 0 4px 4px 0;
+}
+
+.okis-form .okis-help-icon {
+    flex: 0 0 auto;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+/* form.tp.html and formedit.tp.html are applied before the fields are
+   rendered, so they cannot use "if {help}": an empty help is hidden here */
+.okis-form .okis-help:has(> span:last-child:empty) {
+    display: none;
+}
+
+.okis-form > input.btn {
+    margin-top: 8px;
+}
+
+/* ---------------------------------------------------------------------
+   Light and dark mode: Bootstrap 4 components, the dbview cards of finis
+   (modules/dbview/style.css) and the OpenKIS list template on the
+   variables above (in the light mode they keep the usual look)
+   --------------------------------------------------------------------- */
+.gc-body .jumbotron,
+.gc-body .bg-light {
+    background-color: var(--gc-paper-2) !important;
+}
+
+.gc-body .bg-white {
+    background-color: var(--gc-paper) !important;
+}
+
+.gc-body .text-dark,
+.gc-body .text-body {
+    color: var(--gc-text) !important;
+}
+
+.gc-body .border,
+.gc-body .border-top,
+.gc-body .border-bottom,
+.gc-body .border-left,
+.gc-body .border-right,
+.gc-body hr,
+.gc-body .card-footer,
+.gc-body .modal-header,
+.gc-body .modal-footer {
+    border-color: var(--gc-line) !important;
+}
+
+.gc-body .table {
+    color: var(--gc-text);
+}
+
+.gc-body .table-bordered,
+.gc-body .table-bordered td,
+.gc-body .table-bordered th,
+.gc-body .table tbody + tbody {
+    border-color: var(--gc-line-2);
+}
+
+.gc-body .list-group-item {
+    background-color: var(--gc-paper);
+    border-color: var(--gc-line);
+    color: var(--gc-text);
+}
+
+.gc-body .list-group-item-action:hover,
+.gc-body .list-group-item-action:focus {
+    background-color: var(--gc-hover-row);
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-menu {
+    background-color: var(--gc-raised);
+    border-color: var(--gc-line);
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-item {
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-item:hover,
+.gc-body .dropdown-item:focus {
+    background-color: var(--gc-hover);
+    color: var(--gc-text);
+}
+
+.gc-body .dropdown-divider {
+    border-top-color: var(--gc-line);
+}
+
+.gc-body .modal-content,
+.gc-body .popover {
+    background-color: var(--gc-raised);
+    color: var(--gc-text);
+}
+
+.gc-body .close {
+    color: var(--gc-text);
+    text-shadow: none;
+}
+
+.gc-body .form-control,
+.gc-body .custom-select,
+.gc-body .custom-file-label {
+    background-color: var(--gc-input-bg);
+    border-color: var(--gc-input-border);
+    color: var(--gc-text);
+}
+
+.gc-body .form-control::placeholder {
+    color: var(--gc-muted);
+}
+
+.gc-body .form-control:disabled,
+.gc-body .form-control[readonly],
+.gc-body .custom-select:disabled {
+    background-color: var(--gc-input-readonly);
+}
+
+.gc-body .input-group-text {
+    background-color: var(--gc-paper-2);
+    border-color: var(--gc-input-border);
+    color: var(--gc-text-2);
+}
+
+.gc-body .page-link:hover,
+.gc-body .page-link:focus {
+    background-color: var(--gc-active-bg);
+}
+
+.gc-body .page-item.disabled .page-link {
+    color: var(--gc-muted);
+}
+
+/* the base theme (assets/css/theme.min.css) draws the box of an input group
+   on the group, with transparent fields inside */
+.gc-body .input-group:not(.input-group-alt) {
+    background-color: var(--gc-input-bg);
+    border-color: var(--gc-input-border);
+}
+
+.gc-body .input-group:not(.input-group-alt).focus,
+.gc-body .input-group:not(.input-group-alt):focus-within {
+    border-color: var(--gc-orange);
+}
+
+/* and paints every table cell white */
+:where(.gc-body) .table td,
+:where(.gc-body) .table th {
+    background-color: var(--gc-paper);
+}
+
+/* grid/list switch of the lists (extra/openkis/templates/list.tp.html) */
+.gc-body #pageresults:not(.openkis-view-list) .openkis-viewswitch [data-view="grid"],
+.gc-body #pageresults.openkis-view-list .openkis-viewswitch [data-view="list"] {
+    background-color: var(--gc-secondary);
+    border-color: var(--gc-secondary);
+    color: #fff;
+}
+
+.gc-body .breadcrumb-item + .breadcrumb-item::before,
+.gc-body .breadcrumb-item.active {
+    color: var(--gc-muted);
+}
+
+.gc-body .nav-tabs .nav-link.active,
+.gc-body .nav-tabs .nav-item.show .nav-link {
+    background-color: transparent;
+}
+
+.gc-body .btn-light:hover,
+.gc-body .btn-default:hover {
+    background-color: var(--gc-hover-row);
+    border-color: var(--gc-line);
+    color: var(--gc-brown);
+}
+
+.gc-body .dbview-card-media {
+    background-color: var(--gc-media-bg);
+}
+
+.gc-body .dbview-card-noimage {
+    color: var(--gc-muted);
+}
+
+.gc-body .dbview-card-values > div {
+    border-bottom-color: var(--gc-line-dotted);
+}
+
+.gc-body .dbview-card-badges .dbview-card-code {
+    background-color: var(--gc-code-badge);
+}
+
+.gc-body #pageresults.openkis-view-list .dbview-card {
+    border-color: var(--gc-line);
+}
+
+.gc-body #pageresults.openkis-view-list .openkis-photo-flag {
+    color: var(--gc-text-2);
+}
+
+.gc-body #pageresults.openkis-view-list .openkis-photo-no {
+    color: var(--gc-muted);
+}
+
+/* the base theme writes the warning, success and error boxes in pale
+   colours on white (about 2:1) */
+.gc-body .alert-warning {
+    background-color: #fff8e1;
+    border-color: #f7c46c;
+    color: #5c4400;
+}
+
+.gc-body .alert-warning a,
+.gc-body .alert-warning .alert-link {
+    color: #4a3600;
+}
+
+.gc-body .alert-success {
+    background-color: #edf7ee;
+    border-color: #81c784;
+    color: #1e5b26;
+}
+
+.gc-body .alert-danger {
+    background-color: #fdecea;
+    border-color: #ef9a9a;
+    color: #8a1c1c;
+}
+
+/* close button of Bootstrap 5 (pages written for a Bootstrap 5 theme, such
+   as the notice of the Liguria home): this theme loads Bootstrap 4, the
+   cross is drawn here and page.js closes the alert */
+.gc-body .btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: .25em;
+    border: 0;
+    border-radius: .25rem;
+    opacity: .6;
+    cursor: pointer;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center / 1em auto no-repeat;
+}
+
+.gc-body .btn-close:hover,
+.gc-body .btn-close:focus {
+    opacity: 1;
+}
+
+.gc-body .alert-dismissible .btn-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1.25rem 1rem;
+}
+
+/* dark mode only: what the variables cannot reach */
+/* the base theme draws the arrow of the menus over a white gradient */
+:root[data-theme="dark"] .gc-body .custom-select {
+    background: var(--gc-input-bg) url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='14' fill='%23c9d6e6' viewBox='0 0 1792 1792' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1408 704q0 26-19 45l-448 448q-19 19-45 19t-45-19L403 749q-19-19-19-45t19-45 45-19h896q26 0 45 19t19 45z'/%3E%3C/svg%3E") no-repeat right .75rem center;
+}
+
+/* short fields of the OpenKIS forms (lengths, depths...) come without the
+   form-control class */
+:root[data-theme="dark"] .okis-form .okis-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not(.form-control),
+:root[data-theme="dark"] .okis-form .okis-field textarea:not(.form-control) {
+    background-color: var(--gc-input-bg);
+    border: 1px solid var(--gc-input-border);
+    border-radius: .25rem;
+    color: var(--gc-text);
+}
+
+:root[data-theme="dark"] .gc-body .alert-success {
+    background-color: rgba(85, 139, 47, .2);
+    border-color: rgba(129, 199, 132, .35);
+    color: #b9e4bb;
+}
+
+:root[data-theme="dark"] .gc-body .alert-warning {
+    background-color: rgba(255, 193, 7, .14);
+    border-color: rgba(255, 213, 79, .35);
+    color: #ffe08a;
+}
+
+:root[data-theme="dark"] .gc-body .alert-warning a,
+:root[data-theme="dark"] .gc-body .alert-warning .alert-link {
+    color: #ffe08a;
+}
+
+:root[data-theme="dark"] .gc-body .btn-close {
+    filter: invert(1);
+}
+
+:root[data-theme="dark"] .gc-body .alert-danger {
+    background-color: rgba(220, 53, 69, .18);
+    border-color: rgba(255, 138, 128, .35);
+    color: #ffb4ab;
+}
+
+:root[data-theme="dark"] .gc-body .alert-secondary,
+:root[data-theme="dark"] .gc-body .alert-light,
+:root[data-theme="dark"] .gc-body .alert-dark {
+    background-color: var(--gc-paper-2);
+    border-color: var(--gc-line);
+    color: var(--gc-text);
+}
+
+:root[data-theme="dark"] .gc-body .badge-light {
+    background-color: var(--gc-paper-2);
+    color: var(--gc-text);
+}
+
+:root[data-theme="dark"] .gc-body code {
+    color: #f49ac1;
+}
+
+:root[data-theme="dark"] .gc-body pre {
+    color: var(--gc-text);
+}
+
+/* pictures that are drawings on white (surveys, logos) stay as they are;
+   photos a little less bright than the page around them */
+:root[data-theme="dark"] .gc-body .dbview-card-media img {
+    filter: brightness(.92);
+}
+
+/* ---------------------------------------------------------------------
+   Light/dark switch of the app bar (page.js); shown once the script at the
+   top of the page has set data-theme
+   --------------------------------------------------------------------- */
+.gc-theme-btn {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .5);
+    border-radius: 50%;
+    background: transparent;
+    color: #f5f5f5;
+    cursor: pointer;
+}
+
+:root[data-theme] .gc-theme-btn {
+    display: flex;
+}
+
+.gc-theme-btn:hover,
+.gc-theme-btn:focus {
+    background: var(--gc-header-hover);
+    border-color: #fff;
+    color: #fff;
+    outline: none;
+}
+
+.gc-theme-btn:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .6);
+}
+
+.gc-theme-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* the icon shows the mode a click switches to */
+.gc-theme-btn .gc-theme-sun,
+:root[data-theme="dark"] .gc-theme-btn .gc-theme-moon {
+    display: none;
+}
+
+:root[data-theme="dark"] .gc-theme-btn .gc-theme-sun {
+    display: block;
+}
+
+@media (max-width: 575.98px) {
+    .gc-theme-btn {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        margin-right: 6px;
+    }
+}
+
+@media print {
+    .gc-theme-btn {
+        display: none !important;
+    }
+
+    /* paper is white: dark text in both modes */
+    :root[data-theme="dark"] {
+        color-scheme: light;
+        --gc-brown: #8a4e17;
+        --gc-brown-dark: #6b3a0f;
+        --gc-orange: #a8521a;
+        --gc-orange-dark: #9a4a12;
+        --gc-bg: #ffffff;
+        --gc-paper: #ffffff;
+        --gc-paper-2: #fbf8f5;
+        --gc-text: rgba(0, 0, 0, .95);
+        --gc-text-2: rgba(0, 0, 0, .75);
+        --gc-muted: rgba(0, 0, 0, .54);
+        --gc-line: rgba(0, 0, 0, .12);
+        --gc-line-2: #e3e7ec;
+        --gc-input-bg: #ffffff;
+        --gc-input-readonly: #ffffff;
+        --gc-tint: #fdf3e7;
+        --gc-table-head: #3d2a1c;
+        --gc-ico-filter: none;
+    }
+}
+
+/* black external-link arrow of the menu: white in the dark mode */
+:root[data-theme="dark"] .gc-ext {
+    filter: invert(1);
 }

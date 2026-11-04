@@ -8,11 +8,24 @@
             // (iOS Safari ignores user-scalable=no)
             document.documentElement.style.touchAction = "manipulation";
             document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+            // light or dark mode, before the styles so that the page does not flash: the choice
+            // made with the button of the app bar (page.js), otherwise the setting of the system
+            (function () {
+                var t = null;
+                try {
+                    t = window.localStorage.getItem("gc_theme");
+                } catch (e) {
+                }
+                if (t !== "light" && t !== "dark") {
+                    t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                }
+                document.documentElement.setAttribute("data-theme", t);
+            })();
         </script>
         <meta name="description" content="">
         <meta name="author" content="">
         <meta name="msapplication-config" content="{siteurl}themes/{theme}/browserconfig.xml" />
-        <meta name="theme-color" content="#ab813b">
+        <meta name="theme-color" content="#15355c">
 
         <link rel="icon" href="favicon.ico">
         <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
@@ -29,7 +42,7 @@
         <link rel="stylesheet" href="assets/css/theme.min.css" />
         <link rel="manifest" href="manifest.json" />
         <!-- Grottocenter-like layout -->
-        <link rel="stylesheet" href="custom.css?v=20261103d"  />
+        <link rel="stylesheet" href="custom.css?v=20261104b"  />
         <link href="no-more-tables.css" rel="stylesheet">
     </head>
     <body class="gc-body">
@@ -112,6 +125,11 @@
             <!-- if not {show_search_form} -->
             <div class="gc-search gc-search-empty"></div>
             <!-- end if not {show_search_form} -->
+
+            <button class="gc-theme-btn" id="gcThemeToggle" type="button" title="{i18n:Light or dark theme}" aria-label="{i18n:Light or dark theme}">
+                <svg class="gc-theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.3 2.05a1 1 0 0 1 .27 1.06 7.5 7.5 0 0 0 9.32 9.32 1 1 0 0 1 1.31 1.18A10.5 10.5 0 1 1 11.12 1.79a1 1 0 0 1 1.18.26z"/></svg>
+                <svg class="gc-theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5a1 1 0 0 1 1 1v1.6a1 1 0 1 1-2 0V2.5a1 1 0 0 1 1-1zm0 17.4a1 1 0 0 1 1 1v1.6a1 1 0 1 1-2 0v-1.6a1 1 0 0 1 1-1zM22.5 12a1 1 0 0 1-1 1h-1.6a1 1 0 1 1 0-2h1.6a1 1 0 0 1 1 1zM5.1 12a1 1 0 0 1-1 1H2.5a1 1 0 1 1 0-2h1.6a1 1 0 0 1 1 1zm13.32-6.42a1 1 0 0 1 0 1.41l-1.13 1.13a1 1 0 1 1-1.42-1.41l1.14-1.13a1 1 0 0 1 1.41 0zM8.13 15.87a1 1 0 0 1 0 1.42L7 18.42A1 1 0 1 1 5.58 17l1.13-1.13a1 1 0 0 1 1.42 0zm10.29 2.55a1 1 0 0 1-1.41 0l-1.14-1.13a1 1 0 0 1 1.42-1.42l1.13 1.13a1 1 0 0 1 0 1.42zM8.13 8.13a1 1 0 0 1-1.42 0L5.58 7A1 1 0 0 1 7 5.58l1.13 1.13a1 1 0 0 1 0 1.42z"/></svg>
+            </button>
 
             <!-- if {is_multilanguage} -->
             <div class="dropdown gc-lang">
@@ -295,6 +313,6 @@
         <script src="dist/js/jquery-3.7.1.slim.min.js"  ></script>
         <script src="assets/js/vendor/popper.min.js"></script>
         <script src="dist/js/bootstrap.min.js"></script>
-        <script src="page.js"></script>
+        <script src="page.js?v=20261104b"></script>
     </body>
 </html>

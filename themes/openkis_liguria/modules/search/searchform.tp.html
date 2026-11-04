@@ -1,27 +1,54 @@
-<div class="form-group">
-    <form method="post" action="{form_action}">
-        <input class="form-control" type="text" placeholder="{i18n:Search}" name="q" value="{q}">
-        <input type="hidden" name="where" value="{where}">
-        <input type="hidden" name="op" value="{op}">
-        <select class="form-control"  name="method">
-            <option value="OR">{i18n:Any word}</option>
-            <option value="AND">{i18n:All word}</option>
-            <option value="" >{i18n:Exact phrase}</option>
-        </select><br />
-        <button class="btn btn-primary" type="submit">{i18n:Search}</button>
-    </form>
-</div><br />
-
-<div class="card">
-    <!-- foreach {sections_results} -->
-    <h3>{title}</h3>
-    <div>
-        <!-- foreach {results} -->
-        <div class="card p-1 m-1">
-            <a href="{link}">{title}</a><br />
-            <em>{text}</em>
+<div class="openkis-search">
+    <form class="openkis-searchbar mb-3" method="post" action="{form_action}" role="search">
+        <div class="form-row align-items-center">
+            <div class="col-12 col-md mb-2 mb-md-0">
+                <div class="input-group">
+                    <input class="form-control" type="search" name="q" value="{q}" placeholder="{i18n:Search}" aria-label="{i18n:Search}" />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit"><span class="gc-ico-inline gc-ico-search" aria-hidden="true"></span>{i18n:Search}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-auto">
+                <select class="custom-select" name="method" aria-label="{i18n:Search}">
+                    <option value="AND">{i18n:All word}</option>
+                    <option value="OR">{i18n:Any word}</option>
+                    <option value="" >{i18n:Exact phrase}</option>
+                </select>
+            </div>
         </div>
-        <!-- end foreach {results} --> 
-    </div>
+        <input type="hidden" name="where" value="{where}" />
+        <input type="hidden" name="op" value="{op}" />
+    </form>
+    <!-- if {text_result} -->
+    <p class="openkis-search-count">{text_result}</p>
+    <!-- end if {text_result} -->
+    <!-- if {sections_results} -->
+    <nav class="openkis-search-summary mb-3" aria-label="{i18n:Search}">
+        <!-- foreach {sections_results} -->
+        <a class="openkis-search-chip" href="#{anchor}">{title} <span class="badge badge-primary">{count}<!-- if {more} -->+<!-- end if {more} --></span></a>
+        <!-- end foreach {sections_results} -->
+    </nav>
+    <!-- foreach {sections_results} -->
+    <section class="card openkis-search-group mb-3" id="{anchor}">
+        <div class="card-header openkis-search-group-header">
+            <h2>{title} <small>({count}<!-- if {more} -->+<!-- end if {more} -->)</small></h2>
+            <!-- if {url_list} -->
+            <a class="btn btn-sm btn-outline-primary" href="{url_list}">{i18n:Open in the list}</a>
+            <!-- end if {url_list} -->
+        </div>
+        <div class="list-group list-group-flush">
+            <!-- foreach {results} -->
+            <a class="list-group-item list-group-item-action" href="{link}">
+                <span class="openkis-search-title">{title}</span>
+                <!-- if {text} --><span class="openkis-search-text">{text}</span><!-- end if {text} -->
+            </a>
+            <!-- end foreach {results} -->
+        </div>
+        <!-- if {more} -->
+        <div class="card-footer openkis-search-more">{i18n:Only the first results are shown: the others are in the list.}</div>
+        <!-- end if {more} -->
+    </section>
     <!-- end foreach {sections_results} -->
+    <!-- end if {sections_results} -->
 </div>
