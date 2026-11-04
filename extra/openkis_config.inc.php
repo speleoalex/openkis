@@ -12,6 +12,11 @@ $_FN['xmetadb_mysqlpassword']="";
 $_FN['apikey_groups']="mcp_users";
 // users allowed to use the write tools of the MCP server (administrators always can)
 $_FN['openkis_mcp_write_group']="mcp_write";
+// site guide of the CMS MCP server (finis index.php?fnapp=mcp, tool site_guide): where the
+// register data are, so that the model does not look for them among the pages
+$_FN['mcp_type_info']['dbview'] = "register records (list and sheets): data, not page text; use the OpenKIS MCP server (openkis_mcp.php, same key)";
+$_FN['mcp_type_info']['caveview'] = "cave register records, read only: data, not page text; use the OpenKIS MCP server (openkis_mcp.php, same key)";
+$_FN['mcp_guide']['openkis'] = "Register data (caves, springs, artificial cavities, surveys, fauna, bibliography...) are database records, not pages: read and edit them with the OpenKIS MCP server (openkis_mcp.php in the site root, same key). This server manages pages, menus, texts, settings and users.";
 // record validator: rules to switch off, comma separated (name, description, coordinates,
 // reference_system, elevation, comune, provincia, speleometric, depth_total or the label of a
 // regional rule); "all" hides the banner in the edit forms

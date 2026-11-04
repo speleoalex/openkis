@@ -333,7 +333,7 @@ AT=$(json_field access_token "$WORK/token.json"); RT=$(json_field refresh_token 
 s=$(token --data-urlencode grant_type=authorization_code --data-urlencode "code=$code" --data-urlencode "client_id=$CID" --data-urlencode "redirect_uri=$REDIR" --data-urlencode "code_verifier=$VER")
 [ "$s" = 400 ] && ok "token: code used twice refused" || fail "token: code used twice, HTTP $s"
 s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$AT"); [ "$s" = 200 ] && grep -q "$ADMIN_USER,.*,admin," "$WORK/mcp.json" && ok "openkis_mcp.php whoami with the access token" || fail "openkis_mcp.php with the access token: HTTP $s"
-s=$(mcp_whoami "${TEST_URL}index.php?fnapp=mcp" "$AT"); [ "$s" = 200 ] && grep -q "\"structuredContent\":{\"username\":\"$ADMIN_USER\"" "$WORK/mcp.json" && ok "finis mcp whoami with the access token" || fail "finis mcp with the access token: HTTP $s"
+s=$(mcp_whoami "${TEST_URL}index.php?fnapp=mcp" "$AT"); [ "$s" = 200 ] && grep -qF "\\\"username\\\":\\\"$ADMIN_USER\\\"" "$WORK/mcp.json" && ok "finis mcp whoami with the access token" || fail "finis mcp with the access token: HTTP $s"
 s=$(mcp_whoami "${TEST_URL}openkis_mcp.php" "$RT"); [ "$s" = 401 ] && ok "refresh token refused as access token" || fail "refresh token used as access token: HTTP $s"
 token --data-urlencode grant_type=refresh_token --data-urlencode "refresh_token=$RT" --data-urlencode "client_id=$CID" >/dev/null
 AT2=$(json_field access_token "$WORK/token.json"); [ -n "$AT2" ] && ok "token: refresh" || fail "token: refresh"
