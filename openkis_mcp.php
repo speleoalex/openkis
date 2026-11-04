@@ -14,13 +14,14 @@
  * ("Authorization: Bearer <token>", issued by index.php?fnapp=oauthserver after the
  * login of the user: same users and permissions of the personal keys).
  *
- *  - User keys (recommended): an administrator enables the user (group $_FN['apikey_groups'],
- *    default "mcp_users", see extra/openkis_config.inc.php), then the user generates a personal
- *    key in the section openkis_mcp (Configuration > MCP server) or in the profile page; the key
- *    is stored in fn_users.apikey. The keys of the users not enabled are refused.
+ *  - User keys (recommended): every active user generates a personal key in the section
+ *    openkis_mcp (Configuration > MCP server) or in the profile page; finis stores its hash in
+ *    fn_users.apikey (the same key works with the CMS server index.php?fnapp=mcp). When
+ *    $_FN['apikey_groups'] is set only the administrators and those groups can use a key.
  *    The write tools (insert, update, upload, delete) are available only to the administrators
- *    and to the users an administrator allowed to write (group $_FN['openkis_mcp_write_group'],
- *    default "mcp_write"); for the other users every section is read only.
+ *    and to the users an administrator allowed to write (group $_FN['mcp_write_group'], default
+ *    "mcp_write", Control center > Users and groups > MCP server); for the other users every
+ *    section is read only.
  *    The server acts as the key owner with the same permissions of the web UI:
  *    administrators (level >= 10) have full access; the other users see only the dbview
  *    sections they can view, write only where the section allows them (groupinsert,
@@ -187,6 +188,8 @@ function mcp_Authenticate()
 function mcp_UserInWriteGroup($uservalues)
 {
     global $_FN;
+    if (function_exists("FN_UserCanWriteByApiKey"))
+        return FN_UserCanWriteByApiKey($uservalues);
     $group = isset($_FN['openkis_mcp_write_group']) ? trim($_FN['openkis_mcp_write_group']) : "mcp_write";
     if ($group == "" || empty($uservalues['group']))
         return false;

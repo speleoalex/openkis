@@ -31,7 +31,7 @@ nel `.htaccess` di solito lo ripristina.
 
 A Claude Desktop, claude.ai e agli altri client con OAuth basta l'URL del server: aprono il
 browser, l'utente accede con utente e password e autorizza il client. Utenti e permessi
-sono quelli delle chiavi personali descritte sotto (l'utente deve essere abilitato).
+sono quelli delle chiavi personali descritte sotto.
 Generare una nuova chiave, revocarla o cambiare la password scollega questi client;
 `$_FN['openkis_mcp_userkeys'] = 0` rifiuta anche loro.
 
@@ -41,15 +41,17 @@ cartella richiede anche due regole nel `.htaccess` della radice del dominio. Det
 
 ### Chiavi personali (consigliate)
 
-- La chiave è salvata in `fn_users.apikey` (la stessa chiave vale anche per il server MCP
-  del CMS Finis `index.php?fnapp=mcp`, vedi `finis/doc/it_guida_mcp.md`).
-- Possono usare una chiave solo gli amministratori (livello 10) e gli utenti **abilitati**
-  da un amministratore, cioè i membri del gruppo `mcp_users` (`$_FN['apikey_groups']`).
-  Le chiavi degli altri utenti vengono rifiutate.
-- Di default un utente abilitato è in **sola lettura**. I tool di scrittura (`insert`,
-  `update`, `upload`, `delete`) sono disponibili solo agli amministratori e agli utenti a
-  cui un amministratore li ha consentiti: gruppo `mcp_write`
-  (`$_FN['openkis_mcp_write_group']`).
+- Ogni utente attivo genera la propria chiave in **Configurazione > Server MCP** o nella
+  pagina del profilo; finis ne salva solo l'hash in `fn_users.apikey`, quindi la chiave si
+  vede una volta sola (la stessa chiave vale per il server MCP del CMS Finis
+  `index.php?fnapp=mcp`, vedi `finis/doc/it_guida_mcp.md`). Una nuova password revoca la
+  chiave. `$_FN['apikey_groups']` ("" di default) limita le chiavi agli amministratori e
+  ad alcuni gruppi.
+- Di default un utente è in **sola lettura**. I tool di scrittura (`insert`, `update`,
+  `upload`, `delete`) sono disponibili solo agli amministratori e agli utenti a cui un
+  amministratore li ha consentiti: gruppo `mcp_write` (`$_FN['mcp_write_group']`), da
+  **Pannello di controllo > Utenti e gruppi > Server MCP**, che gestisce anche le chiavi
+  di tutti gli utenti.
 - Entro questi limiti valgono le regole del sito:
   - solo le sezioni dbview che l'utente vede; nelle sezioni con permessi per record
     (`groupview`, `viewonlycreator`) solo i record che l'utente vede (es. grotte nascoste);
@@ -69,24 +71,25 @@ registrate a nome di `$_FN['openkis_mcp_user']`.
 
 **Configurazione > Server MCP** (`index.php?mod=openkis_mcp`, sezione `sections/openkis_mcp`):
 
-- **utente abilitato**: URL del server, la propria chiave (genera, rigenera, revoca), il
-  comando `claude mcp add`, la configurazione JSON per gli altri client e la tabella dei
-  permessi effettivi della chiave;
-- **utente non abilitato**: solo un messaggio che invita a rivolgersi a un amministratore;
-- **amministratore**: cerca un utente e
-  - lo abilita o disabilita (disabilitare revoca anche la chiave e il permesso di
-    scrittura);
-  - consente i tool di scrittura o lo rimette in sola lettura;
-  - genera o revoca la chiave;
-  - vede l'elenco degli utenti abilitati e di quelli con una chiave (mascherata).
+- gli URL dei due server (record e CMS) e i metodi di autenticazione;
+- la propria chiave: stato (data di creazione), **genera** (la chiave, il comando
+  `claude mcp add` e la configurazione JSON per gli altri client si vedono una volta sola)
+  e **revoca**;
+- la tabella dei permessi effettivi della chiave sulle sezioni dei record; un
+  amministratore può vedere i permessi di qualunque utente.
+
+Le chiavi di tutti gli utenti e i permessi di scrittura si gestiscono nel pannello di
+controllo di finis, **Utenti e gruppi > Server MCP** (`index.php?fnapp=controlcenter&opt=users_and_groups/mcp`):
+utenti con chiave (data di creazione), generare una chiave per un utente (mostrata una
+volta), revocarla, consentire i tool di scrittura o rimettere l'utente in sola lettura.
 
 Icone della tabella dei permessi: 🛡️ lettura e modifica di tutti i record, ✏️ lettura,
 inserimento e modifica dei record consentiti, 👁️ sola lettura, 🚫 nessun accesso,
 🔒 solo i record visibili all'utente. Se l'accesso via MCP è inferiore a quello del sito
 (utente senza permesso di scrittura) viene mostrato anche l'accesso sul sito.
 
-Ogni abilitazione, disabilitazione, permesso di scrittura e modifica della chiave viene
-registrato nel log del sito (contesto `apikey`).
+Ogni modifica di chiave o di permesso di scrittura viene registrata nel log del sito
+(contesto `apikey`).
 
 ## Configurazione
 
@@ -94,16 +97,16 @@ Valori di default in `extra/openkis_config.inc.php`, da sovrascrivere in
 `extra/openkis_config.local.php`:
 
 ```php
-$_FN['apikey_groups'] = "mcp_users";            // utenti abilitati a usare la chiave ("" = tutti)
-$_FN['openkis_mcp_write_group'] = "mcp_write";  // utenti che possono usare i tool di scrittura
+$_FN['apikey_groups'] = "";                     // "" = ogni utente attivo può usare una chiave, oppure gruppi
+$_FN['mcp_write_group'] = "mcp_write";          // utenti che possono usare i tool di scrittura (entrambi i server)
 $_FN['openkis_mcp_apikey'] = "chiave-lunga";    // chiave/i storica/e facoltativa/e, accesso completo
 $_FN['openkis_mcp_user'] = "admin";             // autore delle modifiche fatte con la chiave storica
 $_FN['openkis_mcp_readonly'] = 0;               // 1 = nessun tool di scrittura per nessuno
 $_FN['openkis_mcp_userkeys'] = 1;               // 0 = rifiuta le chiavi personali
 ```
 
-I gruppi `mcp_users` e `mcp_write` vengono creati la prima volta che un amministratore
-apre la pagina del server MCP.
+Il gruppo `mcp_write` viene creato la prima volta che un amministratore apre le pagine del
+server MCP.
 
 ## Tool
 

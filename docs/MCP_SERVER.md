@@ -31,8 +31,7 @@ in `.htaccess` usually restores it.
 
 Claude Desktop, claude.ai and the other clients with OAuth need only the server URL: they
 open the browser, the user logs in with username and password and authorizes the client.
-The users and the permissions are those of the personal keys below (the user must be
-enabled). Generating a new key, revoking it or changing the password disconnects these
+The users and the permissions are those of the personal keys below. Generating a new key, revoking it or changing the password disconnects these
 clients; `$_FN['openkis_mcp_userkeys'] = 0` refuses them too.
 
 The site needs HTTPS and the `Authorization` header must reach PHP; a site in a folder
@@ -41,14 +40,15 @@ also needs two rules in the `.htaccess` of the domain root. Details in
 
 ### Personal keys (recommended)
 
-- The key is stored in `fn_users.apikey` (the same key is accepted by the Finis CMS MCP
-  server `index.php?fnapp=mcp`, see `finis/doc/en_mcp_guide.md`).
-- Only the administrators (level 10) and the users **enabled** by an administrator can
-  use a key: enabled users are the members of the group `mcp_users`
-  (`$_FN['apikey_groups']`). The keys of the other users are refused.
-- By default an enabled user is **read only**. The write tools (`insert`, `update`,
-  `upload`, `delete`) are available only to the administrators and to the users an
-  administrator allowed to write: group `mcp_write` (`$_FN['openkis_mcp_write_group']`).
+- Every active user generates the own key in **Configuration > MCP server** or in the
+  profile page; finis stores only its hash in `fn_users.apikey`, so the key is shown once
+  (the same key is accepted by the Finis CMS MCP server `index.php?fnapp=mcp`, see
+  `finis/doc/en_mcp_guide.md`). A new password revokes the key. `$_FN['apikey_groups']`
+  ("" by default) restricts the keys to the administrators and to some groups.
+- By default a user is **read only**. The write tools (`insert`, `update`, `upload`,
+  `delete`) are available only to the administrators and to the users an administrator
+  allowed to write: group `mcp_write` (`$_FN['mcp_write_group']`), from **Control center
+  > Users and groups > MCP server**, which also manages the keys of every user.
 - Within those limits the server applies the web UI rules:
   - only the dbview sections the user can view; inside sections with per record
     permissions (`groupview`, `viewonlycreator`) only the records the user can see
@@ -69,39 +69,38 @@ recorded as `$_FN['openkis_mcp_user']`.
 
 **Configuration > MCP server** (`index.php?mod=openkis_mcp`, section `sections/openkis_mcp`):
 
-- **enabled user**: server URL, their own key (generate, regenerate, revoke), the
-  `claude mcp add` command, the JSON configuration for other clients and the table of the
-  effective permissions of the key;
-- **user not enabled**: only a message asking to contact an administrator;
-- **administrator**: searches a user and
-  - enables / disables the MCP server (disabling also revokes the key and the write
-    permission);
-  - allows the write tools or sets the user back to read only;
-  - generates or revokes the key;
-  - sees the list of the enabled users and of the users with a key (masked key).
+- the URLs of the two servers (records and CMS) and the authentication methods;
+- the own key: state (creation date), **generate** (the key, the `claude mcp add` command
+  and the JSON configuration for other clients are shown once) and **revoke**;
+- the table of the effective permissions of the key on the record sections; an
+  administrator can look at the permissions of any user.
+
+The keys of all the users and the write permissions are managed in the finis control
+center, **Users and groups > MCP server** (`index.php?fnapp=controlcenter&opt=users_and_groups/mcp`):
+users with a key (creation date), generate a key for a user (shown once), revoke it, allow
+the write tools or set the user back to read only.
 
 Permissions table icons: 🛡️ read and edit all records, ✏️ read, insert and edit the
 records allowed, 👁️ read only, 🚫 no access, 🔒 only the records visible to the user.
 When the MCP access is lower than the access on the website (user without write
 permission) the site access is shown too.
 
-Every enable / disable / write / key change is written in the site log (context `apikey`).
+Every key change and write permission change is written in the site log (context `apikey`).
 
 ## Configuration
 
 Defaults in `extra/openkis_config.inc.php`, override in `extra/openkis_config.local.php`:
 
 ```php
-$_FN['apikey_groups'] = "mcp_users";            // users enabled to use their key ("" = everybody)
-$_FN['openkis_mcp_write_group'] = "mcp_write";  // users allowed to use the write tools
+$_FN['apikey_groups'] = "";                     // "" = every active user can use a key, or groups
+$_FN['mcp_write_group'] = "mcp_write";          // users allowed to use the write tools (both servers)
 $_FN['openkis_mcp_apikey'] = "long-random-key"; // optional legacy key(s), full access
 $_FN['openkis_mcp_user'] = "admin";             // author of the changes made with the legacy key
 $_FN['openkis_mcp_readonly'] = 0;               // 1 = no write tools for anybody
 $_FN['openkis_mcp_userkeys'] = 1;               // 0 = refuse the personal keys
 ```
 
-The groups `mcp_users` and `mcp_write` are created the first time an administrator opens
-the MCP server page.
+The group `mcp_write` is created the first time an administrator opens the MCP server pages.
 
 ## Tools
 

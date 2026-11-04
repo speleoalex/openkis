@@ -126,10 +126,11 @@ the first time each section is opened. No SQL dump is needed.
   `openkis` theme.
 
 - **MCP server** (optional): AI assistants (Claude, ChatGPT, ...) can query and,
-  if allowed, edit the database through `openkis_mcp.php`. An administrator
-  enables the users in **Configuration > MCP server** (group `mcp_users`);
-  enabled users generate their key on the same page. Keys are read only unless
-  the administrator allows the write tools (group `mcp_write`). Connect with:
+  if allowed, edit the database through `openkis_mcp.php` (and the pages of the
+  site through the finis server `index.php?fnapp=mcp`). Every user generates the
+  own key in **Configuration > MCP server** (shown once, stored hashed). Keys are
+  read only unless an administrator allows the write tools (group `mcp_write`,
+  **Control center > Users and groups > MCP server**). Connect with:
   `claude mcp add --transport http openkis https://<site>/openkis_mcp.php --header "X-API-Key: <key>"`.
   See [docs/MCP_SERVER.md](docs/MCP_SERVER.md).
 

@@ -8,10 +8,15 @@ $_FN['xmetadb_mysqlusername']="root";
 $_FN['xmetadb_mysqlpassword']="";
 
 
-// only administrators and the members of this group can use the MCP server (personal API keys)
-$_FN['apikey_groups']="mcp_users";
-// users allowed to use the write tools of the MCP server (administrators always can)
-$_FN['openkis_mcp_write_group']="mcp_write";
+// MCP servers: every active user can connect in read mode with a personal API key (generated in the
+// profile, stored hashed) with the permissions of the account; "" = everybody, or comma separated
+// groups of the users allowed (administrators always)
+$_FN['apikey_groups']="";
+// users allowed to use the write tools of both MCP servers (administrators always can): an
+// administrator enables them in Control center > Users and groups > MCP server
+$_FN['mcp_write_group']="mcp_write";
+// the OpenKIS MCP server (records) next to the CMS one (pages) in the profile and control center pages
+$_FN['mcp_endpoints']['openkis']="openkis_mcp.php";
 // site guide of the CMS MCP server (finis index.php?fnapp=mcp, tool site_guide): where the
 // register data are, so that the model does not look for them among the pages
 $_FN['mcp_type_info']['dbview'] = "register records (list and sheets): data, not page text; use the OpenKIS MCP server (openkis_mcp.php, same key)";
@@ -56,3 +61,6 @@ if (file_exists("openkis_config.local.php"))
 
     include "openkis_config.local.php";
 }
+// name of the setting before finis managed the write permission of both servers
+if (isset($_FN['openkis_mcp_write_group']))
+    $_FN['mcp_write_group'] = $_FN['openkis_mcp_write_group'];
