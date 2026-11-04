@@ -5,7 +5,8 @@
  *
  * Shows the endpoints of the two MCP servers of the site (openkis_mcp.php for the records,
  * index.php?fnapp=mcp of finis for the pages) and lets the logged user generate or revoke the
- * personal API key (fn_users.apikey, stored hashed by finis: the key is shown once). A client
+ * personal API key (fn_users.apikey hashed by finis, shown once to its owner; the administrators
+ * can show it again in the control center, from the copy encrypted in fn_users.apikey_enc). A client
  * that uses the key acts with the permissions of the key owner; the page lists them section
  * by section. The write tools are allowed only to the administrators and to the users an
  * administrator allowed to write (group $_FN['mcp_write_group'], default "mcp_write"), from

@@ -41,9 +41,12 @@ also needs two rules in the `.htaccess` of the domain root. Details in
 ### Personal keys (recommended)
 
 - Every active user generates the own key in **Configuration > MCP server** or in the
-  profile page; finis stores only its hash in `fn_users.apikey`, so the key is shown once
-  (the same key is accepted by the Finis CMS MCP server `index.php?fnapp=mcp`, see
-  `finis/doc/en_mcp_guide.md`). A new password revokes the key. `$_FN['apikey_groups']`
+  profile page; finis stores its hash in `fn_users.apikey` and a copy encrypted with the
+  site secret in `fn_users.apikey_enc`. The user sees the key once; the administrators can
+  show it in **Control center > Users and groups > MCP server** (every key shown is
+  logged; keys created when only the hash was stored cannot be shown). The same key is
+  accepted by the Finis CMS MCP server `index.php?fnapp=mcp`, see
+  `finis/doc/en_mcp_guide.md`. A new password revokes the key. `$_FN['apikey_groups']`
   ("" by default) restricts the keys to the administrators and to some groups.
 - By default a user is **read only**. The write tools (`insert`, `update`, `upload`,
   `delete`) are available only to the administrators and to the users an administrator

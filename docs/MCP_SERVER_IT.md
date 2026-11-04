@@ -42,9 +42,12 @@ cartella richiede anche due regole nel `.htaccess` della radice del dominio. Det
 ### Chiavi personali (consigliate)
 
 - Ogni utente attivo genera la propria chiave in **Configurazione > Server MCP** o nella
-  pagina del profilo; finis ne salva solo l'hash in `fn_users.apikey`, quindi la chiave si
-  vede una volta sola (la stessa chiave vale per il server MCP del CMS Finis
-  `index.php?fnapp=mcp`, vedi `finis/doc/it_guida_mcp.md`). Una nuova password revoca la
+  pagina del profilo; finis ne salva l'hash in `fn_users.apikey` e una copia cifrata con
+  il segreto del sito in `fn_users.apikey_enc`. L'utente vede la chiave una volta sola; gli
+  amministratori possono mostrarla in **Pannello di controllo > Utenti e gruppi > Server
+  MCP** (ogni visualizzazione finisce nel log; le chiavi create quando si salvava solo
+  l'hash non si possono mostrare). La stessa chiave vale per il server MCP del CMS Finis
+  `index.php?fnapp=mcp`, vedi `finis/doc/it_guida_mcp.md`. Una nuova password revoca la
   chiave. `$_FN['apikey_groups']` ("" di default) limita le chiavi agli amministratori e
   ad alcuni gruppi.
 - Di default un utente è in **sola lettura**. I tool di scrittura (`insert`, `update`,
