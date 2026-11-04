@@ -56,7 +56,7 @@ OPS_Map.MyAddLayers = function () {
     OPS_Map.addKmlLayer("Cavita artificiali", "openkis_kml.php?mod=artificials", false, mod === "artificials");
     OPS_Map.addTracingsLayerFromUrl("Tracciamenti");
     OPS_Map.addTemperaturesLayerFromUrl("Temperature");
-    OPS_Map.addKmlLayer("Catasto grotte Piemonte", "openkis_proxy.php/http://catastogrotte-piemonte.net/openkis_kml.php?mod=caves", false, false);
+    OPS_Map.addKmlLayer("Catasto grotte Piemonte", "openkis_proxy.php/https://www.catastogrotte.net/piemonte/openkis_kml.php?mod=caves", false, false);
     OPS_Map.addKmlLayer("Mappa grotte del Finalese OSM", "bs_map/mapdata/mappa_grotte_del_finalese.kml", false, false);
 
     OPS_Map.addKmlLayer("Mappa grotte del Finalese E.M.", "grotte_finalese_em.kml.php", false, false);
