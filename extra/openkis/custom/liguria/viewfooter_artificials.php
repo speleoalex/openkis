@@ -24,7 +24,10 @@ foreach ($items as $survey_item)
         continue;
     $lasurl = "{$_FN['siteurl']}" . openkis_CaveViewerFile("ctl_surveys_artificials", $survey_item['id'], "filelas", $survey_item['filelas']);
     $las_href = "{$_FN['siteurl']}lasviewer/viewer.html?url=" . urlencode($lasurl);
-    echo "<h5>" . FN_Translate("3D Viewer") . ": " . htmlspecialchars((string) $survey_item['title']) . "</h5>";
+    $title = trim((string) $survey_item['title']);
+    if ($title == "")
+        $title = $survey_item['filelas'];
+    echo "<h5>" . FN_Translate("3D Viewer") . ": " . htmlspecialchars($title) . "</h5>";
     echo "<a class=\"btn btn-primary m-1\" href=\"$lasurl\" target=\"_blank\">" . FN_Translate("download") . " 3D</a> ";
     echo "<a class=\"btn btn-primary m-1\" href=\"$las_href\" target=\"_blank\">" . FN_Translate("open") . " 3D</a>";
     echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$las_href\" allowfullscreen allow=\"fullscreen\"></iframe>";
