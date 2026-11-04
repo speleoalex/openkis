@@ -45,6 +45,14 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License
  */
 global $_FN;
+// A key given as ?apikey= is passed to FINIS as the X-API-Key header, so its owner is logged in
+// during the FINIS bootstrap exactly as with the header. Logging in later would open fn_users
+// for the first time after extra/openkis_config.inc.php has switched default_database_driver
+// to mysql, and the users (stored with the bootstrap driver) would not be found.
+if (empty($_SERVER['HTTP_X_API_KEY']) && !empty($_GET['apikey']) && is_string($_GET['apikey']))
+{
+    $_SERVER['HTTP_X_API_KEY'] = trim($_GET['apikey']);
+}
 ob_start();
 require_once "loadfinis.php";
 require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
