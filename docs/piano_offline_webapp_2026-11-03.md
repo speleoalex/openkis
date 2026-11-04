@@ -264,12 +264,25 @@ di produzione con le sole righe dell'offline; tema `spark_liguria` messo in git 
 Verificato in produzione con la rete tolta davvero (proxy con CONNECT spento a comando): home, schede viste e
 scaricate con le foto, riepilogo di una grotta non scaricata, mappa (2323 elementi), ricerca.
 
+Stesso codice (openkis 89a947b, finis 52fa3d4: offline, cache delle schede anche per i frammenti, ordine
+dei rilievi) dal 03/11/2026 sera anche su:
+
+- **Piemonte** (`www.catastogrotte.net/piemonte`, 20:21; resoconto `assistance/2026-11-03_piemonte_uso_offline.md`):
+  tema `openkis_agsp` già installabile, tolta la vecchia registrazione del worker dal template;
+  17 sezioni scaricabili; immagini da `openkis_file.php` conservate (42 nella scheda 88 offline);
+  mappa offline 3203 elementi;
+- **test Lombardia** (`www.speleolombardia.it/catasto_test`, 20:27; resoconto
+  `catastolombardia_openkis/assistance/2026-11-03_uso_offline_test.md`): tema `openkis_fslo`; la sezione
+  grotte è riservata, quindi per un anonimo sono scaricabili solo complessi, aree, bibliografia, sorgenti,
+  fauna, tracciamenti (l'indice delle grotte risponde 404), più la mappa pubblica (7211 elementi).
+
 Ancora aperto:
 
-- il download di tutte le grotte dalla produzione dura circa 40 minuti (2 s a scheda, 2 richieste in
-  parallelo): un endpoint che rende molte schede per richiesta, o la cache delle schede del piano
-  prestazioni, lo accorcerebbe;
-- icone dell'app nitide: serve il logo in alta risoluzione.
+- il download di tutte le grotte: con la cache delle schede circa 5-6 minuti in Liguria (prima 40);
+- icone dell'app nitide: serve il logo in alta risoluzione;
+- ricerca offline: a parità di punteggio i risultati sono in ordine alfabetico fra tutte le sezioni, così
+  "piaggia" sul Piemonte (230 risultati) mostra prima i tracciamenti "... → Carsena di Piaggia Bella" e solo dopo la grotta;
+  meglio ordinare per sezione (grotte prima) a parità di punteggio.
 
 ## TODO successivo: app parallela con dati in IndexedDB
 
