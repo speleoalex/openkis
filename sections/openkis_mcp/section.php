@@ -173,7 +173,7 @@ function okmcp_HtmlOwnKey($link, $newkey, $shown = false)
         echo " " . FN_Translate("this key cannot be shown: it was created when only its hash was stored. Generate a new key to see it") . ".";
     echo "</p>";
     if ($newkey != "")
-        okmcp_HtmlKeyParameters($newkey, $shown);
+        okmcp_HtmlKeyParameters($newkey, $shown, $info['viewable']);
     echo "<form method=\"post\" action=\"$link\" class=\"mb-3\">";
     echo "<input type=\"hidden\" name=\"okmcp_token\" value=\"$token\" />";
     if ($info['exists'])
@@ -198,8 +198,9 @@ function okmcp_HtmlOwnKey($link, $newkey, $shown = false)
  * without custom headers
  * @param string $apikey
  * @param bool $shown the key was shown on request (not generated now)
+ * @param bool $viewable the key can be shown again (stored encrypted too)
  */
-function okmcp_HtmlKeyParameters($apikey, $shown)
+function okmcp_HtmlKeyParameters($apikey, $shown, $viewable = true)
 {
     $url = okmcp_ServerUrl();
     $cmsurl = FN_GetMcpUrl();
@@ -214,7 +215,7 @@ function okmcp_HtmlKeyParameters($apikey, $shown)
     echo "<div class=\"input-group mb-1\"><input type=\"text\" class=\"form-control\" readonly=\"readonly\" onclick=\"this.select()\" value=\"" . okmcp_h($apikey) . "\" />";
     echo "<button class=\"btn btn-outline-secondary\" type=\"button\" onclick=\"var i=this.previousElementSibling;i.select();if(navigator.clipboard){navigator.clipboard.writeText(i.value);}else{document.execCommand('copy');}\">" . FN_Translate("copy") . "</button></div>";
     if (!$shown)
-        echo "<div class=\"form-text mb-2\">" . FN_Translate("copy the key now; you can show it again later with the button of this page") . "</div>";
+        echo "<div class=\"form-text mb-2\">" . ($viewable ? FN_Translate("copy the key now; you can show it again later with the button of this page") : FN_Translate("copy the key now: it is shown only this time")) . "</div>";
     echo "<p class=\"mt-3 mb-1\"><b>" . FN_Translate("parameters") . "</b></p>";
     echo "<table class=\"table table-sm mb-2\"><tbody>";
     echo "<tr><th style=\"width:14em\">" . FN_Translate("cadastre (records): OpenKIS MCP server") . "</th><td><code>" . okmcp_h($url) . "</code></td></tr>";
