@@ -4,13 +4,90 @@
  * Tracer tests (section "tracings", table ctl_tracings).
  *
  * A record is one arrow: from the injection point (free coordinates, or the
- * entrance of the injection cave when they are empty) to the detection point
- * (a cave or a spring). Several detection points of the same campaign are
- * separate records sharing the same code.
+ * entrance of the injection cave or uncatalogued cavity when they are empty)
+ * to the detection point (a cave, a spring or an uncatalogued cavity).
+ * Several detection points of the same campaign are separate records sharing
+ * the same code.
  */
 // list cards of the sheets
 require_once __DIR__ . "/openkis_sheet.inc.php";
 defined('_FNEXEC') or die('Restricted access');
+
+/**
+ * Whether the installed definition of ctl_tracings has the links to the
+ * uncatalogued cavities (uncatalogued_injection, uncatalogued_detection):
+ * misc/fndatabase/ctl_tracings.php is never overwritten by the installer.
+ *
+ * @return bool
+ */
+function openkis_TracingsHasUncatalogued()
+{
+    static $has = null;
+    if ($has === null)
+    {
+        $table = FN_XMDBTable("ctl_tracings");
+        $has = is_object($table) && isset($table->fields['uncatalogued_injection']) && isset($table->fields['uncatalogued_detection']);
+    }
+    return $has;
+}
+
+/**
+ * The register record of one end of a tracing: the injection cave or
+ * uncatalogued cavity, the detection cave, spring or uncatalogued cavity
+ * (first one filled in, in this order).
+ *
+ * @param array $tracing record of ctl_tracings
+ * @param string $end "injection" or "detection"
+ * @return array array(code, mod), both "" when the point is only given by
+ *               its free coordinates
+ */
+function openkis_TracingEnd($tracing, $end)
+{
+    $fields = ($end == "injection") ?
+        array("cave_injection" => "caves", "uncatalogued_injection" => "uncatalogued") :
+        array("cave_detection" => "caves", "spring_detection" => "springs", "uncatalogued_detection" => "uncatalogued");
+    foreach ($fields as $field => $mod)
+    {
+        $code = isset($tracing[$field]) ? trim(strval($tracing[$field])) : "";
+        if ($code !== "")
+            return array($code, $mod);
+    }
+    return array("", "");
+}
+
+/**
+ * Groups allowed to see each restricted uncatalogued cavity: the groups of
+ * the section (in the regions where the whole section is reserved) and those
+ * of the record, both when both are set.
+ *
+ * @return array code => array of group names; only the restricted cavities
+ */
+function openkis_TracingsRestrictedUncatalogued()
+{
+    $restricted = array();
+    if (!openkis_TracingsHasUncatalogued() || !FN_XMDBTable("ctl_uncatalogued"))
+        return $restricted;
+    $section = FN_GetSectionValues("uncatalogued");
+    $section_groups = (is_array($section) && !empty($section['group_view'])) ? array_values(array_filter(array_map('trim', explode(",", $section['group_view'])))) : array();
+    $rows = FN_XMETADBQuery("SELECT code,groupview FROM ctl_uncatalogued");
+    if (!is_array($rows))
+        return $restricted;
+    foreach ($rows as $row)
+    {
+        $groups = $section_groups;
+        $record_groups = array_values(array_filter(array_map('trim', explode(",", strval($row['groupview'])))));
+        if (count($record_groups) > 0)
+        {
+            $groups = (count($groups) > 0) ? array_values(array_intersect($groups, $record_groups)) : $record_groups;
+        }
+        // an empty list (no group in both) means curators only, as for the caves
+        if (count($section_groups) > 0 || count($record_groups) > 0)
+        {
+            $restricted[trim(strval($row['code']))] = $groups;
+        }
+    }
+    return $restricted;
+}
 
 /**
  * Fills the computed fields of ctl_tracings:
@@ -19,12 +96,15 @@ defined('_FNEXEC') or die('Restricted access');
  *  - air_regime: from the release date when empty (May-October summer,
  *    November-April winter), air tracings only;
  *  - name: "injection -> detection" when empty;
- *  - groupview: the groups allowed to see the restricted caves of the record,
- *    so a tracing never shows a cave that the user cannot see (the section
- *    enables the per-record permissions on this field).
+ *  - groupview: the groups allowed to see the restricted caves and
+ *    uncatalogued cavities of the record, so a tracing never shows a point
+ *    that the user cannot see (the section enables the per-record permissions
+ *    on this field).
  *
  * Cheap to call on every request: a time stamp file makes it a no-op until
- * ctl_caves or ctl_tracings changes (same pattern as openkis_UpdateCaveSystems).
+ * ctl_caves, ctl_uncatalogued or ctl_tracings changes (same pattern as
+ * openkis_UpdateCaveSystems). A change of the groups of the section
+ * "uncatalogued" is seen at the next change of one of those tables.
  *
  * @param bool $forceall recompute even when the tables did not change
  * @return void
@@ -48,17 +128,29 @@ function openkis_UpdateTracings($forceall = false)
     // request) and a strict comparison: a change made in the same second as
     // the last pass is not missed, at worst the cheap pass runs once more
     clearstatcache();
-    if (!$forceall && $caves_table->GetLastUpdateTime() < filectime($file_lastUpdate) && $tracings_table->GetLastUpdateTime() < filectime($file_lastUpdate))
+    // the links to the uncatalogued cavities and the detection coordinates
+    // exist only when the installed definition (misc/fndatabase/ctl_tracings.php,
+    // never overwritten) has them
+    $uncatalogued = openkis_TracingsHasUncatalogued();
+    $uncatalogued_table = $uncatalogued ? FN_XMDBTable("ctl_uncatalogued") : false;
+    $changed = $caves_table->GetLastUpdateTime() >= filectime($file_lastUpdate) || $tracings_table->GetLastUpdateTime() >= filectime($file_lastUpdate);
+    if (!$changed && is_object($uncatalogued_table))
+    {
+        $changed = $uncatalogued_table->GetLastUpdateTime() >= filectime($file_lastUpdate);
+    }
+    if (!$forceall && !$changed)
     {
         return;
     }
-    // the detection coordinates exist only when the installed definition
-    // (misc/fndatabase/ctl_tracings.php, never overwritten) has them
     $detection = isset($tracings_table->fields['detection_latitude']);
     $fields = "id,name,type,air_regime,release_date,cave_injection,cave_detection,spring_detection,latitude_txt,longitude_txt,coordinates_type,elevation,latitude,longitude,groupview";
     if ($detection)
     {
         $fields .= ",detection_latitude_txt,detection_longitude_txt,detection_coordinates_type,detection_latitude,detection_longitude";
+    }
+    if ($uncatalogued)
+    {
+        $fields .= ",uncatalogued_injection,uncatalogued_detection";
     }
     $tracings = FN_XMETADBQuery("SELECT $fields FROM ctl_tracings");
     if (!is_array($tracings) || count($tracings) == 0)
@@ -76,6 +168,7 @@ function openkis_UpdateTracings($forceall = false)
             $restricted[trim(strval($cave['code']))] = array_filter(array_map('trim', explode(",", $cave['groupview'])));
         }
     }
+    $restricted_uncatalogued = $uncatalogued ? openkis_TracingsRestrictedUncatalogued() : array();
     foreach ($tracings as $tracing)
     {
         $new = array();
@@ -114,8 +207,8 @@ function openkis_UpdateTracings($forceall = false)
         //---- default name --------------------------------------------------->
         if (trim(strval($tracing['name'])) === "")
         {
-            $from = trim(strval($tracing['cave_injection']));
-            $to = trim(strval($tracing['cave_detection'])) !== "" ? trim(strval($tracing['cave_detection'])) : trim(strval($tracing['spring_detection']));
+            list($from) = openkis_TracingEnd($tracing, "injection");
+            list($to) = openkis_TracingEnd($tracing, "detection");
             if ($to === "" && isset($free["detection_"]) && $free["detection_"][0] !== "")
             {
                 $to = round(floatval($free["detection_"][0]), 5) . "," . round(floatval($free["detection_"][1]), 5);
@@ -125,14 +218,20 @@ function openkis_UpdateTracings($forceall = false)
                 $new['name'] = ($from !== "" ? $from : "?") . " -> " . ($to !== "" ? $to : "?");
             }
         }
-        //---- visibility from the restricted caves --------------------------->
+        //---- visibility from the restricted caves and uncatalogued cavities ->
         $groups = false;
-        foreach (array($tracing['cave_injection'], $tracing['cave_detection']) as $code)
+        $linked = array(array($tracing['cave_injection'], $restricted), array($tracing['cave_detection'], $restricted));
+        if ($uncatalogued)
         {
-            $code = trim(strval($code));
-            if ($code === "" || !isset($restricted[$code]))
+            $linked[] = array($tracing['uncatalogued_injection'], $restricted_uncatalogued);
+            $linked[] = array($tracing['uncatalogued_detection'], $restricted_uncatalogued);
+        }
+        foreach ($linked as $link)
+        {
+            $code = trim(strval($link[0]));
+            if ($code === "" || !isset($link[1][$code]))
                 continue;
-            $groups = ($groups === false) ? $restricted[$code] : array_values(array_intersect($groups, $restricted[$code]));
+            $groups = ($groups === false) ? $link[1][$code] : array_values(array_intersect($groups, $link[1][$code]));
         }
         if ($groups === false)
         {
@@ -235,6 +334,10 @@ function openkis_TracingViewValue($values, $fieldname)
         }
     }
     $value = isset($values[$fieldname]) ? strval($values[$fieldname]) : "";
+    // an empty link stays empty: records without a code (springs of
+    // Liguria) would otherwise give their name to every empty field
+    if (trim($value) === "")
+        return "";
     $title = isset($titles[$fieldname][$value]) ? $titles[$fieldname][$value] : $value;
     return htmlspecialchars($title, ENT_QUOTES, "UTF-8", false);
 }
@@ -256,12 +359,12 @@ function openkis_TracingKind($tracing)
 }
 
 /**
- * Start and end of the arrows of a list of tracings, using only the caves
- * and springs the current user can see: a tracing that touches a cave or a
- * spring hidden to the user is left out, even when its points have free
- * coordinates. Free coordinates replace the entrance of the cave or spring
- * (a point inside the cave, a resurgence in a stream bed) and are the only
- * position of a point that is not in the register.
+ * Start and end of the arrows of a list of tracings, using only the caves,
+ * springs and uncatalogued cavities the current user can see: a tracing that
+ * touches one hidden to the user is left out, even when its points have free
+ * coordinates. Free coordinates replace the entrance of the cave, spring or
+ * uncatalogued cavity (a point inside the cave, a resurgence in a stream bed)
+ * and are the only position of a point that is not linked to a record.
  *
  * @param array $tracings records of ctl_tracings
  * @return array one item per drawable tracing: tracing, from, to; from/to are
@@ -272,26 +375,37 @@ function openkis_TracingsArrows($tracings)
 {
     global $_FN;
     require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
-    $codes = array("caves" => array(), "springs" => array());
+    $link_fields = array("cave_injection" => "caves", "cave_detection" => "caves", "spring_detection" => "springs",
+        "uncatalogued_injection" => "uncatalogued", "uncatalogued_detection" => "uncatalogued");
+    $codes = array("caves" => array(), "springs" => array(), "uncatalogued" => array());
     foreach ($tracings as $tracing)
     {
-        foreach (array("cave_injection", "cave_detection") as $field)
+        foreach ($link_fields as $field => $mod)
         {
             if (!empty($tracing[$field]))
-                $codes["caves"][trim($tracing[$field])] = trim($tracing[$field]);
+                $codes[$mod][trim($tracing[$field])] = trim($tracing[$field]);
         }
-        if (!empty($tracing['spring_detection']))
-            $codes["springs"][trim($tracing['spring_detection'])] = trim($tracing['spring_detection']);
     }
     // the visible records only: FNDBVIEW applies the per-record permissions
-    $points = array("caves" => array(), "springs" => array());
+    $points = array("caves" => array(), "springs" => array(), "uncatalogued" => array());
     foreach ($codes as $mod => $list)
     {
         if (count($list) == 0 || !file_exists("sections/$mod"))
             continue;
-        if ($mod == "springs" && !FN_UserCanViewSection("springs"))
+        if ($mod != "caves" && !FN_UserCanViewSection($mod))
             continue;
-        openkis_UpdateCoords($mod);
+        $params = array();
+        $params['fields'] = "id,code,name,latitude,longitude,elevation";
+        if ($mod == "uncatalogued")
+        {
+            // no map endpoint keeps their WGS84 columns up to date (only their
+            // sheet does): the position is computed here from the typed ones
+            $params['fields'] .= ",latitude_txt,longitude_txt,coordinates_type";
+        }
+        else
+        {
+            openkis_UpdateCoords($mod);
+        }
         $config = FN_LoadConfig("modules/dbview/config.php", $mod);
         $dbview = new FNDBVIEW($config);
         $quoted = array();
@@ -299,14 +413,18 @@ function openkis_TracingsArrows($tracings)
         {
             $quoted[] = "'" . addslashes($code) . "'";
         }
-        $params = array();
-        $params['fields'] = "id,code,name,latitude,longitude,elevation";
         $params['appendquery'] = "code IN (" . implode(",", $quoted) . ")";
         $rows = $dbview->GetResults($config, $params);
         if (!is_array($rows))
             continue;
         foreach ($rows as $row)
         {
+            if ($mod == "uncatalogued")
+            {
+                $position = openkis_GetItemPosition($row);
+                $row['latitude'] = $position['lat'];
+                $row['longitude'] = $position['lon'];
+            }
             $points[$mod][trim($row['code'])] = array(
                 "lat" => floatval($row['latitude']),
                 "lon" => floatval($row['longitude']),
@@ -321,29 +439,24 @@ function openkis_TracingsArrows($tracings)
     $arrows = array();
     foreach ($tracings as $tracing)
     {
-        $injection = trim(strval($tracing['cave_injection']));
-        $detection_cave = trim(strval($tracing['cave_detection']));
-        $detection_spring = trim(strval($tracing['spring_detection']));
-        // a linked cave or spring the user cannot see hides the whole tracing
-        if (($injection !== "" && !isset($points["caves"][$injection])) || ($detection_cave !== "" && !isset($points["caves"][$detection_cave])))
+        list($injection, $injection_mod) = openkis_TracingEnd($tracing, "injection");
+        list($detection, $detection_mod) = openkis_TracingEnd($tracing, "detection");
+        // a linked cave or uncatalogued cavity the user cannot see hides the
+        // whole tracing, even when it is not the point used for the arrow
+        $hidden = false;
+        foreach ($link_fields as $field => $mod)
+        {
+            $code = !empty($tracing[$field]) ? trim($tracing[$field]) : "";
+            if ($code !== "" && $mod != "springs" && !isset($points[$mod][$code]))
+                $hidden = true;
+        }
+        // a spring only when it is the detection point (springs hidden to the user)
+        if ($hidden || ($detection_mod == "springs" && !isset($points["springs"][$detection])))
             continue;
-        if ($detection_cave === "" && $detection_spring !== "" && !isset($points["springs"][$detection_spring]))
-            continue;
-        // the linked cave or spring of each point, or an empty point
+        // the linked record of each point, or an empty point
         $none = array("lat" => 0, "lon" => 0, "elevation" => "", "code" => "", "name" => "", "mod" => "", "id" => "", "free" => false);
-        $from = ($injection !== "") ? $points["caves"][$injection] : $none;
-        if ($detection_cave !== "")
-        {
-            $to = $points["caves"][$detection_cave];
-        }
-        elseif ($detection_spring !== "")
-        {
-            $to = $points["springs"][$detection_spring];
-        }
-        else
-        {
-            $to = $none;
-        }
+        $from = ($injection !== "") ? $points[$injection_mod][$injection] : $none;
+        $to = ($detection !== "") ? $points[$detection_mod][$detection] : $none;
         // free coordinates (computed WGS84) replace the entrance, with the
         // elevation given for the point
         if (floatval($tracing['latitude']) != 0 && floatval($tracing['longitude']) != 0)
@@ -394,17 +507,33 @@ function openkis_TracingsSpringCard($code)
 }
 
 /**
- * Card listing the tracings of a cave (injection or detection) or of a spring
- * (detection), as the other list cards of the sheets.
+ * Card listing the tracings that start or end in an uncatalogued cavity, for
+ * its sheet.
  *
- * @param string $code cave or spring code
- * @param string $point "cave" or "spring"
+ * @param string $code code of the uncatalogued cavity
+ * @return string html, empty when the cavity has no tracing visible to the user
+ */
+function openkis_TracingsUncataloguedCard($code)
+{
+    return openkis_TracingsPointCard($code, "uncatalogued");
+}
+
+/**
+ * Card listing the tracings of a cave or of an uncatalogued cavity (injection
+ * or detection) or of a spring (detection), as the other list cards of the
+ * sheets.
+ *
+ * @param string $code cave, spring or uncatalogued cavity code
+ * @param string $point "cave", "spring" or "uncatalogued"
  * @return string html, empty when there is no tracing visible to the user
  */
 function openkis_TracingsPointCard($code, $point)
 {
     global $_FN;
     if ($code === "" || !file_exists("sections/tracings") || !FN_XMDBTable("ctl_tracings") || !FN_UserCanViewSection("tracings"))
+        return "";
+    $uncatalogued = openkis_TracingsHasUncatalogued();
+    if ($point == "uncatalogued" && !$uncatalogued)
         return "";
     require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
     openkis_UpdateTracings();
@@ -413,7 +542,22 @@ function openkis_TracingsPointCard($code, $point)
     $code_sql = addslashes($code);
     $params = array();
     $params['fields'] = "id,name,type,air_regime,release_date,cave_injection,cave_detection,spring_detection,result";
-    $params['appendquery'] = ($point == "spring") ? "spring_detection LIKE '$code_sql'" : "(cave_injection LIKE '$code_sql' OR cave_detection LIKE '$code_sql')";
+    if ($uncatalogued)
+    {
+        $params['fields'] .= ",uncatalogued_injection,uncatalogued_detection";
+    }
+    if ($point == "spring")
+    {
+        $params['appendquery'] = "spring_detection LIKE '$code_sql'";
+    }
+    elseif ($point == "uncatalogued")
+    {
+        $params['appendquery'] = "(uncatalogued_injection LIKE '$code_sql' OR uncatalogued_detection LIKE '$code_sql')";
+    }
+    else
+    {
+        $params['appendquery'] = "(cave_injection LIKE '$code_sql' OR cave_detection LIKE '$code_sql')";
+    }
     $tracings = $dbview->GetResults($config, $params);
     if (!is_array($tracings) || count($tracings) == 0)
         return "";
@@ -428,15 +572,15 @@ function openkis_TracingsPointCard($code, $point)
         $kind = $kinds[openkis_TracingKind($tracing)];
         $url = FN_RewriteLink("index.php?mod=tracings&op=view&id={$tracing['id']}");
         $date = !empty($tracing['release_date']) ? date("d/m/Y", strtotime($tracing['release_date'])) : "";
-        if ($point == "spring" || $tracing['cave_detection'] == $code)
-        {
-            $direction = "&larr; " . htmlspecialchars($tracing['cave_injection'] !== "" ? $tracing['cave_injection'] : FN_Translate("free coordinates"));
-        }
+        // arriving here: where it comes from; leaving from here: where it goes
+        if ($point == "spring")
+            $arriving = true;
+        elseif ($point == "uncatalogued")
+            $arriving = (trim(strval($tracing['uncatalogued_detection'])) == $code);
         else
-        {
-            $target = $tracing['cave_detection'] !== "" ? $tracing['cave_detection'] : $tracing['spring_detection'];
-            $direction = "&rarr; " . htmlspecialchars($target !== "" ? $target : FN_Translate("free coordinates"));
-        }
+            $arriving = (trim(strval($tracing['cave_detection'])) == $code);
+        list($other) = openkis_TracingEnd($tracing, $arriving ? "injection" : "detection");
+        $direction = ($arriving ? "&larr; " : "&rarr; ") . htmlspecialchars($other !== "" ? $other : FN_Translate("free coordinates"));
         $result = !empty($tracing['result']) ? FN_Translate($tracing['result']) : "";
         $rows[] = array($date,
             "<span style=\"display:inline-block;width:12px;height:12px;border-radius:2px;background:{$kind[0]};vertical-align:middle\"></span> {$kind[1]}",
@@ -444,6 +588,7 @@ function openkis_TracingsPointCard($code, $point)
     }
     $head = array(array(FN_Translate("date"), "text-nowrap"), array(FN_Translate("type"), "text-nowrap"), FN_Translate("name"),
         array(FN_Translate($point == "spring" ? "from" : "from / to"), "text-nowrap"), FN_Translate("result"), array("", "text-right text-end"));
+    // bs_map.htm: tracing_cave, tracing_spring, tracing_uncatalogued
     $map = "{$_FN['siteurl']}bs_map.htm?tracing_$point=" . urlencode($code);
     $footer = "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a>";
     // on phones the card of a row starts with the date and the name of the test

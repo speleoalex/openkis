@@ -433,7 +433,7 @@ categorie, scheda, modulo di modifica, storico (dove attivato) ed esportazioni.
 | --- | --- | --- |
 | Cavità artificiali | Cavità artificiali | Miniere, gallerie, bunker, acquedotti, ... con rilievi, foto e allegati; gruppi `r_artificials`/`w_artificials` |
 | Sorgenti carsiche | Cavità naturali | Sorgenti con posizione, portata e uso dell'acqua; possono essere punto di rilevamento di un tracciamento |
-| Tracciamenti | Cavità naturali | Prove con traccianti (acqua o aria): punto di immissione, punto di rilevamento (grotta, sorgente o coordinate libere per un punto che non è un ingresso), tracciante, data, esito; sopra l'elenco una mappa con le frecce dei tracciamenti positivi |
+| Tracciamenti | Cavità naturali | Prove con traccianti (acqua o aria): punto di immissione (grotta, cavità non a catasto o coordinate libere), punto di rilevamento (grotta, sorgente, cavità non a catasto o coordinate libere per un punto che non è un ingresso), tracciante, data, esito; sopra l'elenco una mappa con le frecce dei tracciamenti positivi |
 | Temperature | Cavità naturali | Misure della temperatura sotterranea secondo le schede del progetto UCC: letture spot e monitoraggi con data logger di aria, acqua o roccia, con posizione, condizioni, strumento e fonte; mappa dei punti colorati per temperatura; esportazione CSV nel formato dei fogli UCC (vedi [TEMPERATURES_IT.md](TEMPERATURES_IT.md)) |
 | Aree speleologiche | Cavità naturali | Le aree carsiche; la scheda dell'area elenca le sue grotte |
 | Complessi carsici | Cavità naturali | Sistemi di più grotte; lo sviluppo può essere ricalcolato dalle grotte che ne fanno parte |

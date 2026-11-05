@@ -1233,6 +1233,8 @@ var OPS_Map = {
      *   tracing=id            one tracing
      *   tracing_cave=code     the tracings starting or ending in a cave
      *   tracing_spring=code   the tracings ending in a spring
+     *   tracing_uncatalogued=code the tracings starting or ending in an
+     *                         uncatalogued cavity
      * @param {String} title layer name in the layer switcher
      * @returns {ol.layer.Vector}
      */
@@ -1242,6 +1244,7 @@ var OPS_Map = {
         var tracing = getUrlVar("tracing", "");
         var cave = getUrlVar("tracing_cave", "");
         var spring = getUrlVar("tracing_spring", "");
+        var uncatalogued = getUrlVar("tracing_uncatalogued", "");
         if (tracing !== "")
         {
             path += "?id=" + encodeURIComponent(tracing);
@@ -1251,6 +1254,9 @@ var OPS_Map = {
         } else if (spring !== "")
         {
             path += "?spring=" + encodeURIComponent(spring);
+        } else if (uncatalogued !== "")
+        {
+            path += "?uncatalogued=" + encodeURIComponent(uncatalogued);
         }
         var shown = (getUrlVar("tracings", "") !== "" || path !== "openkis_tracings.php");
         if (shown)

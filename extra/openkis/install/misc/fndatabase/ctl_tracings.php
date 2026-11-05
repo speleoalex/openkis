@@ -71,6 +71,17 @@
         <frm_showinlist>1</frm_showinlist>
     </field>
     <field>
+        <name>uncatalogued_injection</name>
+        <frm_functionview>openkis_TracingViewValue</frm_functionview>
+        <frm_i18n>injection uncatalogued cavity</frm_i18n>
+        <frm_help_i18n>When the injection point is a cavity that is not in the register (section of the uncatalogued cavities): leave the injection cave empty. Its coordinates and elevation are used when latitude and longitude are empty.</frm_help_i18n>
+        <type>string</type>
+        <frm_type>selectfilter</frm_type>
+        <foreignkey>ctl_uncatalogued</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>code,name</fk_show_field>
+    </field>
+    <field>
         <name>latitude_txt</name>
         <frm_i18n>latitude</frm_i18n>
         <frm_help_i18n>When the injection point is not a cave entrance. When latitude and longitude are empty the coordinates and elevation of the injection cave are used.</frm_help_i18n>
@@ -124,6 +135,17 @@
         <fk_link_field>code</fk_link_field>
         <fk_show_field>code,name</fk_show_field>
         <frm_showinlist>1</frm_showinlist>
+    </field>
+    <field>
+        <name>uncatalogued_detection</name>
+        <frm_functionview>openkis_TracingViewValue</frm_functionview>
+        <frm_i18n>detection uncatalogued cavity</frm_i18n>
+        <frm_help_i18n>When the detection point is a cavity that is not in the register (section of the uncatalogued cavities): leave the detection cave and spring empty.</frm_help_i18n>
+        <type>string</type>
+        <frm_type>selectfilter</frm_type>
+        <foreignkey>ctl_uncatalogued</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>code,name</fk_show_field>
     </field>
     <field>
         <name>detection_latitude_txt</name>

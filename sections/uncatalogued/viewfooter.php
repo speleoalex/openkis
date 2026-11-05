@@ -18,8 +18,11 @@ if (abs(floatval($position['lat']) - floatval($row['latitude'])) > 0.0000001 || 
         $table->UpdateRecord(array("id" => $row['id'], "latitude" => $position['lat'], "longitude" => $position['lon'], "coordnatesupdated" => FN_Now()));
     }
 }
+// tracer tests starting or ending in this cavity
+$tracings_card = function_exists("openkis_TracingsUncataloguedCard") ? openkis_TracingsUncataloguedCard($row['code']) : "";
 if (abs(floatval($position['lat'])) < 0.01)
 {
+    echo $tracings_card;
     return;
 }
 $lat = round($position['lat'], 6);
@@ -31,3 +34,4 @@ echo FN_Translate("coordinates WGS84") . ": <input class=\"form-control form-con
 echo " " . FN_Translate("calculate the route") . ": <a target=\"_blank\" rel=\"noopener\" href=\"https://www.google.com/maps/dir//$lat,$lon/@$lat,$lon,18z\">GMaps</a>";
 echo " | <a target=\"_blank\" rel=\"noopener\" href=\"https://www.openstreetmap.org/directions?engine=graphhopper_foot&amp;route=$lat%2C$lon%3B$lat%2C$lon\">OpenStreetMap</a>";
 echo "</div></div>";
+echo $tracings_card;

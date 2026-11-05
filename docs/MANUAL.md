@@ -427,7 +427,7 @@ edit form, history (where enabled) and exports.
 | --- | --- | --- |
 | Artificial cavities | Artificial caves | Mines, tunnels, bunkers, aqueducts, ... with surveys, photos and attachments; groups `r_artificials`/`w_artificials` |
 | Karst springs | Natural Cave | Springs with position, flow and water use; they can be the detection point of a tracer test |
-| Tracer tests | Natural Cave | Tests with tracers (water or air): injection point, detection point (a cave, a spring, or free coordinates for a point that is not an entrance), tracer, date, result; above the list a map with the arrows of the positive tests |
+| Tracer tests | Natural Cave | Tests with tracers (water or air): injection point (a cave, an uncatalogued cavity, or free coordinates), detection point (a cave, a spring, an uncatalogued cavity, or free coordinates for a point that is not an entrance), tracer, date, result; above the list a map with the arrows of the positive tests |
 | Temperatures | Natural Cave | Underground temperature measurements after the sheets of the UCC project: spot readings and data logger monitorings of the air, water or rock, with position, conditions, instrument and source; map of the points coloured by temperature; CSV export in the layout of the UCC sheets (see [TEMPERATURES.md](TEMPERATURES.md)) |
 | Speleological areas | Natural Cave | The karst areas; the sheet of an area lists its caves |
 | Cave systems | Natural Cave | Systems of several caves; the length can be recalculated from the member caves |

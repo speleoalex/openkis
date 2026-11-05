@@ -5,13 +5,15 @@
  *
  * One LineString per positive tracing, from the injection point to the
  * detection point: negative and uncertain results are listed in the section
- * but not drawn. Only the tracings, caves and springs the current user can
- * see are returned (see openkis_TracingsArrows()).
+ * but not drawn. Only the tracings, caves, springs and uncatalogued cavities
+ * the current user can see are returned (see openkis_TracingsArrows()).
  *
  * Parameters (all optional):
  *   id      only this tracing
  *   cave    only the tracings that start or end in this cave (code)
  *   spring  only the tracings that end in this spring (code)
+ *   uncatalogued  only the tracings that start or end in this uncatalogued
+ *                 cavity (code)
  *
  * Besides the features the collection carries a "legend" member with the
  * translated labels of the colours and line styles.
@@ -25,6 +27,7 @@ FN_LoadMessagesFolder("extra/openkis");
 $id = FN_GetParam("id", $_GET, "flat");
 $cave = FN_GetParam("cave", $_GET, "flat");
 $spring = FN_GetParam("spring", $_GET, "flat");
+$uncatalogued = FN_GetParam("uncatalogued", $_GET, "flat");
 
 $features = array();
 if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
@@ -40,6 +43,12 @@ if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
     {
         $params['fields'] .= ",detection_latitude,detection_longitude,detection_elevation";
     }
+    // links to the uncatalogued cavities, when the installed definition has them
+    $has_uncatalogued = openkis_TracingsHasUncatalogued();
+    if ($has_uncatalogued)
+    {
+        $params['fields'] .= ",uncatalogued_injection,uncatalogued_detection";
+    }
     $where = array("result LIKE 'positive'");
     if ($id !== "")
     {
@@ -52,6 +61,11 @@ if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
     if ($spring !== "")
     {
         $where[] = "spring_detection LIKE '" . addslashes($spring) . "'";
+    }
+    if ($uncatalogued !== "")
+    {
+        // without the links no tracing can match
+        $where[] = $has_uncatalogued ? "(uncatalogued_injection LIKE '" . addslashes($uncatalogued) . "' OR uncatalogued_detection LIKE '" . addslashes($uncatalogued) . "')" : "id = 0";
     }
     $params['appendquery'] = implode(" AND ", $where);
     $tracings = $dbview->GetResults($config, $params);
