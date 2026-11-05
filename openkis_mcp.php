@@ -307,7 +307,7 @@ function mcp_HandleMessage($message)
                 "protocolVersion" => $version,
                 "capabilities" => array("tools" => new stdClass()),
                 "serverInfo" => array("name" => "openkis", "version" => "2.0.0"),
-                "instructions" => "OpenKIS speleological cadastre DB. Data is CSV. Start with `sections` (dbview sections and their tables) then `schema`. Prefer `section` over `table` for catalogue data: writes then keep history and run the section hooks. Values are read and written in storage format. The address of a record page and of its PDF cadastral sheet are the url and pdf_url lines of `get`. " . mcp_AccessDescription()
+                "instructions" => "OpenKIS speleological cadastre DB. Data is CSV. Start with `sections` (dbview sections and their tables) then `schema`. Prefer `section` over `table` for catalogue data: writes then keep history and run the section hooks. Values are read and written in storage format. The address of a record page and of its PDF cadastral sheet are the url and pdf_url lines of `get`, the download address of each of its files (survey drawing, photo, 3d model) the <field>_url line (photo1_url, filepdf_url...): use these, never build an address. " . mcp_AccessDescription()
             );
             break;
         case "ping":
@@ -363,7 +363,7 @@ function mcp_Tools()
         "name" => "query",
         "description" => "Read records as CSV. Last line: #offset,rows,total. Long values are cut to maxlen (ending with …); use get for full values. Records hidden by delete (recorddeleted=1) are excluded unless deleted=true.",
         "inputSchema" => array("type" => "object", "properties" => $src + array(
-        "fields" => array("type" => "string", "description" => "comma list, * = all. Default: pk+title fields for sections, all for tables. Misspelled columns (velley, lenght_*) also answer to the right spelling (valley, length_*). url and pdf_url add the links of each record (sections)"),
+        "fields" => array("type" => "string", "description" => "comma list, * = all. Default: pk+title fields for sections, all for tables. Misspelled columns (velley, lenght_*) also answer to the right spelling (valley, length_*). url and pdf_url add the links of each record (sections), <file field>_url the download address of that file (photo1_url...)"),
         "filter" => array("type" => "object", "description" => "{field:value} AND-ed; value with % = LIKE pattern"),
         "where" => array("type" => "string", "description" => "SQL WHERE condition (mysql tables only, no subqueries), e.g. depth_total>100 AND comune='FINALE LIGURE'"),
         "order" => array("type" => "string", "description" => "e.g. name or depth_total:DESC,name"),
@@ -376,7 +376,7 @@ function mcp_Tools()
     );
     $tools[] = array(
         "name" => "get",
-        "description" => "Full record by primary key as CSV field,value (empty fields omitted unless empty=true). Records of a section end with url (their page on the site) and, where the region has one, pdf_url (the cadastral sheet as PDF): give these links, never build one",
+        "description" => "Full record by primary key as CSV field,value (empty fields omitted unless empty=true). Records of a section end with url (their page on the site) and, where the region has one, pdf_url (the cadastral sheet as PDF); a record with files ends with <field>_url for each of them, the file's download address (photo1_url = the survey drawing of a survey, the entrance photo of a cave). Give or attach these links, never build one",
         "inputSchema" => array("type" => "object", "properties" => $src + array(
         "id" => array("type" => "string", "description" => "primary key value (for tables with a code column the cadastral number works too, e.g. LI571)"),
         "fields" => array("type" => "string", "description" => "comma list, default all"),
@@ -688,6 +688,11 @@ function mcp_Tool_query($args)
     $getfields = $fields;
     if ($links && !in_array($src['pk'], $getfields))
         $getfields[] = $src['pk'];
+    foreach (mcp_FileLinkFields($Table, $links) as $f)
+    {
+        if (!in_array($f, $getfields))
+            $getfields[] = $f;
+    }
     if (!$native && $hideDeleted && !in_array("recorddeleted", $getfields))
         $getfields[] = "recorddeleted";
     if ($rowFilter)
@@ -730,7 +735,7 @@ function mcp_Tool_query($args)
         foreach ($fields as $f)
             $row[] = mcp_Cut(isset($record[$f]) ? $record[$f] : "", $maxlen);
         // links never cut: an address ending with "…" leads nowhere
-        $recordlinks = $links ? mcp_RecordLinks($src, $record) : array();
+        $recordlinks = $links ? mcp_RecordLinks($src, $record) + mcp_FileLinks($src, $record, $links) : array();
         foreach ($links as $k)
             $row[] = isset($recordlinks[$k]) ? $recordlinks[$k] : "";
         $rows[] = $row;
@@ -766,7 +771,7 @@ function mcp_Tool_get($args)
             continue;
         $rows[] = array($f, $v);
     }
-    foreach (mcp_RecordLinks($src, $record) as $k => $v)
+    foreach (mcp_RecordLinks($src, $record) + mcp_FileLinks($src, $record) as $k => $v)
         $rows[] = array($k, $v);
     return mcp_Csv($rows);
 }
@@ -811,7 +816,71 @@ function mcp_HasPdfSheet($section)
 }
 
 /**
- * Separates the link names (url, pdf_url: see mcp_RecordLinks) from the fields of a read of a
+ * Download addresses of a record's files: <field>_url for every image or file field that has
+ * a value (photo1_url, filepdf_url, filekml_url...), built as the site builds them
+ * (XMETATable::getFileUrl: for the protected tables an opaque openkis_file.php link, which
+ * checks again who may read the file when it is followed). Asked to mail a survey drawing, a
+ * model holding only the stored name "Priamara2021.png" invented
+ * .../it/uploads/survey/Priamara2021.png (observed 2026-11-05); a client that downloads
+ * attachments can only use an address it was given.
+ * @param array $src
+ * @param array $record
+ * @param array|null $only link names asked for (query), null = all (get)
+ * @return array
+ */
+function mcp_FileLinks($src, $record, $only = null)
+{
+    $Table = $src['Table'];
+    $links = array();
+    $fields = $only === null ? mcp_FileFields($Table) : mcp_FileLinkFields($Table, $only);
+    foreach ($fields as $f)
+    {
+        if (!isset($record[$f]) || (string) $record[$f] === "")
+            continue;
+        $url = $Table->getFileUrl($record, $f);
+        if ($url)
+            $links["{$f}_url"] = $url;
+    }
+    return $links;
+}
+
+/**
+ * Image and file fields of a table, the ones that hold a stored file.
+ * @param object $Table
+ * @return array
+ */
+function mcp_FileFields($Table)
+{
+    $out = array();
+    foreach ($Table->fields as $name => $field)
+    {
+        if (isset($field->type) && in_array($field->type, array("image", "file")))
+            $out[] = $name;
+    }
+    return $out;
+}
+
+/**
+ * The file fields behind the <field>_url link names in $links.
+ * @param object $Table
+ * @param array $links
+ * @return array
+ */
+function mcp_FileLinkFields($Table, $links)
+{
+    $out = array();
+    $files = mcp_FileFields($Table);
+    foreach ($links as $k)
+    {
+        if (substr($k, -4) == "_url" && in_array(substr($k, 0, -4), $files))
+            $out[] = substr($k, 0, -4);
+    }
+    return $out;
+}
+
+/**
+ * Separates the link names (url, pdf_url: see mcp_RecordLinks; <file field>_url: see
+ * mcp_FileLinks) from the fields of a read of a
  * section, where a model asks for them as fields ("fields": "code,name,url"); a real column
  * with that name stays a field.
  * @param array $src
@@ -827,7 +896,8 @@ function mcp_SplitLinkFields($src, $fields)
     foreach (explode(",", $fields) as $f)
     {
         $f = trim($f);
-        if (in_array($f, array("url", "pdf_url")) && !isset($src['Table']->fields[$f]))
+        $isFileLink = substr($f, -4) == "_url" && in_array(substr($f, 0, -4), mcp_FileFields($src['Table']));
+        if ((in_array($f, array("url", "pdf_url")) || $isFileLink) && !isset($src['Table']->fields[$f]))
         {
             if (!in_array($f, $links))
                 $links[] = $f;
