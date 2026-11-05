@@ -73,14 +73,17 @@ recorded as `$_FN['openkis_mcp_user']`.
 **Configuration > MCP server** (`index.php?mod=openkis_mcp`, section `sections/openkis_mcp`):
 
 - the URLs of the two servers (records and CMS) and the authentication methods;
-- the own key: state (creation date), **generate** (the key, the `claude mcp add` command
-  and the JSON configuration for other clients are shown once) and **revoke**;
+- the own key: state (creation date), **show the key and the parameters** (the key, the
+  server URLs, headers, the addresses with `?apikey=`, the `claude mcp add` commands and
+  the JSON configuration for other clients; decrypted from `fn_users.apikey_enc`, every
+  key shown is logged), **generate** (shows the same block) and **revoke**. A key created
+  when only its hash was stored cannot be shown: generate a new one;
 - the table of the effective permissions of the key on the record sections; an
   administrator can look at the permissions of any user.
 
 The keys of all the users and the write permissions are managed in the finis control
 center, **Users and groups > MCP server** (`index.php?fnapp=controlcenter&opt=users_and_groups/mcp`):
-users with a key (creation date), generate a key for a user (shown once), revoke it, allow
+users with a key (creation date), show the key of a user, generate a key for a user, revoke it, allow
 the write tools or set the user back to read only.
 
 Permissions table icons: 🛡️ read and edit all records, ✏️ read, insert and edit the

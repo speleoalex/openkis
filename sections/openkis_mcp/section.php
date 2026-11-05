@@ -5,8 +5,9 @@
  *
  * Shows the endpoints of the two MCP servers of the site (openkis_mcp.php for the records,
  * index.php?fnapp=mcp of finis for the pages) and lets the logged user generate or revoke the
- * personal API key (fn_users.apikey hashed by finis, shown once to its owner; the administrators
- * can show it again in the control center, from the copy encrypted in fn_users.apikey_enc). A client
+ * personal API key (fn_users.apikey hashed by finis, with a copy encrypted in fn_users.apikey_enc:
+ * the owner shows the own key again with the client parameters, button "show", every key shown is
+ * logged; the administrators show any key in the control center). A client
  * that uses the key acts with the permissions of the key owner; the page lists them section
  * by section. The write tools are allowed only to the administrators and to the users an
  * administrator allowed to write (group $_FN['mcp_write_group'], default "mcp_write"), from
@@ -31,6 +32,7 @@ $okmcp_isadmin = FN_IsAdmin();
 $okmcp_message = "";
 $okmcp_error = "";
 $okmcp_newkey = "";
+$okmcp_shown = false;
 if (!FN_UserCanUseApiKey($_FN['user']))
 {
     echo "<p>" . FN_Translate("your account is not enabled to use the MCP server, ask an administrator") . "</p>";
@@ -57,11 +59,25 @@ if ($okmcp_action != "")
         $okmcp_error = FN_Translate("invalid request, reload the page and try again");
     elseif ($okmcp_action == "generate")
     {
+        //apikey_enc must be in the table definition before the key is generated, or it could not be shown again
+        if (function_exists("FN_EnsureUserApiKeyField"))
+            FN_EnsureUserApiKeyField();
         $okmcp_newkey = FN_GenerateApiKey($_FN['user']);
         if ($okmcp_newkey != "")
-            $okmcp_message = FN_Translate("copy the key now: it is shown only this time") . " " . FN_Translate("The previous key, if any, no longer works.");
+            $okmcp_message = FN_Translate("new key generated") . ". " . FN_Translate("The previous key, if any, no longer works.");
         else
             $okmcp_error = FN_Translate("error");
+    }
+    elseif ($okmcp_action == "show")
+    {
+        $okmcp_newkey = FN_ApiKeyReveal($_FN['user']);
+        $okmcp_shown = $okmcp_newkey != "";
+        if ($okmcp_shown)
+            FN_LogEvent("API key of user {$_FN['user']} shown to its owner (MCP server page)", "apikey");
+        elseif (FN_ApiKeyInfo($_FN['user'])['exists'])
+            $okmcp_error = FN_Translate("this key cannot be shown: it was created when only its hash was stored. Generate a new key to see it");
+        else
+            $okmcp_error = FN_Translate("no API key");
     }
     elseif ($okmcp_action == "revoke")
     {
@@ -104,7 +120,7 @@ if ($okmcp_isadmin)
 echo "</ul>";
 //--------------------------- servers ----------------------------------------<
 
-okmcp_HtmlOwnKey($okmcp_link, $okmcp_newkey);
+okmcp_HtmlOwnKey($okmcp_link, $okmcp_newkey, $okmcp_shown);
 okmcp_HtmlPermissions($okmcp_user, $okmcp_link, $okmcp_isadmin);
 echo "</div>";
 
@@ -131,12 +147,13 @@ function okmcp_CanWrite($user)
 }
 
 /**
- * The key of the logged user: state, generate and revoke buttons, the new key
- * (once) with the client configuration
+ * The key of the logged user: state, show, generate and revoke buttons, the key
+ * (just generated or shown on request) with the client configuration
  * @param string $link
- * @param string $newkey key just generated, "" otherwise
+ * @param string $newkey key just generated or shown, "" otherwise
+ * @param bool $shown the key was shown with the "show" button (not generated)
  */
-function okmcp_HtmlOwnKey($link, $newkey)
+function okmcp_HtmlOwnKey($link, $newkey, $shown = false)
 {
     global $_FN;
     $user = $_FN['user'];
@@ -151,23 +168,20 @@ function okmcp_HtmlOwnKey($link, $newkey)
         echo FN_Translate("API key created on") . " " . okmcp_h($info['created']);
     else
         echo FN_Translate("API key present");
-    echo ". " . FN_Translate("The key cannot be read again: if you lost it, generate a new one.") . "</p>";
+    echo ".";
+    if ($info['exists'] && !$info['viewable'])
+        echo " " . FN_Translate("this key cannot be shown: it was created when only its hash was stored. Generate a new key to see it") . ".";
+    echo "</p>";
     if ($newkey != "")
-    {
-        echo "<div class=\"mb-2\"><input type=\"text\" class=\"form-control\" readonly=\"readonly\" onclick=\"this.select()\" value=\"" . okmcp_h($newkey) . "\" /></div>";
-        $url = okmcp_ServerUrl();
-        $cmd = "claude mcp add --transport http openkis $url --header \"X-API-Key: $newkey\"";
-        $json = "{\n  \"mcpServers\": {\n    \"openkis\": {\n      \"type\": \"http\",\n      \"url\": \"$url\",\n      \"headers\": { \"X-API-Key\": \"$newkey\" }\n    },\n    \"openkis_cms\": {\n      \"type\": \"http\",\n      \"url\": \"" . FN_GetMcpUrl() . "\",\n      \"headers\": { \"X-API-Key\": \"$newkey\" }\n    }\n  }\n}";
-        echo "<p><b>" . FN_Translate("Claude Code") . "</b></p>";
-        echo "<pre style=\"white-space:pre-wrap;word-break:break-all\">" . okmcp_h($cmd) . "</pre>";
-        echo "<p><b>" . FN_Translate("other MCP clients (JSON configuration)") . "</b></p>";
-        echo "<pre>" . okmcp_h($json) . "</pre>";
-        echo "<p class=\"text-muted\">" . FN_Translate("the key is personal: whoever has it can act on the cadastre as this user") . "</p>";
-    }
+        okmcp_HtmlKeyParameters($newkey, $shown);
     echo "<form method=\"post\" action=\"$link\" class=\"mb-3\">";
     echo "<input type=\"hidden\" name=\"okmcp_token\" value=\"$token\" />";
     if ($info['exists'])
     {
+        if ($info['viewable'] && $newkey == "")
+            echo "<button class=\"btn btn-primary btn-sm\" type=\"submit\" name=\"okmcp_action\" value=\"show\">&#x1F511; " . FN_Translate("show the key and the parameters") . "</button> ";
+        elseif ($newkey != "")
+            echo "<a class=\"btn btn-outline-secondary btn-sm\" href=\"$link\">" . FN_Translate("hide the key") . "</a> ";
         echo "<button class=\"btn btn-secondary btn-sm\" type=\"submit\" name=\"okmcp_action\" value=\"generate\" onclick=\"return confirm('" . addslashes(FN_Translate("generate a new key? The clients that use the current key will stop working")) . "')\">" . FN_Translate("generate a new key") . "</button> ";
         echo "<button class=\"btn btn-danger btn-sm\" type=\"submit\" name=\"okmcp_action\" value=\"revoke\" onclick=\"return confirm('" . addslashes(FN_Translate("revoke the key? The clients that use it will stop working")) . "')\">" . FN_Translate("revoke the key") . "</button>";
     }
@@ -176,6 +190,45 @@ function okmcp_HtmlOwnKey($link, $newkey)
         echo "<button class=\"btn btn-primary btn-sm\" type=\"submit\" name=\"okmcp_action\" value=\"generate\">" . FN_Translate("generate the key") . "</button>";
     }
     echo "</form>";
+}
+
+/**
+ * The key of the logged user with the parameters of the clients: server URLs,
+ * Claude Code commands, JSON configuration, address with the key for the clients
+ * without custom headers
+ * @param string $apikey
+ * @param bool $shown the key was shown on request (not generated now)
+ */
+function okmcp_HtmlKeyParameters($apikey, $shown)
+{
+    $url = okmcp_ServerUrl();
+    $cmsurl = FN_GetMcpUrl();
+    $cmd = "claude mcp add --transport http openkis $url --header \"X-API-Key: $apikey\"\n"
+        . "claude mcp add --transport http openkis_cms \"$cmsurl\" --header \"X-API-Key: $apikey\"";
+    $json = "{\n  \"mcpServers\": {\n    \"openkis\": {\n      \"type\": \"http\",\n      \"url\": \"$url\",\n      \"headers\": { \"X-API-Key\": \"$apikey\" }\n    },\n    \"openkis_cms\": {\n      \"type\": \"http\",\n      \"url\": \"$cmsurl\",\n      \"headers\": { \"X-API-Key\": \"$apikey\" }\n    }\n  }\n}";
+    $sep = strpos($url, "?") === false ? "?" : "&";
+    $urlkey = "$url{$sep}apikey=" . urlencode($apikey);
+    $cmsurlkey = $cmsurl . (strpos($cmsurl, "?") === false ? "?" : "&") . "apikey=" . urlencode($apikey);
+    echo "<div class=\"card mb-3 border-success\"><div class=\"card-body\">";
+    echo "<label class=\"form-label mb-0\"><b>" . FN_Translate("your MCP key") . "</b></label>";
+    echo "<div class=\"input-group mb-1\"><input type=\"text\" class=\"form-control\" readonly=\"readonly\" onclick=\"this.select()\" value=\"" . okmcp_h($apikey) . "\" />";
+    echo "<button class=\"btn btn-outline-secondary\" type=\"button\" onclick=\"var i=this.previousElementSibling;i.select();if(navigator.clipboard){navigator.clipboard.writeText(i.value);}else{document.execCommand('copy');}\">" . FN_Translate("copy") . "</button></div>";
+    if (!$shown)
+        echo "<div class=\"form-text mb-2\">" . FN_Translate("copy the key now; you can show it again later with the button of this page") . "</div>";
+    echo "<p class=\"mt-3 mb-1\"><b>" . FN_Translate("parameters") . "</b></p>";
+    echo "<table class=\"table table-sm mb-2\"><tbody>";
+    echo "<tr><th style=\"width:14em\">" . FN_Translate("cadastre (records): OpenKIS MCP server") . "</th><td><code>" . okmcp_h($url) . "</code></td></tr>";
+    echo "<tr><th>" . FN_Translate("pages, menus and settings: CMS MCP server") . "</th><td><code>" . okmcp_h($cmsurl) . "</code></td></tr>";
+    echo "<tr><th>" . FN_Translate("transport") . "</th><td><code>Streamable HTTP</code> (<code>type: http</code>)</td></tr>";
+    echo "<tr><th>" . FN_Translate("header") . "</th><td><code>X-API-Key: " . okmcp_h($apikey) . "</code><br /><small class=\"text-muted\">" . FN_Translate("or", "") . "</small> <code>Authorization: Bearer " . okmcp_h($apikey) . "</code></td></tr>";
+    echo "<tr><th>" . FN_Translate("in the address (clients without custom headers)") . "</th><td><code style=\"word-break:break-all\">" . okmcp_h($urlkey) . "</code><br /><code style=\"word-break:break-all\">" . okmcp_h($cmsurlkey) . "</code></td></tr>";
+    echo "</tbody></table>";
+    echo "<p class=\"mb-1\"><b>" . FN_Translate("Claude Code") . "</b></p>";
+    echo "<pre style=\"white-space:pre-wrap;word-break:break-all\">" . okmcp_h($cmd) . "</pre>";
+    echo "<p class=\"mb-1\"><b>" . FN_Translate("other MCP clients (JSON configuration)") . "</b></p>";
+    echo "<pre>" . okmcp_h($json) . "</pre>";
+    echo "<p class=\"text-muted mb-0\">" . FN_Translate("the key is personal: whoever has it can act on the cadastre as this user") . "</p>";
+    echo "</div></div>";
 }
 
 /**
