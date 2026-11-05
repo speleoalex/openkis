@@ -2454,3 +2454,72 @@ details > summary {
         line-height: 1.35;
     }
 }
+
+/* ---------------------------------------------------------------------
+   Lists with the map of the results (sections/caves/list.tp.html,
+   extra/openkis/templates/list.tp.html: #mapresults.openkis-map-full at the
+   top of the paper): the map as on the map pages, edge to edge right of the
+   drawer and right below the app bar, as high as the window less the room
+   of the legend and of the search box, which stay in sight. No page header
+   (the title was shown twice with the map; still read by screen readers);
+   legend, search, filters and results below, on the paper. Not when the
+   section prints a map of its own above the list (old top.php of artificial
+   and glacial cavities: an iframe right in the paper).
+   --------------------------------------------------------------------- */
+.gc-body:has(.gc-paper > #mapresults.openkis-map-full):not(:has(.gc-paper > iframe)) .gc-page-header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.gc-body:has(.gc-paper > #mapresults.openkis-map-full):not(:has(.gc-paper > iframe)) .gc-content {
+    padding-top: 0;
+}
+
+.gc-body:has(.gc-paper > #mapresults.openkis-map-full):not(:has(.gc-paper > iframe)) .gc-paper {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* paper padding 16px, content padding 24px */
+.gc-body .gc-paper:not(:has(> iframe)) > #mapresults.openkis-map-full {
+    margin: -16px -40px 16px;
+}
+
+.gc-body .gc-paper:not(:has(> iframe)) > #mapresults.openkis-map-full iframe {
+    height: calc(100vh - var(--gc-appbar-h) - 120px);
+    height: calc(100dvh - var(--gc-appbar-h) - 120px);
+    min-height: 300px;
+}
+
+@media (max-width: 991.98px) {
+    /* paper and content padding 12px */
+    .gc-body .gc-paper:not(:has(> iframe)) > #mapresults.openkis-map-full {
+        margin: -12px -24px 12px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* paper padding 8px, no content padding at the sides */
+    .gc-body .gc-paper:not(:has(> iframe)) > #mapresults.openkis-map-full {
+        margin: -8px -8px 8px;
+    }
+
+    .gc-body .gc-paper:not(:has(> iframe)) > #mapresults.openkis-map-full iframe {
+        height: calc(100vh - var(--gc-appbar-h) - 150px);
+        height: calc(100dvh - var(--gc-appbar-h) - 150px);
+        min-height: 240px;
+    }
+}
+
+@media print {
+    .gc-body .gc-paper:not(:has(> iframe)) > #mapresults.openkis-map-full {
+        margin: 0 0 8px;
+    }
+}
