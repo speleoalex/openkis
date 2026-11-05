@@ -363,7 +363,7 @@ function mcp_Tools()
         "name" => "query",
         "description" => "Read records as CSV. Last line: #offset,rows,total. Long values are cut to maxlen (ending with …); use get for full values. Records hidden by delete (recorddeleted=1) are excluded unless deleted=true.",
         "inputSchema" => array("type" => "object", "properties" => $src + array(
-        "fields" => array("type" => "string", "description" => "comma list, * = all. Default: pk+title fields for sections, all for tables. Misspelled columns (velley, lenght_*) also answer to the right spelling (valley, length_*)"),
+        "fields" => array("type" => "string", "description" => "comma list, * = all. Default: pk+title fields for sections, all for tables. Misspelled columns (velley, lenght_*) also answer to the right spelling (valley, length_*). url and pdf_url add the links of each record (sections)"),
         "filter" => array("type" => "object", "description" => "{field:value} AND-ed; value with % = LIKE pattern"),
         "where" => array("type" => "string", "description" => "SQL WHERE condition (mysql tables only, no subqueries), e.g. depth_total>100 AND comune='FINALE LIGURE'"),
         "order" => array("type" => "string", "description" => "e.g. name or depth_total:DESC,name"),
@@ -378,7 +378,7 @@ function mcp_Tools()
         "name" => "get",
         "description" => "Full record by primary key as CSV field,value (empty fields omitted unless empty=true). Records of a section end with url (their page on the site) and, where the region has one, pdf_url (the cadastral sheet as PDF): give these links, never build one",
         "inputSchema" => array("type" => "object", "properties" => $src + array(
-        "id" => array("type" => "string", "description" => "primary key value"),
+        "id" => array("type" => "string", "description" => "primary key value (for tables with a code column the cadastral number works too, e.g. LI571)"),
         "fields" => array("type" => "string", "description" => "comma list, default all"),
         "empty" => array("type" => "boolean")
         ), "required" => array("id"))
@@ -591,6 +591,7 @@ function mcp_Tool_query($args)
     $native = mcp_IsNative($Table);
     //fields
     $fields = isset($args['fields']) ? trim($args['fields']) : "";
+    list($fields, $links) = mcp_SplitLinkFields($src, $fields);
     if ($fields == "" && $src['section'])
     {
         // the dbview default titlefield is "title": keep only the fields the table has
@@ -685,6 +686,8 @@ function mcp_Tool_query($args)
     else
         $order = false;
     $getfields = $fields;
+    if ($links && !in_array($src['pk'], $getfields))
+        $getfields[] = $src['pk'];
     if (!$native && $hideDeleted && !in_array("recorddeleted", $getfields))
         $getfields[] = "recorddeleted";
     if ($rowFilter)
@@ -720,15 +723,19 @@ function mcp_Tool_query($args)
     if (!is_array($records))
         throw new McpToolError("query failed" . (is_string($records) ? ": $records" : ""));
     $maxlen = isset($args['maxlen']) ? intval($args['maxlen']) : 100;
-    $rows = array($fields);
+    $rows = array(array_merge($fields, $links));
     foreach ($records as $record)
     {
         $row = array();
         foreach ($fields as $f)
-            $row[] = isset($record[$f]) ? $record[$f] : "";
+            $row[] = mcp_Cut(isset($record[$f]) ? $record[$f] : "", $maxlen);
+        // links never cut: an address ending with "…" leads nowhere
+        $recordlinks = $links ? mcp_RecordLinks($src, $record) : array();
+        foreach ($links as $k)
+            $row[] = isset($recordlinks[$k]) ? $recordlinks[$k] : "";
         $rows[] = $row;
     }
-    return mcp_Csv($rows, $maxlen) . "#offset=$offset rows=" . count($records) . " total=$total";
+    return mcp_Csv($rows) . "#offset=$offset rows=" . count($records) . " total=$total";
 }
 
 /**
@@ -739,11 +746,18 @@ function mcp_Tool_get($args)
     $src = mcp_Source($args);
     $id = mcp_CheckPk(isset($args['id']) ? $args['id'] : "");
     $record = $src['Table']->GetRecordByPrimaryKey($id);
+    if (!is_array($record))
+        $record = mcp_RecordByCode($src, $id);
     if (!is_array($record) || !mcp_CanViewRow($src, $record))
         throw new McpToolError("record $id not found");
     if (!empty($record['recorddeleted']) && !mcp_CanSeeDeleted($src))
         throw new McpToolError("record $id not found");
-    $fields = isset($args['fields']) && trim($args['fields']) != "" ? mcp_FieldList($src['Table'], $args['fields']) : array_keys($record);
+    // url and pdf_url close every record of a section anyway: asked for as fields, they are not an error
+    list($wanted, $links) = mcp_SplitLinkFields($src, isset($args['fields']) ? trim($args['fields']) : "");
+    if ($wanted != "")
+        $fields = mcp_FieldList($src['Table'], $wanted);
+    else
+        $fields = $links ? array() : array_keys($record);
     $rows = array(array("field", "value"));
     foreach ($fields as $f)
     {
@@ -794,6 +808,69 @@ function mcp_HasPdfSheet($section)
         $cache[$section] = $custom !== "" && preg_match('/^[A-Za-z0-9_]+$/', $custom . $section) && is_file($file) && strpos((string) file_get_contents($file), "export_pdf") !== false;
     }
     return $cache[$section];
+}
+
+/**
+ * Separates the link names (url, pdf_url: see mcp_RecordLinks) from the fields of a read of a
+ * section, where a model asks for them as fields ("fields": "code,name,url"); a real column
+ * with that name stays a field.
+ * @param array $src
+ * @param string $fields comma list
+ * @return array (comma list of the other fields, link names in the order asked)
+ */
+function mcp_SplitLinkFields($src, $fields)
+{
+    $links = array();
+    if (empty($src['section']) || $fields == "" || $fields == "*")
+        return array($fields, $links);
+    $rest = array();
+    foreach (explode(",", $fields) as $f)
+    {
+        $f = trim($f);
+        if (in_array($f, array("url", "pdf_url")) && !isset($src['Table']->fields[$f]))
+        {
+            if (!in_array($f, $links))
+                $links[] = $f;
+        }
+        elseif ($f != "")
+            $rest[] = $f;
+    }
+    return array(implode(",", $rest), $links);
+}
+
+/**
+ * The record whose code (the cadastral number) is $code, for a get given the number instead of
+ * the primary key: "LI571" for id 575 is what a person writes and what a model passes on
+ * (observed 2026-11-05). Only for tables with a code column, and only when one record has it.
+ * @param array $src
+ * @param string $code
+ * @return array|null
+ */
+function mcp_RecordByCode($src, $code)
+{
+    $Table = $src['Table'];
+    if ($src['pk'] == "code" || !isset($Table->fields['code']))
+        return null;
+    if (mcp_IsNative($Table))
+        $restr = "`code`='" . $Table->driverclass->conn->real_escape_string($code) . "'";
+    else
+        $restr = array("code" => $code);
+    $records = $Table->GetRecords($restr, false, false);
+    return (is_array($records) && count($records) == 1) ? reset($records) : null;
+}
+
+/**
+ * A value cut to $maxlen characters (0 = whole), ending with … when cut.
+ * @param string $v
+ * @param int $maxlen
+ * @return string
+ */
+function mcp_Cut($v, $maxlen)
+{
+    $v = (string) $v;
+    if ($maxlen > 0 && mb_strlen($v, "UTF-8") > $maxlen)
+        $v = mb_substr($v, 0, $maxlen, "UTF-8") . "…";
+    return $v;
 }
 
 /**
@@ -1839,9 +1916,7 @@ function mcp_Csv($rows, $maxlen = 0)
         $line = array();
         foreach ($row as $v)
         {
-            $v = (string) $v;
-            if ($maxlen > 0 && mb_strlen($v, "UTF-8") > $maxlen)
-                $v = mb_substr($v, 0, $maxlen, "UTF-8") . "…";
+            $v = mcp_Cut($v, $maxlen);
             if (strpbrk($v, ",\"\r\n") !== false)
                 $v = '"' . str_replace('"', '""', $v) . '"';
             $line[] = $v;
