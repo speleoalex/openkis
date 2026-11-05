@@ -54,6 +54,10 @@ if (empty($_SERVER['HTTP_X_API_KEY']) && !empty($_GET['apikey']) && is_string($_
 {
     $_SERVER['HTTP_X_API_KEY'] = trim($_GET['apikey']);
 }
+// MySQL busy or not reachable: finis would end the request with an HTML 503 page, which an MCP
+// client can only report as a transport failure ("HTTP 503: <!DOCTYPE html>..."), cut before the
+// sentence that explains it. Set before loading finis: the first connection is made while booting.
+$xmetadb_mysql_unavailable_handler = "mcp_DatabaseUnavailable";
 ob_start();
 require_once "loadfinis.php";
 require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
@@ -143,6 +147,51 @@ if (!$responses)
 echo json_encode($isBatch ? $responses : $responses[0], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | (defined("JSON_INVALID_UTF8_SUBSTITUTE") ? JSON_INVALID_UTF8_SUBSTITUTE : 0));
 exit();
 //--------------------------------- HTTP --------------------------------------<
+
+/**
+ * Answer of the server when MySQL is busy or not reachable (called by xmetadb_mysql_unavailable,
+ * the request ends right after). A JSON-RPC answer for every request of the body: a tools/call gets
+ * a tool error the model reads ("retry in 10 seconds") instead of a failed transport, the other
+ * methods a JSON-RPC error. No statement was executed: the connection itself failed.
+ */
+function mcp_DatabaseUnavailable()
+{
+    while (ob_get_level() > 0)
+    {
+        ob_end_clean();
+    }
+    $text = "the database is busy or not reachable, the request was not executed: retry in about 10 seconds";
+    $request = json_decode((string) file_get_contents("php://input"), true);
+    $isBatch = is_array($request) && isset($request[0]);
+    $responses = array();
+    foreach (($isBatch ? $request : array($request)) as $message)
+    {
+        if (!is_array($message) || !array_key_exists('id', $message))
+        {
+            continue; // notifications get no answer
+        }
+        if (isset($message['method']) && $message['method'] == "tools/call")
+        {
+            $responses[] = array("jsonrpc" => "2.0", "id" => $message['id'], "result" => array("content" => array(array("type" => "text", "text" => "ERROR: $text")), "isError" => true));
+        }
+        else
+        {
+            $responses[] = array("jsonrpc" => "2.0", "id" => $message['id'], "error" => array("code" => -32003, "message" => $text));
+        }
+    }
+    if (!headers_sent())
+    {
+        // 200 with the error in the body (JSON-RPC over HTTP): the client hands it to the model
+        http_response_code($responses ? 200 : 503);
+        header("Content-Type: application/json; charset=utf-8");
+        header("Cache-Control: no-store");
+        header("Retry-After: 10");
+    }
+    if ($responses)
+    {
+        echo json_encode($isBatch ? $responses : $responses[0], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+}
 
 /**
  * Identifies the caller. A legacy global key gives full access as $_FN['openkis_mcp_user'],
@@ -258,7 +307,7 @@ function mcp_HandleMessage($message)
                 "protocolVersion" => $version,
                 "capabilities" => array("tools" => new stdClass()),
                 "serverInfo" => array("name" => "openkis", "version" => "2.0.0"),
-                "instructions" => "OpenKIS speleological cadastre DB. Data is CSV. Start with `sections` (dbview sections and their tables) then `schema`. Prefer `section` over `table` for catalogue data: writes then keep history and run the section hooks. Values are read and written in storage format. " . mcp_AccessDescription()
+                "instructions" => "OpenKIS speleological cadastre DB. Data is CSV. Start with `sections` (dbview sections and their tables) then `schema`. Prefer `section` over `table` for catalogue data: writes then keep history and run the section hooks. Values are read and written in storage format. The address of a record page and of its PDF cadastral sheet are the url and pdf_url lines of `get`. " . mcp_AccessDescription()
             );
             break;
         case "ping":
@@ -314,7 +363,7 @@ function mcp_Tools()
         "name" => "query",
         "description" => "Read records as CSV. Last line: #offset,rows,total. Long values are cut to maxlen (ending with …); use get for full values. Records hidden by delete (recorddeleted=1) are excluded unless deleted=true.",
         "inputSchema" => array("type" => "object", "properties" => $src + array(
-        "fields" => array("type" => "string", "description" => "comma list, * = all. Default: pk+title fields for sections, all for tables"),
+        "fields" => array("type" => "string", "description" => "comma list, * = all. Default: pk+title fields for sections, all for tables. Misspelled columns (velley, lenght_*) also answer to the right spelling (valley, length_*)"),
         "filter" => array("type" => "object", "description" => "{field:value} AND-ed; value with % = LIKE pattern"),
         "where" => array("type" => "string", "description" => "SQL WHERE condition (mysql tables only, no subqueries), e.g. depth_total>100 AND comune='FINALE LIGURE'"),
         "order" => array("type" => "string", "description" => "e.g. name or depth_total:DESC,name"),
@@ -327,7 +376,7 @@ function mcp_Tools()
     );
     $tools[] = array(
         "name" => "get",
-        "description" => "Full record by primary key as CSV field,value (empty fields omitted unless empty=true)",
+        "description" => "Full record by primary key as CSV field,value (empty fields omitted unless empty=true). Records of a section end with url (their page on the site) and, where the region has one, pdf_url (the cadastral sheet as PDF): give these links, never build one",
         "inputSchema" => array("type" => "object", "properties" => $src + array(
         "id" => array("type" => "string", "description" => "primary key value"),
         "fields" => array("type" => "string", "description" => "comma list, default all"),
@@ -558,9 +607,18 @@ function mcp_Tool_query($args)
     }
     $fields = mcp_FieldList($Table, $fields);
     //conditions
-    $filter = isset($args['filter']) && is_array($args['filter']) ? $args['filter'] : array();
-    foreach ($filter as $k => $v)
-        mcp_CheckField($Table, $k);
+    $filter = array();
+    $unknown = array();
+    foreach ((isset($args['filter']) && is_array($args['filter']) ? $args['filter'] : array()) as $k => $v)
+    {
+        $name = mcp_ResolveField($Table, (string) $k);
+        if ($name === null)
+            $unknown[] = (string) $k;
+        else
+            $filter[$name] = $v;
+    }
+    if ($unknown)
+        throw mcp_UnknownFields($Table, $unknown);
     $where = isset($args['where']) ? trim($args['where']) : "";
     if ($where != "" && !mcp_FullAccess() && preg_match('/\b(SELECT|UNION|SLEEP|BENCHMARK|LOAD_FILE|INFORMATION_SCHEMA|PERFORMANCE_SCHEMA|MYSQL|SYS|OUTFILE|DUMPFILE)\b|@|`\s*\.|\.\s*`|#|--|\/\*/i', $where))
         throw new McpToolError("where: subqueries, comments, variables and schema references are not allowed");
@@ -613,13 +671,16 @@ function mcp_Tool_query($args)
     $order = isset($args['order']) ? trim($args['order']) : "";
     if ($order != "")
     {
+        $resolved = array();
         foreach (explode(",", $order) as $o)
         {
             $o = explode(":", trim($o));
-            mcp_CheckField($Table, $o[0]);
+            $o[0] = mcp_ReadField($Table, $o[0]);
             if (isset($o[1]) && !in_array(strtoupper($o[1]), array("ASC", "DESC")))
                 throw new McpToolError("bad order direction {$o[1]}");
+            $resolved[] = implode(":", $o);
         }
+        $order = implode(",", $resolved);
     }
     else
         $order = false;
@@ -691,7 +752,48 @@ function mcp_Tool_get($args)
             continue;
         $rows[] = array($f, $v);
     }
+    foreach (mcp_RecordLinks($src, $record) as $k => $v)
+        $rows[] = array($k, $v);
     return mcp_Csv($rows);
+}
+
+/**
+ * Addresses of a section record on the site: url = its page, pdf_url = its cadastral sheet as
+ * PDF where the region offers one. Given with every record (not only when asked for): asked
+ * "send me the link of the sheet" a model with no address to hand invents one
+ * (https://catasto.speleo.it/caves/1, observed 2026-11-05). The page applies its own permissions.
+ * @param array $src
+ * @param array $record
+ * @return array
+ */
+function mcp_RecordLinks($src, $record)
+{
+    if (empty($src['section']) || !isset($record[$src['pk']]) || (string) $record[$src['pk']] === "")
+        return array();
+    $base = "index.php?mod=" . rawurlencode($src['section']) . "&op=view&id=" . rawurlencode($record[$src['pk']]);
+    $links = array("url" => FN_RewriteLink($base, "&", true));
+    if (mcp_HasPdfSheet($src['section']))
+        $links['pdf_url'] = FN_RewriteLink("$base&export_pdf=1&format=pdf", "&", true);
+    return $links;
+}
+
+/**
+ * True when the record page of the section offers the PDF cadastral sheet: the region's
+ * viewfooter_<section>.php handles export_pdf (Liguria caves; no other section has one).
+ * @param string $section
+ * @return bool
+ */
+function mcp_HasPdfSheet($section)
+{
+    global $_FN;
+    static $cache = array();
+    if (!isset($cache[$section]))
+    {
+        $custom = isset($_FN['openkis_custom']) ? (string) $_FN['openkis_custom'] : "";
+        $file = "extra/openkis/custom/$custom/viewfooter_$section.php";
+        $cache[$section] = $custom !== "" && preg_match('/^[A-Za-z0-9_]+$/', $custom . $section) && is_file($file) && strpos((string) file_get_contents($file), "export_pdf") !== false;
+    }
+    return $cache[$section];
 }
 
 /**
@@ -1479,16 +1581,99 @@ function mcp_IsNative($Table)
 }
 
 /**
+ * Exact field name, for the writes: a write must name the column it changes.
  * @param object $Table
  * @param string $field
  */
 function mcp_CheckField($Table, $field)
 {
     if (!is_string($field) || !isset($Table->fields[$field]))
-        throw new McpToolError("unknown field $field");
+        throw mcp_UnknownFields($Table, array(is_string($field) ? $field : ""));
 }
 
 /**
+ * A field name as spelled correctly: some OpenKIS columns are misspelled (velley,
+ * lenght_total, lenght_planimetric, lenght_extension, lenght_scope, lenght_auto,
+ * coordnatesupdated) and a model writes the right word (valley, length_total...).
+ * @param string $name
+ * @return string
+ */
+function mcp_CanonicalField($name)
+{
+    return str_replace(array("lenght", "velley", "coordnates"), array("length", "valley", "coordinates"), strtolower((string) $name));
+}
+
+/**
+ * The column a READ names (fields, filter, order): the field itself, an alias of
+ * $_FN['openkis_mcp_field_aliases'] (array alias => field) or the correct spelling of a
+ * misspelled column (valley = velley). Null when nothing matches.
+ * @param object $Table
+ * @param string $field
+ * @return string|null
+ */
+function mcp_ResolveField($Table, $field)
+{
+    global $_FN;
+    if (!is_string($field) || $field === "")
+        return null;
+    if (isset($Table->fields[$field]))
+        return $field;
+    if (!empty($_FN['openkis_mcp_field_aliases'][$field]) && isset($Table->fields[$_FN['openkis_mcp_field_aliases'][$field]]))
+        return $_FN['openkis_mcp_field_aliases'][$field];
+    $canonical = mcp_CanonicalField($field);
+    foreach (array_keys($Table->fields) as $name)
+    {
+        if (mcp_CanonicalField($name) === $canonical)
+            return $name;
+    }
+    return null;
+}
+
+/**
+ * @param object $Table
+ * @param string $field
+ * @return string the column name
+ */
+function mcp_ReadField($Table, $field)
+{
+    $name = mcp_ResolveField($Table, $field);
+    if ($name === null)
+        throw mcp_UnknownFields($Table, array(is_string($field) ? $field : ""));
+    return $name;
+}
+
+/**
+ * The error for names that are not fields: ALL of them at once (one at a time a model fixes
+ * one per call), each with the closest names, then the list of the valid ones, so the next
+ * call can be right without a schema call.
+ * @param object $Table
+ * @param array $unknown
+ * @return McpToolError
+ */
+function mcp_UnknownFields($Table, $unknown)
+{
+    $names = array_keys($Table->fields);
+    $parts = array();
+    foreach ($unknown as $f)
+    {
+        $canonical = mcp_CanonicalField($f);
+        $near = array();
+        foreach ($names as $name)
+        {
+            $c = mcp_CanonicalField($name);
+            $close = strlen($canonical) <= 255 && strlen($c) <= 255 && levenshtein($canonical, $c) <= max(2, intval(strlen($canonical) / 4));
+            $contained = strlen($canonical) >= 5 && strlen($c) >= 5 && (strpos($c, $canonical) !== false || strpos($canonical, $c) !== false);
+            if ($close || $contained)
+                $near[] = $name;
+        }
+        $parts[] = $f . ($near ? " (did you mean " . implode(", ", array_slice($near, 0, 3)) . "?)" : "");
+    }
+    return new McpToolError("unknown field" . (count($unknown) > 1 ? "s " : " ") . implode(", ", $parts) . ". Valid fields: " . implode(",", $names));
+}
+
+/**
+ * Fields of a read, resolved with mcp_ResolveField; every name that is not a field is reported
+ * in one error.
  * @param object $Table
  * @param string $fields comma list or *
  * @return array
@@ -1499,14 +1684,20 @@ function mcp_FieldList($Table, $fields)
     if ($fields == "" || $fields == "*")
         return array_keys($Table->fields);
     $ret = array();
+    $unknown = array();
     foreach (explode(",", $fields) as $f)
     {
         $f = trim($f);
-        if ($f == "" || in_array($f, $ret))
+        if ($f == "")
             continue;
-        mcp_CheckField($Table, $f);
-        $ret[] = $f;
+        $name = mcp_ResolveField($Table, $f);
+        if ($name === null)
+            $unknown[] = $f;
+        elseif (!in_array($name, $ret))
+            $ret[] = $name;
     }
+    if ($unknown)
+        throw mcp_UnknownFields($Table, $unknown);
     return $ret;
 }
 
