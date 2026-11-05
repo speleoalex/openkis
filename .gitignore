@@ -16,7 +16,9 @@ controlcenter/sections/*
 controlcenter/sections/utilities/*
 !controlcenter/sections/utilities/refresh_map_data/
 images/
-include/
+# include/ is copied from finis; only the OpenKIS scripts run on every page are tracked
+include/*
+!include/autoexec.d/
 languages/
 modules/
 themes/default/

@@ -27,6 +27,27 @@ function openkis_OfflineEnabled()
 }
 
 /**
+ * With $_FN['openkis_offline_menu_users_only'] (set by a region in
+ * extra/openkis/custom/<region>/<region>.php) the menu entry of the page "Offline use"
+ * (sections/offline) is only for the logged users. Run by include/autoexec.d, after
+ * FN_InitSections() has reloaded the sections and before the menu is drawn. The page itself
+ * stays public on purpose: the application keeps the copy of it that an anonymous visitor
+ * gets (the offline search, also shown for the pages that were not kept), so restricting
+ * the section would keep "you don't have permission" there, for the logged users too.
+ */
+function openkis_OfflineMenuOnlyForUsers()
+{
+    global $_FN;
+    if (empty($_FN['openkis_offline_menu_users_only']) || $_FN['user'] != "")
+        return;
+    // FN_InitSections() leaves the list empty, FN_GetSections() would read it again anyway
+    if (empty($_FN['sections']))
+        $_FN['sections'] = FN_GetAllSections();
+    if (isset($_FN['sections']['offline']))
+        $_FN['sections']['offline']['hidden'] = 1;
+}
+
+/**
  * Hash of the sizes and times of a list of files (globs), for the versions below.
  *
  * @param array $patterns glob patterns relative to the site folder
