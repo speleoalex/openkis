@@ -102,9 +102,8 @@ function openkis_TracingsRestrictedUncatalogued()
  *    on this field).
  *
  * Cheap to call on every request: a time stamp file makes it a no-op until
- * ctl_caves, ctl_uncatalogued or ctl_tracings changes (same pattern as
- * openkis_UpdateCaveSystems). A change of the groups of the section
- * "uncatalogued" is seen at the next change of one of those tables.
+ * ctl_caves, ctl_uncatalogued, ctl_tracings or fn_sections (the groups of the
+ * section "uncatalogued") changes (same pattern as openkis_UpdateCaveSystems).
  *
  * @param bool $forceall recompute even when the tables did not change
  * @return void
@@ -137,6 +136,12 @@ function openkis_UpdateTracings($forceall = false)
     if (!$changed && is_object($uncatalogued_table))
     {
         $changed = $uncatalogued_table->GetLastUpdateTime() >= filectime($file_lastUpdate);
+        // the groups of the section "uncatalogued" decide who sees its cavities
+        $sections_table = FN_XMDBTable("fn_sections");
+        if (!$changed && is_object($sections_table))
+        {
+            $changed = $sections_table->GetLastUpdateTime() >= filectime($file_lastUpdate);
+        }
     }
     if (!$forceall && !$changed)
     {
