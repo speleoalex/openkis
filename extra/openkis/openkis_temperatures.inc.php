@@ -427,17 +427,28 @@ function openkis_TemperatureClass($value)
  */
 function openkis_TemperaturesTable($records, $links = true, $head = false, $caves = null)
 {
-    $html = "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\">";
+    // with the column titles (sheet cards) the themes show the rows as cards
+    // on phones: date, cave and reading on the first line, see openkis_SheetStackAttrs()
+    $label = array("date" => openkis_SheetUcfirst(FN_Translate("date")), "cave" => openkis_SheetUcfirst(FN_Translate("cave")),
+        "type" => openkis_SheetUcfirst(FN_Translate("type")), "medium" => openkis_SheetUcfirst(FN_Translate("measured medium")),
+        "position" => openkis_SheetUcfirst(FN_Translate("measurement point")), "reading" => openkis_SheetUcfirst(FN_Translate("temperature")));
+    $td = function ($column, $class = "") use ($head, $label)
+    {
+        if (!$head)
+            return $class != "" ? " class=\"$class\"" : "";
+        return openkis_SheetStackAttrs($label[$column], in_array($column, array("date", "cave", "reading")), $class);
+    };
+    $html = "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0" . ($head ? " openkis-table-stack" : "") . "\">";
     if ($head)
     {
-        $html .= "<thead><tr><th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("date")) . "</th>";
+        $html .= "<thead><tr><th class=\"text-nowrap\">{$label['date']}</th>";
         if (is_array($caves))
         {
-            $html .= "<th>" . openkis_SheetUcfirst(FN_Translate("cave")) . "</th>";
+            $html .= "<th>{$label['cave']}</th>";
         }
-        $html .= "<th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("type")) . "</th>";
-        $html .= "<th>" . openkis_SheetUcfirst(FN_Translate("measured medium")) . "</th><th>" . openkis_SheetUcfirst(FN_Translate("measurement point")) . "</th>";
-        $html .= "<th class=\"text-nowrap\">" . openkis_SheetUcfirst(FN_Translate("temperature")) . "</th>" . ($links ? "<th></th>" : "") . "</tr></thead>";
+        $html .= "<th class=\"text-nowrap\">{$label['type']}</th>";
+        $html .= "<th>{$label['medium']}</th><th>{$label['position']}</th>";
+        $html .= "<th class=\"text-nowrap\">{$label['reading']}</th>" . ($links ? "<th></th>" : "") . "</tr></thead>";
     }
     foreach ($records as $record)
     {
@@ -451,7 +462,7 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
         {
             $reading = FN_Translate("mean") . " " . $reading;
         }
-        $html .= "<tr><td class=\"text-nowrap\">$date</td>";
+        $html .= "<tr><td" . $td("date", "text-nowrap") . ">$date</td>";
         if (is_array($caves))
         {
             $code = trim(strval($record['cave']));
@@ -461,13 +472,14 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
                 $cave_url = FN_RewriteLink("index.php?mod=caves&op=view&id={$caves[$code]['id']}");
                 $cave = "<span class=\"text-nowrap\">" . htmlspecialchars($caves[$code]['code']) . "</span> <a href=\"$cave_url\">" . htmlspecialchars($caves[$code]['name']) . "</a>";
             }
-            $html .= "<td>$cave</td>";
+            $html .= "<td" . $td("cave") . ">$cave</td>";
         }
-        $html .= "<td class=\"text-nowrap\">$type</td><td>$medium</td>";
-        $html .= "<td>" . htmlspecialchars(strval($record['position'])) . "</td><td class=\"text-nowrap\"><b>$reading</b></td>";
+        $html .= "<td" . $td("type", "text-nowrap") . ">$type</td><td" . $td("medium") . ">$medium</td>";
+        $html .= "<td" . $td("position") . ">" . htmlspecialchars(strval($record['position'])) . "</td><td" . $td("reading", "text-nowrap") . "><b>$reading</b></td>";
         if ($links)
         {
-            $html .= "<td class=\"text-right text-end\"><a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a></td>";
+            $view = openkis_SheetViewButton($url);
+            $html .= "<td class=\"{$view[1]}\">{$view[0]}</td>";
         }
         $html .= "</tr>";
     }

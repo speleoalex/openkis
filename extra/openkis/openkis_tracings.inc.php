@@ -446,5 +446,6 @@ function openkis_TracingsPointCard($code, $point)
         array(FN_Translate($point == "spring" ? "from" : "from / to"), "text-nowrap"), FN_Translate("result"), array("", "text-right text-end"));
     $map = "{$_FN['siteurl']}bs_map.htm?tracing_$point=" . urlencode($code);
     $footer = "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a>";
-    return openkis_SheetListCard(FN_Translate("tracer tests"), $head, $rows, array("footer" => $footer, "id" => "card_tracings"));
+    // on phones the card of a row starts with the date and the name of the test
+    return openkis_SheetListCard(FN_Translate("tracer tests"), $head, $rows, array("footer" => $footer, "id" => "card_tracings", "stack_title" => array(0, 2)));
 }

@@ -12,15 +12,28 @@ getParameterByName = function (name)
 var lang = getParameterByName("lang");
 if (lang === "" || lang === "auto")
 {
+    // the language of the page around the map (<html lang>), else the one of the browser
+    lang = "";
     try {
-        lang = navigator.language.split("-")[0].toLowerCase();
-        
+        if (window.parent !== window)
+        {
+            lang = window.parent.document.documentElement.lang || "";
+        }
+    }
+    catch (e)
+    {
+        // map embedded in a page of another site
+    }
+    try {
+        lang = (lang || navigator.language).split("-")[0].toLowerCase();
     }
     catch (e)
     {
         lang = "en";
     }
 }
+// it names the file of the translations (bs_map/languages/<lang>.js)
+lang = lang.replace(/[^a-z]/gi, "").toLowerCase() || "en";
 var config = {
     
 };

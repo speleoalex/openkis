@@ -7,8 +7,9 @@
 if (typeof(__language) === 'undefined')
     __language = new Array();
 
-__language['it'] = {
+__language['en'] = {
     "Search": "Search",
+    "Search on map": "search on map",
       
     "":""
 };

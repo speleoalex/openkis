@@ -9,6 +9,7 @@ if (typeof(__language) === 'undefined')
 
 __language['it'] = {
     "Search": "cerca",
+    "Search on map": "cerca nella mappa",
       
     "":""
 };

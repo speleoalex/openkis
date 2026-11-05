@@ -1307,6 +1307,176 @@ details > summary {
     }
 }
 
+/* Phones: the content takes the whole width of the screen, so that maps and
+   tables are as wide as possible. No margin around the paper, small side
+   padding, narrow Bootstrap gutters (container, rows and columns change
+   together, so nested rows stay inside), the map of the results edge to edge,
+   smaller text and cells in the tables of the sheets (bibliography, surveys,
+   caves...), which otherwise scroll sideways. */
+@media (max-width: 575.98px) {
+    .gc-content {
+        padding: 8px 0;
+    }
+
+    .gc-paper {
+        padding: 8px;
+        border-radius: 0;
+    }
+
+    .gc-paper .container,
+    .gc-paper .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .gc-paper .row:not(.no-gutters):not(.form-row) {
+        margin-left: -4px;
+        margin-right: -4px;
+    }
+
+    .gc-paper .row:not(.no-gutters):not(.form-row) > .col,
+    .gc-paper .row:not(.no-gutters):not(.form-row) > [class*="col-"] {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .gc-paper #mapresults {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    .gc-paper .card-body {
+        padding: 10px;
+    }
+
+    .gc-paper .table-responsive > .table {
+        font-size: 13px;
+    }
+
+    .gc-paper .table-responsive > .table th,
+    .gc-paper .table-responsive > .table td {
+        padding: 4px;
+    }
+
+    /* Bootstrap's .text-nowrap is !important */
+    .gc-paper .table-responsive > .table .text-nowrap {
+        white-space: normal !important;
+    }
+
+    /* sheet title: badges and icon wrap instead of pushing the icon out */
+    .openkis-sheet-tags {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .openkis-sheet-icon {
+        height: 36px;
+    }
+
+    /* "View" button of the rows: an arrow, the text stays for screen readers */
+    .gc-paper .table-responsive > .table .openkis-view-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: auto;
+        font-size: 0;
+        letter-spacing: 0;
+        padding: 1px 9px 3px;
+    }
+
+    .gc-paper .table-responsive > .table .openkis-view-btn::after {
+        content: "\203A";
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    /* Tables with many columns (openkis-table-stack, set by
+       extra/openkis/openkis_sheet.inc.php): every row is a small card, the
+       cells .openkis-stack-title on the first line, the others below, each
+       after its column title (data-label), the view button on the right.
+       The column titles stay for screen readers. */
+    .gc-paper .table-responsive > .openkis-table-stack thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack,
+    .gc-paper .table-responsive > .openkis-table-stack tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 12px;
+        row-gap: 2px;
+        position: relative;
+        min-height: 40px;
+        padding: 6px 44px 6px 8px;
+        border-top: 1px solid var(--gc-line);
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack tr:first-child {
+        border-top: 0;
+    }
+
+    /* line break between the first line and the other values */
+    .gc-paper .table-responsive > .openkis-table-stack tr::before {
+        content: "";
+        order: 1;
+        flex-basis: 100%;
+        height: 0;
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack td {
+        display: block;
+        order: 2;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+        text-align: left !important;
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack td.openkis-stack-title {
+        order: 0;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack td:empty {
+        display: none;
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack td[data-label]:not(.openkis-stack-title)::before {
+        content: attr(data-label) " ";
+        color: var(--gc-muted);
+    }
+
+    .gc-paper .table-responsive > .openkis-table-stack td.openkis-view-cell {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+    }
+}
+
+/* buttons of the side cards of the sheets (file names without spaces, e.g.
+   the survey files): they wrap instead of widening the page */
+.openkis-side-card .btn {
+    height: auto;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+}
+
 @media print {
     .gc-sidebar,
     .gc-appbar,
@@ -1510,6 +1680,18 @@ details > summary {
     align-items: center;
     padding-left: 16px;
     padding-right: 16px;
+}
+
+/* caves list, export buttons: the label stays on one line ("KML (Google
+   Earth)" wrapped and overflowed the fixed-height button on phones), the
+   group wraps on a second row when it does not fit */
+.openkis-exports .btn {
+    white-space: nowrap;
+}
+
+.openkis-exports .btn-group {
+    flex-wrap: wrap;
+    max-width: 100%;
 }
 
 .openkis-search-count {
@@ -2100,6 +2282,174 @@ details > summary {
 /* black external-link arrow of the menu: white in the dark mode */
 :root[data-theme="dark"] .gc-ext {
     filter: invert(1);
+}
+
+/* ---------------------------------------------------------------------
+   Map on the whole page (sections/map_caves, map_artificials, map_glacial:
+   wrapper .openkis-fullmap, set by the section when there is no text of
+   the section above the map): like the map of Grottocenter, it takes all
+   the space right of the drawer and below what is above it (app bar, and
+   the header of the home page when the map is the home page: its top is
+   --openkis-map-top, set by the section). No page header (still read by
+   screen readers), paper or margins; the legend floats on the map; no
+   button for the fullscreen, the map has its own (bottom right). Content
+   below the map (.openkis-map-below, e.g. the summary of the caves of
+   Lombardia) is on the paper as usual, then the footer; without it there
+   is no footer.
+   --------------------------------------------------------------------- */
+.gc-body:has(.openkis-fullmap) .gc-page-header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.gc-body:has(.openkis-fullmap):not(:has(.openkis-map-below)) .gc-footer,
+.gc-body .openkis-fullmap .openkis-map-fullscreen {
+    display: none;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-content,
+.gc-body:has(.openkis-fullmap) .gc-paper {
+    padding: 0;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-paper {
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.gc-body .openkis-fullmap {
+    position: relative;
+}
+
+.gc-body .openkis-fullmap .openkis-map-frame {
+    margin: 0;
+    height: calc(100vh - var(--openkis-map-top, var(--gc-appbar-h)));
+    height: calc(100dvh - var(--openkis-map-top, var(--gc-appbar-h)));
+    min-height: 320px;
+}
+
+.gc-body:has(.openkis-fullmap) .openkis-map-below {
+    background: var(--gc-paper);
+    padding: 24px;
+}
+
+.gc-body .openkis-fullmap .openkis-legend {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    margin: 0;
+    max-width: calc(100% - 20px);
+    /* the buttons of the map at the bottom right stay free */
+    max-height: calc(100% - 90px);
+    overflow: auto;
+    padding: 4px 10px;
+    background: var(--gc-paper);
+    color: var(--gc-text);
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+}
+
+.gc-body .openkis-fullmap .openkis-legend[open] {
+    width: 340px;
+    padding-bottom: 6px;
+}
+
+.gc-body .openkis-fullmap .openkis-legend summary {
+    line-height: 24px;
+}
+
+.gc-body .openkis-fullmap .openkis-legend .row > div {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+/* header of the home page above the map: logo on the left, name and
+   subtitle beside it, so that the map gets the height */
+.gc-body:has(.openkis-fullmap) .gc-hero {
+    padding: 10px 24px;
+    text-align: left;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 16px;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-inner > a:first-child {
+    grid-row: 1 / span 3;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-logo {
+    height: 64px;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-title {
+    grid-column: 2;
+    font-size: 26px;
+    letter-spacing: -.01em;
+    margin: 0;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-subtitle {
+    grid-column: 2;
+    font-size: 14px;
+    margin: 2px 0 0;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-actions {
+    grid-column: 2;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-actions .btn {
+    margin: 6px 8px 0 0;
+}
+
+.gc-body:has(.openkis-fullmap) .gc-hero-footnote {
+    padding-top: 6px;
+}
+
+/* phones: the legend below the search box of the map, which reaches the
+   right edge; smaller header */
+@media (max-width: 575.98px) {
+    .gc-body .openkis-fullmap .openkis-legend {
+        top: 46px;
+    }
+
+    .gc-body:has(.openkis-fullmap) .openkis-map-below {
+        padding: 12px 8px;
+    }
+
+    .gc-body:has(.openkis-fullmap) .gc-hero {
+        padding: 8px 12px;
+    }
+
+    .gc-body:has(.openkis-fullmap) .gc-hero-inner {
+        column-gap: 10px;
+    }
+
+    .gc-body:has(.openkis-fullmap) .gc-hero-logo {
+        height: 44px;
+    }
+
+    .gc-body:has(.openkis-fullmap) .gc-hero-title {
+        font-size: 17px;
+    }
+
+    .gc-body:has(.openkis-fullmap) .gc-hero-subtitle {
+        font-size: 12px;
+        line-height: 1.35;
+    }
 }
 
 /* ---------------------------------------------------------------------

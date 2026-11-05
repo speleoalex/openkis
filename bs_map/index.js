@@ -175,7 +175,21 @@ window.setTimeout(function () {
     }
 
     splx.include("bs_map/js/splx_i18n.js");
-    splx.include("bs_map/languages/" + OPS_Map.lang + ".js");
+    splx.include("bs_map/languages/" + OPS_Map.lang + ".js?v=20261105");
+    // placeholder of the search box in the language of the map ("Search on map": it is not the
+    // search of the whole site, in the page around the map); the two files above load later
+    var translateSearchBox = function (tries) {
+        if (typeof (_i18n) === "function" && typeof (__language) !== "undefined" && __language[OPS_Map.lang] !== undefined)
+        {
+            $("#searchText").attr("placeholder", _i18n("Search on map", "Aa"));
+        } else if (tries > 0)
+        {
+            setTimeout(function () {
+                translateSearchBox(tries - 1);
+            }, 100);
+        }
+    };
+    translateSearchBox(50);
     //window.addEventListener("load", function(){TranslateHtml()});
     //start autocomplete
     var fakeSearch = ['cave'];

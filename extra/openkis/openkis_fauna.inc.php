@@ -154,7 +154,8 @@ function openkis_FaunaCaveCard($code, $exclude_id = 0, $title = "")
         $rows[] = array($name, $type, htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
     $head = array(FN_Translate("species"), FN_Translate("category"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
-    return openkis_SheetListCard($title != "" ? $title : FN_Translate("cave fauna"), $head, $rows, array("id" => "card_cave_fauna"));
+    // on phones the card of a row starts with the species
+    return openkis_SheetListCard($title != "" ? $title : FN_Translate("cave fauna"), $head, $rows, array("id" => "card_cave_fauna", "stack_title" => array(0)));
 }
 
 /**

@@ -244,23 +244,33 @@ function openkis_SheetCard($title, $body, $options = array())
  *                    class is given to the column cells too (e.g. numbers on the right)
  * @param array $rows rows of cells html; a cell can be array(html, class)
  * @param array $options "count" (default: the rows), "map" html above the table,
- *                       "footer", "id"; "count" null hides the number
+ *                       "footer", "id"; "count" null hides the number;
+ *                       "stack" true/false: rows shown as cards on phones
+ *                       (default: more than 3 columns with a title, see
+ *                       openkis_SheetStackAttrs()); "stack_title" indexes of
+ *                       the cells on the first line of the card (default 0, 1)
  * @return string html
  */
 function openkis_SheetListCard($title, $head, $rows, $options = array())
 {
     $classes = array();
+    $labels = array();
+    foreach ($head as $i => $column)
+    {
+        $labels[$i] = openkis_SheetUcfirst(is_array($column) ? $column[0] : $column);
+    }
+    $stack = isset($options['stack']) ? (bool) $options['stack'] : count(array_filter($labels, "strlen")) > 3;
+    $stack_title = isset($options['stack_title']) ? $options['stack_title'] : array(0, 1);
     $html = "<div class=\"card-body p-0\">";
     if (!empty($options['map']))
     {
         $html .= $options['map'];
     }
-    $html .= "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0\"><thead><tr>";
+    $html .= "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0" . ($stack ? " openkis-table-stack" : "") . "\"><thead><tr>";
     foreach ($head as $i => $column)
     {
         $classes[$i] = is_array($column) ? $column[1] : "";
-        $text = is_array($column) ? $column[0] : $column;
-        $html .= "<th" . ($classes[$i] != "" ? " class=\"{$classes[$i]}\"" : "") . ">" . openkis_SheetUcfirst($text) . "</th>";
+        $html .= "<th" . ($classes[$i] != "" ? " class=\"{$classes[$i]}\"" : "") . ">{$labels[$i]}</th>";
     }
     $html .= "</tr></thead><tbody>";
     foreach ($rows as $row)
@@ -270,7 +280,8 @@ function openkis_SheetListCard($title, $head, $rows, $options = array())
         {
             $class = is_array($cell) ? $cell[1] : (isset($classes[$i]) ? $classes[$i] : "");
             $text = is_array($cell) ? $cell[0] : $cell;
-            $html .= "<td" . ($class != "" ? " class=\"$class\"" : "") . ">$text</td>";
+            $attrs = $stack ? openkis_SheetStackAttrs(isset($labels[$i]) ? $labels[$i] : "", in_array($i, $stack_title), $class) : ($class != "" ? " class=\"$class\"" : "");
+            $html .= "<td$attrs>$text</td>";
         }
         $html .= "</tr>";
     }
@@ -283,14 +294,35 @@ function openkis_SheetListCard($title, $head, $rows, $options = array())
 }
 
 /**
+ * Attributes of a cell of a table that the themes show as cards on phones
+ * (class openkis-table-stack on the table, see the theme custom.css): the
+ * column title as data-label, which the theme writes before the value, and
+ * the class openkis-stack-title for the cells on the first line of the card.
+ *
+ * @param string $label column title (html), "" for none
+ * @param bool $title true for a cell of the first line
+ * @param string $class other classes of the cell
+ * @return string attributes, with the leading space
+ */
+function openkis_SheetStackAttrs($label, $title, $class = "")
+{
+    $label = trim(html_entity_decode(strip_tags($label), ENT_QUOTES, "UTF-8"));
+    $class = trim($class . ($title ? " openkis-stack-title" : ""));
+    return ($class != "" ? " class=\"$class\"" : "") . ($label != "" ? " data-label=\"" . htmlspecialchars($label) . "\"" : "");
+}
+
+/**
  * Button that opens a linked record, last cell of the rows of the list cards.
+ * The classes openkis-view-btn and openkis-view-cell let the themes shrink it
+ * on phones (an arrow instead of the text, which stays for screen readers).
  *
  * @param string $url
  * @return array cell for openkis_SheetListCard()
  */
 function openkis_SheetViewButton($url)
 {
-    return array("<a class=\"btn btn-sm btn-outline-primary\" href=\"$url\">" . FN_Translate("view") . "</a>", "text-right text-end");
+    $label = FN_Translate("view");
+    return array("<a class=\"btn btn-sm btn-outline-primary openkis-view-btn\" href=\"$url\" title=\"" . htmlspecialchars($label) . "\">$label</a>", "text-right text-end openkis-view-cell");
 }
 
 /**
