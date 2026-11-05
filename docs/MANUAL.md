@@ -434,7 +434,8 @@ edit form, history (where enabled) and exports.
 | Surveys | Natural Cave | All surveys, also those of cave systems |
 | Bibliography | Natural Cave | Publications with authors, year, journal, abstract and files; linked to caves, artificial cavities and fauna |
 | Cave fauna | Fauna | The species (taxonomy, photos); groups `r_fauna`/`w_fauna` |
-| Fauna surveys | Fauna | Observations of a species in a cave or artificial cavity |
+| Fauna surveys | Fauna | Observations of a species in a cave or artificial cavity; above the list the fauna map |
+| Fauna map | Fauna | Map of the caves and artificial cavities with fauna surveys, for the users who may view them: one point per cave, coloured by the ecological category of the species most bound to the underground (troglobites and stygobites, eutroglophiles, troglophiles and subtroglophiles, trogloxenes) or, switching the legend, by the most frequent taxonomic class; the size is the number of species; the legend hides the categories, the popup lists the species with links to their sheets and to the surveys of the cave |
 | Glacial speleology | Glacial speleology (where enabled) | Glacial caves, their surveys and glaciers |
 | Caving clubs | Caving clubs | The clubs with logo, province, whether active and their journal |
 

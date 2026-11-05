@@ -1507,6 +1507,313 @@ var OPS_Map = {
         }
         return this.addTemperaturesLayer(title, path, shown, shown && temperature === "");
     },
+    /**
+     * Colours of the fauna points (openkis_fauna.php) by ecological category:
+     * the category of the species most bound to the underground among those
+     * observed in the cave, from the troglobites to the trogloxenes.
+     */
+    faunaCategoryColors: {
+        obligate: "#5e3c99",
+        eutroglophile: "#2b6cb0",
+        troglophile: "#2a9d8f",
+        trogloxene: "#d9a521",
+        unknown: "#9e9e9e"
+    },
+    /**
+     * Colours of the fauna points by taxonomic class (the most frequent
+     * class among the species of the cave).
+     */
+    faunaClassColors: {
+        mammalia: "#8c510a",
+        amphibia: "#1b9e77",
+        reptilia: "#7a9a01",
+        insecta: "#e6550d",
+        arachnida: "#c51b7d",
+        crustacea: "#3182bd",
+        gastropoda: "#e3b505",
+        other: "#7570b3",
+        unknown: "#9e9e9e"
+    },
+    /**
+     * Colour mode of the fauna points: "category" or "class" (url parameter
+     * fauna_mode, switched from the legend).
+     */
+    faunaMode: "category",
+    /**
+     * Keys hidden from the legend, by mode: a point is drawn when at least
+     * one of its species has a visible key, and takes its colour.
+     */
+    faunaHidden: {category: {}, class: {}},
+    /**
+     * Legend of openkis_fauna.php (labels of the categories and classes in
+     * order), once loaded.
+     */
+    faunaLegend: null,
+    faunaLayer: null,
+    /**
+     * Colours of the current mode.
+     * @returns {Object}
+     */
+    faunaColors: function ()
+    {
+        return OPS_Map.faunaMode === "class" ? OPS_Map.faunaClassColors : OPS_Map.faunaCategoryColors;
+    },
+    /**
+     * Keys of the current mode in legend order.
+     * @returns {Array}
+     */
+    faunaKeys: function ()
+    {
+        var labels = OPS_Map.faunaLegend ? OPS_Map.faunaLegend[OPS_Map.faunaMode === "class" ? "classes" : "categories"] : null;
+        return labels ? Object.keys(labels) : Object.keys(OPS_Map.faunaColors());
+    },
+    /**
+     * Visible key of a fauna point in the current mode (the first in legend
+     * order) and the number of its species with a visible key.
+     * @param {ol.Feature} feature
+     * @returns {Object} {key, count}, key "" when every key is hidden
+     */
+    faunaVisible: function (feature)
+    {
+        var counts = feature.get(OPS_Map.faunaMode === "class" ? "classes" : "categories") || {};
+        var hidden = OPS_Map.faunaHidden[OPS_Map.faunaMode] || {};
+        var keys = OPS_Map.faunaKeys();
+        var first = "";
+        var count = 0;
+        for (var i = 0; i < keys.length; i++)
+        {
+            if (counts[keys[i]] && !hidden[keys[i]])
+            {
+                if (first === "")
+                {
+                    first = keys[i];
+                }
+                count += counts[keys[i]];
+            }
+        }
+        return {key: first, count: count};
+    },
+    /**
+     * Style of a fauna point: colour of its visible key, radius growing with
+     * the number of species (6 px for one, 14 px for seven or more), the
+     * number written beside it when there is more than one species.
+     * @param {ol.Feature} feature
+     * @returns {ol.style.Style|null}
+     */
+    faunaStyle: function (feature)
+    {
+        var visible = OPS_Map.faunaVisible(feature);
+        if (visible.key === "")
+        {
+            return null;
+        }
+        var color = OPS_Map.faunaColors()[visible.key] || "#9e9e9e";
+        var n = visible.count;
+        var radius = 6 + Math.min(n - 1, 6) * 1.3;
+        var style = {
+            image: new ol.style.Circle({
+                radius: radius,
+                fill: new ol.style.Fill({color: color}),
+                stroke: new ol.style.Stroke({color: "#ffffff", width: 2})
+            })
+        };
+        if (n > 1)
+        {
+            style.text = new ol.style.Text({
+                text: String(n),
+                font: "bold 11px sans-serif",
+                offsetX: radius + 4,
+                textAlign: "left",
+                fill: new ol.style.Fill({color: "#222222"}),
+                stroke: new ol.style.Stroke({color: "#ffffff", width: 3})
+            });
+        }
+        return new ol.style.Style(style);
+    },
+    /**
+     * Legend of the fauna points: the mode switch, one line per key with a
+     * checkbox that hides its points and the number of places, the note on
+     * the size.
+     * @param {Object} legend "legend" member of openkis_fauna.php
+     * @param {Array} features the loaded points
+     * @returns {String} html
+     */
+    faunaLegendHtml: function (legend, features)
+    {
+        var esc = function (text) {
+            return $("<div>").text(text === undefined || text === null ? "" : text).html();
+        };
+        var mode = OPS_Map.faunaMode;
+        var labels = legend[mode === "class" ? "classes" : "categories"] || {};
+        var colors = OPS_Map.faunaColors();
+        var hidden = OPS_Map.faunaHidden[mode] || {};
+        var counts = {};
+        for (var i = 0; i < features.length; i++)
+        {
+            var keys = features[i].get(mode === "class" ? "classes" : "categories") || {};
+            for (var k in keys)
+            {
+                counts[k] = (counts[k] || 0) + 1;
+            }
+        }
+        var html = "<b>" + esc(legend.title) + "</b><br />";
+        var modes = [["category", legend.mode_category], ["class", legend.mode_class]];
+        for (var m = 0; m < modes.length; m++)
+        {
+            var current = (modes[m][0] === mode);
+            html += (m > 0 ? " | " : "") + (current ? "<b>" : "<a href=\"#\" data-fauna-mode=\"" + modes[m][0] + "\" style=\"color:#2b6cb0\">") + esc(modes[m][1]) + (current ? "</b>" : "</a>");
+        }
+        html += "<br />";
+        for (var key in labels)
+        {
+            if (!counts[key])
+            {
+                continue;
+            }
+            html += "<label style=\"display:block;margin:0;font-weight:normal;cursor:pointer\"><input type=\"checkbox\" data-fauna-key=\"" + esc(key) + "\"" + (hidden[key] ? "" : " checked=\"checked\"") + " style=\"vertical-align:middle;margin:0 4px 0 0\" />";
+            html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:6px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:" + colors[key] + ";vertical-align:middle;margin-right:4px\"></span>" + esc(labels[key]) + " <span style=\"color:#777\">(" + counts[key] + ")</span></label>";
+        }
+        html += "<small style=\"color:#777\">" + esc(legend.size) + "</small>";
+        return html;
+    },
+    /**
+     * Fauna layer: the caves and artificial cavities with fauna sightings
+     * of openkis_fauna.php (GeoJSON), coloured by ecological category or by
+     * class of their species, with a popup listing the species. The legend
+     * (shown while the layer is visible and has points) switches the mode
+     * and hides the keys.
+     * @param {String} title layer name in the layer switcher
+     * @param {String} path url of openkis_fauna.php with its filters
+     * @param {Boolean} visible
+     * @param {Boolean} fit frame the view on the points once loaded
+     * @returns {ol.layer.Vector}
+     */
+    addFaunaLayer: function (title, path, visible, fit)
+    {
+        var source = new ol.source.Vector();
+        var layer = new ol.layer.Vector({
+            name: title,
+            visible: visible,
+            source: source,
+            style: OPS_Map.faunaStyle
+        });
+        // above the cave icons: the point carries the species of the cave
+        layer.setZIndex(12);
+        this.addLayer(layer, false);
+        OPS_Map.faunaLayer = layer;
+        // colours of the dots in the popups (one rule per key and mode)
+        var css = ".openkis-fauna-dot{display:inline-block;width:10px;height:10px;border-radius:5px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:#9e9e9e;vertical-align:middle}";
+        for (var c in OPS_Map.faunaCategoryColors)
+        {
+            css += ".openkis-fauna-dot[data-category=\"" + c + "\"]{background:" + OPS_Map.faunaCategoryColors[c] + "}";
+        }
+        for (var k in OPS_Map.faunaClassColors)
+        {
+            css += ".openkis-fauna-mode-class .openkis-fauna-dot[data-class=\"" + k + "\"]{background:" + OPS_Map.faunaClassColors[k] + "}";
+        }
+        var style = document.createElement("style");
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+        var legend = document.createElement("div");
+        legend.className = "ol-unselectable ol-control";
+        legend.style.cssText = "position:fixed;left:8px;bottom:40px;z-index:6;padding:4px 8px;background:rgba(255,255,255,0.92);color:#222;font-size:12px;line-height:18px;display:none;max-width:260px";
+        document.body.appendChild(legend);
+        var setMode = function (mode)
+        {
+            OPS_Map.faunaMode = (mode === "class") ? "class" : "category";
+            $(document.body).toggleClass("openkis-fauna-mode-class", OPS_Map.faunaMode === "class");
+        };
+        setMode(OPS_Map.faunaMode);
+        var updateLegend = function () {
+            if (OPS_Map.faunaLegend)
+            {
+                legend.innerHTML = OPS_Map.faunaLegendHtml(OPS_Map.faunaLegend, source.getFeatures());
+            }
+            legend.style.display = (layer.getVisible() && source.getFeatures().length > 0) ? "block" : "none";
+        };
+        layer.on("change:visible", updateLegend);
+        $(legend).on("click", "a[data-fauna-mode]", function (e) {
+            e.preventDefault();
+            setMode($(this).attr("data-fauna-mode"));
+            layer.changed();
+            updateLegend();
+        });
+        $(legend).on("change", "input[data-fauna-key]", function () {
+            var key = $(this).attr("data-fauna-key");
+            if (this.checked)
+            {
+                delete OPS_Map.faunaHidden[OPS_Map.faunaMode][key];
+            } else
+            {
+                OPS_Map.faunaHidden[OPS_Map.faunaMode][key] = true;
+            }
+            layer.changed();
+        });
+        $.getJSON(path, function (data) {
+            var features = new ol.format.GeoJSON().readFeatures(data, {
+                dataProjection: OPS_Map.inputProjectonEPSG,
+                featureProjection: OPS_Map.view.getProjection()
+            });
+            source.addFeatures(features);
+            if (data.legend)
+            {
+                OPS_Map.faunaLegend = data.legend;
+            }
+            updateLegend();
+            if (fit && features.length > 0)
+            {
+                // the legend covers the bottom left corner: keep the points out of it
+                // when the map is large enough, else leave the usual margin
+                var padding = [60, 60, 60, 60];
+                var size = OPS_Map.map.getSize();
+                if (legend.style.display !== "none" && size && size[0] > 3 * legend.offsetWidth && size[1] > 2 * legend.offsetHeight)
+                {
+                    padding = [40, 40, legend.offsetHeight + 50, legend.offsetWidth + 20];
+                }
+                OPS_Map.view.fit(source.getExtent(), {padding: padding, maxZoom: 15});
+            }
+        });
+        return layer;
+    },
+    /**
+     * Fauna layer configured from the page url: hidden (all the places, can
+     * be switched on) unless the url asks for it, in which case it is shown
+     * on a light base layer and the view is framed on the points:
+     *   fauna=1                all the caves with sightings
+     *   fauna_cave=code        the point of one cave
+     *   fauna_species=name     the caves where a species was observed
+     *   fauna_category=key     the caves with a species of a category
+     *   fauna_class=key        the caves with a species of a class
+     *   fauna_mode=class       colours by class instead of by category
+     * @param {String} title layer name in the layer switcher
+     * @returns {ol.layer.Vector}
+     */
+    addFaunaLayerFromUrl: function (title)
+    {
+        var path = "openkis_fauna.php";
+        var params = [];
+        var names = {fauna_cave: "cave", fauna_species: "species", fauna_category: "category", fauna_class: "class"};
+        for (var name in names)
+        {
+            var value = getUrlVar(name, "");
+            if (value !== "")
+            {
+                params.push(names[name] + "=" + encodeURIComponent(value));
+            }
+        }
+        if (params.length > 0)
+        {
+            path += "?" + params.join("&");
+        }
+        OPS_Map.faunaMode = (getUrlVar("fauna_mode", "") === "class") ? "class" : "category";
+        var shown = (getUrlVar("fauna", "") !== "" || params.length > 0);
+        if (shown)
+        {
+            // the coloured points read better on a light background
+            OPS_Map.defaultBaseLayer = "light";
+        }
+        return this.addFaunaLayer(title, path, shown, shown && getUrlVar("fauna_cave", "") === "");
+    },
     addJsonLayer: function (title, path, isBaselayer, visible)
     {
         //---------------------------json----------------------------------->

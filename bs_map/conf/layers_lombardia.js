@@ -68,6 +68,7 @@ OPS_Map.MyAddLayers = function ()
     // shown and framed on the arrows when the page asks for it (tracings section: tracings=1)
     OPS_Map.addTracingsLayerFromUrl("Tracciamenti");
     OPS_Map.addTemperaturesLayerFromUrl("Temperature");
+    OPS_Map.addFaunaLayerFromUrl("Fauna");
 
     //OPS_Map.addKmlLayer("Catasto grotte Liguria", "openkis_proxy.php/https://catastogrotte.net/liguria/openkis_kml.php?mod=caves&time=1&minimal=1", false, false);
 

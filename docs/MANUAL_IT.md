@@ -440,7 +440,8 @@ categorie, scheda, modulo di modifica, storico (dove attivato) ed esportazioni.
 | Rilievi | Cavità naturali | Tutti i rilievi, anche dei complessi carsici |
 | Bibliografia | Cavità naturali | Pubblicazioni con autori, anno, rivista, riassunto e file; collegate a grotte, cavità artificiali e fauna |
 | Fauna cavernicola | Fauna | Le specie (classificazione, foto); gruppi `r_fauna`/`w_fauna` |
-| Rilevamenti faunistici | Fauna | Le osservazioni di una specie in una grotta o cavità artificiale |
+| Rilevamenti faunistici | Fauna | Le osservazioni di una specie in una grotta o cavità artificiale; sopra l'elenco la mappa della fauna |
+| Mappa della fauna | Fauna | Mappa delle grotte e cavità artificiali con rilevamenti faunistici, per gli utenti che possono vederli: un punto per grotta, colorato secondo la categoria ecologica della specie più legata all'ambiente sotterraneo (troglobi e stigobi, eutroglofili, troglofili e subtroglofili, troglosseni) oppure, cambiando modalità nella legenda, secondo la classe tassonomica più frequente; la dimensione è il numero di specie; dalla legenda si nascondono le categorie, il popup elenca le specie con i link alle schede e ai rilevamenti della grotta |
 | Speleologia glaciale | Speleologia glaciale (dove attiva) | Cavità glaciali, loro rilievi e ghiacciai |
 | Gruppi speleologici | Gruppi speleologici | I gruppi con logo, provincia, se sono attivi e il loro bollettino |
 

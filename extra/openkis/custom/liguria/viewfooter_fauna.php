@@ -85,7 +85,9 @@ if (FN_UserCanViewSection("fauna_surveys") || ($_FN['user'] != "" && FN_UserInGr
     };
 
     $caves = $get_items("caves", $count_caves, "id,code,name,comune,latitude,longitude,elevation,elevation_map,elevation_gps,depth_total,lenght_total");
-    echo openkis_SheetCavesCard(FN_Translate("caves where it was observed"), $caves, array("extra" => array($surveys_column($count_caves))));
+    // the map shows the fauna points of the species (openkis_fauna.php) over the icons of its caves
+    $map = "filter_code=" . implode(",", array_map("rawurlencode", array_column($caves, "code"))) . "&fauna_species=" . rawurlencode($scientific_name);
+    echo openkis_SheetCavesCard(FN_Translate("caves where it was observed"), $caves, array("map" => $map, "extra" => array($surveys_column($count_caves))));
     $artificials = $get_items("artificials", $count_artificials, "id,code,name");
     echo openkis_SheetCavesCard(FN_Translate("artificial cavities where it was observed"), $artificials,
         array("mod" => "artificials", "columns" => array(), "map" => false, "extra" => array($surveys_column($count_artificials))));

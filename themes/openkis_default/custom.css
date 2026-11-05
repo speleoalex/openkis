@@ -1189,7 +1189,8 @@ details > summary {
 
 .gc-ico-map_caves,
 .gc-ico-map_artificials,
-.gc-ico-map_glacial {
+.gc-ico-map_glacial,
+.gc-ico-fauna_map {
     background-image: url("img/icons/map.svg");
 }
 

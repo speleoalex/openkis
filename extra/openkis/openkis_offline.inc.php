@@ -319,7 +319,7 @@ function openkis_OfflineInfo()
     $map = array("pages" => array(), "data" => array("{$_FN['siteurl']}openkis_map_access.js.php"));
     foreach (FN_GetSections("", true, true, true, true) as $section)
     {
-        if (!empty($section['id']) && strpos($section['id'], "map_") === 0 && FN_UserCanViewSection($section['id']) && file_exists("sections/{$section['id']}"))
+        if (!empty($section['id']) && (strpos($section['id'], "map_") === 0 || $section['id'] == "fauna_map") && FN_UserCanViewSection($section['id']) && file_exists("sections/{$section['id']}"))
             $map['pages'][] = openkis_OfflineLink("index.php?mod={$section['id']}");
     }
     foreach (array("caves", "springs", "artificials", "glacial") as $mod)
@@ -327,8 +327,8 @@ function openkis_OfflineInfo()
         if (file_exists("sections/$mod") && openkis_SectionMapAccess($mod) !== "")
             $map['data'][] = "{$_FN['siteurl']}openkis_kml.php?mod=$mod";
     }
-    // other layers of the map (tracer test arrows, temperature points)
-    foreach (array("tracings" => "openkis_tracings.php", "temperatures" => "openkis_temperatures.php") as $mod => $endpoint)
+    // other layers of the map (tracer test arrows, temperature points, fauna points)
+    foreach (array("tracings" => "openkis_tracings.php", "temperatures" => "openkis_temperatures.php", "fauna_surveys" => "openkis_fauna.php") as $mod => $endpoint)
     {
         if (file_exists("sections/$mod") && file_exists($endpoint) && FN_UserCanViewSection($mod))
             $map['data'][] = "{$_FN['siteurl']}$endpoint";

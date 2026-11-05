@@ -51,13 +51,214 @@ function openkis_FaunaSightings($where)
     $dbview = new FNDBVIEW($config);
     $params = array();
     $params['fields'] = "id,$species,codecave,ammount,date,caver";
+    // the artificial cavity of the sighting, when the table has the column
+    $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
+    $has_artificial = $table && isset($table->fields['codeartificial']);
+    if ($has_artificial)
+        $params['fields'] .= ",codeartificial";
     $params['appendquery'] = $where;
     $items = $dbview->GetResults($config, $params);
     if (!is_array($items))
         return array();
     foreach ($items as $k => $item)
+    {
         $items[$k]['name'] = trim((string) $item[$species]);
+        $items[$k]['codecave'] = trim((string) $item['codecave']);
+        $items[$k]['codeartificial'] = $has_artificial ? trim((string) $item['codeartificial']) : "";
+    }
     return $items;
+}
+
+/**
+ * Ecological categories of the species for the fauna map, from the most to
+ * the least bound to the underground: key => label (translated).
+ *
+ * @return array
+ */
+function openkis_FaunaCategories()
+{
+    return array(
+        "obligate" => FN_Translate("troglobites and stygobites"),
+        "eutroglophile" => FN_Translate("eutroglophiles"),
+        "troglophile" => FN_Translate("troglophiles and subtroglophiles"),
+        "trogloxene" => FN_Translate("trogloxenes"),
+        "unknown" => FN_Translate("not classified"));
+}
+
+/**
+ * Category key of a species "type" (TROGLOBIO, SUBTROGLOFILO, STIGOBIO...
+ * stored in Italian), see openkis_FaunaCategories().
+ *
+ * @param string $type
+ * @return string
+ */
+function openkis_FaunaCategory($type)
+{
+    $type = strtoupper(trim((string) $type));
+    if ($type === "")
+        return "unknown";
+    if (preg_match('/^(TROGLOB|STIGOB|STYGOB)/', $type))
+        return "obligate";
+    if (preg_match('/^(EUTROGLOF|EUSTIGOF|EUSTYGOF)/', $type))
+        return "eutroglophile";
+    if (preg_match('/^(SUBTROGLOF|TROGLOF|STIGOF|STYGOF)/', $type))
+        return "troglophile";
+    if (preg_match('/^(TROGLOSS|TROGLOX|STIGOSS|STYGOSS|STIGOX|STYGOX)/', $type))
+        return "trogloxene";
+    return "unknown";
+}
+
+/**
+ * Taxonomic classes of the species for the fauna map: key => label (translated).
+ *
+ * @return array
+ */
+function openkis_FaunaClasses()
+{
+    return array(
+        "mammalia" => FN_Translate("mammals"),
+        "amphibia" => FN_Translate("amphibians"),
+        "reptilia" => FN_Translate("reptiles"),
+        "insecta" => FN_Translate("insects"),
+        "arachnida" => FN_Translate("arachnids"),
+        "crustacea" => FN_Translate("crustaceans"),
+        "gastropoda" => FN_Translate("gastropods"),
+        "other" => FN_Translate("other classes"),
+        "unknown" => FN_Translate("not classified"));
+}
+
+/**
+ * Class key of a species "class" (free text: MAMMALIA, INSECTA, MALACOSTRACA...),
+ * see openkis_FaunaClasses().
+ *
+ * @param string $class
+ * @return string
+ */
+function openkis_FaunaClassKey($class)
+{
+    $class = strtoupper(trim((string) $class));
+    if ($class === "")
+        return "unknown";
+    $keys = array("MAMMAL" => "mammalia", "AMPHIB" => "amphibia", "ANFIB" => "amphibia", "REPTIL" => "reptilia", "RETTIL" => "reptilia",
+        "INSECT" => "insecta", "INSETT" => "insecta", "ARACHN" => "arachnida", "ARACN" => "arachnida", "MALACOSTRAC" => "crustacea",
+        "CRUSTAC" => "crustacea", "CROSTAC" => "crustacea", "COPEPOD" => "crustacea", "OSTRACOD" => "crustacea", "GASTROPOD" => "gastropoda", "GASTEROPOD" => "gastropoda");
+    foreach ($keys as $prefix => $key)
+        if (strpos($class, $prefix) === 0)
+            return $key;
+    return "other";
+}
+
+/**
+ * Caves and artificial cavities with fauna sightings visible to the user, for
+ * the fauna map (openkis_fauna.php): one entry per place with coordinates,
+ * with its species grouped by category and by class.
+ *
+ * @param string $where condition on the sightings table ("" = all)
+ * @param array $filter optional "category" and "class" keys: only the places
+ *                      with at least one species of that category or class
+ * @return array places: mod, record (id, code, name, comune, provincia,
+ *               latitude, longitude), species (key => name, common, type,
+ *               category, class, classkey, id of the species sheet, sightings,
+ *               last date), categories and classes (key => number of species),
+ *               category and classkey (the prevailing ones), nsightings
+ */
+function openkis_FaunaMapPlaces($where = "", $filter = array())
+{
+    $sightings = openkis_FaunaSightings($where !== "" ? $where : "1");
+    if (!count($sightings))
+        return array();
+    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($sightings, "name"), "id,scientific_name,name,type,class");
+    $fields = "id,code,name,comune,provincia,latitude,longitude";
+    $places = array(
+        "caves" => openkis_FaunaRecordsByField("caves", "code", array_column($sightings, "codecave"), $fields),
+        "artificials" => openkis_FaunaRecordsByField("artificials", "code", array_column($sightings, "codeartificial"), $fields));
+    $order = array_keys(openkis_FaunaCategories());
+    $result = array();
+    foreach ($sightings as $sighting)
+    {
+        foreach (array("caves" => "codecave", "artificials" => "codeartificial") as $mod => $field)
+        {
+            $code = $sighting[$field];
+            if ($code === "" || !isset($places[$mod][$code]))
+                continue;
+            $place = $places[$mod][$code];
+            if (empty($place['latitude']) || empty($place['longitude']))
+                continue;
+            $key = "$mod:$code";
+            if (!isset($result[$key]))
+            {
+                $result[$key] = array("mod" => $mod, "record" => $place, "species" => array(), "categories" => array(), "classes" => array(),
+                    "category" => "unknown", "classkey" => "unknown", "nsightings" => 0);
+            }
+            $skey = openkis_FaunaKey($sighting['name']);
+            if ($skey === "")
+                continue;
+            if (!isset($result[$key]['species'][$skey]))
+            {
+                $sheet = isset($species[$skey]) ? $species[$skey] : array("id" => 0, "scientific_name" => $sighting['name'], "name" => "", "type" => "", "class" => "");
+                $result[$key]['species'][$skey] = array(
+                    "name" => $sheet['scientific_name'] !== "" ? $sheet['scientific_name'] : $sighting['name'],
+                    "common" => (string) $sheet['name'],
+                    "type" => (string) $sheet['type'],
+                    "category" => openkis_FaunaCategory($sheet['type']),
+                    "class" => (string) $sheet['class'],
+                    "classkey" => openkis_FaunaClassKey($sheet['class']),
+                    "id" => intval($sheet['id']),
+                    "sightings" => 0,
+                    "last" => "");
+            }
+            $result[$key]['species'][$skey]['sightings']++;
+            $result[$key]['nsightings']++;
+            $date = !empty($sighting['date']) && strtotime($sighting['date']) ? date("Y-m-d", strtotime($sighting['date'])) : "";
+            if ($date > $result[$key]['species'][$skey]['last'])
+                $result[$key]['species'][$skey]['last'] = $date;
+        }
+    }
+    foreach ($result as $key => $place)
+    {
+        if (!count($place['species']))
+        {
+            unset($result[$key]);
+            continue;
+        }
+        uasort($place['species'], function ($a, $b) use ($order)
+        {
+            $d = array_search($a['category'], $order) - array_search($b['category'], $order);
+            return $d != 0 ? $d : strcasecmp($a['name'], $b['name']);
+        });
+        $categories = array();
+        $classes = array();
+        foreach ($place['species'] as $sp)
+        {
+            $categories[$sp['category']] = isset($categories[$sp['category']]) ? $categories[$sp['category']] + 1 : 1;
+            $classes[$sp['classkey']] = isset($classes[$sp['classkey']]) ? $classes[$sp['classkey']] + 1 : 1;
+        }
+        if (!empty($filter['category']) && !isset($categories[$filter['category']]))
+        {
+            unset($result[$key]);
+            continue;
+        }
+        if (!empty($filter['class']) && !isset($classes[$filter['class']]))
+        {
+            unset($result[$key]);
+            continue;
+        }
+        // the prevailing category is the one most bound to the underground
+        $first = reset($place['species']);
+        $place['category'] = $first['category'];
+        // the prevailing class is the most frequent one, the known ones first
+        arsort($classes);
+        $place['classkey'] = key($classes);
+        if ($place['classkey'] === "unknown" && count($classes) > 1)
+        {
+            $known = array_diff_key($classes, array("unknown" => 1));
+            $place['classkey'] = key($known);
+        }
+        $place['categories'] = $categories;
+        $place['classes'] = $classes;
+        $result[$key] = $place;
+    }
+    return $result;
 }
 
 /**
@@ -204,6 +405,8 @@ function openkis_FaunaSpeciesCard($scientific_name, $exclude_id = 0, $title = ""
             htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
     $head = array(array(FN_Translate("number"), "text-nowrap openkis-card-code"), FN_Translate("cave"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
-    $options = array_merge(array("id" => "card_observed_in"), openkis_SheetMapOptions(openkis_SheetCavesMapUrl($listed)));
+    // the map shows the fauna points of the species (openkis_fauna.php) over the icons of its caves
+    $filter = "filter_code=" . implode(",", array_map("rawurlencode", array_keys($listed))) . "&fauna_species=" . rawurlencode($scientific_name);
+    $options = array_merge(array("id" => "card_observed_in"), openkis_SheetMapOptions(openkis_SheetCavesMapUrl($listed, $filter)));
     return openkis_SheetListCard($title != "" ? $title : FN_Translate("observed in"), $head, $cells, $options);
 }
