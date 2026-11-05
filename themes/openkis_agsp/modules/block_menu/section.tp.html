@@ -1,0 +1,22 @@
+<!-- Page of type "Menu" (finis modules/block_menu): the pages under this menu group as
+     cards with the icons of the menu (rules .gc-submenu in custom.css) -->
+<!-- if {hasitems} -->
+<div class="gc-submenu">
+    <!-- foreach {items} -->
+    <div class="gc-submenu-item<!-- if {havechilds} --> gc-submenu-group<!-- end if {havechilds} -->">
+        <span class="gc-ico gc-ico-lg gc-ico-{id}" aria-hidden="true"></span>
+        <div class="gc-submenu-text">
+            <a class="gc-submenu-title" href="{link}">{title}</a>
+            <!-- if {description} --><div class="gc-submenu-desc">{description}</div><!-- end if {description} -->
+            <!-- if {havechilds} -->
+            <ul class="gc-submenu-childs">
+                <!-- foreach {childs} -->
+                <li><a href="{link}">{title}</a></li>
+                <!-- end foreach {childs} -->
+            </ul>
+            <!-- end if {havechilds} -->
+        </div>
+    </div>
+    <!-- end foreach {items} -->
+</div>
+<!-- end if {hasitems} -->

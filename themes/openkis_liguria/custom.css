@@ -2523,3 +2523,84 @@ details > summary {
         margin: 0 0 8px;
     }
 }
+
+/* ---------------------------------------------------------------------
+   Pages of type "Menu" (finis modules/block_menu, template
+   modules/block_menu/section.tp.html of the theme): the pages under the
+   menu group as cards with the icons of the menu; the whole card is the
+   link, except for a card with pages of its own under it (links listed).
+   --------------------------------------------------------------------- */
+.gc-submenu {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.gc-submenu-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--gc-paper);
+    color: var(--gc-text);
+    border: 1px solid var(--gc-line);
+    border-radius: 4px;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.gc-submenu-group {
+    align-items: flex-start;
+}
+
+.gc-submenu-item:hover,
+.gc-submenu-item:focus-within {
+    border-color: var(--gc-orange);
+    box-shadow: var(--gc-shadow-1);
+}
+
+.gc-submenu-text {
+    min-width: 0;
+}
+
+.gc-submenu-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gc-text);
+    text-decoration: none;
+}
+
+.gc-submenu-title:hover,
+.gc-submenu-title:focus {
+    color: var(--gc-orange);
+    text-decoration: none;
+}
+
+.gc-submenu-item:not(.gc-submenu-group) .gc-submenu-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.gc-submenu-desc {
+    margin-top: 2px;
+    font-size: 14px;
+    color: var(--gc-text-2);
+}
+
+.gc-submenu-childs {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+.gc-submenu-childs li + li {
+    margin-top: 2px;
+}
+
+@media (max-width: 575.98px) {
+    .gc-submenu {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
