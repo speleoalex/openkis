@@ -96,9 +96,17 @@ var OPS_Map = {
             });
         }
         else{
+            // the wheel zooms only when wheelZoomCondition says so (see initWheelGate)
             this.map = new ol.Map({
                 target: document.getElementById(divId),
-                view: this.view
+                view: this.view,
+                interactions: ol.interaction.defaults({mouseWheelZoom: false}).extend([
+                    new ol.interaction.MouseWheelZoom({
+                        condition: function (mapBrowserEvent) {
+                            return OPS_Map.wheelZoomCondition(mapBrowserEvent);
+                        }
+                    })
+                ])
             });
         }
 
@@ -154,16 +162,9 @@ var OPS_Map = {
         this.map.addOverlay(this.GeolocationMarker);
 //------------------------ Geolocation marker----------------------------------<
 
-        // Listener per l'evento wheel
-        this.map.getViewport().addEventListener('wheel', function(event) {
-            event.preventDefault();
-            try{
-                document.getElementsByClassName("ol-mouse-position")[0].innerHTML='press Ctrl';
-            }catch(e){
-
-            }
-
-        });
+        // no preventDefault of the wheel here: MouseWheelZoom does it when it zooms, and a
+        // wheel it leaves alone must reach the page around the map, to scroll it
+        this.initWheelGate();
 
 //--------------------------- export PNG -------------------------------------->
         document.getElementById('export-png').addEventListener('click', function () {
@@ -481,6 +482,109 @@ var OPS_Map = {
         }
         html += "</div>";
         OPS_Map.popUp(coordinates, hits.length + " punti qui", html);
+    },
+    wheelGated: false,
+    wheelArmed: false,
+    wheelHint: null,
+    wheelHintTimer: null,
+    /**
+     * A map inside a page (the iframe of a cave sheet, of a tracing, of a list)
+     * must not take the wheel of who is scrolling that page: met under the
+     * pointer, it zoomed and the page stopped. There the wheel zooms only after
+     * a click on the map, until the pointer leaves it or the page around takes
+     * the focus back, or with Ctrl/Cmd held (a trackpad pinch is a wheel with
+     * ctrlKey, so it zooms too). Otherwise the wheel scrolls the page and a hint
+     * over the map says how to zoom.
+     * The wheel zooms at once, as before, on bs_map.htm opened on its own, on
+     * the full page maps (iframe.openkis-map-frame: there the map is the page)
+     * and in fullscreen.
+     * @returns {undefined}
+     */
+    initWheelGate: function ()
+    {
+        var embedded = true;
+        try {
+            embedded = window.self !== window.top;
+        } catch (e) {
+        }
+        var fullPage = false;
+        try {
+            // null when the page around is of another site
+            var frame = window.frameElement;
+            fullPage = !!(frame && frame.classList && frame.classList.contains('openkis-map-frame'));
+        } catch (e) {
+        }
+        this.wheelGated = embedded && !fullPage;
+        if (!this.wheelGated)
+        {
+            return;
+        }
+        document.addEventListener('pointerdown', function () {
+            OPS_Map.wheelArmed = true;
+            OPS_Map.hideWheelHint();
+        }, true);
+        var disarm = function () {
+            OPS_Map.wheelArmed = false;
+        };
+        // relatedTarget null: the pointer left the iframe, not just an element in it
+        document.addEventListener('mouseout', function (e) {
+            if (!e.relatedTarget)
+            {
+                disarm();
+            }
+        });
+        window.addEventListener('blur', disarm);
+    },
+    /**
+     * condition of the MouseWheelZoom of the desktop map
+     * @param {ol.MapBrowserEvent} mapBrowserEvent
+     * @returns {Boolean}
+     */
+    wheelZoomCondition: function (mapBrowserEvent)
+    {
+        var e = mapBrowserEvent.originalEvent;
+        if (!this.wheelGated || this.wheelArmed || e.ctrlKey || e.metaKey
+                || document.fullscreenElement || document.webkitFullscreenElement)
+        {
+            return true;
+        }
+        if (mapBrowserEvent.type === 'wheel')
+        {
+            this.showWheelHint();
+        }
+        return false;
+    },
+    showWheelHint: function ()
+    {
+        if (!this.wheelHint)
+        {
+            this.wheelHint = document.createElement('div');
+            this.wheelHint.className = 'ops-wheel-hint';
+            this.map.getViewport().appendChild(this.wheelHint);
+        }
+        var text = "Click on the map to zoom with the wheel, or use Ctrl + wheel";
+        if (typeof (_i18n) === "function")
+        {
+            text = _i18n(text);
+        }
+        if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent))
+        {
+            text = text.replace("Ctrl", "⌘");
+        }
+        this.wheelHint.textContent = text;
+        this.wheelHint.classList.add('visible');
+        clearTimeout(this.wheelHintTimer);
+        this.wheelHintTimer = setTimeout(function () {
+            OPS_Map.hideWheelHint();
+        }, 1500);
+    },
+    hideWheelHint: function ()
+    {
+        clearTimeout(this.wheelHintTimer);
+        if (this.wheelHint)
+        {
+            this.wheelHint.classList.remove('visible');
+        }
     },
     /**
      * Touch taps not turned into a click by OpenLayers are handled here.

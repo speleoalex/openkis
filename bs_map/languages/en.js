@@ -10,6 +10,7 @@ if (typeof(__language) === 'undefined')
 __language['en'] = {
     "Search": "Search",
     "Search on map": "search on map",
+    "Click on the map to zoom with the wheel, or use Ctrl + wheel": "Click on the map to zoom with the wheel, or use Ctrl + wheel",
       
     "":""
 };

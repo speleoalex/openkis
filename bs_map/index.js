@@ -175,7 +175,7 @@ window.setTimeout(function () {
     }
 
     splx.include("bs_map/js/splx_i18n.js");
-    splx.include("bs_map/languages/" + OPS_Map.lang + ".js?v=20261105");
+    splx.include("bs_map/languages/" + OPS_Map.lang + ".js?v=20261105w");
     // placeholder of the search box in the language of the map ("Search on map": it is not the
     // search of the whole site, in the page around the map); the two files above load later
     var translateSearchBox = function (tries) {
