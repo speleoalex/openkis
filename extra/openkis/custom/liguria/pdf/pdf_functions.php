@@ -13,6 +13,117 @@ function fix_charset($text)
 // Funzioni helper condivise
 // ========================================================================
 
+/**
+ * Cadastre code of the cave as printed on the sheet: the code field already
+ * holds the regional prefix (e.g. "LI123"), it is added only when missing.
+ */
+function pdf_cave_code($record)
+{
+    $code = trim((string) $record['code']);
+    if ($code !== '' && !preg_match('/^[A-Z]{2}/', $code))
+        $code = "LI" . $code;
+    return $code;
+}
+
+/**
+ * Label of a field, as defined in the table (same title as the web sheet)
+ */
+function pdf_field_title($frm, $field, $default = '')
+{
+    if ($frm && isset($frm->formvals[$field]['title']) && $frm->formvals[$field]['title'] != '')
+        return $frm->formvals[$field]['title'];
+    return $default;
+}
+
+/**
+ * Value of a field with options (radio, select, multicheck) translated into the
+ * option label; values without options are returned as they are.
+ */
+function pdf_option_label($frm, $field, $value)
+{
+    $value = (string) $value;
+    if (!$frm || empty($frm->formvals[$field]['options']) || !is_array($frm->formvals[$field]['options']))
+        return $value;
+    $labels = array();
+    foreach (explode(",", $value) as $v)
+    {
+        $v = trim($v);
+        if ($v === '' && $value !== '')
+            continue;
+        $found = null;
+        foreach ($frm->formvals[$field]['options'] as $opt)
+        {
+            if (isset($opt['value']) && (string) $opt['value'] === $v)
+            {
+                $found = $opt['title'];
+                break;
+            }
+        }
+        $labels[] = ($found !== null) ? $found : $v;
+    }
+    return implode(", ", $labels);
+}
+
+/**
+ * Yes/no flags: "Y" (or legacy "S") is yes, an empty value is "no" only when
+ * the field defines an empty option (tourist, closed, destroyed), otherwise
+ * it is not stated.
+ */
+function pdf_flag_label($frm, $field, $value)
+{
+    $value = trim((string) $value);
+    if ($value === 'S')
+        $value = 'Y';
+    if ($value === '' && (!$frm || empty($frm->formvals[$field]['options'])))
+        return '';
+    // "N" in a field whose "no" option is the empty value (tourist, closed, destroyed)
+    if ($value === 'N' && pdf_option_label($frm, $field, 'N') === 'N')
+        $value = '';
+    if ($value === '')
+    {
+        foreach ($frm->formvals[$field]['options'] as $opt)
+        {
+            if (isset($opt['value']) && (string) $opt['value'] === '')
+                return $opt['title'];
+        }
+        return 'non indicato';
+    }
+    return pdf_option_label($frm, $field, $value);
+}
+
+/**
+ * Dates stored as Y-m-d[ H:i:s] shown as d/m/Y; other formats are left as is
+ */
+function pdf_format_date($value)
+{
+    $value = trim((string) $value);
+    if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $value, $m))
+        return "{$m[3]}/{$m[2]}/{$m[1]}";
+    return $value;
+}
+
+/**
+ * Codes of a comma separated foreign key field (areas, linked caves) resolved
+ * into "CODE - NAME" strings; unknown codes are kept as they are.
+ */
+function pdf_lookup_codes($tablename, $codes, $showfield = 'name', $skip = '')
+{
+    $out = array();
+    $table = FN_XMDBTable($tablename);
+    foreach (explode(",", (string) $codes) as $code)
+    {
+        $code = trim($code);
+        if ($code === '' || $code === $skip)
+            continue;
+        $rec = $table ? $table->GetRecord(array("code" => $code)) : null;
+        if (is_array($rec) && !empty($rec[$showfield]))
+            $out[] = $code . " - " . $rec[$showfield];
+        else
+            $out[] = $code;
+    }
+    return implode("; ", $out);
+}
+
 function pdf_get_cave_data($id)
 {
     global $_FN;
@@ -25,6 +136,7 @@ function pdf_get_cave_data($id)
     // Bibliografia: usa FNDBVIEW con lo stesso filtro del viewfooter (tabella di collegamento)
     $bibliografia = array();
     $bibfilter = openkis_BibliographyFilter($record['code'], "codecaves");
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
     $bibconfig = $bibfilter !== false ? FN_LoadConfig("", "bibliography") : false;
     if ($bibconfig) {
         $bibview = new FNDBVIEW($bibconfig);
@@ -53,27 +165,55 @@ function pdf_get_cave_data($id)
         }
     }
 
-    // Censimenti
+    // Species sheets (section fauna, public) of the observed species: common name and category
+    $faunaSpecies = array();
+    if (count($fauna) && file_exists("extra/openkis/openkis_fauna.inc.php")) {
+        require_once "extra/openkis/openkis_fauna.inc.php";
+        $faunaSpecies = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($fauna, 'scientific_name'), "id,scientific_name,name,type");
+    }
+
+    // Underground temperatures (section temperatures, table ctl_temperatures): same
+    // visibility rules as the web sheet (section permission, groupview of the records)
+    $temperatures = array();
+    if (file_exists("sections/temperatures") && function_exists('openkis_TemperatureDateLabel')
+        && FN_XMDBTable("ctl_temperatures") && FN_UserCanViewSection("temperatures")) {
+        openkis_UpdateTemperatures();
+        $tconfig = FN_LoadConfig("modules/dbview/config.php", "temperatures");
+        $tview = new FNDBVIEW($tconfig);
+        $tparams = array();
+        $tparams['fields'] = "id,name,type,medium,position,measure_elevation,entrance_distance,ventilation,snow_ice,water,"
+            . "instrument,accuracy,temperature,temperature_external,year,month,day,hour,start_date,end_date,acq_interval,"
+            . "samples,t_mean,t_min,t_max,t_median,t_stddev,data_holder,bibliography,ucc,notes,sort_date";
+        $tparams['appendquery'] = "cave LIKE '" . addslashes($record['code']) . "'";
+        $temperatures = $tview->GetResults($tconfig, $tparams);
+        if (is_array($temperatures) && count($temperatures)) {
+            $temperatures = FN_ArraySortByKey($temperatures, "sort_date");
+        } else {
+            $temperatures = array();
+        }
+    }
+
+    // Special censuses: flags are stored as Y/N ("S" in old records); the
+    // positive ones are listed as badges, every flag is printed in its section
+    $flags = array('archeological', 'marine', 'lake', 'environmentalrisk', 'tourist', 'closed', 'destroyed');
     $strcens = array();
-    if ($record['marine'] == "S") $strcens[] = "Cavit&agrave; marina";
-    if ($record['archeological'] == "S") $strcens[] = "Cavit&agrave; archeologica";
-    if ($record['environmentalrisk'] == "S") $strcens[] = "Rischio ambientale";
-    if ($record['closed'] == "S") $strcens[] = "Chiusa";
-    if ($record['destroyed'] != "") $strcens[] = "Distrutta";
-    if (!empty($record['tourist']) && $record['tourist'] == 'S') $strcens[] = "Grotta turistica";
-    if (!empty($record['lake']) && $record['lake'] == 'S') $strcens[] = "Cavit&agrave; lacustre";
+    foreach ($flags as $flag)
+    {
+        $v = isset($record[$flag]) ? trim((string) $record[$flag]) : '';
+        if ($v === 'Y' || $v === 'S')
+            $strcens[] = pdf_field_title($Table, $flag, $flag);
+        elseif ($flag === 'destroyed' && $v === 'P')
+            $strcens[] = pdf_field_title($Table, $flag, $flag) . ' (parzialmente)';
+    }
 
-    // Area carsica
-    $tmpt = @xmetadb_frm($databasename, "ctl_areas", $pathdatabase, $_FN['lang'], $_FN['languages']);
-    $areaRec = $tmpt ? $tmpt->xmltable->GetRecord(array("code" => $record['code'])) : null;
-    $areaName = (isset($areaRec['name'])) ? $areaRec['code'] . " - " . $areaRec['name'] : '';
+    // Karst area(s): codes in the "areas" field (e.g. "SV24")
+    $areaName = pdf_lookup_codes("ctl_areas", $record['areas']);
 
-    // Formazione geologica
-    $tmptGeo = @xmetadb_frm($databasename, "ctl_geologicalformations", $pathdatabase, $_FN['lang'], $_FN['languages']);
-    $geoRec = $tmptGeo ? $tmptGeo->xmltable->GetRecord(array("geologicalformation" => $record['geologicalformation'])) : null;
-    $geoFM = (isset($geoRec['FM'])) ? $geoRec['FM'] : '';
-    $geoValue = $record['geologicalformation'];
-    if ($geoFM) $geoValue .= ' - ' . $geoFM;
+    // Geological formation: code in the cave, name in ctl_geologicalformations
+    $geoValue = pdf_lookup_codes("ctl_geologicalformations", $record['geologicalformation']);
+
+    // Linked caves (other entrances) and previous cadastre numbers
+    $linkedCaves = pdf_lookup_codes("ctl_caves", $record['caveslinks'], 'name', $record['code']);
 
     $d = strtotime($record['recordupdate']);
 
@@ -83,7 +223,10 @@ function pdf_get_cave_data($id)
     if (isset($record['photo1']) && $record['photo1'] != '') {
         $photo1path = "{$_FN['datadir']}/fndatabase/ctl_caves/{$record['id']}/photo1/{$record['photo1']}";
         if (file_exists($photo1path)) {
-            $photo1 = "{$_FN['siteurl']}/{$photo1path}";
+            // same address as the web sheet (openkis_file.php token when the files are protected)
+            $photo1 = $Table->xmltable->get_file($record, 'photo1');
+            if (!$photo1)
+                $photo1 = "{$_FN['siteurl']}/{$photo1path}";
         } else {
             $photo1path = '';
         }
@@ -104,12 +247,17 @@ function pdf_get_cave_data($id)
 
     return array(
         'record' => $record,
+        'frm' => $Table,
+        'code' => pdf_cave_code($record),
         'rilievi' => $rilievi,
         'bibliografia' => $bibliografia,
         'fauna' => $fauna,
+        'faunaSpecies' => $faunaSpecies,
+        'temperatures' => $temperatures,
         'strcens' => implode(", ", $strcens),
         'areaName' => $areaName,
         'geoValue' => $geoValue,
+        'linkedCaves' => $linkedCaves,
         'dataAggiornamento' => date("d/m/Y", $d),
         'photo1' => $photo1,
         'photo1path' => $photo1path,
@@ -118,7 +266,7 @@ function pdf_get_cave_data($id)
         'coordinate' => $coordinate,
         'hasCoords' => ($lat != 0 && $lon != 0),
         'isIGM' => $isIGM,
-        'footertext' => "LI{$record['code']} estratta da www.catastogrotte.net " . strtolower(FN_FormatDate(time())),
+        'footertext' => pdf_cave_code($record) . " estratta da www.catastogrotte.net " . strtolower(FN_FormatDate(time())),
     );
 }
 
@@ -164,7 +312,7 @@ function get_html_pdf($id)
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LI' . fix_charset($record['code']) . ' - ' . fix_charset($record['name']) . ' - Scheda Catastale</title>
+<title>' . fix_charset($data['code']) . ' - ' . fix_charset($record['name']) . ' - Scheda Catastale</title>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 14px; color: #333; background: #f5f5f5; }
@@ -199,6 +347,7 @@ function get_html_pdf($id)
     .survey-info { font-size: 11px; color: #666; padding: 4px 8px; background: #fafafa; border: 1px solid #eee; margin-top: 4px; display: inline-block; text-align: left; }
     .footer { text-align: center; font-size: 10px; color: #aaa; margin-top: 20px; padding-top: 8px; border-top: 1px solid #eee; }
     .badge-list { padding: 4px 0 4px 210px; }
+    .text-author { text-align: right; font-size: 11px; color: #888; margin: 0 0 6px 0; }
     .badge { display: inline-block; background: #fff3cd; color: #856404; border: 1px solid #ffc107; border-radius: 3px; padding: 2px 8px; font-size: 11px; margin: 2px 4px 2px 0; }
     @media print {
         body { background: #fff; }
@@ -231,13 +380,13 @@ function get_html_pdf($id)
             <div class="ssi-regione">Catasto Speleologico Ligure</div>
         </div>
         <div class="header-ssi-right">
-            <div class="meta-block"><div class="meta-label">Regione</div><div class="meta-value">LI</div></div>
+            <div class="meta-block"><div class="meta-label">Regione</div><div class="meta-value">Liguria</div></div>
             <div class="meta-block"><div class="meta-label">Provincia</div><div class="meta-value">' . fix_charset($record['provincia']) . '</div></div>
-            <div class="meta-block"><div class="meta-label">Numero</div><div class="meta-value">' . fix_charset($record['code']) . '</div></div>
+            <div class="meta-block"><div class="meta-label">Numero</div><div class="meta-value">' . fix_charset($data['code']) . '</div></div>
         </div>
     </div>';
 
-    $html .= '<div class="cave-code">LI ' . fix_charset($record['code']) . '</div>';
+    $html .= '<div class="cave-code">' . fix_charset($data['code']) . '</div>';
     $html .= '<div class="cave-name">' . fix_charset($record['name']) . '</div>';
     if (!empty($record['synonyms']))
         $html .= '<div class="cave-synonyms">' . fix_charset($record['synonyms']) . '</div>';
@@ -267,7 +416,7 @@ function get_html_pdf($id)
         } else {
             $html .= 'L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17,attribution:"OpenTopoMap"}).addTo(map);';
         }
-        $html .= 'L.marker([' . $data['lat'] . ',' . $data['lon'] . ']).addTo(map).bindPopup("<b>' . addslashes(fix_charset($record['name'])) . '</b><br>LI ' . addslashes(fix_charset($record['code'])) . '").openPopup();});</script>';
+        $html .= 'L.marker([' . $data['lat'] . ',' . $data['lon'] . ']).addTo(map).bindPopup("<b>' . addslashes(fix_charset($record['name'])) . '</b><br>' . addslashes(fix_charset($data['code'])) . '").openPopup();});</script>';
     }
 
     // Rilievi
@@ -342,14 +491,14 @@ function get_pdf_content($id)
         <td style="width:40%;padding:10px;text-align:right;vertical-align:middle;">
             <table cellspacing="0" cellpadding="2" style="float:right;">
                 <tr><td style="font-size:8px;color:#888888;">Regione</td><td style="font-size:8px;color:#888888;">Provincia</td><td style="font-size:8px;color:#888888;">Numero</td></tr>
-                <tr><td style="font-size:13px;font-weight:bold;padding-right:12px;">LI</td><td style="font-size:13px;font-weight:bold;padding-right:12px;">' . fix_charset($record['provincia']) . '</td><td style="font-size:13px;font-weight:bold;">' . fix_charset($record['code']) . '</td></tr>
+                <tr><td style="font-size:13px;font-weight:bold;padding-right:12px;">Liguria</td><td style="font-size:13px;font-weight:bold;padding-right:12px;">' . fix_charset($record['provincia']) . '</td><td style="font-size:13px;font-weight:bold;">' . fix_charset($data['code']) . '</td></tr>
             </table>
         </td>
     </tr>
     </table>';
 
     // ===== NOME =====
-    $html .= '<div style="text-align:right;font-size:13px;color:#555555;font-weight:bold;">LI ' . fix_charset($record['code']) . '</div>';
+    $html .= '<div style="text-align:right;font-size:13px;color:#555555;font-weight:bold;">' . fix_charset($data['code']) . '</div>';
     $html .= '<div style="text-align:center;color:#0078a3;font-size:20px;font-weight:bold;margin:4px 0 2px 0;">' . fix_charset($record['name']) . '</div>';
     if (!empty($record['synonyms']))
         $html .= '<div style="text-align:center;font-size:10px;color:#888888;margin-bottom:4px;">' . fix_charset($record['synonyms']) . '</div>';
@@ -389,153 +538,230 @@ function get_pdf_content($id)
 // Funzioni condivise per generazione campi
 // ========================================================================
 
+/**
+ * Lengths and depths: numeric values get the metre unit, empty ones a dash
+ */
+function pdf_meters($value)
+{
+    $value = trim((string) $value);
+    if ($value === '' || $value === '0')
+        return '-';
+    if (is_numeric(str_replace(',', '.', $value)))
+        return $value . ' m';
+    return $value;
+}
+
+/**
+ * Credit line of a long text (authors of the description, itinerary...)
+ */
+function pdf_author_line($label, $value, $mode)
+{
+    if (trim((string) $value) === '')
+        return '';
+    $text = $label . ': ' . fix_charset($value);
+    if ($mode === 'pdf')
+        return '<div style="text-align:right;font-size:8px;color:#888888;margin-bottom:4px;">' . $text . '</div>';
+    return '<div class="text-author">' . $text . '</div>';
+}
+
 function _build_fields_html($data, $mode)
 {
     $record = $data['record'];
+    $frm = $data['frm'];
     $html = '';
 
-    // Scorciatoie per le funzioni
+    // Helpers of the two layouts
     $field_row = ($mode === 'pdf') ? 'tpdf_field_row' : 'html_field_row';
     $section_title = ($mode === 'pdf') ? 'tpdf_section_title' : 'html_section_title';
     $text_block = ($mode === 'pdf') ? 'tpdf_text_block' : 'html_text_block';
+    $table_open = ($mode === 'pdf') ? '<table cellspacing="0" cellpadding="0" style="width:100%;">' : '';
+    $table_close = ($mode === 'pdf') ? '</table>' : '';
+    // field labels as defined in the table (same as the web sheet)
+    $t = function ($field, $default) use ($frm)
+    {
+        return pdf_field_title($frm, $field, $default);
+    };
+    // section printed only when it has at least one row
+    $section = function ($title, $rows) use ($section_title, $table_open, $table_close)
+    {
+        if ($rows === '')
+            return '';
+        return $section_title($title) . $table_open . $rows . $table_close;
+    };
 
-    // Localizzazione
-    $html .= $section_title('Localizzazione');
-    if ($mode === 'pdf') $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-    $html .= $field_row('Comune', $record['comune']);
-    $html .= $field_row('Localit&agrave;', $record['localita']);
-    if ($record['mount'] != '' && $record['mount'] != '0')
-        $html .= $field_row('Monte', $record['mount']);
-    if ($record['valley'] != '' && $record['valley'] != '0')
-        $html .= $field_row('Valle', $record['valley']);
-    $html .= $field_row('Area carsica', $data['areaName']);
-    if ($mode === 'pdf') $html .= '</table>';
+    // ===== Identificazione =====
+    $rows = '';
+    $rows .= $field_row($t('caveslinks', 'Grotte collegate'), $data['linkedCaves']);
+    $rows .= $field_row('Altri numeri di catasto', $record['alias']);
+    $rows .= $field_row($t('firstreference', 'Primo censitore'), $record['firstreference']);
+    $html .= $section('Identificazione', $rows);
 
-    // Geologia
-    $html .= $section_title('Geologia');
-    if ($mode === 'pdf') $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-    $html .= $field_row('Formazione geologica', $data['geoValue']);
-    if (!empty($record['lithology']))
-        $html .= $field_row('Litologia', $record['lithology']);
-    if ($mode === 'pdf') $html .= '</table>';
+    // ===== Localizzazione =====
+    $rows = '';
+    $rows .= $field_row($t('regione', 'Regione'), $record['regione']);
+    $rows .= $field_row($t('provincia', 'Provincia'), $record['provincia']);
+    $rows .= $field_row($t('comune', 'Comune'), $record['comune']);
+    $rows .= $field_row($t('localita', 'Localit&agrave;'), $record['localita']);
+    $rows .= $field_row($t('mount', 'Monte'), $record['mount']);
+    $rows .= $field_row($t('velley', 'Valle'), $record['velley']);
+    $rows .= $field_row($t('areas', 'Area carsica'), $data['areaName']);
+    $html .= $section('Localizzazione', $rows);
 
-    // Coordinate
-    $html .= $section_title('Posizione ingresso');
-    if ($mode === 'pdf') $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-    $html .= $field_row('Tipo coordinate', $record['coordinates_type']);
-    $html .= $field_row('Carta', $record['map_denomination']);
-    if (!empty($record['map_edition']))
-        $html .= $field_row('Edizione', $record['map_edition']);
-    $html .= $field_row('Valutazione dato', $record['location_evaluation']);
-    $html .= $field_row('Longitudine', $record['longitude_txt']);
-    $html .= $field_row('Latitudine', $record['latitude_txt']);
-    $html .= $field_row('Quota altimetrica', $record['elevation']);
-    $html .= $field_row('Quota cartografica', $record['elevation_map']);
-    $html .= $field_row('Quota GPS', $record['elevation_gps']);
-    if ($mode === 'pdf') $html .= '</table>';
+    // ===== Posizione ingresso =====
+    $rows = '';
+    $rows .= $field_row($t('coordinates_type', 'Tipo di coordinate'), $record['coordinates_type']);
+    $rows .= $field_row($t('latitude_txt', 'Latitudine'), $record['latitude_txt']);
+    $rows .= $field_row($t('longitude_txt', 'Longitudine'), $record['longitude_txt']);
+    if ($data['hasCoords'])
+    {
+        $wgs = number_format($data['lat'], 5, '.', '') . ' N, ' . number_format($data['lon'], 5, '.', '') . ' E';
+        $rows .= $field_row('Coordinate WGS84 (calcolate)', $wgs);
+        if ($data['coordinate'] && !empty($data['coordinate']['x']))
+        {
+            $utm = $data['coordinate']['x'] . ' E, ' . $data['coordinate']['y'] . ' N';
+            if (!empty($data['coordinate']['zone']))
+                $utm .= ' (fuso ' . $data['coordinate']['zone'] . ')';
+            $rows .= $field_row('UTM WGS84 (calcolate)', $utm);
+        }
+    }
+    foreach (array('elevation', 'elevation_map', 'elevation_gps') as $f)
+    {
+        if (trim((string) $record[$f]) !== '' && trim((string) $record[$f]) !== '0')
+            $rows .= $field_row($t($f, $f), $record[$f] . ' m s.l.m.');
+    }
+    $rows .= $field_row($t('map_denomination', 'Denominazione carta'), $record['map_denomination']);
+    $rows .= $field_row($t('map_edition', 'Edizione carta'), $record['map_edition']);
+    $rows .= $field_row($t('location_evaluation', 'Valutazione dato'), $record['location_evaluation']);
+    // field check: "1"/"X" from the checkbox, the name of the curator in old records
+    $check = trim((string) $record['check']);
+    if ($check !== '')
+    {
+        $checkvalue = in_array(strtoupper($check), array('1', 'X', 'Y', 'S')) ? 'Sì' : 'Sì (' . $check . ')';
+        $rows .= $field_row($t('check', 'Posizione verificata sul campo'), $checkvalue);
+    }
+    $rows .= $field_row($t('check_date', 'Data ultima verifica sul campo'), pdf_format_date($record['check_date']));
+    $html .= $section('Posizione ingresso', $rows);
 
-    // Dimensioni
+    // ===== Dimensioni =====
     $html .= $section_title('Dimensioni');
-    if ($mode === 'pdf') {
-        $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">
-        <tr>
-            <td style="font-size:9px;color:#888888;padding:4px;text-align:center;width:33%;border:1px solid #dddddd;">Sviluppo reale<br><b style="font-size:13px;color:#000000;">' . ($record['lenght_total'] ?: '-') . '</b></td>
-            <td style="font-size:9px;color:#888888;padding:4px;text-align:center;width:33%;border:1px solid #dddddd;">Sviluppo planimetrico<br><b style="font-size:13px;color:#000000;">' . ($record['lenght_planimetric'] ?: '-') . '</b></td>
-            <td style="font-size:9px;color:#888888;padding:4px;text-align:center;width:34%;border:1px solid #dddddd;">Estensione<br><b style="font-size:13px;color:#000000;">' . ($record['lenght_extension'] ?: '-') . '</b></td>
-        </tr>
-        <tr>
-            <td style="font-size:9px;color:#888888;padding:4px;text-align:center;border:1px solid #dddddd;">Dislivello positivo (+)<br><b style="font-size:13px;color:#000000;">' . ($record['depth_positive'] ?: '-') . '</b></td>
-            <td style="font-size:9px;color:#888888;padding:4px;text-align:center;border:1px solid #dddddd;">Dislivello negativo (-)<br><b style="font-size:13px;color:#000000;">' . ($record['depth_negative'] ?: '-') . '</b></td>
-            <td style="font-size:9px;color:#888888;padding:4px;text-align:center;border:1px solid #dddddd;">Dislivello totale<br><b style="font-size:13px;color:#000000;">' . ($record['depth_total'] ?: '-') . '</b></td>
-        </tr></table>';
-    } else {
-        $html .= '<div class="dim-grid">
-            <div class="dim-cell"><div class="dim-label">Sviluppo reale</div><div class="dim-value">' . ($record['lenght_total'] ?: '-') . '</div></div>
-            <div class="dim-cell"><div class="dim-label">Sviluppo planimetrico</div><div class="dim-value">' . ($record['lenght_planimetric'] ?: '-') . '</div></div>
-            <div class="dim-cell"><div class="dim-label">Estensione</div><div class="dim-value">' . ($record['lenght_extension'] ?: '-') . '</div></div>
-            <div class="dim-cell"><div class="dim-label">Dislivello positivo (+)</div><div class="dim-value">' . ($record['depth_positive'] ?: '-') . '</div></div>
-            <div class="dim-cell"><div class="dim-label">Dislivello negativo (-)</div><div class="dim-value">' . ($record['depth_negative'] ?: '-') . '</div></div>
-            <div class="dim-cell"><div class="dim-label">Dislivello totale</div><div class="dim-value">' . ($record['depth_total'] ?: '-') . '</div></div>
-        </div>';
-    }
-
-    // Caratteristiche
-    $html .= $section_title('Caratteristiche');
-    if ($mode === 'pdf') $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-    $html .= $field_row('Idrologia', $record['hydrology']);
-    $html .= $field_row('Andamento', $record['trend']);
-    $html .= $field_row('Percorribilit&agrave;', $record['practicability']);
-    if (!empty($record['wells']))
-        $html .= $field_row('Sequenza pozzi', $record['wells']);
-    if ($mode === 'pdf') $html .= '</table>';
-
-    // Classificazioni
-    $strcens = $data['strcens'];
-    if ($strcens != '' || !empty($record['closed_notes'])) {
-        $html .= $section_title('Classificazioni');
-        if ($mode === 'pdf') {
-            $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-            if ($strcens != '') $html .= tpdf_field_row('Censimenti', $strcens);
-            if (!empty($record['closed_notes'])) $html .= tpdf_field_row('Note accesso', $record['closed_notes']);
-            $html .= '</table>';
-        } else {
-            if ($strcens != '') {
-                $html .= '<div class="badge-list">';
-                foreach (explode(", ", $strcens) as $b) $html .= '<span class="badge">' . $b . '</span>';
-                $html .= '</div>';
-            }
-            if (!empty($record['closed_notes']))
-                $html .= html_field_row('Note accesso', $record['closed_notes']);
-        }
-    }
-
-    // Testi lunghi
-    $textFields = array(
-        'notes' => 'Note',
-        'description' => 'Descrizione',
-        'itinerary' => 'Itinerario',
-        'associations' => 'Gruppi',
-        'fauna' => 'Fauna',
-        'chronology' => 'Cronologia catastale',
-        'history' => 'Storia',
-        'geology' => 'Geologia dettagliata',
-        'meteorology' => 'Meteorologia',
+    $dims = array(
+        'lenght_total' => 'Sviluppo reale',
+        'lenght_planimetric' => 'Sviluppo planimetrico',
+        'lenght_extension' => 'Estensione',
+        'depth_positive' => 'Dislivello positivo (+)',
+        'depth_negative' => 'Dislivello negativo (-)',
+        'depth_total' => 'Dislivello totale',
     );
-    foreach ($textFields as $field => $label) {
-        if (!empty($record[$field])) {
-            $html .= $section_title($label);
-            $html .= $text_block($record[$field]);
+    if ($mode === 'pdf')
+    {
+        $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;"><tr>';
+        $i = 0;
+        foreach ($dims as $f => $label)
+        {
+            $html .= '<td style="font-size:9px;color:#888888;padding:4px;text-align:center;width:33%;border:1px solid #dddddd;">' . $t($f, $label) . '<br><b style="font-size:13px;color:#000000;">' . fix_charset(pdf_meters($record[$f])) . '</b></td>';
+            if (++$i == 3)
+                $html .= '</tr><tr>';
         }
-        if ($field === 'fauna') {
+        $html .= '</tr></table>';
+    }
+    else
+    {
+        $html .= '<div class="dim-grid">';
+        foreach ($dims as $f => $label)
+            $html .= '<div class="dim-cell"><div class="dim-label">' . $t($f, $label) . '</div><div class="dim-value">' . fix_charset(pdf_meters($record[$f])) . '</div></div>';
+        $html .= '</div>';
+    }
+    $rows = '';
+    $rows .= $field_row($t('lenght_scope', 'Sviluppo riferito a'), pdf_option_label($frm, 'lenght_scope', $record['lenght_scope']));
+    $html .= $table_open . $rows . $table_close;
+
+    // ===== Geologia =====
+    $rows = '';
+    $rows .= $field_row($t('geologicalformation', 'Formazione geologica'), $data['geoValue']);
+    $rows .= $field_row($t('lithology', 'Litologia'), $record['lithology']);
+    $html .= $section('Geologia', $rows);
+
+    // ===== Caratteristiche =====
+    $rows = '';
+    $rows .= $field_row($t('hydrology', 'Idrologia'), pdf_option_label($frm, 'hydrology', $record['hydrology']));
+    $rows .= $field_row($t('meteorology', 'Meteorologia'), pdf_option_label($frm, 'meteorology', $record['meteorology']));
+    $rows .= $field_row($t('trend', 'Andamento'), $record['trend']);
+    $rows .= $field_row($t('practicability', 'Percorribilit&agrave;'), $record['practicability']);
+    $rows .= $field_row($t('wells', 'Sequenza pozzi'), $record['wells']);
+    $html .= $section('Caratteristiche', $rows);
+
+    // ===== Censimenti speciali (every flag, yes/no) =====
+    $html .= $section_title('Riferimenti a censimenti speciali');
+    if ($mode !== 'pdf' && $data['strcens'] != '')
+    {
+        $html .= '<div class="badge-list">';
+        foreach (explode(", ", $data['strcens']) as $b)
+            $html .= '<span class="badge">' . $b . '</span>';
+        $html .= '</div>';
+    }
+    $rows = '';
+    foreach (array('archeological', 'marine', 'lake', 'environmentalrisk', 'tourist', 'closed', 'destroyed') as $flag)
+    {
+        $label = pdf_flag_label($frm, $flag, isset($record[$flag]) ? $record[$flag] : '');
+        $rows .= $field_row($t($flag, $flag), ($label === '') ? 'non indicato' : $label);
+    }
+    $rows .= $field_row($t('closed_notes', 'Note accesso alla grotta'), $record['closed_notes']);
+    $html .= $table_open . $rows . $table_close;
+
+    // ===== Testi lunghi =====
+    $textFields = array(
+        'description' => array('Descrizione', 'authordescription'),
+        'itinerary' => array('Itinerario', 'authoritinerary'),
+        'fauna' => array('Fauna', 'authorfauna'),
+        'geology' => array('Geologia dettagliata', ''),
+        'history' => array('Storia', 'authorhistory'),
+        'associations' => array('Gruppi', ''),
+        'chronology' => array('Cronologia catastale', ''),
+        'notes' => array('Note', ''),
+        'changelog' => array('Note sulla versione della scheda', ''),
+    );
+    foreach ($textFields as $field => $def)
+    {
+        if (!empty($record[$field]))
+        {
+            $html .= $section_title($t($field, $def[0]));
+            $html .= $text_block($record[$field]);
+            if ($def[1] !== '' && !empty($record[$def[1]]))
+                $html .= pdf_author_line('Testi', $record[$def[1]], $mode);
+        }
+        if ($field === 'fauna')
+        {
             $html .= _build_fauna_html($data, $mode);
         }
     }
 
-    // Dati compilazione
-    $html .= $section_title('Dati compilazione');
-    if ($mode === 'pdf') $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-    $html .= $field_row('Primo censitore', $record['firstreference']);
-    if (!empty($record['check']) && $record['check'] == 'S')
-        $html .= $field_row('Posizione verificata', 'S&igrave;');
-    if (!empty($record['check_date']))
-        $html .= $field_row('Data verifica', $record['check_date']);
-    $html .= $field_row('Ultimo aggiornamento', $data['dataAggiornamento']);
-    if ($mode === 'pdf') $html .= '</table>';
+    // ===== Temperature =====
+    $html .= _build_temperatures_html($data, $mode);
 
-    // Bibliografia
+    // ===== Dati compilazione =====
+    $rows = '';
+    $rows .= $field_row($t('status', 'Stato dei dati'), pdf_option_label($frm, 'status', $record['status']));
+    $rows .= $field_row('Data inserimento', pdf_format_date($record['recordinsert']));
+    $rows .= $field_row('Ultimo aggiornamento', $data['dataAggiornamento']);
+    $html .= $section('Dati compilazione', $rows);
+
+    // ===== Bibliografia =====
     $bibliografia = $data['bibliografia'];
-    if ($bibliografia && count($bibliografia) > 0) {
+    if ($bibliografia && count($bibliografia) > 0)
+    {
         $html .= $section_title('Bibliografia');
-        foreach ($bibliografia as $bib) {
+        foreach ($bibliografia as $bib)
+        {
             $bibtext = '';
-            if (!empty($bib['authors'])) $bibtext .= '<b>' . fix_charset($bib['authors']) . '</b> - ';
+            if (!empty($bib['authors']))
+                $bibtext .= '<b>' . fix_charset($bib['authors']) . '</b> - ';
             $bibtext .= fix_charset($bib['title']);
-            if (!empty($bib['year'])) $bibtext .= ' (' . fix_charset($bib['year']) . ')';
-            if ($mode === 'pdf') {
+            if (!empty($bib['year']))
+                $bibtext .= ' (' . fix_charset($bib['year']) . ')';
+            if ($mode === 'pdf')
                 $html .= '<div style="padding:3px 10px;font-size:10px;border-bottom:1px solid #f0f0f0;">' . $bibtext . '</div>';
-            } else {
+            else
                 $html .= '<div class="bib-entry">' . $bibtext . '</div>';
-            }
         }
     }
 
@@ -552,18 +778,28 @@ function _build_fauna_html($data, $mode)
         return '';
     $section_title = ($mode === 'pdf') ? 'tpdf_section_title' : 'html_section_title';
     $html = $section_title('Rilevamenti faunistici (' . count($fauna) . ')');
+    $species = isset($data['faunaSpecies']) ? $data['faunaSpecies'] : array();
     if ($mode === 'pdf') {
         $th = 'font-size:9px;color:#0078a3;padding:2px 4px;border-bottom:1px solid #cccccc;text-align:left;';
         $td = 'style="font-size:9px;padding:2px 4px;border-bottom:1px solid #eeeeee;vertical-align:top;"';
         $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;">';
-        $html .= "<tr><td style=\"{$th}width:30%;\">Specie</td><td style=\"{$th}width:12%;\">Data</td><td style=\"{$th}width:14%;\">Esemplari</td><td style=\"{$th}width:20%;\">Rilevato da</td><td style=\"{$th}width:24%;\">Fonte</td></tr>";
+        $html .= "<tr><td style=\"{$th}width:28%;\">Specie</td><td style=\"{$th}width:12%;\">Categoria</td><td style=\"{$th}width:11%;\">Data</td><td style=\"{$th}width:9%;\">Esemplari</td><td style=\"{$th}width:18%;\">Rilevato da</td><td style=\"{$th}width:22%;\">Fonte</td></tr>";
     } else {
         $th = 'style="font-size:11px;color:#0078a3;padding:3px 6px;border-bottom:1px solid #ccc;text-align:left;"';
         $td = 'style="font-size:12px;padding:3px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top;"';
         $html .= '<table style="width:100%;border-collapse:collapse;margin-bottom:6px;">';
-        $html .= "<tr><th $th>Specie</th><th $th>Data</th><th $th>Esemplari</th><th $th>Rilevato da</th><th $th>Fonte</th></tr>";
+        $html .= "<tr><th $th>Specie</th><th $th>Categoria</th><th $th>Data</th><th $th>Esemplari</th><th $th>Rilevato da</th><th $th>Fonte</th></tr>";
     }
     foreach ($fauna as $item) {
+        // species sheet: common name under the scientific name, category (TROGLOBIO, ...)
+        $name = '<i>' . fix_charset(trim($item['scientific_name'])) . '</i>';
+        $category = '';
+        $key = function_exists('openkis_FaunaKey') ? openkis_FaunaKey($item['scientific_name']) : '';
+        if ($key !== '' && isset($species[$key])) {
+            if (trim((string) $species[$key]['name']) !== '')
+                $name .= '<br><span style="font-size:' . ($mode === 'pdf' ? '8px' : '11px') . ';color:#666666;">' . fix_charset($species[$key]['name']) . '</span>';
+            $category = ucfirst(strtolower(trim((string) $species[$key]['type'])));
+        }
         // dates are stored as Y-m-d H:i:s; a few old records use other formats: show them as they are
         $date = trim($item['date']);
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $date, $m)) {
@@ -576,10 +812,90 @@ function _build_fauna_html($data, $mode)
         } elseif (preg_match('/Fonte: ([^.\n]+)/', $item['description'], $m)) {
             $source = $m[1];
         }
-        $html .= '<tr><td ' . $td . '><i>' . fix_charset(trim($item['scientific_name'])) . '</i></td>'
+        $html .= '<tr><td ' . $td . '>' . $name . '</td>'
+                . '<td ' . $td . '>' . fix_charset($category) . '</td>'
                 . '<td ' . $td . '>' . fix_charset($date) . '</td>'
                 . '<td ' . $td . '>' . fix_charset($item['ammount']) . '</td>'
                 . '<td ' . $td . '>' . fix_charset($item['caver']) . '</td>'
+                . '<td ' . $td . '>' . fix_charset($source) . '</td></tr>';
+    }
+    $html .= '</table>';
+    return $html;
+}
+
+/**
+ * Table of the underground temperature measurements of the cave (section
+ * temperatures): date, type, medium, measurement point, reading, source
+ */
+function _build_temperatures_html($data, $mode)
+{
+    $records = isset($data['temperatures']) ? $data['temperatures'] : array();
+    if (!$records || count($records) == 0)
+        return '';
+    $section_title = ($mode === 'pdf') ? 'tpdf_section_title' : 'html_section_title';
+    $html = $section_title('Temperature sotterranee (' . count($records) . ')');
+    $cols = array('Data' => '13%', 'Tipo' => '11%', 'Mezzo' => '8%', 'Punto di misura' => '24%', 'Temperatura' => '20%', 'Fonte' => '24%');
+    if ($mode === 'pdf') {
+        $th = 'font-size:9px;color:#0078a3;padding:2px 4px;border-bottom:1px solid #cccccc;text-align:left;';
+        $td = 'style="font-size:9px;padding:2px 4px;border-bottom:1px solid #eeeeee;vertical-align:top;"';
+        $html .= '<table cellspacing="0" cellpadding="0" style="width:100%;"><tr>';
+        foreach ($cols as $label => $width)
+            $html .= "<td style=\"{$th}width:{$width};\">$label</td>";
+        $html .= '</tr>';
+    } else {
+        $th = 'style="font-size:11px;color:#0078a3;padding:3px 6px;border-bottom:1px solid #ccc;text-align:left;"';
+        $td = 'style="font-size:12px;padding:3px 6px;border-bottom:1px solid #f0f0f0;vertical-align:top;"';
+        $html .= '<table style="width:100%;border-collapse:collapse;margin-bottom:6px;"><tr>';
+        foreach ($cols as $label => $width)
+            $html .= "<th $th>$label</th>";
+        $html .= '</tr>';
+    }
+    $degrees = function ($value) {
+        $value = trim(str_replace(",", ".", (string) $value));
+        return is_numeric($value) ? str_replace(".", ",", $value) . ' °C' : '';
+    };
+    foreach ($records as $r) {
+        $monitoring = ($r['type'] == 'monitoring');
+        $type = $monitoring ? 'monitoraggio' : 'misura spot';
+        $media = array('air' => 'aria', 'water' => 'acqua', 'rock' => 'roccia');
+        $medium = isset($media[$r['medium']]) ? $media[$r['medium']] : 'aria';
+        // measurement point with its elevation and distance from the entrance
+        $point = trim((string) $r['position']);
+        $details = array();
+        if (trim((string) $r['measure_elevation']) !== '')
+            $details[] = 'quota ' . $r['measure_elevation'] . ' m';
+        if (trim((string) $r['entrance_distance']) !== '')
+            $details[] = $r['entrance_distance'] . ' m dall\'ingresso';
+        if (count($details))
+            $point .= ($point !== '' ? ' ' : '') . '(' . implode(', ', $details) . ')';
+        // reading: the spot value, or the statistics of the monitoring
+        if ($monitoring) {
+            $reading = ($degrees($r['t_mean']) !== '') ? 'media ' . $degrees($r['t_mean']) : '';
+            $range = array();
+            if ($degrees($r['t_min']) !== '') $range[] = 'min ' . $degrees($r['t_min']);
+            if ($degrees($r['t_max']) !== '') $range[] = 'max ' . $degrees($r['t_max']);
+            if (count($range))
+                $reading .= ($reading !== '' ? ' ' : '') . '(' . implode(', ', $range) . ')';
+            if (!empty($r['samples']))
+                $reading .= ($reading !== '' ? ', ' : '') . intval($r['samples']) . ' letture';
+        } else {
+            $reading = $degrees($r['temperature']);
+            if ($degrees($r['temperature_external']) !== '')
+                $reading .= ($reading !== '' ? ', ' : '') . 'esterna ' . $degrees($r['temperature_external']);
+        }
+        // source: data holder, or the citation shortened to "Authors, year"
+        $source = trim((string) $r['data_holder']);
+        $bib = trim((string) $r['bibliography']);
+        if ($bib !== '') {
+            if (preg_match('/^(.*?\d{4})/', $bib, $m))
+                $bib = $m[1];
+            $source .= ($source !== '' ? '; ' : '') . $bib;
+        }
+        $html .= '<tr><td ' . $td . '>' . fix_charset(openkis_TemperatureDateLabel($r)) . '</td>'
+                . '<td ' . $td . '>' . $type . '</td>'
+                . '<td ' . $td . '>' . $medium . '</td>'
+                . '<td ' . $td . '>' . fix_charset($point) . '</td>'
+                . '<td ' . $td . '><b>' . fix_charset($reading) . '</b></td>'
                 . '<td ' . $td . '>' . fix_charset($source) . '</td></tr>';
     }
     $html .= '</table>';
@@ -703,7 +1019,7 @@ function _build_static_map($data)
 
     // Pagina dedicata per la mappa
     $html = '<page orientation="portrait" format="A4">';
-    $html .= '<div style="margin:10px 20px;font-size:12px;font-weight:bold;border-bottom:1px solid #cccccc;padding-bottom:4px;">' . $mapTitle . ': ' . fix_charset($record['name']) . ' - LI ' . fix_charset($record['code']) . '</div>';
+    $html .= '<div style="margin:10px 20px;font-size:12px;font-weight:bold;border-bottom:1px solid #cccccc;padding-bottom:4px;">' . $mapTitle . ': ' . fix_charset($record['name']) . ' - ' . fix_charset($data['code']) . '</div>';
     if (file_exists($cachefile) && @getimagesize($cachefile)) {
         $html .= '<div style="text-align:center;margin:5px;">';
         $html .= '<img src="' . $cachefile . '" width="540" height="729" />';
@@ -785,8 +1101,10 @@ function _build_surveys_html($data, $mode)
             }
             $html .= '</page>';
         } else {
-            // Per HTML browser
-            $fileurl = "{$_FN['siteurl']}/{$filename}";
+            // Per HTML browser: same address as the web sheet (token endpoint when the files are protected)
+            $fileurl = FN_XMDBTable("ctl_surveys")->get_file($rilievo, 'photo1');
+            if (!$fileurl)
+                $fileurl = "{$_FN['siteurl']}/{$filename}";
             $html .= '<div class="survey-item">';
             if (!empty($rilievo['name']))
                 $html .= '<div style="font-weight:bold;font-size:14px;margin-bottom:6px;color:#333333;">' . fix_charset($rilievo['name']) . '</div>';
