@@ -24,6 +24,8 @@ var OKIS_VERSION = new URL(self.location.href).searchParams.get('v') || '0';
 importScripts('openkis_offline.js?v=' + encodeURIComponent(OKIS_VERSION));
 
 var SCOPE = self.registration.scope;
+// the caches of this site (okis-<name>:<path>), not shared with the other sites of the origin
+OKIS.setScope(SCOPE);
 var C = OKIS.CACHES;
 // a slow network gives the kept copy after this time (the page keeps loading behind)
 var NAV_TIMEOUT = 12000;
@@ -47,13 +49,15 @@ self.addEventListener('install', function () {
 });
 
 self.addEventListener('activate', function (event) {
-    // caches of older versions of this worker (any okis-* name not in use)
+    // caches of this site left by older versions of this worker (the caches of the other
+    // sites of the origin, and the ones shared before 2026-11-05, which the pages empty
+    // with OKIS.migrateLegacy(), are left alone)
     var used = Object.keys(C).map(function (k) {
         return C[k];
     });
     extend(event, caches.keys().then(function (names) {
         return Promise.all(names.filter(function (n) {
-            return n.indexOf('okis-') === 0 && used.indexOf(n) < 0;
+            return OKIS.isOwnCache(n) && used.indexOf(n) < 0;
         }).map(function (n) {
             return caches.delete(n);
         }));
@@ -170,17 +174,23 @@ function keep(cacheName, key, resp) {
         }
     }).catch(function () {});
 }
-/** the first of some caches holding the key */
+/**
+ * The first of some caches holding the key; then the same caches with the names shared
+ * before 2026-11-05, until the pages have moved their entries (OKIS.migrateLegacy()):
+ * caches.match with cacheName does not create a cache that is not there.
+ */
 function lookup(names, key) {
+    var legacy = names.map(OKIS.legacyName).filter(Boolean);
     var i = 0;
     var next = function () {
-        if (i >= names.length) {
+        if (i >= names.length + legacy.length) {
             return Promise.resolve(null);
         }
-        var name = names[i++];
-        return caches.open(name).then(function (c) {
+        var n = i++;
+        var found = n < names.length ? caches.open(names[n]).then(function (c) {
             return c.match(key);
-        }).then(function (r) {
+        }) : caches.match(key, {cacheName: legacy[n - names.length]});
+        return found.then(function (r) {
             return r || next();
         });
     };

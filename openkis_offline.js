@@ -6,7 +6,11 @@
  * extra/openkis/openkis_offline.inc.php, openkis_offline.php;
  * plan: docs/piano_offline_webapp_2026-11-03.md.
  *
- * Caches (Cache Storage, all named okis-*):
+ * Caches (Cache Storage, named okis-<name>:<path of the site>, e.g. okis-core:/liguria/):
+ * every site of the same origin (www.catastogrotte.net/liguria/, /piemonte/) has its own,
+ * so that removing the offline copy, the limits and the clean-up of a site leave the
+ * others alone. Before 2026-11-05 the names had no path and were shared by every site:
+ * OKIS.migrateLegacy() moves the entries of a site out of those.
  *  okis-core     home, offline page, map pages, theme shells (fnshell=1), record indexes,
  *                metadata of the downloads (okis-meta/*.json)
  *  okis-pages    sheets downloaded from the offline page, as fragments (fnajax=1)
@@ -23,11 +27,85 @@
     'use strict';
     var OKIS = root.OKIS = root.OKIS || {};
 
-    OKIS.CACHES = {
+    // names before 2026-11-05, shared by every site of the origin
+    OKIS.LEGACY_CACHES = {
         core: 'okis-core', pages: 'okis-pages', visited: 'okis-visited', static: 'okis-static',
         data: 'okis-data', media: 'okis-media', images: 'okis-images', tiles: 'okis-tiles'
     };
+    // names of this site, set by OKIS.setScope() (the object is changed in place: the
+    // worker keeps a reference to it)
+    OKIS.CACHES = {};
+    OKIS.SCOPE = '';
     OKIS.LIMITS = {visited: 400, static: 1500, data: 200, media: 2000, tiles: 4000};
+
+    /**
+     * Gives the caches the names of a site (see above).
+     * @param {string} scope address or path of the scope of the worker, e.g. /liguria/
+     */
+    OKIS.setScope = function (scope) {
+        var path = new URL(scope || '/', root.location ? root.location.href : undefined).pathname;
+        OKIS.SCOPE = path;
+        Object.keys(OKIS.LEGACY_CACHES).forEach(function (k) {
+            OKIS.CACHES[k] = OKIS.LEGACY_CACHES[k] + ':' + path;
+        });
+    };
+    OKIS.setScope('/');
+    /** @returns {boolean} a cache of this site, of any version of this code */
+    OKIS.isOwnCache = function (name) {
+        var suffix = ':' + OKIS.SCOPE;
+        return name.indexOf('okis-') === 0 && name.length > suffix.length && name.slice(-suffix.length) === suffix;
+    };
+    /** @returns {string|null} the shared name (before 2026-11-05) of a cache of this site */
+    OKIS.legacyName = function (name) {
+        var k = Object.keys(OKIS.CACHES).filter(function (key) {
+            return OKIS.CACHES[key] === name;
+        })[0];
+        return k ? OKIS.LEGACY_CACHES[k] : null;
+    };
+    /**
+     * Moves the entries of this site out of the caches shared by every site before
+     * 2026-11-05: the copies of this site go to its own caches (or are dropped, with drop),
+     * the copies from other origins (map tiles, CDN) are copied and left for the other
+     * sites; a shared cache with nothing of this origin left is deleted. Safe to run more
+     * than once and from more pages at the same time.
+     * @param {boolean} [drop] remove the entries of this site instead of moving them
+     */
+    OKIS.migrateLegacy = async function (drop) {
+        var origin = root.location.origin;
+        var prefix = origin + OKIS.SCOPE;
+        var kinds = Object.keys(OKIS.LEGACY_CACHES);
+        for (var i = 0; i < kinds.length; i++) {
+            var name = OKIS.LEGACY_CACHES[kinds[i]];
+            if (!(await caches.has(name))) {
+                continue;
+            }
+            var legacy = await caches.open(name);
+            var own = drop ? null : await caches.open(OKIS.CACHES[kinds[i]]);
+            var keys = await legacy.keys();
+            var others = 0;
+            for (var j = 0; j < keys.length; j++) {
+                var url = keys[j].url;
+                var mine = url.indexOf(prefix) === 0;
+                var foreign = url.indexOf(origin + '/') !== 0;
+                if (!mine && !foreign) {
+                    others++; // another site of this origin: it moves its entries by itself
+                    continue;
+                }
+                if (own) {
+                    var resp = await legacy.match(keys[j], {ignoreVary: true});
+                    if (resp) {
+                        await own.put(keys[j], resp);
+                    }
+                }
+                if (mine) {
+                    await legacy.delete(keys[j]);
+                }
+            }
+            if (!others) {
+                await caches.delete(name);
+            }
+        }
+    };
     // parameters of the map exports that only move the map view: not part of the cache key
     OKIS.MAP_VIEW_PARAMS = ['lat', 'lon', 'zoom', 'point', 'baselayer', 'history', 'layers', 'table', 'num', 'nocache', 'fnajax'];
 
@@ -183,6 +261,7 @@
     if (!cfg) {
         return;
     }
+    OKIS.setScope(cfg.scope);
     var T = function (key) {
         return (cfg.texts && cfg.texts[key]) || key;
     };
@@ -196,18 +275,18 @@
                 || (root.matchMedia && root.matchMedia('(display-mode: fullscreen)').matches);
     };
 
-    // turned off by the administrator: the worker and its caches leave this browser (the
-    // worker keeps answering this page until it is closed: the caches are dropped again
-    // when the page has loaded)
+    // turned off by the administrator: the worker and the caches of this site leave this
+    // browser (the worker keeps answering this page until it is closed: the caches are
+    // dropped again when the page has loaded); the other sites of the origin keep theirs
     if (!cfg.enabled) {
         if (supported) {
             var dropCaches = function () {
                 return caches.keys().then(function (names) {
-                    return Promise.all(names.filter(function (n) {
-                        return n.indexOf('okis-') === 0;
-                    }).map(function (n) {
+                    return Promise.all(names.filter(OKIS.isOwnCache).map(function (n) {
                         return caches.delete(n);
                     }));
+                }).then(function () {
+                    return OKIS.migrateLegacy(true);
                 }).catch(function () {});
             };
             navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -651,14 +730,15 @@
         }
         await (await caches.open(OKIS.CACHES.core)).delete(sectionMetaKey(section.mod));
     };
-    /** removes every offline copy of the site from this browser */
+    /** removes every offline copy of this site from this browser (not of the other sites) */
     OKIS.removeAll = async function () {
         var names = await caches.keys();
         for (var i = 0; i < names.length; i++) {
-            if (names[i].indexOf('okis-') === 0) {
+            if (OKIS.isOwnCache(names[i])) {
                 await caches.delete(names[i]);
             }
         }
+        await OKIS.migrateLegacy(true);
     };
     /**
      * Brings the downloaded sections up to date (new and changed sheets only).
@@ -881,7 +961,13 @@
         badge();
         root.addEventListener('online', badge);
         root.addEventListener('offline', badge);
-        register().then(function () {
+        // the entries of this site still in the caches shared before 2026-11-05 move to
+        // its own caches, after the new worker has taken over (in the page: in the worker
+        // it would hold up the pages; the worker reads the old caches meanwhile)
+        OKIS.migration = register().then(function () {
+            return supported ? OKIS.migrateLegacy() : null;
+        }).catch(function () {});
+        OKIS.migration.then(function () {
             // the installed application keeps the core ready and the downloads up to date
             if (supported && OKIS.isApp() && navigator.onLine && !document.getElementById('okis-offline-app')) {
                 return OKIS.coreMeta().then(function (meta) {
@@ -932,6 +1018,9 @@
         };
 
         //---- status and sections --------------------------------------------
+        if (OKIS.migration) {
+            await OKIS.migration;
+        }
         var core = await OKIS.coreMeta();
         var busy = false;
         var renderStatus = async function () {
@@ -1199,12 +1288,27 @@
         await renderStatus();
         if (navigator.onLine && (!core || core.version !== cfg.version || (Date.now() - core.time) > 24 * 3600 * 1000)) {
             $('okis-status').textContent = '…';
+            busy = true;
+            // first visit: the sections at once (a short answer of the server), the
+            // downloads wait for the core, which takes a while (map pages, indexes)
+            if (!core || !core.info) {
+                try {
+                    core = {info: await getJson(cfg.info)};
+                    renderSelect();
+                    await renderSections();
+                    document.querySelectorAll('#okis-sections button').forEach(function (b) {
+                        b.disabled = true;
+                    });
+                } catch (e) {
+                }
+            }
             try {
-                core = await OKIS.prepareCore(true, function (done, total) {
+                core = (await OKIS.prepareCore(true, function (done, total) {
                     $('okis-status').textContent = T('map and search') + ' ' + done + '/' + total;
-                });
+                })) || core;
             } catch (e) {
             }
+            busy = false;
             renderSelect();
             await renderSections();
             await renderStatus();

@@ -284,6 +284,35 @@ Ancora aperto:
   "piaggia" sul Piemonte (230 risultati) mostra prima i tracciamenti "... → Carsena di Piaggia Bella" e solo dopo la grotta;
   meglio ordinare per sezione (grotte prima) a parità di punteggio.
 
+## 05/11/2026: cache separate per sito (Liguria e Piemonte sullo stesso dominio)
+
+Segnalazione: su `www.catastogrotte.net/piemonte/offline.html` la combo delle sezioni era vuota;
+installata la Liguria, il Piemonte non si installa (e viceversa).
+
+- **Cache in comune.** Le cache avevano gli stessi nomi (`okis-core`, `okis-pages`, ...) per tutti i
+  siti dell'origine: "Rimuovi tutto" e la disattivazione di un sito cancellavano anche i dati
+  offline dell'altro, i limiti (`LIMITS`) contavano le voci di entrambi, la pagina offline di
+  ripiego del worker poteva essere quella dell'altro sito. Ora i nomi sono
+  `okis-<nome>:<percorso del sito>` (`OKIS.setScope()`, es. `okis-core:/liguria/`); pulizia del
+  worker, "Rimuovi tutto" e disattivazione toccano solo le cache del proprio sito.
+  `OKIS.migrateLegacy()` (nelle pagine, dopo la registrazione del worker) sposta le voci del sito
+  dalle vecchie cache comuni alle sue e cancella una cache comune quando non contiene più voci
+  dell'origine; nel frattempo `lookup()` del worker legge anche le vecchie cache. Provato in
+  locale (Piemonte con il codice vecchio + Liguria nuova) e in produzione: download conservati,
+  nessuna cache comune rimasta, "Rimuovi tutto" su un sito non tocca l'altro, offline ok.
+  **Vincolo:** il codice va caricato insieme su tutti i siti dell'origine che hanno il worker
+  (oggi `liguria/` e `piemonte/`): un worker vecchio, aggiornandosi, cancella le cache `okis-*`
+  che non conosce.
+- **Combo vuota alla prima visita.** Sezioni e combo nascevano solo a fine `prepareCore` (48 passi,
+  mappe aperte in frame nascosti): ora la pagina chiede subito `op=info` e le mostra, con i
+  pulsanti "Scarica" disattivati fino alla fine della preparazione.
+- **Installazione.** I manifest hanno `scope`/`start_url` distinti, ma Chrome sconsiglia più PWA
+  sulla stessa origine (web.dev, "Build multiple PWAs on the same domain") e su Android propone di
+  aprire l'app già installata invece di installarne un'altra: per avere entrambe le app serve
+  un'origine per sito (sottodominio, es. `piemonte.catastogrotte.net`). `siteurl` è ricavato da
+  `HTTP_HOST`, quindi il codice non cambia; servono record DNS, sottodominio su Aruba sulla stessa
+  cartella, certificato HTTPS e redirect dal vecchio indirizzo.
+
 ## TODO successivo: app parallela con dati in IndexedDB
 
 In un secondo momento, separata da questo piano: un'applicazione **parallela al sito, con un
