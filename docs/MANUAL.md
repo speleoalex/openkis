@@ -447,6 +447,16 @@ edit form, history (where enabled) and exports.
 
 ![Cave fauna](manual/en/27_fauna.png)
 
+**Names no longer valid.** The name of a survey always stays the one of its source (historical
+card, publication). The validity of the name is set on the species sheet, group *Name status*:
+*Name status* (empty = not checked, valid, synonym, historical combination, ambiguous synonym,
+nomen dubium), *Valid name* (only when the synonymy is certain), *Taxonomic source* and *Notes on
+the name*. For a name that is not valid the sheet shows a notice and a badge; the fauna map, the
+"observed in" card and the cave fauna show the surveys under the valid name, with "cited as …".
+Without a valid name (an ambiguous synonym, referred to several species, such as *Trogulus
+rostratus*) the surveys go under the genus (*Trogulus sp.*) until the identification is checked
+on the specimens. The sheet of the valid name, or of the genus, lists the names it groups.
+
 ![Caving clubs](manual/en/28_associations.png)
 
 ---

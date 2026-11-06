@@ -103,6 +103,49 @@
         <frm_endgroup>tassonomia</frm_endgroup>		
     </field>
     <field>
+        <name>taxon_status</name>
+        <frm_group>name status</frm_group>
+        <frm_group_it>Validità del nome</frm_group_it>
+        <frm_it>Stato del nome</frm_it>
+        <frm_en>Name status</frm_en>
+        <type>string</type>
+        <frm_type>select</frm_type>
+        <frm_options>valid,synonym,combination,ambiguous,dubium</frm_options>
+        <frm_options_it>valido,sinonimo,combinazione storica,sinonimo ambiguo (riferito a più specie),nomen dubium</frm_options_it>
+        <frm_options_en>valid,synonym,historical combination,ambiguous synonym (referred to several species),nomen dubium</frm_options_en>
+        <frm_help_it>Stato tassonomico attuale del nome scientifico. Vuoto = non ancora verificato. Il nome dei rilevamenti non cambia mai (resta quello della fonte): per un sinonimo o una combinazione storica indicare il nome valido; per un sinonimo ambiguo o un nomen dubium lasciare vuoto il nome valido, la mappa della fauna raggruppa le segnalazioni a livello di genere (Genere sp.).</frm_help_it>
+        <frm_help_en>Current taxonomic status of the scientific name. Empty = not checked yet. The name of the sightings never changes (it stays as in the source): for a synonym or a historical combination give the valid name; for an ambiguous synonym or a nomen dubium leave the valid name empty, the fauna map groups the sightings at genus level (Genus sp.).</frm_help_en>
+    </field>
+    <field>
+        <name>accepted_name</name>
+        <frm_it>Nome valido</frm_it>
+        <frm_en>Valid name</frm_en>
+        <type>string</type>
+        <frm_type>stringselect</frm_type>
+        <foreignkey>ctl_fauna</foreignkey>
+        <fk_link_field>scientific_name</fk_link_field>
+        <fk_show_field>scientific_name</fk_show_field>
+        <frm_help_it>Nome scientifico attualmente valido a cui il nome è riferito, solo quando la sinonimia è certa. Le segnalazioni con questo nome vengono mostrate sotto il nome valido nella mappa e nella sua scheda.</frm_help_it>
+        <frm_help_en>Currently valid scientific name the name refers to, only when the synonymy is certain. The sightings with this name are shown under the valid name on the map and on its sheet.</frm_help_en>
+    </field>
+    <field>
+        <name>taxon_source</name>
+        <frm_it>Fonte tassonomica</frm_it>
+        <frm_en>Taxonomic source</frm_en>
+        <type>string</type>
+        <frm_help_it>Catalogo o revisione che stabilisce lo stato del nome (es. World Catalogue of Opiliones, Checklist della fauna italiana, autore e anno della revisione).</frm_help_it>
+        <frm_help_en>Catalogue or revision that sets the status of the name (e.g. World Catalogue of Opiliones, Checklist of the Italian fauna, author and year of the revision).</frm_help_en>
+    </field>
+    <field>
+        <name>taxon_note</name>
+        <frm_it>Note sul nome</frm_it>
+        <frm_en>Notes on the name</frm_en>
+        <type>text</type>
+        <frm_cols>auto</frm_cols>
+        <frm_rows>auto</frm_rows>
+        <frm_endgroup>name status</frm_endgroup>
+    </field>
+    <field>
         <name>description</name>
         <frm_cols>auto</frm_cols>
         <frm_rows>auto</frm_rows>

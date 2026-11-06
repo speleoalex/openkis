@@ -17,9 +17,21 @@ $species_field = openkis_FaunaSpeciesField();
 $species_name = ($species_field !== "" && isset($row[$species_field])) ? trim($row[$species_field]) : "";
 if ($species_name !== "")
 {
-    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array($species_name), "id,scientific_name,name,type");
+    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array($species_name), openkis_FaunaSpeciesFields("id,scientific_name,name,type"));
     if (count($species))
         $GLOBALS['openkis_sighting']['species'] = reset($species);
+    // name no longer valid: valid name (or genus) and its sheet, for the title of the sheet
+    $GLOBALS['openkis_sighting']['resolved'] = openkis_FaunaResolve($GLOBALS['openkis_sighting']['species'], $species_name);
+    $GLOBALS['openkis_sighting']['resolved_id'] = 0;
+    if ($GLOBALS['openkis_sighting']['resolved']['moved'])
+    {
+        $valid = openkis_FaunaRecordsByField("fauna", "scientific_name", array($GLOBALS['openkis_sighting']['resolved']['name']), "id,scientific_name");
+        if (count($valid))
+        {
+            $valid = reset($valid);
+            $GLOBALS['openkis_sighting']['resolved_id'] = $valid['id'];
+        }
+    }
 }
 //---- cave or artificial cavity of the sighting: map and coordinates ---------->
 foreach (array("caves" => "codecave", "artificials" => "codeartificial") as $place_mod => $place_field)

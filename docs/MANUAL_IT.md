@@ -453,6 +453,17 @@ categorie, scheda, modulo di modifica, storico (dove attivato) ed esportazioni.
 
 ![Fauna cavernicola](manual/it/27_fauna.png)
 
+**Nomi non più validi.** Il nome di un rilevamento resta sempre quello della fonte (scheda
+storica, pubblicazione). La validità del nome si indica nella scheda della specie, gruppo
+*Validità del nome*: *Stato del nome* (vuoto = non verificato, valido, sinonimo, combinazione
+storica, sinonimo ambiguo, nomen dubium), *Nome valido* (solo quando la sinonimia è certa),
+*Fonte tassonomica* e *Note sul nome*. Per un nome non valido la scheda mostra un avviso e un
+badge; la mappa della fauna, la card «osservata in» e la fauna della grotta mostrano i
+rilevamenti sotto il nome valido, con «citato come …». Se il nome valido manca (un sinonimo
+ambiguo, riferito a più specie, come *Trogulus rostratus*) i rilevamenti vanno sotto il genere
+(*Trogulus sp.*), finché l'identificazione non viene rivista sugli esemplari. La scheda del nome
+valido, o del genere, elenca i nomi che raggruppa.
+
 ![Gruppi speleologici](manual/it/28_associations.png)
 
 ---

@@ -9,7 +9,9 @@
  *
  * Parameters (all optional):
  *   cave      only this cave (code)
- *   species   only the places where this species (scientific name) was observed
+ *   species   only the places where this species (scientific name) was observed,
+ *             also under the names no longer valid grouped under it (synonyms;
+ *             for "Genus sp." the ambiguous names of the genus)
  *   category  only the places with a species of this category (key of
  *             openkis_FaunaCategories())
  *   class     only the places with a species of this class (key of
@@ -43,7 +45,8 @@ if (file_exists("sections/fauna_surveys") && FN_UserCanViewSection("fauna_survey
     }
     if ($species_name !== "" && $field !== "")
     {
-        $where[] = "$field LIKE '" . addslashes($species_name) . "'";
+        // also the names grouped under this one (synonyms, ambiguous names of a genus)
+        $where[] = openkis_FaunaNamesWhere($field, openkis_FaunaNamesOf($species_name));
     }
     $filter = array(
         "category" => isset($categories[$category]) ? $category : "",
@@ -77,6 +80,16 @@ foreach ($places as $key => $place)
         if ($sp['common'] !== "")
         {
             $name .= " <small>" . htmlspecialchars($sp['common']) . "</small>";
+        }
+        // names no longer valid grouped under this one (openkis_FaunaResolve())
+        if (!empty($sp['cited']))
+        {
+            $cited = array();
+            foreach ($sp['cited'] as $c)
+            {
+                $cited[] = "<i>" . htmlspecialchars($c) . "</i>";
+            }
+            $name .= "<br /><small class=\"text-muted\">" . FN_Translate("cited as", "aa") . " " . implode(", ", $cited) . "</small>";
         }
         $dot = "<span class=\"openkis-fauna-dot\" data-category=\"" . htmlspecialchars($sp['category']) . "\" data-class=\"" . htmlspecialchars($sp['classkey']) . "\"></span>";
         $when = $sp['last'] !== "" ? date("d/m/Y", strtotime($sp['last'])) : "";

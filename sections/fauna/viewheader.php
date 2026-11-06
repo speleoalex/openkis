@@ -12,6 +12,7 @@
  */
 global $_FN;
 require_once "extra/openkis/openkis_sheet.inc.php";
+require_once "extra/openkis/openkis_fauna.inc.php";
 
 $frm = FN_XMDBForm($Table->tablename);
 $values = $frm->GetRecordTranslatedByPrimarykey($id_record);
@@ -23,12 +24,14 @@ if (!is_array($values))
 //---- card definition --------------------------------------------------------->
 $openkis_cards = array(
     "taxonomy" => array("phylum", "class", "order", "family", "genus", "sinon"),
+    // validity of the name (taxon_status, accepted_name...): only where the table has these fields
+    "name status" => array("taxon_status", "accepted_name", "taxon_source", "taxon_note"),
     "description" => array("description"),
     "sheet data" => array("username", "recordinsert", "userupdate", "recordupdate"),
 );
 // "author" (author of the species name, where the table has it) goes in the title
 $openkis_cards_exclude = array("id", "scientific_name", "author", "name", "type", "groupview", "groupinsert");
-$openkis_cards_longtext = array("description");
+$openkis_cards_longtext = array("description", "taxon_note");
 $openkis_cards_author = array();
 // the table titles the synonyms "name"
 $openkis_cards_titles = array("sinon" => FN_Translate("synonyms"));
@@ -61,7 +64,53 @@ if (!empty($row['type']))
     $badges .= "<span class=\"badge badge-info\">" . htmlspecialchars(ucfirst(strtolower(strip_tags($values['type'])))) . "</span> ";
 }
 
+//---- name no longer valid: badge and notice under the title, names grouped here ->
+$notice = "";
+if (openkis_FaunaHasStatus() && isset($row['scientific_name']) && trim($row['scientific_name']) !== "")
+{
+    $statuses = openkis_FaunaStatuses();
+    $resolved = openkis_FaunaResolve($row, $row['scientific_name']);
+    if (isset($statuses[$resolved['status']]) && $resolved['status'] !== "valid")
+    {
+        $badges .= "<span class=\"badge badge-warning bg-warning text-dark\">" . htmlspecialchars(openkis_SheetUcfirst($statuses[$resolved['status']])) . "</span> ";
+        if ($resolved['moved'])
+        {
+            $link = "<i>" . htmlspecialchars($resolved['name']) . "</i>";
+            $target = openkis_FaunaRecordsByField("fauna", "scientific_name", array($resolved['name']), "id,scientific_name");
+            if (count($target))
+            {
+                $t = reset($target);
+                $link = "<a href=\"" . FN_RewriteLink("index.php?mod=fauna&op=view&id={$t['id']}") . "\">$link</a>";
+            }
+            if (trim((string) $row['accepted_name']) !== "")
+                $text = FN_Translate("this name is no longer valid; valid name") . ": $link.";
+            else
+                $text = FN_Translate("this name is not valid and cannot be referred to a single species: the identification should be checked on the specimens") . ". "
+                    . FN_Translate("its sightings are grouped as") . " $link.";
+            $text .= " " . FN_Translate("the sightings keep the name cited by their source") . ".";
+            $notice .= "<div class=\"alert alert-warning openkis-fauna-status\" role=\"note\">$text</div>";
+        }
+    }
+    // names no longer valid whose sightings are shown on this sheet
+    $grouped = openkis_FaunaNamesOf($row['scientific_name']);
+    array_shift($grouped);
+    if (count($grouped))
+    {
+        $sheets = openkis_FaunaNotValidSheets();
+        $links = array();
+        foreach ($grouped as $n)
+        {
+            $sheet = $sheets[openkis_FaunaKey($n)];
+            $links[] = "<a href=\"" . FN_RewriteLink("index.php?mod=fauna&op=view&id={$sheet['id']}") . "\"><i>" . htmlspecialchars($n) . "</i></a>"
+                . (isset($statuses[$sheet['taxon_status']]) ? " <small class=\"text-muted\">(" . htmlspecialchars($statuses[$sheet['taxon_status']]) . ")</small>" : "");
+        }
+        $notice .= "<div class=\"alert alert-info openkis-fauna-grouped\" role=\"note\">" . FN_Translate("this sheet also includes the sightings cited as") . ": " . implode(", ", $links) . ".</div>";
+    }
+}
+//---- name status -------------------------------------------------------------<
+
 openkis_SheetRender($frm, $values, array(
+    "notice" => $notice,
     "title" => $title,
     "place" => implode(" &middot; ", $place),
     "badges" => $badges,

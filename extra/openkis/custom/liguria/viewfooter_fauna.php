@@ -47,7 +47,10 @@ if (FN_UserCanViewSection("fauna_surveys") || ($_FN['user'] != "" && FN_UserInGr
 {
     $surveys_config = FN_LoadConfig("modules/dbview/config.php", "fauna_surveys");
     $surveys_editors = $surveys_config['groupinsert'] . "," . $surveys_config['groupadmin'];
-    $records = FN_XMETADBQuery("SELECT codecave,codeartificial,groupview FROM ctl_faunacave WHERE scientific_name LIKE \"$name_sql\"");
+    // also the sightings recorded with the names grouped under this one (synonyms, ambiguous names of a genus)
+    require_once "extra/openkis/openkis_fauna.inc.php";
+    $names_where = openkis_FaunaNamesWhere("scientific_name", openkis_FaunaNamesOf($scientific_name));
+    $records = FN_XMETADBQuery("SELECT codecave,codeartificial,groupview FROM ctl_faunacave WHERE $names_where");
     $count_caves = array();
     $count_artificials = array();
     if (is_array($records))

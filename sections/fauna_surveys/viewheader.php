@@ -57,6 +57,16 @@ if (!empty($sighting['species']))
         // the ecological categories are stored in Italian upper case (TROGLOBIO, STIGOFILO, ...)
         $badges .= "<span class=\"badge badge-info\">" . htmlspecialchars(ucfirst(strtolower($sp['type']))) . "</span> ";
     }
+    // name no longer valid (taxon_status of the species sheet): badge and valid name or genus
+    $statuses = openkis_FaunaStatuses();
+    if (!empty($sp['taxon_status']) && $sp['taxon_status'] !== "valid" && isset($statuses[$sp['taxon_status']]))
+    {
+        $badges .= "<span class=\"badge badge-warning bg-warning text-dark\">" . htmlspecialchars(openkis_SheetUcfirst($statuses[$sp['taxon_status']])) . "</span> ";
+    }
+    if (!empty($sighting['resolved']['moved']))
+    {
+        $place[] = openkis_FaunaResolvedNote($sighting['resolved'], $sighting['resolved_id']);
+    }
 }
 if (!empty($sighting['place']))
 {

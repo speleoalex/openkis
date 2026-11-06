@@ -606,7 +606,7 @@ function openkis_SheetPhotoCard($frm, $values, $photos, $title)
  * @param array $values translated record
  * @param array $sheet
  *   "title" html of the name, "place" html under the name, "badges" html next
- *   to the name, "icon" url of the icon;
+ *   to the name, "icon" url of the icon, "notice" html printed under the title block;
  *   "cards" card title => field names; "exclude" fields never shown in a card;
  *   "longtext" fields shown as blocks; "author" fields shown as credit lines;
  *   "titles" field => title replacing the one of the table;
@@ -614,7 +614,7 @@ function openkis_SheetPhotoCard($frm, $values, $photos, $title)
  */
 function openkis_SheetRender($frm, $values, $sheet)
 {
-    $sheet = array_merge(array("title" => "", "place" => "", "badges" => "", "icon" => "", "cards" => array(), "exclude" => array(),
+    $sheet = array_merge(array("title" => "", "place" => "", "badges" => "", "icon" => "", "notice" => "", "cards" => array(), "exclude" => array(),
         "longtext" => array(), "author" => array(), "titles" => array(), "photos" => array(), "photos_title" => ""), $sheet);
     //---- leftover fields go into a final "other data" card ------------------->
     $cards = $sheet['cards'];
@@ -649,6 +649,8 @@ function openkis_SheetRender($frm, $values, $sheet)
     if ($sheet['icon'] != "")
         echo "<img class=\"openkis-sheet-icon\" src=\"" . htmlspecialchars($sheet['icon']) . "\" alt=\"\" />";
     echo "</div></div>";
+    if ($sheet['notice'] != "")
+        echo $sheet['notice'];
     //---- title block ---------------------------------------------------------<
     echo "<div class=\"row openkis-sheet\">";
     echo "<div class=\"col-lg-8 openkis-sheet-main\">";

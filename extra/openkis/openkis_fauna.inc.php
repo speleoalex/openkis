@@ -70,6 +70,183 @@ function openkis_FaunaSightings($where)
 }
 
 /**
+ * Taxonomic statuses of a species name (field taxon_status of ctl_fauna):
+ * key => translated label. An empty status means "not checked" and counts as valid.
+ *
+ * @return array
+ */
+function openkis_FaunaStatuses()
+{
+    return array(
+        "valid" => FN_Translate("valid name", "aa"),
+        "synonym" => FN_Translate("synonym", "aa"),
+        "combination" => FN_Translate("historical combination", "aa"),
+        "ambiguous" => FN_Translate("ambiguous synonym", "aa"),
+        "dubium" => "nomen dubium");
+}
+
+/**
+ * Whether the species table has the name status fields (taxon_status, accepted_name):
+ * installs whose definition was not updated work as before.
+ *
+ * @return bool
+ */
+function openkis_FaunaHasStatus()
+{
+    static $has = null;
+    if ($has !== null)
+        return $has;
+    $has = false;
+    if (!file_exists("sections/fauna"))
+        return $has;
+    $config = FN_LoadConfig("modules/dbview/config.php", "fauna");
+    $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
+    $has = $table && isset($table->fields['taxon_status']) && isset($table->fields['accepted_name']);
+    return $has;
+}
+
+/**
+ * Fields to read from the species sheets: the given ones plus genus and the
+ * name status fields when the table has them (see openkis_FaunaResolve()).
+ *
+ * @param string $fields comma separated
+ * @return string
+ */
+function openkis_FaunaSpeciesFields($fields)
+{
+    $list = explode(",", $fields);
+    $extra = openkis_FaunaHasStatus() ? array("genus", "taxon_status", "accepted_name") : array();
+    return implode(",", array_unique(array_merge($list, $extra)));
+}
+
+/**
+ * Name under which the sightings of a species are grouped (fauna map, cards of
+ * the species sheets). The sightings keep the name of their source; the species
+ * sheet says whether that name is still valid:
+ * - valid or not checked: the name itself;
+ * - synonym, historical combination, ambiguous synonym or nomen dubium with a
+ *   valid name: that valid name;
+ * - the same without a valid name (ambiguous names, referred to several
+ *   species): the genus, as "Genus sp.".
+ *
+ * @param array|false $sheet species sheet (scientific_name, genus, taxon_status, accepted_name)
+ * @param string $name name of the sighting
+ * @return array "name" grouping name, "status" taxon_status of the sheet,
+ *               "moved" true when the name differs from the cited one
+ */
+function openkis_FaunaResolve($sheet, $name)
+{
+    $name = trim(preg_replace('/\s+/', " ", (string) $name));
+    $status = is_array($sheet) && isset($sheet['taxon_status']) ? trim((string) $sheet['taxon_status']) : "";
+    $result = array("name" => $name, "status" => $status, "moved" => false);
+    if ($status === "" || $status === "valid")
+        return $result;
+    $accepted = trim(preg_replace('/\s+/', " ", (string) (isset($sheet['accepted_name']) ? $sheet['accepted_name'] : "")));
+    if ($accepted === "")
+    {
+        $genus = isset($sheet['genus']) ? trim((string) $sheet['genus']) : "";
+        if ($genus === "")
+        {
+            $words = explode(" ", $name);
+            $genus = $words[0];
+        }
+        if ($genus === "")
+            return $result;
+        $accepted = ucfirst(strtolower($genus)) . " sp.";
+    }
+    if (openkis_FaunaKey($accepted) !== openkis_FaunaKey($name))
+    {
+        $result['name'] = $accepted;
+        $result['moved'] = true;
+    }
+    return $result;
+}
+
+/**
+ * Species sheets whose name is not valid (see openkis_FaunaResolve()), visible
+ * to the user, read once per request.
+ *
+ * @return array sheets indexed by openkis_FaunaKey() of the scientific name
+ */
+function openkis_FaunaNotValidSheets()
+{
+    global $_FN;
+    static $sheets = null;
+    if ($sheets !== null)
+        return $sheets;
+    $sheets = array();
+    if (!openkis_FaunaHasStatus() || !FN_UserCanViewSection("fauna"))
+        return $sheets;
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    $config = FN_LoadConfig("modules/dbview/config.php", "fauna");
+    $dbview = new FNDBVIEW($config);
+    $params = array();
+    $params['fields'] = openkis_FaunaSpeciesFields("id,scientific_name,name,type,class");
+    $params['appendquery'] = "(taxon_status <> '' AND taxon_status <> 'valid')";
+    $items = $dbview->GetResults($config, $params);
+    foreach (is_array($items) ? $items : array() as $item)
+        $sheets[openkis_FaunaKey($item['scientific_name'])] = $item;
+    return $sheets;
+}
+
+/**
+ * Names whose sightings are grouped under a name: the name itself and the not
+ * valid names that resolve to it (its synonyms; for "Genus sp." the ambiguous
+ * names of the genus).
+ *
+ * @param string $name
+ * @return array names, the given one first
+ */
+function openkis_FaunaNamesOf($name)
+{
+    $name = trim((string) $name);
+    $names = array($name);
+    $key = openkis_FaunaKey($name);
+    foreach (openkis_FaunaNotValidSheets() as $skey => $sheet)
+    {
+        $resolved = openkis_FaunaResolve($sheet, $sheet['scientific_name']);
+        if ($resolved['moved'] && openkis_FaunaKey($resolved['name']) === $key && $skey !== $key)
+            $names[] = $sheet['scientific_name'];
+    }
+    return $names;
+}
+
+/**
+ * SQL condition matching the sightings of a name and of the names grouped under it.
+ *
+ * @param string $field species field of the sightings table
+ * @param array $names
+ * @return string
+ */
+function openkis_FaunaNamesWhere($field, $names)
+{
+    $or = array();
+    foreach ($names as $n)
+        $or[] = "$field LIKE '" . addslashes($n) . "'";
+    return "(" . implode(" OR ", $or) . ")";
+}
+
+/**
+ * Short html note about a cited name grouped under another name, e.g.
+ * "→ Trogulus sp. (ambiguous synonym)".
+ *
+ * @param array $resolved result of openkis_FaunaResolve()
+ * @param int $id id of the sheet of the grouping name, 0 = no link
+ * @return string html, empty when the name is not moved
+ */
+function openkis_FaunaResolvedNote($resolved, $id = 0)
+{
+    if (empty($resolved['moved']))
+        return "";
+    $statuses = openkis_FaunaStatuses();
+    $name = "<i>" . htmlspecialchars($resolved['name']) . "</i>";
+    if ($id > 0)
+        $name = "<a href=\"" . FN_RewriteLink("index.php?mod=fauna&op=view&id=" . intval($id)) . "\">$name</a>";
+    $status = isset($statuses[$resolved['status']]) ? " (" . htmlspecialchars($statuses[$resolved['status']]) . ")" : "";
+    return "<small class=\"openkis-fauna-resolved text-muted\">&rarr; $name$status</small>";
+}
+
+/**
  * Ecological categories of the species for the fauna map, from the most to
  * the least bound to the underground: key => label (translated).
  *
@@ -167,7 +344,20 @@ function openkis_FaunaMapPlaces($where = "", $filter = array())
     $sightings = openkis_FaunaSightings($where !== "" ? $where : "1");
     if (!count($sightings))
         return array();
-    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($sightings, "name"), "id,scientific_name,name,type,class");
+    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($sightings, "name"), openkis_FaunaSpeciesFields("id,scientific_name,name,type,class"));
+    // names not valid: the sightings go under the valid name or the genus (openkis_FaunaResolve())
+    $resolved = array();
+    foreach (array_unique(array_column($sightings, "name")) as $n)
+    {
+        $k = openkis_FaunaKey($n);
+        $resolved[$k] = openkis_FaunaResolve(isset($species[$k]) ? $species[$k] : false, $n);
+    }
+    $targets = array();
+    foreach ($resolved as $r)
+        if ($r['moved'] && !isset($species[openkis_FaunaKey($r['name'])]))
+            $targets[] = $r['name'];
+    if (count($targets))
+        $species = array_merge($species, openkis_FaunaRecordsByField("fauna", "scientific_name", $targets, openkis_FaunaSpeciesFields("id,scientific_name,name,type,class")));
     $fields = "id,code,name,comune,provincia,latitude,longitude";
     $places = array(
         "caves" => openkis_FaunaRecordsByField("caves", "code", array_column($sightings, "codecave"), $fields),
@@ -190,22 +380,32 @@ function openkis_FaunaMapPlaces($where = "", $filter = array())
                 $result[$key] = array("mod" => $mod, "record" => $place, "species" => array(), "categories" => array(), "classes" => array(),
                     "category" => "unknown", "classkey" => "unknown", "nsightings" => 0);
             }
-            $skey = openkis_FaunaKey($sighting['name']);
-            if ($skey === "")
+            $cited = openkis_FaunaKey($sighting['name']);
+            if ($cited === "")
                 continue;
+            // the species is the valid name (or the genus) of the cited one
+            $group = $resolved[$cited];
+            $skey = openkis_FaunaKey($group['name']);
             if (!isset($result[$key]['species'][$skey]))
             {
-                $sheet = isset($species[$skey]) ? $species[$skey] : array("id" => 0, "scientific_name" => $sighting['name'], "name" => "", "type" => "", "class" => "");
+                $empty = array("id" => 0, "scientific_name" => $group['name'], "name" => "", "type" => "", "class" => "");
+                // without a sheet of the valid name, category and class come from the sheet of the cited name
+                $sheet = isset($species[$skey]) ? $species[$skey] : (isset($species[$cited]) ? array_merge($species[$cited], array("id" => 0, "scientific_name" => $group['name'], "name" => "")) : $empty);
                 $result[$key]['species'][$skey] = array(
-                    "name" => $sheet['scientific_name'] !== "" ? $sheet['scientific_name'] : $sighting['name'],
+                    "name" => $sheet['scientific_name'] !== "" ? $sheet['scientific_name'] : $group['name'],
                     "common" => (string) $sheet['name'],
                     "type" => (string) $sheet['type'],
                     "category" => openkis_FaunaCategory($sheet['type']),
                     "class" => (string) $sheet['class'],
                     "classkey" => openkis_FaunaClassKey($sheet['class']),
                     "id" => intval($sheet['id']),
+                    "cited" => array(),
                     "sightings" => 0,
                     "last" => "");
+            }
+            if ($group['moved'])
+            {
+                $result[$key]['species'][$skey]['cited'][$cited] = isset($species[$cited]) ? $species[$cited]['scientific_name'] : $sighting['name'];
             }
             $result[$key]['species'][$skey]['sightings']++;
             $result[$key]['nsightings']++;
@@ -335,7 +535,19 @@ function openkis_FaunaCaveCard($code, $exclude_id = 0, $title = "")
     if (!count($sightings))
         return "";
     $sightings = FN_ArraySortByKey($sightings, "name");
-    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($sightings, "name"), "id,scientific_name,name,type");
+    $species = openkis_FaunaRecordsByField("fauna", "scientific_name", array_column($sightings, "name"), openkis_FaunaSpeciesFields("id,scientific_name,name,type"));
+    // valid names (or genera) of the names that are no longer valid, for the note under the cited name
+    $resolved = array();
+    foreach ($sightings as $sighting)
+    {
+        $key = openkis_FaunaKey($sighting['name']);
+        $resolved[$key] = openkis_FaunaResolve(isset($species[$key]) ? $species[$key] : false, $sighting['name']);
+    }
+    $targets = array();
+    foreach ($resolved as $r)
+        if ($r['moved'])
+            $targets[] = $r['name'];
+    $valid = openkis_FaunaRecordsByField("fauna", "scientific_name", $targets, "id,scientific_name");
     $rows = array();
     foreach ($sightings as $sighting)
     {
@@ -351,6 +563,11 @@ function openkis_FaunaCaveCard($code, $exclude_id = 0, $title = "")
                 $name .= "<br /><small>" . htmlspecialchars($sp['name']) . "</small>";
             // the categories are stored in Italian (TROGLOBIO, STIGOFILO, ...)
             $type = htmlspecialchars(ucfirst(strtolower($sp['type'])));
+        }
+        if ($resolved[$key]['moved'])
+        {
+            $vkey = openkis_FaunaKey($resolved[$key]['name']);
+            $name .= "<br />" . openkis_FaunaResolvedNote($resolved[$key], isset($valid[$vkey]) ? $valid[$vkey]['id'] : 0);
         }
         $rows[] = array($name, $type, htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
@@ -375,7 +592,9 @@ function openkis_FaunaSpeciesCard($scientific_name, $exclude_id = 0, $title = ""
     $field = openkis_FaunaSpeciesField();
     if ($scientific_name === "" || $field === "")
         return "";
-    $sightings = openkis_FaunaSightings("$field LIKE '" . addslashes($scientific_name) . "'");
+    // also the sightings recorded with the names grouped under this one (synonyms, ambiguous names of a genus)
+    $names = openkis_FaunaNamesOf($scientific_name);
+    $sightings = openkis_FaunaSightings(openkis_FaunaNamesWhere($field, $names));
     $caves = openkis_FaunaRecordsByField("caves", "code", array_column($sightings, "codecave"), "id,code,name,comune,provincia,latitude,longitude");
     $rows = array();
     foreach ($sightings as $sighting)
@@ -400,8 +619,11 @@ function openkis_FaunaSpeciesCard($scientific_name, $exclude_id = 0, $title = ""
         $cave_url = FN_RewriteLink("index.php?mod=caves&op=view&id={$cave['id']}");
         $url = FN_RewriteLink("index.php?mod=fauna_surveys&op=view&id={$sighting['id']}");
         $place = trim($cave['comune'] . ($cave['provincia'] != "" ? " ({$cave['provincia']})" : ""));
+        $cited = "";
+        if (openkis_FaunaKey($sighting['name']) !== openkis_FaunaKey($scientific_name))
+            $cited = "<br /><small class=\"text-muted\">" . FN_Translate("cited as", "aa") . " <i>" . htmlspecialchars($sighting['name']) . "</i></small>";
         $cells[] = array("<a href=\"$cave_url\">" . htmlspecialchars($cave['code']) . "</a>",
-            "<a href=\"$cave_url\">" . htmlspecialchars($cave['name']) . "</a><br /><small>" . htmlspecialchars($place) . "</small>",
+            "<a href=\"$cave_url\">" . htmlspecialchars($cave['name']) . "</a><br /><small>" . htmlspecialchars($place) . "</small>$cited",
             htmlspecialchars($sighting['ammount']), openkis_FaunaDate($sighting['date']), htmlspecialchars($sighting['caver']), openkis_SheetViewButton($url));
     }
     $head = array(array(FN_Translate("number"), "text-nowrap openkis-card-code"), FN_Translate("cave"), FN_Translate("specimens"), array(FN_Translate("date"), "text-nowrap"), FN_Translate("observer"), array("", "text-right text-end"));
