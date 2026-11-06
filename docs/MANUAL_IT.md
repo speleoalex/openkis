@@ -462,7 +462,8 @@ badge; la mappa della fauna, la card «osservata in» e la fauna della grotta mo
 rilevamenti sotto il nome valido, con «citato come …». Se il nome valido manca (un sinonimo
 ambiguo, riferito a più specie, come *Trogulus rostratus*) i rilevamenti vanno sotto il genere
 (*Trogulus sp.*), finché l'identificazione non viene rivista sugli esemplari. La scheda del nome
-valido, o del genere, elenca i nomi che raggruppa.
+valido, o del genere, elenca i nomi che raggruppa. *Sinonimi scientifici* contiene solo altri nomi
+scientifici; i nomi dialettali e gli altri nomi comuni vanno in *Nomi dialettali e altri nomi comuni*.
 
 ![Gruppi speleologici](manual/it/28_associations.png)
 

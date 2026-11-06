@@ -26,15 +26,15 @@ $openkis_cards = array(
     "taxonomy" => array("phylum", "class", "order", "family", "genus", "sinon"),
     // validity of the name (taxon_status, accepted_name...): only where the table has these fields
     "name status" => array("taxon_status", "accepted_name", "taxon_source", "taxon_note"),
-    "description" => array("description"),
+    "description" => array("local_names", "description"),
     "sheet data" => array("username", "recordinsert", "userupdate", "recordupdate"),
 );
 // "author" (author of the species name, where the table has it) goes in the title
 $openkis_cards_exclude = array("id", "scientific_name", "author", "name", "type", "groupview", "groupinsert");
 $openkis_cards_longtext = array("description", "taxon_note");
 $openkis_cards_author = array();
-// the table titles the synonyms "name"
-$openkis_cards_titles = array("sinon" => FN_Translate("synonyms"));
+// sinon holds only scientific synonyms; common and dialect names are in local_names
+$openkis_cards_titles = array("sinon" => FN_Translate("scientific synonyms"));
 
 if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['openkis_custom']}/viewheader_cards_{$_FN['mod']}.php"))
 {

@@ -455,7 +455,8 @@ the name*. For a name that is not valid the sheet shows a notice and a badge; th
 "observed in" card and the cave fauna show the surveys under the valid name, with "cited as …".
 Without a valid name (an ambiguous synonym, referred to several species, such as *Trogulus
 rostratus*) the surveys go under the genus (*Trogulus sp.*) until the identification is checked
-on the specimens. The sheet of the valid name, or of the genus, lists the names it groups.
+on the specimens. The sheet of the valid name, or of the genus, lists the names it groups. *Scientific synonyms* holds only
+other scientific names; dialect and other common names go in *Dialect and other common names*.
 
 ![Caving clubs](manual/en/28_associations.png)
 

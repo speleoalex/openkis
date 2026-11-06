@@ -25,12 +25,20 @@
         <frm_showinlist>1</frm_showinlist>
     </field>
     <field>
-        <name>sinon</name>
-        <frm_it>Sinonimi</frm_it>
-        <frm_i18n>name</frm_i18n>
+        <name>local_names</name>
+        <frm_it>Nomi dialettali e altri nomi comuni</frm_it>
+        <frm_en>Dialect and other common names</frm_en>
         <type>string</type>
-        <frm_type>uppercase</frm_type>
-        <frm_uppercase>uppercase</frm_uppercase>		
+        <frm_help_it>Nomi dialettali o altri nomi comuni della specie, separati da ";". Il nome comune principale va in «Nome comune», i nomi scientifici in «Sinonimi scientifici».</frm_help_it>
+        <frm_help_en>Dialect or other common names of the species, separated by ";". The main common name goes in "Common name", the scientific names in "Scientific synonyms".</frm_help_en>
+    </field>
+    <field>
+        <name>sinon</name>
+        <frm_it>Sinonimi scientifici</frm_it>
+        <frm_en>Scientific synonyms</frm_en>
+        <type>string</type>
+        <frm_help_it>Altri nomi scientifici della specie (sinonimi, vecchie combinazioni), separati da ";". I nomi comuni e dialettali vanno in «Nomi dialettali e altri nomi comuni»; la validità del nome della scheda si indica in «Validità del nome».</frm_help_it>
+        <frm_help_en>Other scientific names of the species (synonyms, old combinations), separated by ";". Common and dialect names go in "Dialect and other common names"; the validity of the name of the sheet is set in "Name status".</frm_help_en>
         <view_hiddentitle>1</view_hiddentitle>
         <frm_showinlist>1</frm_showinlist>
     </field>
