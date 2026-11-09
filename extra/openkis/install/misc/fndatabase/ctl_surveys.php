@@ -12,6 +12,12 @@
         <name>codecave</name>
         <frm_it>Codice Grotta</frm_it>
         <type>string</type>
+        <frm_type>selectfilter</frm_type>
+        <view_show>1</view_show>
+        <foreignkey>ctl_caves</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>code,name</fk_show_field>
+        <frm_showinlist>1</frm_showinlist>
     </field>
     <field>
         <name>codesystem</name>
