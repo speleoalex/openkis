@@ -190,3 +190,38 @@ function openkis_ListLegend($dir)
     }
     return $html . "</div></details>";
 }
+
+/**
+ * List title of a survey (title_function of the survey section): code and
+ * name of the cave the survey belongs to, then the survey name. The stored
+ * survey name is not changed. Cave names are cached for the request because a
+ * page often lists several surveys of the same cave.
+ *
+ * @param array $survey ctl_surveys record
+ * @param string $default title made by dbview from titlefield
+ * @return string html
+ */
+function openkis_SurveyListTitle($survey, $default)
+{
+    static $caves = array();
+    $code = isset($survey['codecave']) ? trim((string) $survey['codecave']) : "";
+    $name = isset($survey['name']) ? openkis_SurveyTitleEscape($survey['name']) : "";
+    if ($code === "")
+        return $name !== "" ? $name : $default;
+    if (!array_key_exists($code, $caves))
+    {
+        $cave = FN_XMDBTable("ctl_caves")->GetRecord(array("code" => $code));
+        $caves[$code] = is_array($cave) && !empty($cave['name']) ? openkis_SurveyTitleEscape($cave['name']) : "";
+    }
+    $title = openkis_SurveyTitleEscape($code) . ($caves[$code] !== "" ? " - " . $caves[$code] : "");
+    return $name !== "" ? "$title - $name" : $title;
+}
+
+/**
+ * Escape for openkis_SurveyListTitle(); entities already stored in old
+ * imported names (&amp;, &egrave;) are kept as they are.
+ */
+function openkis_SurveyTitleEscape($text)
+{
+    return htmlspecialchars(trim((string) $text), ENT_QUOTES, "UTF-8", false);
+}

@@ -39,7 +39,7 @@
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>codecave,name</titlefield>
-	<title_function>openkis_LiguriaSurveyListTitle</title_function>
+	<title_function>openkis_SurveyListTitle</title_function>
 	<descriptionfield>makers</descriptionfield>
 	<search_options>author,makers</search_options>
 	<navigate_groups>license,codecave</navigate_groups>

@@ -22,7 +22,7 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>https://www.catastogrotte.net/liguria/it/caves/</link>
+	<link>index.php?mod=caves</link>
 </fn_sections>
 
 <fncf_dbview>
