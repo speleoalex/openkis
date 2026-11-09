@@ -64,3 +64,5 @@ if (file_exists("openkis_config.local.php"))
 // name of the setting before finis managed the write permission of both servers
 if (isset($_FN['openkis_mcp_write_group']))
     $_FN['mcp_write_group'] = $_FN['openkis_mcp_write_group'];
+// queued after the regional customisation, which both local files may queue
+FN_IncludeScript("extra/openkis/openkis_hooks.php");
