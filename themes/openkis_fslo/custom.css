@@ -2044,6 +2044,12 @@ details > summary {
     background-color: var(--gc-media-bg);
 }
 
+/* transparent drawings (survey thumbs, logos) on a light ground also in the
+   dark mode; opaque photos cover it, the "no photo" box keeps the theme colour */
+.gc-body .dbview-card-media img {
+    background-color: #f7f7f5;
+}
+
 .gc-body .dbview-card-noimage {
     color: var(--gc-muted);
 }
@@ -2675,8 +2681,10 @@ details > summary {
     border-bottom: 0;
 }
 
+/* names of the fields in semi-bold, so that they stand apart from the text */
 .openkis-field-title {
     font-size: .9rem;
+    font-weight: 600;
     color: var(--gc-muted);
 }
 
@@ -2733,7 +2741,6 @@ details > summary {
 
     .openkis-field-title {
         font-size: .85rem;
-        font-weight: 600;
     }
 }
 

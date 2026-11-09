@@ -438,7 +438,7 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
             return $class != "" ? " class=\"$class\"" : "";
         return openkis_SheetStackAttrs($label[$column], in_array($column, array("date", "cave", "reading")), $class);
     };
-    $html = "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0" . ($head ? " openkis-table-stack" : "") . "\">";
+    $html = "<div class=\"table-responsive no-more-tables\"><table class=\"table table-sm table-striped mb-0" . ($head ? " openkis-table-stack" : "") . "\">";
     if ($head)
     {
         $html .= "<thead><tr><th class=\"text-nowrap\">{$label['date']}</th>";

@@ -266,7 +266,7 @@ function openkis_SheetListCard($title, $head, $rows, $options = array())
     {
         $html .= $options['map'];
     }
-    $html .= "<div class=\"table-responsive\"><table class=\"table table-sm table-striped mb-0" . ($stack ? " openkis-table-stack" : "") . "\"><thead><tr>";
+    $html .= "<div class=\"table-responsive no-more-tables\"><table class=\"table table-sm table-striped mb-0" . ($stack ? " openkis-table-stack" : "") . "\"><thead><tr>";
     foreach ($head as $i => $column)
     {
         $classes[$i] = is_array($column) ? $column[1] : "";
@@ -486,6 +486,123 @@ function openkis_SheetRecordsByCode($mod, $codes, $fields)
 }
 
 /**
+ * Sections of the code fields that point to another record (the survey tables):
+ * field => section whose records have that value in "code".
+ *
+ * @return array
+ */
+function openkis_SheetCodeSections()
+{
+    return array("codecave" => "caves", "codeartificial" => "artificials", "codeglacial" => "glacial", "codesystem" => "cavesystem");
+}
+
+/**
+ * Shows the code fields of a form (see openkis_SheetCodeSections()) as links to
+ * the sheets of the records with those codes. Called by the viewheader.php of
+ * the survey sections: FNDBVIEW::ViewRecordPage() includes it with the form of
+ * the record in $Table before rendering the record with that form, so the view
+ * function set here is used only by that page.
+ *
+ * @param XMETADBForm $frm
+ */
+function openkis_SheetLinkCodes($frm)
+{
+    if (!is_object($frm) || !isset($frm->formvals) || !is_array($frm->formvals))
+        return;
+    foreach (openkis_SheetCodeSections() as $field => $mod)
+    {
+        if (isset($frm->formvals[$field]) && file_exists("sections/$mod"))
+            $frm->formvals[$field]['frm_functionview'] = "openkis_SheetCodeLink";
+    }
+}
+
+/**
+ * View of a code field (frm_functionview, see openkis_SheetLinkCodes()): the
+ * code as a link to the sheet of the record with that code followed by its
+ * name; the plain code when there is no such record or the user may not view it.
+ *
+ * @param array $values record
+ * @param string $field name of the field (codecave, codeartificial...)
+ * @return string html
+ */
+function openkis_SheetCodeLink($values, $field)
+{
+    $code = isset($values[$field]) ? trim(html_entity_decode(strip_tags((string) $values[$field]), ENT_QUOTES)) : "";
+    if ($code === "")
+        return "";
+    $html = htmlspecialchars($code);
+    $sections = openkis_SheetCodeSections();
+    if (empty($sections[$field]))
+        return $html;
+    $mod = $sections[$field];
+    foreach (openkis_SheetRecordsByCode($mod, array($code), "id,code,name") as $record)
+    {
+        if (!isset($record['id'], $record['code']) || strcasecmp(trim((string) $record['code']), $code) != 0)
+            continue;
+        $url = FN_RewriteLink("index.php?mod=$mod&op=view&id=" . urlencode($record['id']));
+        $name = isset($record['name']) ? trim(strip_tags((string) $record['name'])) : "";
+        $html = "<a class=\"openkis-code-link\" href=\"$url\">" . htmlspecialchars($code) . "</a>";
+        if ($name !== "")
+            $html .= " &middot; <a class=\"openkis-code-link-name\" href=\"$url\">" . htmlspecialchars($name) . "</a>";
+        return $html;
+    }
+    return $html;
+}
+
+/**
+ * Shows the date of the last update in every sheet: the field recordupdate of
+ * the form is made visible, with the same title in every section, and is rendered
+ * by openkis_SheetLastUpdateView(). Called by openkis_SheetRender() for the card
+ * sheets and by the viewheader.php of the other sections ($Table is the form the
+ * record is rendered with after viewheader.php).
+ *
+ * @param XMETADBForm $frm
+ */
+function openkis_SheetShowLastUpdate($frm)
+{
+    if (!is_object($frm) || !isset($frm->formvals['recordupdate']) || !is_array($frm->formvals['recordupdate']))
+        return;
+    $frm->formvals['recordupdate']['view_show'] = "1";
+    $frm->formvals['recordupdate']['frm_functionview'] = "openkis_SheetLastUpdateView";
+    $frm->formvals['recordupdate']['title'] = openkis_SheetUcfirst(FN_Translate("last updated"));
+}
+
+/**
+ * Date of the last update of a record (dd/mm/yyyy): recordupdate, or recordinsert
+ * for the records never changed after their insertion (imports leave recordupdate
+ * empty).
+ *
+ * @param array $values record
+ * @return string date, empty when the record has neither
+ */
+function openkis_SheetLastUpdate($values)
+{
+    foreach (array("recordupdate", "recordinsert") as $f)
+    {
+        $date = isset($values[$f]) ? trim(strip_tags((string) $values[$f])) : "";
+        if ($date === "" || strpos($date, "0000-00-00") === 0)
+            continue;
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $date, $m))
+            return "{$m[3]}/{$m[2]}/{$m[1]}";
+        return $date;
+    }
+    return "";
+}
+
+/**
+ * View of the field recordupdate (frm_functionview, see openkis_SheetShowLastUpdate()).
+ *
+ * @param array $values record
+ * @param string $field name of the field
+ * @return string html
+ */
+function openkis_SheetLastUpdateView($values, $field)
+{
+    $date = openkis_SheetLastUpdate($values);
+    return $date === "" ? "" : "<span class=\"openkis-last-update\">" . htmlspecialchars($date) . "</span>";
+}
+
+/**
  * Card listing bibliography items.
  *
  * @param array $items id, title, authors, year and optionally magazine, in the order to show
@@ -616,6 +733,7 @@ function openkis_SheetRender($frm, $values, $sheet)
 {
     $sheet = array_merge(array("title" => "", "place" => "", "badges" => "", "icon" => "", "notice" => "", "cards" => array(), "exclude" => array(),
         "longtext" => array(), "author" => array(), "titles" => array(), "photos" => array(), "photos_title" => ""), $sheet);
+    openkis_SheetShowLastUpdate($frm);
     //---- leftover fields go into a final "other data" card ------------------->
     $cards = $sheet['cards'];
     $used = array_merge($sheet['exclude'], array_keys($sheet['photos']), array_values($sheet['photos']));

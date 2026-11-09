@@ -28,7 +28,7 @@ $openkis_cards = array(
         "map_denomination", "map_edition"),
     "flow and use" => array("flow_average", "flow_min", "flow_max", "use", "utilization"),
     "characteristics" => array("hydrology", "hydrogeology", "morphology"),
-    "description" => array("description", "authordescription", "itinerary", "authoritinerary"),
+    "information" => array("description", "authordescription", "itinerary", "authoritinerary"),
     "sheet data" => array("username", "recordinsert", "userupdate", "recordupdate", "import_rawdata"),
 );
 $openkis_cards_exclude = array("id", "code", "name", "latitude", "longitude", "coordnatesupdated", "country",

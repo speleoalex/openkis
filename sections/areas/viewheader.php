@@ -23,7 +23,7 @@ if (!is_array($values))
 //---- card definition --------------------------------------------------------->
 $openkis_cards = array(
     "location" => array("regione", "provincia", "comune", "cities", "surface", "mountaincommunity", "watershed"),
-    "description" => array("description", "geographical_framework"),
+    "information" => array("description", "geographical_framework"),
     "geology" => array("geological_framework", "lithological", "geomorphology"),
     "hydrogeology" => array("hydrogeological", "aquifers"),
     "speleology" => array("caving"),

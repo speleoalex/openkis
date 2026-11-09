@@ -26,7 +26,7 @@ $openkis_cards = array(
     "taxonomy" => array("phylum", "class", "order", "family", "genus", "sinon"),
     // validity of the name (taxon_status, accepted_name...): only where the table has these fields
     "name status" => array("taxon_status", "accepted_name", "taxon_source", "taxon_note"),
-    "description" => array("local_names", "description"),
+    "information" => array("local_names", "description"),
     "sheet data" => array("username", "recordinsert", "userupdate", "recordupdate"),
 );
 // "author" (author of the species name, where the table has it) goes in the title

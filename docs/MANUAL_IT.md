@@ -222,9 +222,12 @@ mappa.
 ### I riquadri dei dati
 
 Nella colonna di sinistra i dati sono raggruppati in riquadri: *Identificazione*,
-*Localizzazione*, *Dimensioni*, *Caratteristiche*, *Descrizione* (descrizione, itinerario,
+*Localizzazione*, *Dimensioni*, *Caratteristiche*, *Informazioni* (descrizione, itinerario,
 sequenza pozzi), *Fauna*, *Geologia*, *Storia*, *Gruppi e cronologia*, *Dati scheda* (chi
-ha inserito e aggiornato la scheda e quando, stato dei dati). I campi vuoti non compaiono.
+ha inserito e aggiornato la scheda e quando, stato dei dati). I campi vuoti non compaiono. Ogni
+scheda (grotte, rilievi, sorgenti, aree, bibliografia, fauna, tracciamenti...) mostra sempre
+*Ultimo aggiornamento*: la data dell'ultima modifica, o dell'inserimento se la scheda non è mai
+stata modificata.
 
 ### Mappa e coordinate
 

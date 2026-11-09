@@ -27,7 +27,7 @@ $species_field = isset($frm->formvals['scientific_name']) ? "scientific_name" : 
 //---- card definition --------------------------------------------------------->
 $openkis_cards = array(
     "sighting" => array($species_field, "codecave", "codeartificial", "ammount", "date", "caver"),
-    "description" => array("description"),
+    "information" => array("description"),
     "sheet data" => array("username", "recordinsert", "userupdate", "recordupdate"),
 );
 $openkis_cards_exclude = array("id", "groupview", "groupinsert");

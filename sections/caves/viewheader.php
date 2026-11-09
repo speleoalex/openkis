@@ -39,7 +39,7 @@ $openkis_cards = array(
     "characteristics" => array("geologicalformation", "lithology", "hydrology", "trend", "practicability",
         "meteorology", "archeological", "marine", "lake", "environmentalrisk", "tourist", "closed",
         "closed_notes", "destroyed"),
-    "description" => array("description", "authordescription", "itinerary", "authoritinerary", "wells"),
+    "information" => array("description", "authordescription", "itinerary", "authoritinerary", "wells"),
     "fauna" => array("fauna", "authorfauna"),
     "geology" => array("geology"),
     "history" => array("history", "authorhistory"),

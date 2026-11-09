@@ -35,7 +35,7 @@ $openkis_cards = array(
     "conservation and risks" => array("conservation", "robustness", "danger", "danger_notes", "seen_danger_frequency",
         "environmentalrisk", "degree_of_pollution", "type_of_pollution", "type_of_pollution_notes",
         "closed", "closed_notes", "destroyed"),
-    "description" => array("description", "itinerary"),
+    "information" => array("description", "itinerary"),
     "fauna" => array("fauna"),
     "history" => array("history"),
     "groups and chronology" => array("associations", "chronology", "notes"),

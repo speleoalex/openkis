@@ -29,7 +29,7 @@ $openkis_cards = array(
     "dimensions" => array("lenght_total", "lenght_planimetric", "lenght_extension",
         "depth_positive", "depth_negative", "depth_total"),
     "characteristics" => array("typology", "hydrology", "meteorology", "trend", "practicability"),
-    "description" => array("description", "authordescription", "itinerary", "authoritinerary", "wells"),
+    "information" => array("description", "authordescription", "itinerary", "authoritinerary", "wells"),
     "fauna" => array("fauna", "authorfauna"),
     "history" => array("history", "authorhistory"),
     "groups and chronology" => array("associations", "chronology", "notes", "changelog"),

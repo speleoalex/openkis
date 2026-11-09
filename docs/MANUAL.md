@@ -222,9 +222,11 @@ data status. The icon on the right is the symbol of the cave on the map.
 ### Data boxes
 
 In the left column the data are grouped in boxes: *Identification*, *Location*,
-*Dimensions*, *Characteristics*, *Description* (description, access route, sequence of
+*Dimensions*, *Characteristics*, *Information* (description, access route, sequence of
 shafts), *Fauna*, *Geology*, *History*, *Groups and chronology*, *Sheet data* (who entered
-and updated the record and when, data status). Empty fields are not shown.
+and updated the record and when, data status). Empty fields are not shown. Every sheet
+(caves, surveys, springs, areas, bibliography, fauna, tracings...) always shows *Last updated*:
+the date of the last change of the record, or of its insertion when it was never changed.
 
 ### Map and coordinates
 
