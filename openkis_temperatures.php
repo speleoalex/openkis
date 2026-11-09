@@ -156,7 +156,7 @@ foreach ($groups as $key => $group)
     $description .= "<div class=\"text-right\">";
     if ($list !== "")
     {
-        $description .= "<a $open href=\"$list\"><span class=\"glyphicon glyphicon-list\"></span> " . FN_Translate("temperatures") . "</a> &nbsp; ";
+        $description .= "<a $open href=\"$list\"><span class=\"glyphicon glyphicon-list\"></span> " . FN_Translate("temperatures") . "</a> ";
     }
     $description .= "<a $open href=\"$url\"><span class=\"glyphicon glyphicon-eye-open\"></span> <b>" . FN_Translate("open") . "</b></a></div>";
     $features[] = array(

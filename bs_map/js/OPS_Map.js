@@ -460,7 +460,7 @@ var OPS_Map = {
     {
         var max = 20;
         OPS_Map.hitList = hits.slice(0, max);
-        var html = "<div style=\"max-height:220px;overflow-y:auto;overflow-x:hidden;font-size:13px;line-height:1.5\">";
+        var html = "<div class=\"ops-popup-list\">";
         for (var i = 0; i < OPS_Map.hitList.length; i++)
         {
             var hit = OPS_Map.hitList[i];
@@ -468,12 +468,12 @@ var OPS_Map = {
             var details = "<a href=\"#\" title=\"Dettagli\" onclick=\"OPS_Map.showHitPopup(OPS_Map.hitList[" + i + "]);return false;\">";
             if (hit.url)
             {
-                html += "<div style=\"padding:5px 0;border-bottom:1px solid #eee\">"
+                html += "<div>"
                         + "<a href=\"" + OPS_Map.escapeHtml(hit.url) + "\" target=\"_blank\" onclick=\"return !OPS_Map.openRecord(this.href);\">" + label + "</a> "
                         + details + "<span class=\"glyphicon glyphicon-info-sign\"></span></a></div>";
             } else
             {
-                html += "<div style=\"padding:5px 0;border-bottom:1px solid #eee\">" + details + label + "</a></div>";
+                html += "<div>" + details + label + "</a></div>";
             }
         }
         if (hits.length > max)
@@ -685,7 +685,7 @@ var OPS_Map = {
         this.map.addOverlay(this.popupOverlay);
         coordinates = ol.proj.transform(coordinates, OPS_Map.inputProjectonEPSG, OPS_Map.viewMapProjectonEPSG);
         OPS_Map.popupOverlay.setPosition(coordinates);
-        htmlclosePopup = "<span style=\"position:absolute;top:2px;right:2px;cursor:pointer\" class=\"glyphicon glyphicon-remove-sign\" onclick=\"OPS_Map.popUpClose()\"></span>";
+        var htmlclosePopup = "<button type=\"button\" class=\"ops-popup-close\" aria-label=\"Chiudi\" title=\"Chiudi\" onclick=\"OPS_Map.popUpClose()\">&times;</button>";
         if (OPS_Map.popOver == null)
         {
             OPS_Map.popOver = $(OPS_Map.popupElement).popover({
@@ -705,12 +705,14 @@ var OPS_Map = {
                 OPS_Map.popupClosingProcess = false;
             });
         }
-        $('.popover-title').html(name);
+        $('.popover-title').html(name + htmlclosePopup);
         $('.popover-content').html(description);
         $(OPS_Map.popupElement).popover('show');
     },
     /** Free space kept between the popup and the edges of the map, in CSS pixels */
     popupMargin: 10,
+    /** Height kept free at the bottom of the map for the scale line and the export and fullscreen buttons */
+    popupBottomReserve: 50,
     /**
      * Moves the map so that the open popup is inside the visible part of the
      * map: a popup opened near an edge was cut off, and on a phone its top
@@ -738,7 +740,7 @@ var OPS_Map = {
         {
             top = Math.max(top, toolbar.getBoundingClientRect().bottom + margin);
         }
-        var bottom = Math.min(m.bottom, window.innerHeight) - margin;
+        var bottom = Math.min(m.bottom, window.innerHeight) - margin - OPS_Map.popupBottomReserve;
         var dx = 0;
         var dy = 0;
         if (p.width > right - left || p.left < left)

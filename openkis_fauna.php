@@ -71,7 +71,7 @@ foreach ($places as $key => $place)
         $description .= "<small>" . htmlspecialchars($placename) . "</small><br />";
     }
     $description .= "<b>" . count($place['species']) . " " . FN_Translate("species", "aa") . "</b>, " . $place['nsightings'] . " " . FN_Translate("sightings", "aa") . "<br />";
-    $description .= "<table class=\"table table-sm table-borderless mb-1\" style=\"font-size:12px\">";
+    $description .= "<table class=\"ops-fauna-table\">";
     foreach ($place['species'] as $sp)
     {
         $name = "<i>" . htmlspecialchars($sp['name']) . "</i>";
@@ -96,11 +96,16 @@ foreach ($places as $key => $place)
         $group = $groups[$sp['group']];
         $name = "<span class=\"openkis-fauna-icon\" title=\"" . htmlspecialchars($group['label']) . "\" aria-label=\"" . htmlspecialchars($group['label']) . "\">{$group['icon']}</span> $name";
         $dot = "<span class=\"openkis-fauna-dot\" data-category=\"" . htmlspecialchars($sp['category']) . "\" data-class=\"" . htmlspecialchars($sp['classkey']) . "\"></span>";
-        $when = $sp['last'] !== "" ? date("d/m/Y", strtotime($sp['last'])) : "";
-        $description .= "<tr><td class=\"p-0 pr-1 pe-1\">$dot</td><td class=\"p-0\">$name</td><td class=\"p-0 pl-2 ps-2 text-nowrap\"><small>" . htmlspecialchars($categories[$sp['category']]) . "</small></td><td class=\"p-0 pl-2 ps-2 text-nowrap\"><small>" . $when . "</small></td></tr>";
+        $meta = htmlspecialchars($categories[$sp['category']]);
+        if ($sp['last'] !== "")
+        {
+            $meta .= " &middot; " . date("d/m/Y", strtotime($sp['last']));
+        }
+        // category and date under the name: four columns did not fit the popup
+        $description .= "<tr><td>$dot</td><td>$name<div class=\"ops-fauna-meta\">$meta</div></td></tr>";
     }
     $description .= "</table>";
-    $description .= "<div class=\"text-right text-end\"><a $open href=\"$list\"><span class=\"glyphicon glyphicon-list\"></span> " . FN_Translate("fauna surveys") . "</a> &nbsp; ";
+    $description .= "<div class=\"text-right\"><a $open href=\"$list\"><span class=\"glyphicon glyphicon-list\"></span> " . FN_Translate("fauna surveys") . "</a> ";
     $description .= "<a $open href=\"$url\"><span class=\"glyphicon glyphicon-eye-open\"></span> <b>" . FN_Translate("open") . "</b></a></div>";
     $species_list = array();
     foreach ($place['species'] as $sp)
