@@ -1622,6 +1622,19 @@ details > summary {
     background-image: url("img/icons/chart.svg?v=20261104a");
 }
 
+/* The OpenKIS penguin is a technical credit, not the Liguria cadastre brand. */
+.gc-openkis-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.gc-openkis-credit img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
 .gc-ico-inline.gc-ico-map {
     background-image: url("img/icons/map-white.svg?v=20261104a");
 }
