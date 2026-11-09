@@ -4,7 +4,7 @@
 	<type></type>
 	<parent>menu_fauna</parent>
 	<position>195</position>
-	<title>Fauna map</title>
+	<title>Biospeleological map</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -18,8 +18,8 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Mappa della fauna</title_it>
+	<title_it>Mappa biospeleologica</title_it>
 	<description_it></description_it>
-	<title_en>Fauna map</title_en>
+	<title_en>Biospeleological map</title_en>
 	<description_en></description_en>
 </fn_sections>

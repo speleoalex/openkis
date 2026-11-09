@@ -4,7 +4,7 @@
 	<type>block_menu</type>
 	<parent></parent>
 	<position>180</position>
-	<title>Fauna</title>
+	<title>Biospeleologia</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -18,8 +18,8 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Fauna</title_it>
+	<title_it>Biospeleologia</title_it>
 	<description_it></description_it>
-	<title_en>Fauna</title_en>
+	<title_en>Biospeleology</title_en>
 	<description_en></description_en>
 </fn_sections>

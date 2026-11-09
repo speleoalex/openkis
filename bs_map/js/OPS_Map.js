@@ -1551,6 +1551,17 @@ var OPS_Map = {
     faunaLegend: null,
     faunaLayer: null,
     /**
+     * Most icons written over a fauna point, the others counted as "+n".
+     */
+    faunaIconsMax: 4,
+    /**
+     * Icon of each group (legend.groups of openkis_FaunaGroups()) checked once:
+     * the fallback character replaces an emoji the browser cannot draw.
+     */
+    faunaIcons: null,
+    // letters and digits from the text font, the emoji from the colour fonts
+    faunaEmojiFonts: "sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\"",
+    /**
      * Colours of the current mode.
      * @returns {Object}
      */
@@ -1609,7 +1620,7 @@ var OPS_Map = {
         }
         var color = OPS_Map.faunaColors()[visible.key] || "#9e9e9e";
         var n = visible.count;
-        var radius = 6 + Math.min(n - 1, 6) * 1.3;
+        var radius = OPS_Map.faunaRadius(n);
         var style = {
             image: new ol.style.Circle({
                 radius: radius,
@@ -1629,6 +1640,122 @@ var OPS_Map = {
             });
         }
         return new ol.style.Style(style);
+    },
+    /**
+     * Radius of a fauna point: 6 px for one species, 14 px for seven or more.
+     * @param {Number} n number of species
+     * @returns {Number}
+     */
+    faunaRadius: function (n)
+    {
+        return 6 + Math.min(n - 1, 6) * 1.3;
+    },
+    /**
+     * Icons of the groups (emoji, or the fallback character when the browser
+     * draws the emoji as an empty box: colour emoji fonts paint coloured
+     * pixels, the missing glyph box does not).
+     * @returns {Object} group key => character
+     */
+    faunaGroupIcons: function ()
+    {
+        if (OPS_Map.faunaIcons)
+        {
+            return OPS_Map.faunaIcons;
+        }
+        var groups = (OPS_Map.faunaLegend && OPS_Map.faunaLegend.groups) || {};
+        var icons = {};
+        var canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 24;
+        var ctx = canvas.getContext("2d");
+        for (var key in groups)
+        {
+            icons[key] = groups[key].icon;
+            if (!groups[key].fallback || !ctx)
+            {
+                continue;
+            }
+            ctx.clearRect(0, 0, 24, 24);
+            ctx.font = "20px " + OPS_Map.faunaEmojiFonts;
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "#000000";
+            ctx.fillText(groups[key].icon, 0, 0);
+            var pixels = ctx.getImageData(0, 0, 24, 24).data;
+            var coloured = false;
+            for (var i = 0; i < pixels.length && !coloured; i += 4)
+            {
+                coloured = pixels[i + 3] > 0 && (pixels[i] !== pixels[i + 1] || pixels[i + 1] !== pixels[i + 2]);
+            }
+            if (!coloured)
+            {
+                icons[key] = groups[key].fallback;
+            }
+        }
+        OPS_Map.faunaIcons = icons;
+        return icons;
+    },
+    /**
+     * Style of the icons of a fauna point: one icon per group of its visible
+     * species (legend order, at most faunaIconsMax, then "+n") on a label
+     * above the point. The icon layer declutters: a label that would cover
+     * another one is left out until the map is zoomed in, the point stays.
+     * @param {ol.Feature} feature
+     * @returns {ol.style.Style|null}
+     */
+    faunaIconStyle: function (feature)
+    {
+        var visible = OPS_Map.faunaVisible(feature);
+        if (visible.key === "")
+        {
+            return null;
+        }
+        var mode = OPS_Map.faunaMode === "class" ? "class" : "category";
+        var hidden = OPS_Map.faunaHidden[OPS_Map.faunaMode] || {};
+        var species = feature.get("species") || [];
+        var present = {};
+        for (var i = 0; i < species.length; i++)
+        {
+            if (!hidden[species[i][mode]])
+            {
+                present[species[i].group] = true;
+            }
+        }
+        var icons = OPS_Map.faunaGroupIcons();
+        var text = "";
+        var shown = 0;
+        var more = 0;
+        for (var key in icons)
+        {
+            if (present[key])
+            {
+                if (shown < OPS_Map.faunaIconsMax)
+                {
+                    text += icons[key];
+                    shown++;
+                } else
+                {
+                    more++;
+                }
+            }
+        }
+        if (text === "")
+        {
+            return null;
+        }
+        if (more > 0)
+        {
+            text += " +" + more;
+        }
+        return new ol.style.Style({
+            text: new ol.style.Text({
+                text: text,
+                font: "15px " + OPS_Map.faunaEmojiFonts,
+                offsetY: -(OPS_Map.faunaRadius(visible.count) + 13),
+                fill: new ol.style.Fill({color: "#222222"}),
+                backgroundFill: new ol.style.Fill({color: "rgba(255,255,255,0.9)"}),
+                backgroundStroke: new ol.style.Stroke({color: "#bbbbbb", width: 1}),
+                padding: [2, 3, 0, 3]
+            })
+        });
     },
     /**
      * Legend of the fauna points: the mode switch, one line per key with a
@@ -1673,6 +1800,30 @@ var OPS_Map = {
             html += "<label style=\"display:block;margin:0;font-weight:normal;cursor:pointer\"><input type=\"checkbox\" data-fauna-key=\"" + esc(key) + "\"" + (hidden[key] ? "" : " checked=\"checked\"") + " style=\"vertical-align:middle;margin:0 4px 0 0\" />";
             html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:6px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:" + colors[key] + ";vertical-align:middle;margin-right:4px\"></span>" + esc(labels[key]) + " <span style=\"color:#777\">(" + counts[key] + ")</span></label>";
         }
+        var icons = OPS_Map.faunaGroupIcons();
+        var groupCounts = {};
+        for (var f = 0; f < features.length; f++)
+        {
+            var groups = features[f].get("groups") || {};
+            for (var g in groups)
+            {
+                groupCounts[g] = (groupCounts[g] || 0) + 1;
+            }
+        }
+        var summary = "";
+        var items = "";
+        for (var group in legend.groups || {})
+        {
+            if (groupCounts[group])
+            {
+                summary += icons[group];
+                items += "<span style=\"display:inline-block;margin-right:8px;white-space:nowrap\">" + icons[group] + " " + esc(legend.groups[group].label) + " <span style=\"color:#777\">(" + groupCounts[group] + ")</span></span>";
+            }
+        }
+        if (summary !== "")
+        {
+            html += "<details style=\"margin:2px 0\"><summary style=\"cursor:pointer\">" + esc(legend.groups_title) + " " + summary + "</summary>" + items + "</details>";
+        }
         html += "<small style=\"color:#777\">" + esc(legend.size) + "</small>";
         return html;
     },
@@ -1701,6 +1852,24 @@ var OPS_Map = {
         layer.setZIndex(12);
         this.addLayer(layer, false);
         OPS_Map.faunaLayer = layer;
+        // icons of the groups on their own decluttered layer (no name: not in
+        // the layer switcher), shown and redrawn with the points
+        var iconLayer = new ol.layer.Vector({
+            visible: visible,
+            source: source,
+            declutter: true,
+            style: OPS_Map.faunaIconStyle,
+            // the places with more species first: the first label drawn keeps its place
+            renderOrder: function (a, b) {
+                return b.get("nspecies") - a.get("nspecies");
+            }
+        });
+        iconLayer.setZIndex(13);
+        this.map.addLayer(iconLayer);
+        var redraw = function () {
+            layer.changed();
+            iconLayer.changed();
+        };
         // colours of the dots in the popups (one rule per key and mode)
         var css = ".openkis-fauna-dot{display:inline-block;width:10px;height:10px;border-radius:5px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:#9e9e9e;vertical-align:middle}";
         for (var c in OPS_Map.faunaCategoryColors)
@@ -1731,11 +1900,14 @@ var OPS_Map = {
             }
             legend.style.display = (layer.getVisible() && source.getFeatures().length > 0) ? "block" : "none";
         };
-        layer.on("change:visible", updateLegend);
+        layer.on("change:visible", function () {
+            iconLayer.setVisible(layer.getVisible());
+            updateLegend();
+        });
         $(legend).on("click", "a[data-fauna-mode]", function (e) {
             e.preventDefault();
             setMode($(this).attr("data-fauna-mode"));
-            layer.changed();
+            redraw();
             updateLegend();
         });
         $(legend).on("change", "input[data-fauna-key]", function () {
@@ -1747,18 +1919,19 @@ var OPS_Map = {
             {
                 OPS_Map.faunaHidden[OPS_Map.faunaMode][key] = true;
             }
-            layer.changed();
+            redraw();
         });
         $.getJSON(path, function (data) {
             var features = new ol.format.GeoJSON().readFeatures(data, {
                 dataProjection: OPS_Map.inputProjectonEPSG,
                 featureProjection: OPS_Map.view.getProjection()
             });
-            source.addFeatures(features);
             if (data.legend)
             {
                 OPS_Map.faunaLegend = data.legend;
+                OPS_Map.faunaIcons = null;
             }
+            source.addFeatures(features);
             updateLegend();
             if (fit && features.length > 0)
             {

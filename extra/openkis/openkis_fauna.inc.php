@@ -93,16 +93,7 @@ function openkis_FaunaStatuses()
  */
 function openkis_FaunaHasStatus()
 {
-    static $has = null;
-    if ($has !== null)
-        return $has;
-    $has = false;
-    if (!file_exists("sections/fauna"))
-        return $has;
-    $config = FN_LoadConfig("modules/dbview/config.php", "fauna");
-    $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
-    $has = $table && isset($table->fields['taxon_status']) && isset($table->fields['accepted_name']);
-    return $has;
+    return openkis_FaunaHasField("taxon_status") && openkis_FaunaHasField("accepted_name");
 }
 
 /**
@@ -116,7 +107,167 @@ function openkis_FaunaSpeciesFields($fields)
 {
     $list = explode(",", $fields);
     $extra = openkis_FaunaHasStatus() ? array("genus", "taxon_status", "accepted_name") : array();
+    // phylum and order choose the icon of the species (openkis_FaunaGroupKey())
+    foreach (array("phylum", "order") as $f)
+        if (openkis_FaunaHasField($f))
+            $extra[] = $f;
     return implode(",", array_unique(array_merge($list, $extra)));
+}
+
+/**
+ * Whether the installed definition of the species table has a field.
+ *
+ * @param string $field
+ * @return bool
+ */
+function openkis_FaunaHasField($field)
+{
+    static $fields = null;
+    if ($fields === null)
+    {
+        $fields = array();
+        if (file_exists("sections/fauna"))
+        {
+            $config = FN_LoadConfig("modules/dbview/config.php", "fauna");
+            $table = !empty($config['tables']) ? FN_XMDBTable($config['tables']) : false;
+            if ($table)
+                $fields = $table->fields;
+        }
+    }
+    return isset($fields[$field]);
+}
+
+/**
+ * Groups of organisms shown as icons on the fauna map and in its popup, in
+ * legend order: key => icon (emoji), fallback (character drawn when the
+ * browser has no glyph for the emoji), label (translated).
+ *
+ * @return array
+ */
+function openkis_FaunaGroups()
+{
+    $groups = array(
+        "bats" => array("🦇", "", "bats"),
+        "mammals" => array("🐭", "", "other mammals"),
+        "birds" => array("🐦", "", "birds"),
+        "reptiles" => array("🦎", "", "reptiles"),
+        "amphibians" => array("🐸", "", "amphibians"),
+        "fish" => array("🐟", "", "fish"),
+        "beetles" => array("🐞", "", "beetles"),
+        "flies" => array("🦟", "🐜", "flies and mosquitoes"),
+        "moths" => array("🦋", "", "moths and caddisflies"),
+        "crickets" => array("🦗", "🐜", "crickets and grasshoppers"),
+        "insects" => array("🐜", "", "other insects and springtails"),
+        "arachnids" => array("🕷️", "", "spiders, harvestmen, mites and other arachnids"),
+        "scorpions" => array("🦂", "", "scorpions and pseudoscorpions"),
+        "crustaceans" => array("🦐", "", "crustaceans"),
+        "myriapods" => array("🐛", "", "millipedes and centipedes"),
+        "worms" => array("🪱", "〰", "worms"),
+        "snails" => array("🐌", "", "snails and molluscs"),
+        "fungi" => array("🍄", "", "fungi"),
+        "other" => array("🔬", "", "other organisms"),
+        "unknown" => array("❓", "?", "not classified"));
+    $result = array();
+    foreach ($groups as $key => $g)
+        $result[$key] = array("icon" => $g[0], "fallback" => $g[1], "label" => FN_Translate($g[2]));
+    return $result;
+}
+
+/**
+ * Species sheet completed with the phylum, class and order of its genus when
+ * it has none of them (sheet left empty, or no sheet for the name of the
+ * sighting): they come from another sheet of the same genus, e.g. "Roncus
+ * antrorum" takes Arachnida, Pseudoscorpiones from "Roncus lubricus".
+ *
+ * @param array $sheet species sheet (phylum, class, order may be missing)
+ * @param string $name scientific name, its first word is the genus
+ * @return array
+ */
+function openkis_FaunaTaxonomyFromGenus($sheet, $name)
+{
+    foreach (array("phylum", "class", "order") as $field)
+        if (isset($sheet[$field]) && trim((string) $sheet[$field]) !== "")
+            return $sheet;
+    $genera = openkis_FaunaGenusTaxonomy();
+    $genus = openkis_FaunaKey(strtok(trim((string) $name), " "));
+    return isset($genera[$genus]) ? array_merge($sheet, $genera[$genus]) : $sheet;
+}
+
+/**
+ * Phylum, class and order of each genus, from the first visible species sheet
+ * of the genus that has at least one of them; read once per request.
+ *
+ * @return array genus (openkis_FaunaKey()) => array(phylum, class, order)
+ */
+function openkis_FaunaGenusTaxonomy()
+{
+    global $_FN;
+    static $genera = null;
+    if ($genera !== null)
+        return $genera;
+    $genera = array();
+    if (!file_exists("sections/fauna") || !FN_UserCanViewSection("fauna"))
+        return $genera;
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    $config = FN_LoadConfig("modules/dbview/config.php", "fauna");
+    $dbview = new FNDBVIEW($config);
+    $items = $dbview->GetResults($config, array("fields" => openkis_FaunaSpeciesFields("id,scientific_name,class")));
+    foreach (is_array($items) ? $items : array() as $item)
+    {
+        $taxonomy = array();
+        foreach (array("phylum", "class", "order") as $field)
+            if (isset($item[$field]) && trim((string) $item[$field]) !== "")
+                $taxonomy[$field] = trim((string) $item[$field]);
+        $genus = openkis_FaunaKey(strtok(trim((string) $item['scientific_name']), " "));
+        if (count($taxonomy) && $genus !== "" && !isset($genera[$genus]))
+            $genera[$genus] = $taxonomy;
+    }
+    return $genera;
+}
+
+/**
+ * Icon group of a species sheet (openkis_FaunaGroups()) from its order, class,
+ * phylum and type, the first that is known: the order tells bats from the other
+ * mammals and beetles, flies, moths... from the other insects; the phylum covers
+ * the sheets without a class (worms, molluscs, fungi...).
+ *
+ * @param array $sheet species sheet (type, phylum, class, order)
+ * @return string
+ */
+function openkis_FaunaGroupKey($sheet)
+{
+    $value = function ($name) use ($sheet)
+    {
+        return isset($sheet[$name]) ? strtoupper(trim((string) $sheet[$name])) : "";
+    };
+    $type = $value("type");
+    $phylum = $value("phylum");
+    $class = $value("class");
+    $order = $value("order");
+    if (strpos($type, "FUNG") === 0 || strpos($phylum, "FUNG") === 0 || preg_match('/MYCETES$/', $class))
+        return "fungi";
+    $orders = array("CHIROPT" => "bats", "COLEOPT" => "beetles", "DIPTER" => "flies", "LEPIDOPT" => "moths", "TRICHOPT" => "moths",
+        "ORTHOPT" => "crickets", "SCORPION" => "scorpions", "PSEUDOSCORP" => "scorpions",
+        "CRUSTAC" => "crustaceans", "MYRIAPOD" => "myriapods", "GORDI" => "worms");
+    $classes = array("MAMMAL" => "mammals", "AVES" => "birds", "UCCELL" => "birds", "REPTIL" => "reptiles", "RETTIL" => "reptiles",
+        "AMPHIB" => "amphibians", "ANFIB" => "amphibians", "ACTINOPTER" => "fish", "OSTEICHT" => "fish", "CHONDRICH" => "fish", "PISC" => "fish",
+        "INSECT" => "insects", "INSETT" => "insects", "COLLEMBOL" => "insects", "DIPLUR" => "insects", "PROTUR" => "insects",
+        "ARACHN" => "arachnids", "ARACN" => "arachnids", "MALACOSTRAC" => "crustaceans", "CRUSTAC" => "crustaceans", "CROSTAC" => "crustaceans",
+        "COPEPOD" => "crustaceans", "OSTRACOD" => "crustaceans", "MAXILLOPOD" => "crustaceans", "BRANCHIOPOD" => "crustaceans",
+        "DIPLOPOD" => "myriapods", "CHILOPOD" => "myriapods", "SYMPHYL" => "myriapods", "PAUROPOD" => "myriapods",
+        "CLITELL" => "worms", "OLIGOCHAET" => "worms", "HIRUDIN" => "worms", "POLYCHAET" => "worms", "TURBELL" => "worms", "NEMATOD" => "worms",
+        "GASTROPOD" => "snails", "GASTEROPOD" => "snails", "BIVALV" => "snails");
+    $phyla = array("ANNELID" => "worms", "PLATYHELM" => "worms", "NEMATOMORPH" => "worms", "NEMATOD" => "worms", "MOLLUSC" => "snails",
+        "PORIFER" => "other", "CNIDAR" => "other", "PROTOZO" => "other", "BRYOZO" => "other");
+    foreach (array(array($order, $orders), array($class, $classes), array($phylum, $phyla)) as $test)
+    {
+        if ($test[0] === "")
+            continue;
+        foreach ($test[1] as $prefix => $key)
+            if (strpos($test[0], $prefix) === 0)
+                return $key;
+    }
+    return ($class !== "" || $phylum !== "") ? "other" : "unknown";
 }
 
 /**
@@ -335,8 +486,9 @@ function openkis_FaunaClassKey($class)
  *                      with at least one species of that category or class
  * @return array places: mod, record (id, code, name, comune, provincia,
  *               latitude, longitude), species (key => name, common, type,
- *               category, class, classkey, id of the species sheet, sightings,
- *               last date), categories and classes (key => number of species),
+ *               category, class, classkey, group (icon), id of the species sheet,
+ *               sightings, last date), categories, classes and groups (key =>
+ *               number of species),
  *               category and classkey (the prevailing ones), nsightings
  */
 function openkis_FaunaMapPlaces($where = "", $filter = array())
@@ -391,6 +543,7 @@ function openkis_FaunaMapPlaces($where = "", $filter = array())
                 $empty = array("id" => 0, "scientific_name" => $group['name'], "name" => "", "type" => "", "class" => "");
                 // without a sheet of the valid name, category and class come from the sheet of the cited name
                 $sheet = isset($species[$skey]) ? $species[$skey] : (isset($species[$cited]) ? array_merge($species[$cited], array("id" => 0, "scientific_name" => $group['name'], "name" => "")) : $empty);
+                $sheet = openkis_FaunaTaxonomyFromGenus($sheet, $group['name']);
                 $result[$key]['species'][$skey] = array(
                     "name" => $sheet['scientific_name'] !== "" ? $sheet['scientific_name'] : $group['name'],
                     "common" => (string) $sheet['name'],
@@ -398,6 +551,7 @@ function openkis_FaunaMapPlaces($where = "", $filter = array())
                     "category" => openkis_FaunaCategory($sheet['type']),
                     "class" => (string) $sheet['class'],
                     "classkey" => openkis_FaunaClassKey($sheet['class']),
+                    "group" => openkis_FaunaGroupKey($sheet),
                     "id" => intval($sheet['id']),
                     "cited" => array(),
                     "sightings" => 0,
@@ -428,10 +582,12 @@ function openkis_FaunaMapPlaces($where = "", $filter = array())
         });
         $categories = array();
         $classes = array();
+        $groups = array();
         foreach ($place['species'] as $sp)
         {
             $categories[$sp['category']] = isset($categories[$sp['category']]) ? $categories[$sp['category']] + 1 : 1;
             $classes[$sp['classkey']] = isset($classes[$sp['classkey']]) ? $classes[$sp['classkey']] + 1 : 1;
+            $groups[$sp['group']] = isset($groups[$sp['group']]) ? $groups[$sp['group']] + 1 : 1;
         }
         if (!empty($filter['category']) && !isset($categories[$filter['category']]))
         {
@@ -456,6 +612,11 @@ function openkis_FaunaMapPlaces($where = "", $filter = array())
         }
         $place['categories'] = $categories;
         $place['classes'] = $classes;
+        // icon groups in legend order (openkis_FaunaGroups())
+        $place['groups'] = array();
+        foreach (array_keys(openkis_FaunaGroups()) as $g)
+            if (isset($groups[$g]))
+                $place['groups'][$g] = $groups[$g];
         $result[$key] = $place;
     }
     return $result;

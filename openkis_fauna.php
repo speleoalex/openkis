@@ -3,7 +3,8 @@
  * Caves and artificial cavities with fauna sightings as GeoJSON for the map
  * (OPS_Map.addFaunaLayer): one Point per place, with its species grouped by
  * ecological category (troglobites..., field "type" of the species sheet) and
- * by taxonomic class (field "class"). Only the sightings, species, caves and
+ * by taxonomic class (field "class") and by icon group (openkis_FaunaGroups(),
+ * from order, class and phylum). Only the sightings, species, caves and
  * cavities the current user can see are returned, nothing at all when the
  * user may not view the section fauna_surveys (see openkis_FaunaMapPlaces()).
  *
@@ -18,7 +19,7 @@
  *             openkis_FaunaClasses())
  *
  * Besides the features the collection carries a "legend" member with the
- * translated labels of the categories and of the classes.
+ * translated labels of the categories, of the classes and the icons of the groups.
  */
 ob_start();
 global $_FN;
@@ -34,6 +35,7 @@ $class = FN_GetParam("class", $_GET, "flat");
 
 $categories = openkis_FaunaCategories();
 $classes = openkis_FaunaClasses();
+$groups = openkis_FaunaGroups();
 $places = array();
 if (file_exists("sections/fauna_surveys") && FN_UserCanViewSection("fauna_surveys"))
 {
@@ -91,6 +93,8 @@ foreach ($places as $key => $place)
             }
             $name .= "<br /><small class=\"text-muted\">" . FN_Translate("cited as", "aa") . " " . implode(", ", $cited) . "</small>";
         }
+        $group = $groups[$sp['group']];
+        $name = "<span class=\"openkis-fauna-icon\" title=\"" . htmlspecialchars($group['label']) . "\" aria-label=\"" . htmlspecialchars($group['label']) . "\">{$group['icon']}</span> $name";
         $dot = "<span class=\"openkis-fauna-dot\" data-category=\"" . htmlspecialchars($sp['category']) . "\" data-class=\"" . htmlspecialchars($sp['classkey']) . "\"></span>";
         $when = $sp['last'] !== "" ? date("d/m/Y", strtotime($sp['last'])) : "";
         $description .= "<tr><td class=\"p-0 pr-1 pe-1\">$dot</td><td class=\"p-0\">$name</td><td class=\"p-0 pl-2 ps-2 text-nowrap\"><small>" . htmlspecialchars($categories[$sp['category']]) . "</small></td><td class=\"p-0 pl-2 ps-2 text-nowrap\"><small>" . $when . "</small></td></tr>";
@@ -101,7 +105,7 @@ foreach ($places as $key => $place)
     $species_list = array();
     foreach ($place['species'] as $sp)
     {
-        $species_list[] = array("name" => FN_FixEncoding($sp['name']), "category" => $sp['category'], "class" => $sp['classkey'], "sightings" => $sp['sightings']);
+        $species_list[] = array("name" => FN_FixEncoding($sp['name']), "category" => $sp['category'], "class" => $sp['classkey'], "group" => $sp['group'], "sightings" => $sp['sightings']);
     }
     $features[] = array(
         "type" => "Feature",
@@ -117,6 +121,7 @@ foreach ($places as $key => $place)
             "class" => $place['classkey'],
             "categories" => $place['categories'],
             "classes" => $place['classes'],
+            "groups" => $place['groups'],
             "species" => $species_list,
             "nspecies" => count($place['species']),
             "nsightings" => $place['nsightings'],
@@ -124,13 +129,15 @@ foreach ($places as $key => $place)
 }
 
 $legend = array(
-    "title" => FN_Translate("cave fauna"),
+    "title" => FN_Translate("biospeleology"),
     "mode_category" => FN_Translate("by ecological category"),
     "mode_class" => FN_Translate("by class"),
     "places" => FN_Translate("caves"),
     "size" => FN_Translate("the size of a point is the number of species"),
     "categories" => $categories,
-    "classes" => $classes);
+    "classes" => $classes,
+    "groups_title" => FN_Translate("organisms"),
+    "groups" => $groups);
 @ini_set("serialize_precision", -1);
 $json = json_encode(array("type" => "FeatureCollection", "legend" => $legend, "features" => $features));
 while (false !== @ob_end_clean());

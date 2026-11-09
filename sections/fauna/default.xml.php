@@ -4,7 +4,7 @@
 	<type>dbview</type>
 	<parent>menu_fauna</parent>
 	<position>190</position>
-	<title>Fauna cavernicola</title>
+	<title>Specie</title>
 	<description>contiene l&#039;elenco degli animali cavernicoli</description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -18,9 +18,9 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Fauna cavernicola</title_it>
+	<title_it>Specie</title_it>
 	<description_it>contiene l&#039;elenco degli animali cavernicoli</description_it>
-	<title_en></title_en>
+	<title_en>Species</title_en>
 	<description_en></description_en>
 </fn_sections>
 

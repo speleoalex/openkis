@@ -466,7 +466,7 @@
     </innertable>
     <innertable>
         <tablename>ctl_faunacave</tablename>
-        <frm_it>Rilevamenti faunistici</frm_it>
+        <frm_it>Rilevamenti biospeleologici</frm_it>
         <linkfield>code,codecave</linkfield>
         <innertablefields>name,photo1,date</innertablefields>
         <view></view>

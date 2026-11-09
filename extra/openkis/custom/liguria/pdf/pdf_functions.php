@@ -777,7 +777,7 @@ function _build_fauna_html($data, $mode)
     if (!$fauna || count($fauna) == 0)
         return '';
     $section_title = ($mode === 'pdf') ? 'tpdf_section_title' : 'html_section_title';
-    $html = $section_title('Rilevamenti faunistici (' . count($fauna) . ')');
+    $html = $section_title('Rilevamenti biospeleologici (' . count($fauna) . ')');
     $species = isset($data['faunaSpecies']) ? $data['faunaSpecies'] : array();
     if ($mode === 'pdf') {
         $th = 'font-size:9px;color:#0078a3;padding:2px 4px;border-bottom:1px solid #cccccc;text-align:left;';

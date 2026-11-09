@@ -121,7 +121,7 @@
         <frm_options>valid,synonym,combination,ambiguous,dubium</frm_options>
         <frm_options_it>valido,sinonimo,combinazione storica,sinonimo ambiguo (riferito a più specie),nomen dubium</frm_options_it>
         <frm_options_en>valid,synonym,historical combination,ambiguous synonym (referred to several species),nomen dubium</frm_options_en>
-        <frm_help_it>Stato tassonomico attuale del nome scientifico. Vuoto = non ancora verificato. Il nome dei rilevamenti non cambia mai (resta quello della fonte): per un sinonimo o una combinazione storica indicare il nome valido; per un sinonimo ambiguo o un nomen dubium lasciare vuoto il nome valido, la mappa della fauna raggruppa le segnalazioni a livello di genere (Genere sp.).</frm_help_it>
+        <frm_help_it>Stato tassonomico attuale del nome scientifico. Vuoto = non ancora verificato. Il nome dei rilevamenti non cambia mai (resta quello della fonte): per un sinonimo o una combinazione storica indicare il nome valido; per un sinonimo ambiguo o un nomen dubium lasciare vuoto il nome valido, la mappa biospeleologica raggruppa le segnalazioni a livello di genere (Genere sp.).</frm_help_it>
         <frm_help_en>Current taxonomic status of the scientific name. Empty = not checked yet. The name of the sightings never changes (it stays as in the source): for a synonym or a historical combination give the valid name; for an ambiguous synonym or a nomen dubium leave the valid name empty, the fauna map groups the sightings at genus level (Genus sp.).</frm_help_en>
     </field>
     <field>
