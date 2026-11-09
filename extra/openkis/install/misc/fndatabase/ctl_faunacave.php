@@ -21,6 +21,7 @@
         <name>codecave</name>
         <frm_it>Numero grotta</frm_it>
         <type>string</type>
+        <frm_type>selectfilter</frm_type>
         <view_show>1</view_show>
         <foreignkey>ctl_caves</foreignkey>
         <fk_link_field>code</fk_link_field>
@@ -31,6 +32,7 @@
         <name>codeartificial</name>
         <frm_it>Id cavità artificiale</frm_it>
         <type>string</type>
+        <frm_type>selectfilter</frm_type>
         <view_show>1</view_show>
         <foreignkey>ctl_artificials</foreignkey>
         <fk_link_field>code</fk_link_field>
@@ -82,7 +84,9 @@
         <name>date</name>
         <frm_it>Data rilevamento</frm_it>
         <type>datetime</type>
-        <frm_dateformat>dd/mm/y 00:00</frm_dateformat>
+        <frm_type>datetime</frm_type>
+        <frm_html5date>1</frm_html5date>
+        <frm_dateformat>y-mm-dd</frm_dateformat>
         <view_dateformat>dd/mm/y 00:00</view_dateformat>
         <frm_showinlist>1</frm_showinlist>
     </field>

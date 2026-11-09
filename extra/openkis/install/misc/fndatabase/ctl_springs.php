@@ -19,6 +19,7 @@
         <name>codecave</name>
         <frm_it>Numero grotta</frm_it>
         <type>string</type>
+        <frm_type>selectfilter</frm_type>
         <view_show>1</view_show>
         <foreignkey>ctl_caves</foreignkey>
         <fk_link_field>code</fk_link_field>
