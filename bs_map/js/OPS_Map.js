@@ -1559,6 +1559,11 @@ var OPS_Map = {
      * the fallback character replaces an emoji the browser cannot draw.
      */
     faunaIcons: null,
+    /**
+     * Name of the icon layer in the layer switcher by map language (the language
+     * files of the map are loaded after the layers are created).
+     */
+    faunaIconsNames: {it: "icone degli organismi", en: "organism icons"},
     // letters and digits from the text font, the emoji from the colour fonts
     faunaEmojiFonts: "sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\"",
     /**
@@ -1704,7 +1709,7 @@ var OPS_Map = {
     faunaIconStyle: function (feature)
     {
         var visible = OPS_Map.faunaVisible(feature);
-        if (visible.key === "")
+        if (visible.key === "" || !OPS_Map.faunaLayer.getVisible())
         {
             return null;
         }
@@ -1852,9 +1857,12 @@ var OPS_Map = {
         layer.setZIndex(12);
         this.addLayer(layer, false);
         OPS_Map.faunaLayer = layer;
-        // icons of the groups on their own decluttered layer (no name: not in
-        // the layer switcher), shown and redrawn with the points
+        // icons of the groups on their own decluttered layer, listed in the layer
+        // switcher so that they can be switched off; switched on and off with the
+        // points, drawn only while the points are visible
+        var iconsName = title + ": " + (OPS_Map.faunaIconsNames[OPS_Map.lang] || OPS_Map.faunaIconsNames.en);
         var iconLayer = new ol.layer.Vector({
+            name: iconsName,
             visible: visible,
             source: source,
             declutter: true,
@@ -1865,7 +1873,7 @@ var OPS_Map = {
             }
         });
         iconLayer.setZIndex(13);
-        this.map.addLayer(iconLayer);
+        this.addLayer(iconLayer, false);
         var redraw = function () {
             layer.changed();
             iconLayer.changed();
@@ -1902,6 +1910,7 @@ var OPS_Map = {
         };
         layer.on("change:visible", function () {
             iconLayer.setVisible(layer.getVisible());
+            OPS_Map.UpdateOverlays();
             updateLegend();
         });
         $(legend).on("click", "a[data-fauna-mode]", function (e) {
