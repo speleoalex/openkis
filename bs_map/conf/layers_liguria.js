@@ -31,10 +31,11 @@ OPS_Map.MyAddLayers = function () {
     var layers = getUrlVar("layers", "");
     var mod = getUrlVar("mod", "");
     var nv_areas = getUrlVar("nv_areas", "");
+    var cave_area = getUrlVar("cave_area", "");
     var filter_code = getUrlVar("filter_code", "");
 
     splx.include("bs_surveys.js.php?t=areas&mod=" + mod);
-    splx.include("bs_surveys.js.php?mod=" + mod);
+    splx.include("bs_surveys.js.php?mod=" + mod + (cave_area !== "" ? "&cave_area=" + encodeURIComponent(cave_area) : ""));
     splx.include("bs_surveys.js.php?t=artificials&mod=" + mod);
 
     if (filter_code !== "") {

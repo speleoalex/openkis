@@ -1349,11 +1349,15 @@ var OPS_Map = {
         var path = "openkis_tracings.php";
         var tracing = getUrlVar("tracing", "");
         var cave = getUrlVar("tracing_cave", "");
+        var caveArea = getUrlVar("cave_area", "");
         var spring = getUrlVar("tracing_spring", "");
         var uncatalogued = getUrlVar("tracing_uncatalogued", "");
         if (tracing !== "")
         {
             path += "?id=" + encodeURIComponent(tracing);
+        } else if (caveArea !== "")
+        {
+            path += "?cave_area=" + encodeURIComponent(caveArea);
         } else if (cave !== "")
         {
             path += "?cave=" + encodeURIComponent(cave);
@@ -1494,9 +1498,13 @@ var OPS_Map = {
         var path = "openkis_temperatures.php";
         var temperature = getUrlVar("temperature", "");
         var cave = getUrlVar("temperature_cave", "");
+        var caveArea = getUrlVar("cave_area", "");
         if (temperature !== "")
         {
             path += "?id=" + encodeURIComponent(temperature);
+        } else if (caveArea !== "")
+        {
+            path += "?cave_area=" + encodeURIComponent(caveArea);
         } else if (cave !== "")
         {
             path += "?cave=" + encodeURIComponent(cave);

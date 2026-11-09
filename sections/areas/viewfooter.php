@@ -24,9 +24,14 @@ if ($area_code !== "")
     $items = $dbview->GetResults($config, $params);
     if (is_array($items) && count($items))
     {
-        // the map selects the caves by their codes; for a large area the url would be
-        // too long, so it takes the caves whose field is exactly this area
-        $map = (count($items) > 300) ? "nv_areas=" . rawurlencode($area_code) : "";
+        // Keep the existing cave-marker selection while adding the thematic
+        // layers for this area. openkis_SheetCavesMapUrl() builds the iframe URL
+        // and retains its centre/zoom calculation.
+        $map_filter = (count($items) > 300)
+            ? "nv_areas=" . rawurlencode($area_code)
+            : "filter_code=" . implode(",", array_unique(array_map("rawurlencode", array_column($items, "code"))));
+        $map_filter .= "&cave_area=" . rawurlencode($area_code) . "&temperatures=1&tracings=1";
+        $map = $map_filter;
         echo openkis_SheetCavesCard(FN_Translate("caves of the area"), $items, array("map" => $map));
         //---- the area in numbers, in the side column ------------------------->
         $total = 0;

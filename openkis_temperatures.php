@@ -28,6 +28,7 @@ FN_LoadMessagesFolder("extra/openkis");
 
 $id = FN_GetParam("id", $_GET, "flat");
 $cave = FN_GetParam("cave", $_GET, "flat");
+$cave_area = FN_GetParam("cave_area", $_GET, "flat");
 $format = FN_GetParam("format", $_GET, "flat");
 $type = FN_GetParam("type", $_GET, "flat") == "monitoring" ? "monitoring" : "spot";
 
@@ -54,6 +55,27 @@ if (file_exists("sections/temperatures") && FN_UserCanViewSection("temperatures"
     {
         $where[] = "cave LIKE '" . addslashes($cave) . "'";
     }
+    $area_cave_codes = array();
+    if ($cave_area !== "")
+    {
+        $caves_config = FN_LoadConfig("modules/dbview/config.php", "caves");
+        $caves_view = new FNDBVIEW($caves_config);
+        $area = addslashes(str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $cave_area));
+        $caves = $caves_view->GetResults($caves_config, array(
+            "fields" => "code",
+            "appendquery" => "(areas LIKE '$area' OR areas LIKE '$area,%' OR areas LIKE '%,$area,%' OR areas LIKE '%,$area')"));
+        $codes = array();
+        if (is_array($caves))
+        {
+            foreach ($caves as $area_cave)
+            {
+                if (!empty($area_cave['code']))
+                    $area_cave_codes[trim($area_cave['code'])] = true;
+            }
+        }
+        if (!count($area_cave_codes))
+            $where[] = "id = 0";
+    }
     if (count($where) > 0)
     {
         $params['appendquery'] = implode(" AND ", $where);
@@ -61,6 +83,13 @@ if (file_exists("sections/temperatures") && FN_UserCanViewSection("temperatures"
     $records = $dbview->GetResults($config, $params);
     if (is_array($records))
     {
+        if ($cave_area !== "" && count($area_cave_codes))
+        {
+            $records = array_values(array_filter($records, function ($record) use ($area_cave_codes)
+            {
+                return isset($area_cave_codes[trim(strval($record['cave']))]);
+            }));
+        }
         $records = FN_ArraySortByKey($records, "sort_date");
         $items = openkis_TemperaturesPoints($records);
     }
