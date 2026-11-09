@@ -59,27 +59,6 @@ if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
     {
         $where[] = "(cave_injection LIKE '" . addslashes($cave) . "' OR cave_detection LIKE '" . addslashes($cave) . "')";
     }
-    $area_cave_codes = array();
-    if ($cave_area !== "")
-    {
-        $caves_config = FN_LoadConfig("modules/dbview/config.php", "caves");
-        $caves_view = new FNDBVIEW($caves_config);
-        $area = addslashes(str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $cave_area));
-        $caves = $caves_view->GetResults($caves_config, array(
-            "fields" => "code",
-            "appendquery" => "(areas LIKE '$area' OR areas LIKE '$area,%' OR areas LIKE '%,$area,%' OR areas LIKE '%,$area')"));
-        $codes = array();
-        if (is_array($caves))
-        {
-            foreach ($caves as $area_cave)
-            {
-                if (!empty($area_cave['code']))
-                    $area_cave_codes[trim($area_cave['code'])] = true;
-            }
-        }
-        if (!count($area_cave_codes))
-            $where[] = "id = 0";
-    }
     if ($spring !== "")
     {
         $where[] = "spring_detection LIKE '" . addslashes($spring) . "'";
@@ -91,13 +70,9 @@ if (file_exists("sections/tracings") && FN_UserCanViewSection("tracings"))
     }
     $params['appendquery'] = implode(" AND ", $where);
     $tracings = $dbview->GetResults($config, $params);
-    if ($cave_area !== "" && is_array($tracings))
+    if ($cave_area !== "")
     {
-        $tracings = array_values(array_filter($tracings, function ($tracing) use ($area_cave_codes)
-        {
-            return isset($area_cave_codes[trim(strval($tracing['cave_injection']))])
-                || isset($area_cave_codes[trim(strval($tracing['cave_detection']))]);
-        }));
+        $tracings = openkis_RecordsOfAreaCaves($tracings, $cave_area, array("cave_injection", "cave_detection"));
     }
     $arrows = is_array($tracings) ? openkis_TracingsArrows($tracings) : array();
 

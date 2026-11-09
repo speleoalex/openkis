@@ -40,36 +40,12 @@ $Tablerilievi = FN_XMDBForm($tablename);
 $config = FN_LoadConfig("modules/dbview/config.php", "$mod_survey");
 $dbview = new FNDBVIEW($config);
 $params['fields'] = "id,filekml,$table_link";
-$area_cave_codes = array();
-// When an area's sheet opens the map, show only cave surveys belonging to
-// caves in that area (not every survey in the register).
-if ($tablename == "ctl_surveys" && !empty($_GET['cave_area']))
-{
-    $caves_config = FN_LoadConfig("modules/dbview/config.php", "caves");
-    $caves_view = new FNDBVIEW($caves_config);
-    $area = addslashes(str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $_GET['cave_area']));
-    $caves = $caves_view->GetResults($caves_config, array(
-        "fields" => "code",
-        "appendquery" => "(areas LIKE '$area' OR areas LIKE '$area,%' OR areas LIKE '%,$area,%' OR areas LIKE '%,$area')"));
-    $codes = array();
-    if (is_array($caves))
-    {
-        foreach ($caves as $area_cave)
-        {
-            if (!empty($area_cave['code']))
-                $area_cave_codes[trim($area_cave['code'])] = true;
-        }
-    }
-    if (!count($area_cave_codes))
-        $params['appendquery'] = "id = 0";
-}
 $rilievi = $dbview->GetResults($config, $params);
-if ($tablename == "ctl_surveys" && !empty($_GET['cave_area']) && is_array($rilievi))
+// map of an area sheet: only the surveys of the caves of that area, shown at once
+$cave_area = ($tablename == "ctl_surveys") ? FN_GetParam("cave_area", $_GET, "flat") : "";
+if ($cave_area !== "")
 {
-    $rilievi = array_values(array_filter($rilievi, function ($rilievo) use ($area_cave_codes, $table_link)
-    {
-        return isset($area_cave_codes[trim(strval($rilievo[$table_link]))]);
-    }));
+    $rilievi = openkis_RecordsOfAreaCaves($rilievi, $cave_area, array($table_link));
 }
 while (false !== @ob_end_clean()
 );
@@ -77,16 +53,8 @@ ob_start();
 header('Access-Control-Allow-Origin: *');
 header('Content-type: application/javascript');
 $kml = array();
-$visible = "false";
-
-if (isset($_GET['mod']) && $_GET['mod'] == "caves" && $tablename == "ctl_surveys")
-    $visible = "true";
-if (isset($_GET['mod']) && $_GET['mod'] == "artificials" && $tablename == "ctl_surveys_artificials")
-    $visible = "true";
-if (isset($_GET['mod']) && $_GET['mod'] == "areas" && $tablename == "ctl_areas")
-    $visible = "true";
-if ($tablename == "ctl_surveys" && !empty($_GET['cave_area']))
-    $visible = "true";
+// the survey layers start switched off, except on the map of an area sheet
+$visible = ($cave_area !== "") ? "true" : "false";
 
 if (is_array($rilievi))
 {

@@ -55,41 +55,17 @@ if (file_exists("sections/temperatures") && FN_UserCanViewSection("temperatures"
     {
         $where[] = "cave LIKE '" . addslashes($cave) . "'";
     }
-    $area_cave_codes = array();
-    if ($cave_area !== "")
-    {
-        $caves_config = FN_LoadConfig("modules/dbview/config.php", "caves");
-        $caves_view = new FNDBVIEW($caves_config);
-        $area = addslashes(str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $cave_area));
-        $caves = $caves_view->GetResults($caves_config, array(
-            "fields" => "code",
-            "appendquery" => "(areas LIKE '$area' OR areas LIKE '$area,%' OR areas LIKE '%,$area,%' OR areas LIKE '%,$area')"));
-        $codes = array();
-        if (is_array($caves))
-        {
-            foreach ($caves as $area_cave)
-            {
-                if (!empty($area_cave['code']))
-                    $area_cave_codes[trim($area_cave['code'])] = true;
-            }
-        }
-        if (!count($area_cave_codes))
-            $where[] = "id = 0";
-    }
     if (count($where) > 0)
     {
         $params['appendquery'] = implode(" AND ", $where);
     }
     $records = $dbview->GetResults($config, $params);
+    if ($cave_area !== "")
+    {
+        $records = openkis_RecordsOfAreaCaves($records, $cave_area, array("cave"));
+    }
     if (is_array($records))
     {
-        if ($cave_area !== "" && count($area_cave_codes))
-        {
-            $records = array_values(array_filter($records, function ($record) use ($area_cave_codes)
-            {
-                return isset($area_cave_codes[trim(strval($record['cave']))]);
-            }));
-        }
         $records = FN_ArraySortByKey($records, "sort_date");
         $items = openkis_TemperaturesPoints($records);
     }

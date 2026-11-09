@@ -486,6 +486,47 @@ function openkis_SheetRecordsByCode($mod, $codes, $fields)
 }
 
 /**
+ * Records linked to the caves of a karst area, for the map of an area sheet
+ * (parameter cave_area of bs_surveys.js.php, openkis_temperatures.php and
+ * openkis_tracings.php): keeps the records with, in one of $fields, the code
+ * of a cave that the visitor may view and whose field "areas" (codes separated
+ * by commas) contains $area.
+ *
+ * @param array $records records to filter
+ * @param string $area code of the area
+ * @param array $fields fields of the records holding a cave code
+ * @return array
+ */
+function openkis_RecordsOfAreaCaves($records, $area, $fields)
+{
+    global $_FN;
+    if (!is_array($records) || !count($records) || !file_exists("sections/caves") || !FN_UserCanViewSection("caves"))
+        return array();
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    $config = FN_LoadConfig("modules/dbview/config.php", "caves");
+    $dbview = new FNDBVIEW($config);
+    // the area code is matched literally, LIKE wildcards in it are escaped
+    $like = addslashes(str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $area));
+    $caves = $dbview->GetResults($config, array("fields" => "code",
+        "appendquery" => "(areas LIKE '$like' OR areas LIKE '$like,%' OR areas LIKE '%,$like,%' OR areas LIKE '%,$like')"));
+    $codes = array();
+    foreach (is_array($caves) ? $caves : array() as $cave)
+    {
+        if (!empty($cave['code']))
+            $codes[trim($cave['code'])] = true;
+    }
+    return array_values(array_filter($records, function ($record) use ($codes, $fields)
+    {
+        foreach ($fields as $field)
+        {
+            if (isset($record[$field]) && isset($codes[trim((string) $record[$field])]))
+                return true;
+        }
+        return false;
+    }));
+}
+
+/**
  * Sections of the code fields that point to another record (the survey tables):
  * field => section whose records have that value in "code".
  *
