@@ -144,6 +144,12 @@ foreach($results as $item)
         {
             $size=0.2;
         }
+        // points without length and depth (springs...) would all get the
+        // smallest cave size and almost disappear on the map
+        if (!isset($table->fields['lenght_total']) && !isset($table->fields['depth_total']))
+        {
+            $size=0.35;
+        }
         //-----dimensione icona------------------------------------------------<
         if ($big_icons)
         {
