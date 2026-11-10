@@ -89,13 +89,14 @@ foreach ($rows as $row)
     foreach (array_keys($report['columns']) as $key)
     {
         $cell = isset($row['cells'][$key]) ? $row['cells'][$key] : openkis_ReportCell("");
-        $html = openkis_ReportCellHtml($cell);
+        // not $html: the section wrapper (finis modules/finis/section.php) prints that variable after this file
+        $cellhtml = openkis_ReportCellHtml($cell);
         if ($key === "code")
         {
             // absolute: the theme rewrites relative links with regular expressions on the whole page
-            $html = "<a target=\"_blank\" href=\"" . FN_RewriteLink("index.php?mod={$mod}&amp;op=view&amp;id=" . urlencode($row['id']), "&amp;", true) . "\">$html</a>";
+            $cellhtml = "<a target=\"_blank\" href=\"" . FN_RewriteLink("index.php?mod={$mod}&amp;op=view&amp;id=" . urlencode($row['id']), "&amp;", true) . "\">$cellhtml</a>";
         }
-        $cols[] = array("text" => $html);
+        $cols[] = array("text" => $cellhtml);
     }
     if ($showai)
     {
