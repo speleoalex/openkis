@@ -44,7 +44,9 @@ OPS_Map.MyAddLayers = function () {
         if (nv_areas != "")
             OPS_Map.addKmlLayer("Cavita naturali area", "openkis_kml.php?mod=caves&nv_areas=" + nv_areas, false, mod === "caves");
         else {
-            OPS_Map.addKmlLayer("Cavita naturali", "openkis_kml.php" + location.search, false, mod === "caves");
+            // the query of the page filters the caves only on a caves map: on a springs or
+            // artificials map it holds mod=springs... and the layer would load those records
+            OPS_Map.addKmlLayer("Cavita naturali", "openkis_kml.php" + (mod === "caves" ? location.search : "?mod=caves"), false, mod === "caves");
         }
     }
     var history = getUrlVar("history", "");
