@@ -96,7 +96,7 @@ function openkis_AiChat($content, $max_tokens = 16000)
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curl_error = curl_error($ch);
-    curl_close($ch);
+    // no curl_close(): a no-op since PHP 8.0, deprecated in 8.5
     if ($response === false)
     {
         $ret['error'] = FN_Translate("network error") . ": $curl_error";
