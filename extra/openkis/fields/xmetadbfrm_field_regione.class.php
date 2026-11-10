@@ -28,7 +28,6 @@ class xmetadbfrm_field_regione
         {
             $htmljs="<script>".file_get_contents(__DIR__."/update_comuniprovince.js")."</script>";
             $htmljs.="\n<script type=\"text/javascript\">
-                console.log(\"xmetadbfrm_field_regione\");
                 var regioni=".json_encode($regioni)."	
 		</script>";
         }

@@ -23,17 +23,12 @@ updateProvince = function () {
         document.getElementById("select_provincia").innerHTML = html;
         updateComuni();
     }
-    console.log(html);
 };
 
 window.addEventListener('load', (event) => {
     var regione = document.getElementById("select_regione").value;
     var provincia = document.getElementById("select_provincia").value;
-    console.log("regione="+regione);
-    console.log("provincia="+provincia);
     if (regione !== "" && provincia == "" ) {
         updateProvince();
     }
 });
-
-//console.log("comuni");
