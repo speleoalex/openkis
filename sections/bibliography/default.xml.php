@@ -34,16 +34,16 @@
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>0</generate_googlesitemap>
 	<tables>ctl_bibliography</tables>
-	<search_orders>recordupdate,year,province,title</search_orders>
+	<search_orders>year,authors,title,magazine,recordupdate</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min>year</search_min>
 	<titlefield>title</titlefield>
 	<descriptionfield>abstract</descriptionfield>
 	<search_options></search_options>
-	<navigate_groups>year,province,zone</navigate_groups>
-	<search_partfields></search_partfields>
-	<search_fields>username</search_fields>
+	<navigate_groups>year,magazine,zone,province</navigate_groups>
+	<search_partfields>authors,title,magazine,topic</search_partfields>
+	<search_fields></search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
 	<image_size>100</image_size>
