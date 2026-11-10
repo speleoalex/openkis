@@ -245,8 +245,10 @@ function openkis_AiRecordAnalyze($mod, $id)
     $surveys = $code === "" ? array() : (array) FN_XMDBTable("ctl_surveys")->GetRecords(array("codecave" => $code));
     $drawings = count(array_filter($surveys, "openkis_SurveyHasDrawing"));
     $photos = $code === "" ? array() : (array) FN_XMDBTable("ctl_photos")->GetRecords(array("codecave" => $code));
-    $data .= "- Rilievi: " . count($surveys) . " (con disegno: $drawings)\n";
-    $data .= "- Foto: " . count($photos) . (openkis_ValidatorFieldEmpty($row, "photo1") ? "" : " + foto dell'ingresso") . "\n";
+    // computed summary, kept apart so that it is not read as text of the record
+    $summary = "- Rilievi: " . count($surveys) . ", di cui con disegno: $drawings\n";
+    $summary .= "- Foto dell'ingresso nella scheda: " . (openkis_ValidatorFieldEmpty($row, "photo1") ? "assente" : "presente") . "\n";
+    $summary .= "- Altre foto: " . count($photos) . "\n";
     $findings = "";
     foreach (openkis_ValidateRecord($mod, $row) as $finding)
     {
@@ -262,11 +264,19 @@ Il numero di catasto si scrive in piu' modi equivalenti: LI12, 12 Li, 12 Li(GE),
 
 Cerca in particolare:
 - errori nei testi: refusi, parole o frasi troncate, testo incomprensibile, testo che parla di un'altra grotta, testo incollato nel campo sbagliato;
-- difformita' fra testi e dati: misure, quote, dislivelli, pozzi, nomi, comune o localita' citati nei testi diversi da quelli dei campi; andamento, idrologia, chiusa/distrutta in contrasto con la descrizione.
+- difformita' fra testi e dati: misure, quote, dislivelli, pozzi, comune o localita' citati nei testi (descrizione, itinerario, storia, note...) diversi da quelli dei campi; andamento, idrologia, chiusa/distrutta in contrasto con la descrizione.
 
-DATI DELLA SCHEDA:
+NON segnalare:
+- varianti di grafia o di nome fra nome, sinonimi e localita': i sinonimi servono proprio a registrare le varianti storiche e dialettali;
+- campi vuoti e i controlli automatici elencati sotto: sono gia' noti al curatore;
+- il riepilogo calcolato, che non e' testo della scheda.
+Non inventare problemi: se i testi sono assenti o brevi e non trovi errori evidenti, lascia vuote le liste \"errori\" e \"difformita\".
+
+CAMPI DELLA SCHEDA:
 {$data}
-CONTROLLI AUTOMATICI GIA' ESEGUITI: sono gia' noti al curatore, non riportarli. Concentrati su quello che solo la lettura dei testi puo' rivelare.
+RIEPILOGO CALCOLATO DAL GESTIONALE:
+{$summary}
+CONTROLLI AUTOMATICI GIA' ESEGUITI:
 " . ($findings !== "" ? $findings : "- nessuna segnalazione\n") . "
 Rispondi SOLO con un JSON in questo formato:
 {

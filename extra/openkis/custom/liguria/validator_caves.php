@@ -9,8 +9,8 @@
  *             negative and total depth), survey, description
  *   INGRESSO: coordinates, photo, access itinerary
  * plus uniformity notices on the most recent survey with a drawing (author,
- * date, accuracy, license), on PDF surveys without the image shown on the
- * site, on photo/itinerary authors and licenses, on the elevation, on
+ * date, accuracy), on PDF surveys without the image shown on the site, on
+ * the itinerary author, on the elevation, on
  * coordinates outside Liguria or equal to those of another cave and on
  * records sharing the same name. Surveys holding only survey data (kml,
  * lox, shots) do not count as the survey drawing.
@@ -219,11 +219,8 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
         openkis_ValidatorAdd($findings, "notice", FN_Translate("Autore itinerario"), FN_Translate("itinerario presente ma senza autore"));
     }
 
-    // Photo attached to the record: when present it must have an author
-    if (!openkis_ValidatorFieldEmpty($row, "photo1") && openkis_ValidatorFieldEmpty($row, "authorphoto1"))
-    {
-        openkis_ValidatorAdd($findings, "notice", FN_Translate("Autore foto"), FN_Translate("foto presente ma senza autore"));
-    }
+    // Photo authors and licenses (record photo, photos, surveys) are not
+    // checked: the curators asked to leave them out (2026-11-10)
 
     // The checks below need the cadastre code to query the related tables.
     // GetRecords() with a restriction runs in the database; FN_XMETADBQuery()
@@ -338,24 +335,10 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
 
     // INGRESSO: at least one photo (in ctl_photos or attached to the record).
     // Every entrance needs its own photo, also when connected to other caves.
-    $photos = FN_XMDBTable("ctl_photos")->GetRecords(array("codecave" => $code), false, false, false, false, "author|license");
-    $photos = is_array($photos) ? $photos : array();
-    if (count($photos) == 0 && openkis_ValidatorFieldEmpty($row, "photo1"))
+    $photos = FN_XMDBTable("ctl_photos")->GetRecords(array("codecave" => $code), false, false, false, false, "id");
+    if (count((array) $photos) == 0 && openkis_ValidatorFieldEmpty($row, "photo1"))
     {
         openkis_ValidatorAdd($findings, $entranceseverity, FN_Translate("Foto"), FN_Translate("nessuna foto dell'ingresso") . $entrancesuffix);
-    }
-    // every photo needs author and license (CampiScheda, photos)
-    $photosincomplete = 0;
-    foreach ($photos as $photo)
-    {
-        if (openkis_ValidatorFieldEmpty($photo, "author") || openkis_ValidatorFieldEmpty($photo, "license"))
-        {
-            $photosincomplete++;
-        }
-    }
-    if ($photosincomplete)
-    {
-        openkis_ValidatorAdd($findings, "notice", FN_Translate("Foto"), FN_Translate("foto senza autore o licenza") . ": " . $photosincomplete);
     }
 
     // GROTTA: at least one survey drawing; uniformity checks on the most
@@ -425,7 +408,6 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
             "author" => FN_Translate("autore del disegno"),
             "date" => FN_Translate("data del rilevamento"),
             "accuracy" => FN_Translate("grado di precisione"),
-            "license" => FN_Translate("licenza di utilizzo"),
         );
         $missingparts = array();
         foreach ($surveychecks as $surveyfield => $surveylabel)
