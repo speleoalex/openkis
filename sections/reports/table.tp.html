@@ -1,26 +1,83 @@
+<style>
+    .openkis-report-table .r-ok { color: #1e7b34; }
+    .openkis-report-table .r-warn { color: #8a5a00; }
+    .openkis-report-table .r-bad { color: #b02a37; font-weight: bold; }
+    [data-theme="dark"] .openkis-report-table .r-ok { color: #6fd08a; }
+    [data-theme="dark"] .openkis-report-table .r-warn { color: #f0c060; }
+    [data-theme="dark"] .openkis-report-table .r-bad { color: #ff8a93; }
+    .openkis-report-table td, .openkis-report-table th { white-space: nowrap; vertical-align: top; }
+    .openkis-report-table td:nth-child(2) { white-space: normal; min-width: 12em; }
+    .openkis-report-table summary { cursor: pointer; }
+    .openkis-report-table details ul { white-space: normal; min-width: 20em; max-width: 40em; margin: 4px 0; padding-left: 1.2em; font-size: 90%; }
+    .openkis-report-table details p { white-space: normal; max-width: 40em; margin: 4px 0; }
+    .openkis-report-table .r-ai { white-space: normal; min-width: 9em; }
+    .openkis-report-table .r-ai button { min-height: 44px; margin-top: 2px; }
+    .openkis-report-actions .btn { min-height: 44px; margin: 0 4px 4px 0; }
+</style>
 <h3>{title}</h3>
-<div class="text-right mb-3">
-    <a href="{siteurl}?mod=reports&download=csv" class="btn btn-primary">
-        <i class="fa fa-download"></i> Scarica Report CSV
+<p>{count} schede &middot; dati del {generated_at}</p>
+<div class="openkis-report-actions mb-3">
+    <a href="{csvurl}" class="btn btn-primary">
+        <i class="fa fa-download" aria-hidden="true"></i> Scarica Report CSV
     </a>
+    <!-- if {canrefresh} -->
+    <form method="post" action="{formurl}" style="display:inline" onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').textContent = 'Aggiornamento in corso...';">
+        <input type="hidden" name="op" value="refresh" />
+        <input type="hidden" name="token" value="{token}" />
+        <button type="submit" class="btn btn-secondary">Aggiorna</button>
+    </form>
+    <!-- end if {canrefresh} -->
 </div>
 <!-- if {table} -->
-<table class="table table-hover table-condensed">
-    <thead>
-        <tr>
-            <!-- foreach {headers} -->
-            <th style="max-width: 40px;overflow: hidden">{text}</th>
-            <!-- end foreach {headers} -->
-        </tr>
-    </thead>
-    <tbody>
-        <!-- foreach {rows} -->
-        <tr>
-            <!-- foreach {cols} -->
-            <td>{text}</td>
-            <!-- end foreach {cols} -->
-        </tr>
-        <!-- end foreach {rows} -->
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-hover table-sm openkis-report-table" data-token="{token}" data-url="{formurl}">
+        <thead>
+            <tr><!-- foreach {headers} --><th scope="col">{text}</th><!-- end foreach {headers} --></tr>
+        </thead>
+        <tbody>
+<!-- foreach {rows} --><tr><!-- foreach {cols} --><td>{text}</td><!-- end foreach {cols} --></tr>
+<!-- end foreach {rows} -->
+        </tbody>
+    </table>
+</div>
 <!-- end if {table} -->
+<!-- if {isadmin} -->
+<script>
+    // AI analysis of one record: the server sends back the new cell
+    (function () {
+        var table = document.querySelector(".openkis-report-table");
+        if (!table) { return; }
+        table.addEventListener("click", function (e) {
+            var btn = e.target.closest(".r-ai button");
+            if (!btn) { return; }
+            var cell = btn.closest(".r-ai");
+            var status = cell.querySelector("[role=status]");
+            if (!status) {
+                status = document.createElement("div");
+                status.setAttribute("role", "status");
+                cell.appendChild(status);
+            }
+            var body = new FormData();
+            body.append("op", "ai");
+            body.append("id", cell.getAttribute("data-id"));
+            body.append("token", table.getAttribute("data-token"));
+            btn.disabled = true;
+            status.textContent = "Analisi in corso...";
+            fetch(table.getAttribute("data-url"), { method: "POST", body: body, credentials: "same-origin" })
+                .then(function (resp) { return resp.json(); })
+                .then(function (data) {
+                    if (data && data.ok && data.html) {
+                        cell.outerHTML = data.html;
+                        return;
+                    }
+                    btn.disabled = false;
+                    status.textContent = (data && data.error) ? data.error : "Errore";
+                })
+                .catch(function (err) {
+                    btn.disabled = false;
+                    status.textContent = "Errore di rete: " + err;
+                });
+        });
+    })();
+</script>
+<!-- end if {isadmin} -->

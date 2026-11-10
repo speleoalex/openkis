@@ -4,9 +4,9 @@
  * AI survey analysis endpoint (Liguria only).
  *
  * Called asynchronously from the record edit form: sends the survey image to
- * the OpenAI vision API and returns, as JSON, the compliance checks required
- * by the regional cadastre standard (CampiScheda-20250327). Same prompt and
- * model as the CLI batch script validate_ai_surveys.php.
+ * the AI service (vision model) and returns, as JSON, the compliance checks
+ * required by the regional cadastre standard (CampiScheda-20250327). Same
+ * prompt as the CLI batch script validate_ai_surveys.php.
  *
  * GET parameters:
  *   mod    = caves | artificials
@@ -20,8 +20,7 @@
  *
  * Requirements:
  *   - logged in user (any group);
- *   - $_FN['openai_apikey'] set in openkis_config.local.php (never in code:
- *     the repositories are public).
+ *   - AI service configured in the configuration section (openkis_AiSettings()).
  *
  * Only images are analyzed (no PDF conversion: exec() is not available on
  * the production host).
@@ -67,12 +66,12 @@ if (!isset($_FN['user']) || $_FN['user'] === "")
     openkis_ai_survey_Reply(array("error" => "Accesso richiesto: eseguire il login per usare l'analisi AI"), 403);
 }
 
-$openai_apikey = isset($_FN['openai_apikey']) ? trim($_FN['openai_apikey']) : "";
-if ($openai_apikey === "")
+$ai_settings = openkis_AiSettings();
+if ($ai_settings['apikey'] === "")
 {
-    openkis_ai_survey_Reply(array("error" => "Chiave OpenAI non configurata (openai_apikey in openkis_config.local.php)"), 500);
+    openkis_ai_survey_Reply(array("error" => FN_Translate("AI service not configured (Configuration section)")), 500);
 }
-$openai_model = !empty($_FN['openai_model']) ? $_FN['openai_model'] : "gpt-4o-mini";
+$ai_model = $ai_settings['model'];
 
 $mod = isset($_GET['mod']) ? $_GET['mod'] : "caves";
 if ($mod === "artificials")
@@ -121,7 +120,7 @@ if (!in_array($extension, $allowed_extensions))
     openkis_ai_survey_Reply(array("error" => "Formato '{$extension}' non analizzabile: servono immagini (PNG/JPG/GIF/WEBP)"), 415);
 }
 
-// The OpenAI data-URI limit is 20 MB: stay below it
+// The OpenAI data-URI limit (the usual one of the AI services) is 20 MB: stay below it
 $max_bytes = 15 * 1024 * 1024;
 if (filesize($image_file) > $max_bytes)
 {
@@ -244,72 +243,18 @@ Non aggiungere altro testo, solo il JSON.";
 $mime_type = mime_content_type($image_file);
 $base64_file = base64_encode(file_get_contents($image_file));
 
-$payload = array(
-    "model" => $openai_model,
-    "messages" => array(
-        array(
-            "role" => "user",
-            "content" => array(
-                array("type" => "text", "text" => $prompt),
-                array(
-                    "type" => "image_url",
-                    "image_url" => array("url" => "data:{$mime_type};base64,{$base64_file}"),
-                ),
-            ),
-        ),
-    ),
-    "max_tokens" => 500,
-);
-
-set_time_limit(180);
-$ch = curl_init("https://api.openai.com/v1/chat/completions");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    "Content-Type: application/json",
-    "Authorization: Bearer " . $openai_apikey,
+$reply = openkis_AiChat(array(
+    array("type" => "text", "text" => $prompt),
+    array("type" => "image_url", "image_url" => array("url" => "data:{$mime_type};base64,{$base64_file}")),
 ));
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curl_error = curl_error($ch);
-curl_close($ch);
-
-if ($response === false)
+if (!$reply['ok'])
 {
-    openkis_ai_survey_Reply(array("error" => "Errore di rete verso OpenAI: {$curl_error}"), 502);
+    openkis_ai_survey_Reply(array("error" => "Errore AI ({$reply['error']})"), 502);
 }
-if ($http_code !== 200)
-{
-    // Pass the API error message along, without the raw payload
-    $api_error = "HTTP {$http_code}";
-    $decoded_error = json_decode($response, true);
-    if (isset($decoded_error['error']['message']))
-    {
-        $api_error .= ": " . $decoded_error['error']['message'];
-    }
-    openkis_ai_survey_Reply(array("error" => "Errore OpenAI ({$api_error})"), 502);
-}
-
-$result = json_decode($response, true);
-if (!isset($result['choices'][0]['message']['content']))
-{
-    openkis_ai_survey_Reply(array("error" => "Risposta API non valida"), 502);
-}
-$content = $result['choices'][0]['message']['content'];
-
-// The model is asked for a flat JSON object: decode it directly or extract
-// the first {...} block (same approach as the CLI batch script)
-$analysis = json_decode(trim($content), true);
-if (!is_array($analysis) && preg_match('/\{[^}]+\}/s', $content, $matches))
-{
-    $analysis = json_decode($matches[0], true);
-}
+$analysis = openkis_AiJson($reply['content']);
 if (!is_array($analysis))
 {
-    openkis_ai_survey_Reply(array("error" => "JSON non valido nella risposta AI", "raw" => $content), 502);
+    openkis_ai_survey_Reply(array("error" => "JSON non valido nella risposta AI", "raw" => $reply['content']), 502);
 }
 
 // Save the result so the edit form can show it again without a new API call
@@ -321,7 +266,7 @@ if (!is_dir($ai_cache_dir))
 @file_put_contents($ai_cache_file, json_encode(array(
     "image_md5" => $image_md5,
     "analyzed_at" => $analyzed_at,
-    "model" => $openai_model,
+    "model" => $ai_model,
     "analysis" => $analysis,
 ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
@@ -330,6 +275,6 @@ openkis_ai_survey_Reply(array(
     "cached" => false,
     "analyzed_at" => $analyzed_at,
     "survey" => $survey_meta,
-    "model" => $openai_model,
+    "model" => $ai_model,
     "analysis" => $analysis,
 ));

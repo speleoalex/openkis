@@ -1,234 +1,222 @@
 <?php
 
+/**
+ * Report of the caves (logic in report.inc.php).
+ *
+ * GET  download=csv          the report as CSV
+ * POST op=refresh, token     rebuild the saved report (logged users)
+ * POST op=ai, id, token      AI analysis of one record, JSON (administrators)
+ */
+defined('_FNEXEC') or die('Restricted access');
 global $_FN;
+require_once __DIR__ . "/report.inc.php";
 
-$tablename = "ctl_caves";
-$tableSurveys = "ctl_photos";
-$tablePhotos = "ctl_photos";
-$section = str_replace("ctl_", "", $tablename);
-$suffix = "";
-$config = FN_LoadConfig("modules/dbview/config.php", $section);
-
-// Handle CSV download
-if (isset($_GET['download']) && $_GET['download'] == 'csv') {
-    // Set headers for CSV download
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename=report_' . date('Y-m-d') . '.csv');
-    
-    // Create output stream
-    $output = fopen('php://output', 'w');
-    
-    // We'll populate this later
-    $csv_data = array();
-}
-
-if ($section !== "caves")
-{
-    $suffix = "_$section";
-}
+$mod = "caves";
 FN_LoadMessagesFolder("modules/dbview");
-$table = FN_XMDBTable("$tablename");
-$tableSurveys = FN_XMDBTable("ctl_surveys$suffix");
-$tablePhotos = FN_XMDBTable("ctl_photos$suffix");
-$all_items = $table->GetRecords();
-$all_surveys = $tableSurveys->GetRecords();
-$all_foto = $tablePhotos->GetRecords();
-$all_items = xmetadb_array_natsort_by_key($all_items, "code", $desc = false);
+$isadmin = FN_IsAdmin();
+$op = FN_GetParam("op", $_POST);
+$tokenok = $_FN['user'] != "" && hash_equals(openkis_ReportToken(), (string) FN_GetParam("token", $_POST));
 
-foreach ($all_surveys as $survey)
+if ($op === "ai")
 {
-    if (!isset($report_items['surveys'][$survey['codecave']]))
+    $reply = array("ok" => false, "error" => FN_Translate("you may not do that"));
+    $id = preg_replace('/[^0-9]/', '', (string) FN_GetParam("id", $_POST));
+    if ($isadmin && $tokenok && $id !== "")
     {
-        $report_items['surveys'][$survey['codecave']] = 0;
-    }
-    $report_items['surveys'][$survey['codecave']]++;
-}
-foreach ($all_foto as $survey)
-{
-    if (!isset($report_items['photo'][$survey['codecave']]))
-    {
-        $report_items['photo'][$survey['codecave']] = 0;
-    }
-    $report_items['photo'][$survey['codecave']]++;
-}
-$today = FN_GetDateTime(time());
-$vars = array("table" => array());
-$vars['title'] = FN_Translate("report") . " " . $today;
-
-$tablevars = array();
-$tablevars['headers'] = array();
-$tablevars['headers'][] = array("text" => FN_Translate("code"));
-$tablevars['headers'][] = array("text" => FN_Translate("name"));
-$tablevars['headers'][] = array("text" => FN_Translate("surveys"));
-$tablevars['headers'][] = array("text" => FN_Translate("photo entrance"));
-$tablevars['headers'][] = array("text" => FN_Translate("photos"));
-$tablevars['headers'][] = array("text" => FN_Translate("description"));
-$tablevars['headers'][] = array("text" => FN_Translate("itinerary"));
-$tablevars['headers'][] = array("text" => FN_Translate("position"));
-$tablevars['headers'][] = array("text" => FN_Translate("updated by"));
-$tablevars['headers'][] = array("text" => FN_Translate("date updated"));
-$tablevars['headers'][] = array("text" => FN_Translate("visible to"));
-$tablevars['headers'][] = array("text" => FN_Translate("Documents"));
-$tablevars['headers'][] = array("text" => FN_Translate("Status"));
-
-
-$tablevars['rows'] = array();
-$count_rows = 0;
-foreach ($all_items as $item)
-{
-
-    $surveys = "";
-    if (!isset($report_items['surveys'][$item['code']]))
-    {
-        $report_items['surveys'][$item['code']] = "<span style=\"color:red\">0</span>";
-    }
-    else
-    {
-        $report_items['surveys'][$item['code']] = "<span style=\"color:green\">" . $report_items['surveys'][$item['code']] . "</span>";
-    }
-    if (empty($item['photo1']))
-    {
-        $report_items['entrance'][$item['code']] = "<span style=\"color:red\">" . FN_Translate("no") . "</span>";
-    }
-    else
-    {
-        $report_items['entrance'][$item['code']] = "<span style=\"color:green\">" . FN_Translate("yes") . "</span>";
-    }
-
-    if (!isset($report_items['photo'][$item['code']]))
-    {
-        $report_items['photo'][$item['code']] = "<span style=\"color:red\">0</span>";
-    }
-    else
-    {
-        $report_items['photo'][$item['code']] = "<span style=\"color:green\">{$report_items['photo'][$item['code']]}</span>";
-    }
-
-    if ($item['description'] != "")
-    {
-        $report_items['description'] = "<span style=\"color:green\">" . FN_Translate("yes") . "</span>";
-    }
-    else
-    {
-        $report_items['description'] = "<span style=\"color:red\">" . FN_Translate("no") . "</span>";
-    }
-    if ($item['itinerary'] != "")
-    {
-        $report_items['itinerary'] = "<span style=\"color:green\">" . FN_Translate("yes") . "</span>";
-    }
-    else
-    {
-        $report_items['itinerary'] = "<span style=\"color:red\">" . FN_Translate("no") . "</span>";
-    }
-
-    if ($item['latitude'] != "" && $item['longitude'] != "")
-    {
-        $report_items['position'] = "<span style=\"color:green\">" . FN_Translate("yes") . "</span>";
-    }
-    else
-    {
-        $report_items['position'] = "<span style=\"color:red\">" . FN_Translate("no") . "</span>";
-    }
-    
-    
-    $id=$item['code'];
-    $id_number=intval(preg_replace("/[^0-9]/", "", $item['code']));    
-    $idfolder = sprintf("%04d", intval($id_number));
-    $list = glob("{$config['documents_folder']}/{$id}");
-    if ($list || count($list) < 1)
-        $list = glob("{$config['documents_folder']}/{$idfolder}");
-    if ($list || count($list) < 1)
-        $list = glob("{$config['documents_folder']}/{$idfolder}_*");        
-    if (count($list) > 0)
-    {
-        $list = glob("{$list[0]}/*.*");    
-    }
-    if (count($list) > 0)
-    {
-        
-        $report_items['documents'] = "<span style=\"color:green\">" . count($list) . "</span>";
-    }
-    else
-    {
-        $report_items['documents'] = "<span style=\"color:red\">0</span>";
-    }
-
-    $uservalues = FN_GetUser($item['userupdate']);
-    if (isset($uservalues['name']) && $uservalues['name'] != "")
-    {
-        $report_items['name'] = $uservalues['name'] . " " . $uservalues['surname'];
-    }
-    else
-    {
-        $report_items['name'] = $item['userupdate'];
-        if ($report_items['name'] == "admin")
-            $report_items['name'] = "";
-    }
-    $report_items['visible'] = "";
-    if ($item['groupview'] == "")
-    {
-        $report_items['visible'] = FN_Translate("all");
-    }
-    else
-    {
-        $report_items['visible'] = $item['groupview'];
-    }
-
-    $tmp_row = array();
-    $tmp_row['cols'] = array();
-    $tmp_col = array();
-    $tmp_col[] = array("text" => "<a target=\"_blank\" href=\"" . FN_RewriteLink("index.php?mod={$section}&amp;op=view&amp;id={$item['id']}") . "\">{$item['code']}</a>");
-    $tmp_col[] = array("text" => "{$item['name']}");
-    $tmp_col[] = array("text" => $report_items['surveys'][$item['code']]);
-    $tmp_col[] = array("text" => $report_items['entrance'][$item['code']]);
-    $tmp_col[] = array("text" => $report_items['photo'][$item['code']]);
-    $tmp_col[] = array("text" => $report_items['description']);
-    $tmp_col[] = array("text" => $report_items['itinerary']);
-    $tmp_col[] = array("text" => "{$report_items['position']}");
-    $tmp_col[] = array("text" => "{$report_items['name']}");
-    $tmp_col[] = array("text" => "{$item['recordupdate']}");
-    $tmp_col[] = array("text" => "{$report_items['visible']}");
-    $tmp_col[] = array("text" => "{$report_items['documents']}");
-
-    
-    
-   $tmp_col[] =  array("text" => isset($item['status']) ? FN_Translate($item['status']) : "");
-
-
-    $tmp_row['cols'] = $tmp_col;
-    $tablevars['rows'][] = $tmp_row;
-    $count_rows++;
-    if ($count_rows > 10)
-    {
-      //  break;
-    }
-}
-$vars['table'] = $tablevars;
-
-// Handle CSV download functionality
-if (isset($_GET['download']) && $_GET['download'] == 'csv') {
-    // Define CSV headers
-    $csv_headers = array();
-    foreach ($tablevars['headers'] as $header) {
-        $csv_headers[] = strip_tags($header['text']);
-    }
-    
-    // Write headers to CSV
-    fputcsv($output, $csv_headers);
-    
-    // Process rows for CSV
-    foreach ($tablevars['rows'] as $row) {
-        $csv_row = array();
-        foreach ($row['cols'] as $col) {
-            // Remove HTML tags for clean CSV output
-            $csv_row[] = strip_tags($col['text']);
+        $result = openkis_ReportAiAnalyze($mod, $id);
+        $reply = array("ok" => $result['ok'], "error" => $result['error']);
+        if ($result['ok'])
+        {
+            $row = FN_XMDBTable("ctl_$mod")->GetRecordByPrimaryKey($id);
+            $reply['html'] = openkis_ReportAiHtml($id, (string) $row['recordupdate'], $result['saved']);
         }
-        fputcsv($output, $csv_row);
     }
-    
-    // End script execution after CSV output
+    while (ob_get_level())
+    {
+        ob_end_clean();
+    }
+    header("Content-Type: application/json; charset=utf-8");
+    header("Cache-Control: no-store");
+    echo json_encode($reply, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit();
-} else {
-    // Normal HTML output
-    echo FN_TPL_ApplyTplFile("sections/reports/table.tp.html", $vars);
+}
+if ($op === "refresh" && $tokenok)
+{
+    openkis_ReportBuild($mod);
+    FN_Redirect(FN_RewriteLink("index.php?mod={$_FN['mod']}", "&", true));
+}
+
+$report = openkis_ReportLoad($mod);
+if ($report === null)
+{
+    $report = openkis_ReportBuild($mod);
+}
+// rows of records restricted to groups the user is not in
+$hidden = array_flip(openkis_HiddenItemCodes("ctl_$mod"));
+$rows = array();
+foreach ($report['rows'] as $row)
+{
+    if (!isset($hidden[$row['code']]))
+    {
+        $rows[] = $row;
+    }
+}
+
+if (FN_GetParam("download", $_GET) === "csv")
+{
+    while (ob_get_level())
+    {
+        ob_end_clean();
+    }
+    header("Content-Type: text/csv; charset=utf-8");
+    header("Content-Disposition: attachment; filename=report_{$mod}_" . date("Y-m-d") . ".csv");
+    $output = fopen("php://output", "w");
+    $headers = array();
+    foreach ($report['columns'] as $title)
+    {
+        $headers[] = FN_Translate($title);
+    }
+    fputcsv($output, $headers);
+    foreach ($rows as $row)
+    {
+        $line = array();
+        foreach (array_keys($report['columns']) as $key)
+        {
+            $cell = isset($row['cells'][$key]) ? $row['cells'][$key] : openkis_ReportCell("");
+            $text = openkis_ReportCellText($cell);
+            $line[] = count($cell['d']) ? trim("$text " . implode("; ", $cell['d'])) : $text;
+        }
+        fputcsv($output, $line);
+    }
+    exit();
+}
+
+$headers = array();
+foreach ($report['columns'] as $title)
+{
+    $headers[] = array("text" => htmlspecialchars(FN_Translate($title)));
+}
+if ($isadmin)
+{
+    $headers[] = array("text" => htmlspecialchars(FN_Translate("AI analysis")));
+}
+$tablerows = array();
+foreach ($rows as $row)
+{
+    $cols = array();
+    foreach (array_keys($report['columns']) as $key)
+    {
+        $cell = isset($row['cells'][$key]) ? $row['cells'][$key] : openkis_ReportCell("");
+        $html = openkis_ReportCellHtml($cell);
+        if ($key === "code")
+        {
+            // absolute: the theme rewrites relative links with regular expressions on the whole page
+            $html = "<a target=\"_blank\" href=\"" . FN_RewriteLink("index.php?mod={$mod}&amp;op=view&amp;id=" . urlencode($row['id']), "&amp;", true) . "\">$html</a>";
+        }
+        $cols[] = array("text" => $html);
+    }
+    if ($isadmin)
+    {
+        $cols[] = array("text" => openkis_ReportAiHtml($row['id'], $row['recordupdate'], openkis_ReportAiLoad($mod, $row['id'])));
+    }
+    $tablerows[] = array("cols" => $cols);
+}
+
+$vars = array();
+$vars['title'] = htmlspecialchars(FN_Translate("report"));
+$vars['generated_at'] = htmlspecialchars($report['generated_at']);
+$vars['count'] = count($rows);
+$vars['csvurl'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;download=csv", "&amp;", true);
+$vars['formurl'] = FN_RewriteLink("index.php?mod={$_FN['mod']}", "&amp;", true);
+$vars['canrefresh'] = $_FN['user'] != "";
+$vars['isadmin'] = $isadmin;
+$vars['token'] = $_FN['user'] != "" ? openkis_ReportToken() : "";
+$vars['table'] = array("headers" => $headers, "rows" => $tablerows);
+echo FN_TPL_ApplyTplFile("sections/{$_FN['mod']}/table.tp.html", $vars);
+
+/**
+ * Plain text of a cell (yes/no cells are translated here).
+ *
+ * @param array $cell
+ * @return string
+ */
+function openkis_ReportCellText($cell)
+{
+    if ($cell['t'] === "" && ($cell['s'] === "ok" || $cell['s'] === "bad"))
+    {
+        return FN_Translate($cell['s'] === "ok" ? "yes" : "no");
+    }
+    return $cell['t'];
+}
+
+/**
+ * HTML of a cell: coloured text, the detail lines in a disclosure.
+ *
+ * @param array $cell
+ * @return string
+ */
+function openkis_ReportCellHtml($cell)
+{
+    $text = htmlspecialchars(openkis_ReportCellText($cell));
+    if ($cell['s'] !== "")
+    {
+        $text = "<span class=\"r-{$cell['s']}\">$text</span>";
+    }
+    if (!count($cell['d']))
+    {
+        return $text;
+    }
+    $html = "<details><summary>$text</summary><ul>";
+    foreach ($cell['d'] as $line)
+    {
+        $html .= "<li>" . htmlspecialchars($line) . "</li>";
+    }
+    return "$html</ul></details>";
+}
+
+/**
+ * Cell of the AI analysis of a record, with the button that runs it.
+ *
+ * @param string     $id
+ * @param string     $recordupdate current last change of the record
+ * @param array|null $saved        openkis_ReportAiLoad()
+ * @return string
+ */
+function openkis_ReportAiHtml($id, $recordupdate, $saved)
+{
+    $html = "<div class=\"r-ai\" data-id=\"" . htmlspecialchars($id) . "\">";
+    if ($saved)
+    {
+        $analysis = $saved['analysis'];
+        $verdict = isset($analysis['valutazione']) ? strtolower(trim((string) $analysis['valutazione'])) : "";
+        $statuses = array("buona" => "ok", "sufficiente" => "warn", "insufficiente" => "bad");
+        $status = isset($statuses[$verdict]) ? $statuses[$verdict] : "";
+        $html .= "<details><summary><span class=\"r-$status\">" . htmlspecialchars($verdict !== "" ? $verdict : "?") . "</span> ";
+        $html .= "<small>" . htmlspecialchars($saved['analyzed_at']) . "</small>";
+        if ((string) $saved['recordupdate'] !== (string) $recordupdate)
+        {
+            $html .= " <small class=\"r-warn\">" . htmlspecialchars(FN_Translate("record changed after the analysis")) . "</small>";
+        }
+        $html .= "</summary>";
+        if (!empty($analysis['sintesi']))
+        {
+            $html .= "<p>" . htmlspecialchars((string) $analysis['sintesi']) . "</p>";
+        }
+        foreach (array("problemi" => "problems", "suggerimenti" => "suggestions") as $key => $title)
+        {
+            if (!empty($analysis[$key]) && is_array($analysis[$key]))
+            {
+                $html .= "<strong>" . htmlspecialchars(FN_Translate($title)) . "</strong><ul>";
+                foreach ($analysis[$key] as $line)
+                {
+                    $html .= "<li>" . htmlspecialchars(is_scalar($line) ? (string) $line : json_encode($line)) . "</li>";
+                }
+                $html .= "</ul>";
+            }
+        }
+        $html .= "<small>" . htmlspecialchars(FN_Translate("automatic analysis") . " (" . $saved['model'] . "): " . FN_Translate("always check the results")) . "</small>";
+        $html .= "</details>";
+    }
+    $html .= "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">" . htmlspecialchars(FN_Translate($saved ? "analyze again" : "analyze")) . "</button>";
+    return "$html</div>";
 }

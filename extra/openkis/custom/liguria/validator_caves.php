@@ -8,9 +8,12 @@
  *   GROTTA:   name, speleometric data (real development, positive,
  *             negative and total depth), survey, description
  *   INGRESSO: coordinates, photo, access itinerary
- * plus uniformity notices on the most recent survey (author, date,
- * accuracy, license), on photo/itinerary authors, on the elevation, on
- * coordinates outside Liguria and on records sharing the same name.
+ * plus uniformity notices on the most recent survey with a drawing (author,
+ * date, accuracy, license), on PDF surveys without the image shown on the
+ * site, on photo/itinerary authors and licenses, on the elevation, on
+ * coordinates outside Liguria or equal to those of another cave and on
+ * records sharing the same name. Surveys holding only survey data (kml,
+ * lox, shots) do not count as the survey drawing.
  *
  * Derogations:
  *   - destroyed (destroyed = Y/P) or closed (closed = Y) caves: photo,
@@ -26,6 +29,8 @@
  * validation workflow (validate_generate_report.php).
  *
  * Loaded on demand by openkis_ValidateRecord() in extra/openkis_validator.inc.php.
+ * The whole tables read for every record (cave systems, names, coordinates)
+ * are read once per request: the report validates every cave in one go.
  */
 require_once __DIR__ . "/ai_survey_analysis.inc.php";
 
@@ -82,7 +87,11 @@ function openkis_LiguriaValidatorConnected($row, $code)
         return $ret;
     };
     $codeupper = strtoupper($code);
-    $allsystems = FN_XMETADBQuery("SELECT * FROM ctl_cavesystems");
+    static $allsystems = null;
+    if ($allsystems === null)
+    {
+        $allsystems = FN_XMETADBQuery("SELECT * FROM ctl_cavesystems");
+    }
     if (is_array($allsystems))
     {
         foreach ($allsystems as $system)
@@ -103,13 +112,30 @@ function openkis_LiguriaValidatorConnected($row, $code)
         {
             continue;
         }
-        $linkedrows = FN_XMETADBQuery("SELECT * FROM ctl_caves WHERE code = '" . str_replace("'", "''", $linkedcode) . "'");
+        $linkedrows = FN_XMDBTable("ctl_caves")->GetRecords(array("code" => $linkedcode));
         if (is_array($linkedrows) && isset($linkedrows[0]))
         {
             $caves[$linkedcode] = $linkedrows[0];
         }
     }
     return array("caves" => $caves, "systems" => $systems);
+}
+
+/**
+ * Entrance position rounded to 5 decimals (about 1 m), "" when the record
+ * has no entered coordinates (latitude/longitude may then be stale).
+ *
+ * @param array $row
+ * @return string
+ */
+function openkis_LiguriaValidatorPoint($row)
+{
+    if (openkis_ValidatorFieldEmpty($row, "latitude_txt") || !openkis_ValidatorHasNumber($row, "latitude") || !openkis_ValidatorHasNumber($row, "longitude")
+        || ((float) $row['latitude'] == 0 && (float) $row['longitude'] == 0))
+    {
+        return "";
+    }
+    return round((float) $row['latitude'], 5) . "," . round((float) $row['longitude'], 5);
 }
 
 /**
@@ -199,7 +225,9 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
         openkis_ValidatorAdd($findings, "notice", FN_Translate("Autore foto"), FN_Translate("foto presente ma senza autore"));
     }
 
-    // The checks below need the cadastre code to query the related tables
+    // The checks below need the cadastre code to query the related tables.
+    // GetRecords() with a restriction runs in the database; FN_XMETADBQuery()
+    // with a WHERE reads the whole table, too slow for the report.
     $code = isset($row['code']) ? trim((string) $row['code']) : "";
     if ($code === "")
     {
@@ -214,7 +242,6 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
         openkis_ValidatorAdd($findings, "notice", FN_Translate("Numero di catasto"), FN_Translate("numero di catasto non assegnato: controlli su rilievi e foto non eseguiti"));
         return $findings;
     }
-    $code_escaped = str_replace("'", "''", $code);
     $connected = openkis_LiguriaValidatorConnected($row, $code);
 
     // GROTTA: description, possibly registered on a connected record
@@ -258,23 +285,30 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
         $name = function_exists("mb_strtolower") ? mb_strtolower(trim((string) $name), "UTF-8") : strtolower(trim((string) $name));
         return preg_replace('/\s+/u', " ", $name);
     };
+    static $allcaves = null;
+    if ($allcaves === null)
+    {
+        $allcaves = array();
+        $rows = FN_XMETADBQuery("SELECT id,code,name,latitude,longitude,latitude_txt,recorddeleted FROM ctl_caves");
+        foreach (is_array($rows) ? $rows : array() as $other)
+        {
+            if ((string) $other['recorddeleted'] !== "1")
+            {
+                $other['normname'] = $normname($other['name']);
+                $other['point'] = openkis_LiguriaValidatorPoint($other);
+                $allcaves[] = $other;
+            }
+        }
+    }
     $myname = isset($row['name']) ? $normname($row['name']) : "";
     if ($myname !== "" && $myname !== "numero cancellato")
     {
         $homonyms = array();
-        $allnames = FN_XMETADBQuery("SELECT id,code,name FROM ctl_caves");
-        if (is_array($allnames))
+        foreach ($allcaves as $other)
         {
-            foreach ($allnames as $other)
+            if ($other['normname'] === $myname && !(isset($row['id']) && $other['id'] == $row['id']))
             {
-                if (isset($row['id'], $other['id']) && $other['id'] == $row['id'])
-                {
-                    continue;
-                }
-                if ($normname($other['name']) === $myname)
-                {
-                    $homonyms[] = trim((string) $other['code']) !== "" ? $other['code'] : "id " . $other['id'];
-                }
+                $homonyms[] = trim((string) $other['code']) !== "" ? $other['code'] : "id " . $other['id'];
             }
         }
         if (count($homonyms))
@@ -283,26 +317,73 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
         }
     }
 
+    // INGRESSO: entrance on the same point (5 decimals, about 1 m) as another
+    // cave: a copied position or a duplicate record
+    $mypoint = openkis_LiguriaValidatorPoint($row);
+    if ($mypoint !== "")
+    {
+        $samepoint = array();
+        foreach ($allcaves as $other)
+        {
+            if ($other['point'] === $mypoint && !(isset($row['id']) && $other['id'] == $row['id']))
+            {
+                $samepoint[] = trim((string) $other['code']) !== "" ? $other['code'] : "id " . $other['id'];
+            }
+        }
+        if (count($samepoint))
+        {
+            openkis_ValidatorAdd($findings, "notice", FN_Translate("Coordinate"), FN_Translate("stessa posizione di") . ": " . implode(", ", $samepoint));
+        }
+    }
+
     // INGRESSO: at least one photo (in ctl_photos or attached to the record).
     // Every entrance needs its own photo, also when connected to other caves.
-    $photos = FN_XMETADBQuery("SELECT COUNT(*) AS count FROM ctl_photos WHERE codecave = '{$code_escaped}'");
-    $photoscount = (is_array($photos) && isset($photos[0]['count'])) ? intval($photos[0]['count']) : 0;
-    if ($photoscount == 0 && openkis_ValidatorFieldEmpty($row, "photo1"))
+    $photos = FN_XMDBTable("ctl_photos")->GetRecords(array("codecave" => $code), false, false, false, false, "author|license");
+    $photos = is_array($photos) ? $photos : array();
+    if (count($photos) == 0 && openkis_ValidatorFieldEmpty($row, "photo1"))
     {
         openkis_ValidatorAdd($findings, $entranceseverity, FN_Translate("Foto"), FN_Translate("nessuna foto dell'ingresso") . $entrancesuffix);
     }
+    // every photo needs author and license (CampiScheda, photos)
+    $photosincomplete = 0;
+    foreach ($photos as $photo)
+    {
+        if (openkis_ValidatorFieldEmpty($photo, "author") || openkis_ValidatorFieldEmpty($photo, "license"))
+        {
+            $photosincomplete++;
+        }
+    }
+    if ($photosincomplete)
+    {
+        openkis_ValidatorAdd($findings, "notice", FN_Translate("Foto"), FN_Translate("foto senza autore o licenza") . ": " . $photosincomplete);
+    }
 
-    // GROTTA: at least one survey; uniformity checks on the most recent one
-    $surveys = FN_XMETADBQuery("SELECT * FROM ctl_surveys WHERE codecave = '{$code_escaped}'");
-    if (!is_array($surveys) || count($surveys) == 0)
+    // GROTTA: at least one survey drawing; uniformity checks on the most
+    // recent one. Survey records with only kml/lox/shots are not a drawing.
+    $allsurveys = FN_XMDBTable("ctl_surveys")->GetRecords(array("codecave" => $code));
+    $allsurveys = is_array($allsurveys) ? $allsurveys : array();
+    $surveys = array_values(array_filter($allsurveys, "openkis_SurveyHasDrawing"));
+    $pdfonly = 0;
+    foreach ($surveys as $survey)
+    {
+        if (openkis_ValidatorFieldEmpty($survey, "photo1"))
+        {
+            $pdfonly++;
+        }
+    }
+    if ($pdfonly)
+    {
+        openkis_ValidatorAdd($findings, "notice", FN_Translate("Rilievo"), FN_Translate("rilievi in PDF senza l'immagine (JPG o PNG) mostrata sul sito") . ": " . $pdfonly);
+    }
+    if (count($surveys) == 0)
     {
         // A connected cave or the cave system may hold the survey of the
         // whole cave
         $sources = array();
         foreach ($connected['caves'] as $linkedcode => $linkedrow)
         {
-            $linkedsurveys = FN_XMETADBQuery("SELECT COUNT(*) AS count FROM ctl_surveys WHERE codecave = '" . str_replace("'", "''", $linkedcode) . "'");
-            if (is_array($linkedsurveys) && isset($linkedsurveys[0]['count']) && intval($linkedsurveys[0]['count']) > 0)
+            $linkedsurveys = FN_XMDBTable("ctl_surveys")->GetRecords(array("codecave" => $linkedcode), false, false, false, false, "photo1|filepdf|file");
+            if (is_array($linkedsurveys) && count(array_filter($linkedsurveys, "openkis_SurveyHasDrawing")) > 0)
             {
                 $sources[] = $linkedcode;
             }
@@ -317,6 +398,10 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
         if (count($sources))
         {
             openkis_ValidatorAdd($findings, "notice", FN_Translate("Rilievo"), FN_Translate("nessun rilievo associato a questo ingresso, rilievo presente in") . " " . implode(", ", $sources));
+        }
+        elseif (count($allsurveys))
+        {
+            openkis_ValidatorAdd($findings, $entranceseverity, FN_Translate("Rilievo"), FN_Translate("manca il disegno del rilievo: ci sono solo dati di rilievo (poligonale, kml, lox)") . $entrancesuffix);
         }
         else
         {

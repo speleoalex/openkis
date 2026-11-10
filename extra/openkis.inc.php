@@ -20,6 +20,8 @@ FN_IncludeScript("extra/openkis/openkis_defaults.php");
 // (extra/openkis/openkis_files.inc.php); the finis hooks are registered after
 // the local configuration, which may turn them off
 require_once(__DIR__ . "/openkis/openkis_files.inc.php");
+// client of the AI service (key, address and model in the configuration section)
+require_once(__DIR__ . "/openkis/openkis_ai.inc.php");
 FN_IncludeScript("extra/openkis/openkis_files_hooks.php");
 
 // Offline use of the site installed as an application (openkis_sw.js, openkis_offline.js,

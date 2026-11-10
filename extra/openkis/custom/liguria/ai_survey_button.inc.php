@@ -10,7 +10,7 @@
  * If the record has at least one survey with an image, it prepends to the top
  * of the form (the validator banner, prepended afterwards, stays above) a button
  * that calls openkis_ai_survey.php asynchronously and renders the compliance
- * checks (CampiScheda-20250327) returned by the OpenAI vision model.
+ * checks (CampiScheda-20250327) returned by the AI service (vision model).
  * On page load (and when another survey is selected) the last saved analysis
  * is shown automatically via the endpoint's cached=1 read-only mode, which
  * never triggers an API call; the button re-runs the full analysis.
@@ -20,9 +20,9 @@ if (!isset($id) || $id === "" || empty($_FN['mod']))
 {
     return;
 }
-if (empty($_FN['openai_apikey']))
+if (openkis_AiSettings()["apikey"] === "")
 {
-    // Feature disabled: no key in openkis_config.local.php
+    // Feature disabled: no AI key in the configuration section
     return;
 }
 

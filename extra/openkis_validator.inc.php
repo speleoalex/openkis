@@ -57,6 +57,24 @@ function openkis_ValidatorHasNumber($row, $field)
 }
 
 /**
+ * Returns true when a survey record holds a drawing (image or PDF), false
+ * when it only has survey data (shots, kml, lox, Therion or Compass
+ * sources).
+ *
+ * @param array $survey record of ctl_surveys / ctl_surveys_artificials
+ * @return bool
+ */
+function openkis_SurveyHasDrawing($survey)
+{
+    if (!openkis_ValidatorFieldEmpty($survey, "photo1") || !openkis_ValidatorFieldEmpty($survey, "filepdf"))
+    {
+        return true;
+    }
+    // the source file field sometimes holds the PDF of the drawing
+    return !openkis_ValidatorFieldEmpty($survey, "file") && strtolower(pathinfo(trim($survey['file']), PATHINFO_EXTENSION)) === "pdf";
+}
+
+/**
  * Appends a finding to the list.
  *
  * @param array  $findings passed by reference
@@ -159,6 +177,12 @@ function openkis_ValidateRecordDefault($mod, $row)
                 openkis_ValidatorAdd($findings, "notice", FN_Translate("Dislivello totale"), FN_Translate("il dislivello totale non corrisponde alla somma di positivo e negativo"));
             }
         }
+        // the planimetric development is the projection of the real one
+        if (openkis_ValidatorHasNumber($row, "lenght_planimetric") && openkis_ValidatorHasNumber($row, "lenght_total")
+            && (float) $row['lenght_planimetric'] > (float) $row['lenght_total'])
+        {
+            openkis_ValidatorAdd($findings, "notice", FN_Translate("Sviluppo planimetrico"), FN_Translate("lo sviluppo planimetrico supera lo sviluppo reale"));
+        }
     }
 
     return $findings;
@@ -222,6 +246,7 @@ function openkis_ValidatorRulesOff($findings)
         "provincia" => "Provincia",
         "speleometric" => "Dati speleometrici",
         "depth_total" => "Dislivello totale",
+        "lenght_planimetric" => "Sviluppo planimetrico",
     );
     $off = array();
     foreach (explode(",", strtolower($_FN['openkis_validator_rules_off'])) as $rule)
