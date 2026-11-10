@@ -19,6 +19,19 @@ if (!empty($_FN['openkis_custom']))
     }
 }
 
+// AI check of the record ("Verifica scheda con AI": errors in the texts,
+// inconsistencies between texts and data), shown below the validator banner
+// when the AI service is on (extra/openkis/openkis_ai.inc.php)
+if ($id !== "" && $_FN['mod'] === "caves" && openkis_AiRecordCanRun("caves", $id))
+{
+    $ai_record_row = FN_XMDBTable("ctl_caves")->GetRecordByPk($id);
+    if (is_array($ai_record_row))
+    {
+        $html = "<div class=\"mb-3\">" . openkis_AiRecordHtml("caves", $id, (string) $ai_record_row['recordupdate'], openkis_AiRecordLoad("caves", $id), true)
+            . openkis_AiRecordScript() . "</div>" . $html;
+    }
+}
+
 // Record validator: shows an informative banner above the edit form with the
 // missing or non-uniform data. It never blocks saving. Default rules are in
 // extra/openkis_validator.inc.php, regions can override them with

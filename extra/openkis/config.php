@@ -15,6 +15,8 @@ $config['default_latitude']=44;
 $config['default_longitude']=8;
 //[i18n]Map default zoom
 $config['default_zoom']=8;
+//[i18n]AI service: enabled (shows the AI buttons) {1=yes,0=no}
+$config['ai_enabled']="0";
 //[i18n]AI service: API key (OpenAI compatible)
 $config['ai_apikey']=""; // {password}
 //[i18n]AI service: API address (OpenAI compatible)

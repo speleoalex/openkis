@@ -67,7 +67,7 @@ if (!isset($_FN['user']) || $_FN['user'] === "")
 }
 
 $ai_settings = openkis_AiSettings();
-if ($ai_settings['apikey'] === "")
+if (!$ai_settings['enabled'])
 {
     openkis_ai_survey_Reply(array("error" => FN_Translate("AI service not configured (Configuration section)")), 500);
 }

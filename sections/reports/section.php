@@ -5,7 +5,8 @@
  *
  * GET  download=csv          the report as CSV
  * POST op=refresh, token     rebuild the saved report (logged users)
- * POST op=ai, id, token      AI analysis of one record, JSON (administrators)
+ * POST op=ai, mod, id, token AI check of one record, JSON (openkis_AiRecordReply(): administrators
+ *                            and editors of the record; also used by the edit form)
  */
 defined('_FNEXEC') or die('Restricted access');
 global $_FN;
@@ -13,32 +14,13 @@ require_once __DIR__ . "/report.inc.php";
 
 $mod = "caves";
 FN_LoadMessagesFolder("modules/dbview");
-$isadmin = FN_IsAdmin();
+$showai = FN_IsAdmin() && openkis_AiSettings()['enabled'];
 $op = FN_GetParam("op", $_POST);
 $tokenok = $_FN['user'] != "" && hash_equals(openkis_ReportToken(), (string) FN_GetParam("token", $_POST));
 
 if ($op === "ai")
 {
-    $reply = array("ok" => false, "error" => FN_Translate("you may not do that"));
-    $id = preg_replace('/[^0-9]/', '', (string) FN_GetParam("id", $_POST));
-    if ($isadmin && $tokenok && $id !== "")
-    {
-        $result = openkis_ReportAiAnalyze($mod, $id);
-        $reply = array("ok" => $result['ok'], "error" => $result['error']);
-        if ($result['ok'])
-        {
-            $row = FN_XMDBTable("ctl_$mod")->GetRecordByPrimaryKey($id);
-            $reply['html'] = openkis_ReportAiHtml($id, (string) $row['recordupdate'], $result['saved']);
-        }
-    }
-    while (ob_get_level())
-    {
-        ob_end_clean();
-    }
-    header("Content-Type: application/json; charset=utf-8");
-    header("Cache-Control: no-store");
-    echo json_encode($reply, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit();
+    openkis_AiRecordReply();
 }
 if ($op === "refresh" && $tokenok)
 {
@@ -96,7 +78,7 @@ foreach ($report['columns'] as $title)
 {
     $headers[] = array("text" => htmlspecialchars(FN_Translate($title)));
 }
-if ($isadmin)
+if ($showai)
 {
     $headers[] = array("text" => htmlspecialchars(FN_Translate("AI analysis")));
 }
@@ -115,9 +97,9 @@ foreach ($rows as $row)
         }
         $cols[] = array("text" => $html);
     }
-    if ($isadmin)
+    if ($showai)
     {
-        $cols[] = array("text" => openkis_ReportAiHtml($row['id'], $row['recordupdate'], openkis_ReportAiLoad($mod, $row['id'])));
+        $cols[] = array("text" => openkis_AiRecordHtml($mod, $row['id'], $row['recordupdate'], openkis_AiRecordLoad($mod, $row['id'])));
     }
     $tablerows[] = array("cols" => $cols);
 }
@@ -129,10 +111,13 @@ $vars['count'] = count($rows);
 $vars['csvurl'] = FN_RewriteLink("index.php?mod={$_FN['mod']}&amp;download=csv", "&amp;", true);
 $vars['formurl'] = FN_RewriteLink("index.php?mod={$_FN['mod']}", "&amp;", true);
 $vars['canrefresh'] = $_FN['user'] != "";
-$vars['isadmin'] = $isadmin;
 $vars['token'] = $_FN['user'] != "" ? openkis_ReportToken() : "";
 $vars['table'] = array("headers" => $headers, "rows" => $tablerows);
 echo FN_TPL_ApplyTplFile("sections/{$_FN['mod']}/table.tp.html", $vars);
+if ($showai)
+{
+    echo openkis_AiRecordScript();
+}
 
 /**
  * Plain text of a cell (yes/no cells are translated here).
@@ -172,51 +157,4 @@ function openkis_ReportCellHtml($cell)
         $html .= "<li>" . htmlspecialchars($line) . "</li>";
     }
     return "$html</ul></details>";
-}
-
-/**
- * Cell of the AI analysis of a record, with the button that runs it.
- *
- * @param string     $id
- * @param string     $recordupdate current last change of the record
- * @param array|null $saved        openkis_ReportAiLoad()
- * @return string
- */
-function openkis_ReportAiHtml($id, $recordupdate, $saved)
-{
-    $html = "<div class=\"r-ai\" data-id=\"" . htmlspecialchars($id) . "\">";
-    if ($saved)
-    {
-        $analysis = $saved['analysis'];
-        $verdict = isset($analysis['valutazione']) ? strtolower(trim((string) $analysis['valutazione'])) : "";
-        $statuses = array("buona" => "ok", "sufficiente" => "warn", "insufficiente" => "bad");
-        $status = isset($statuses[$verdict]) ? $statuses[$verdict] : "";
-        $html .= "<details><summary><span class=\"r-$status\">" . htmlspecialchars($verdict !== "" ? $verdict : "?") . "</span> ";
-        $html .= "<small>" . htmlspecialchars($saved['analyzed_at']) . "</small>";
-        if ((string) $saved['recordupdate'] !== (string) $recordupdate)
-        {
-            $html .= " <small class=\"r-warn\">" . htmlspecialchars(FN_Translate("record changed after the analysis")) . "</small>";
-        }
-        $html .= "</summary>";
-        if (!empty($analysis['sintesi']))
-        {
-            $html .= "<p>" . htmlspecialchars((string) $analysis['sintesi']) . "</p>";
-        }
-        foreach (array("problemi" => "problems", "suggerimenti" => "suggestions") as $key => $title)
-        {
-            if (!empty($analysis[$key]) && is_array($analysis[$key]))
-            {
-                $html .= "<strong>" . htmlspecialchars(FN_Translate($title)) . "</strong><ul>";
-                foreach ($analysis[$key] as $line)
-                {
-                    $html .= "<li>" . htmlspecialchars(is_scalar($line) ? (string) $line : json_encode($line)) . "</li>";
-                }
-                $html .= "</ul>";
-            }
-        }
-        $html .= "<small>" . htmlspecialchars(FN_Translate("automatic analysis") . " (" . $saved['model'] . "): " . FN_Translate("always check the results")) . "</small>";
-        $html .= "</details>";
-    }
-    $html .= "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">" . htmlspecialchars(FN_Translate($saved ? "analyze again" : "analyze")) . "</button>";
-    return "$html</div>";
 }

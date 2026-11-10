@@ -15,9 +15,10 @@
  *   function openkis_Report_custom_<mod>($report)
  * that receives and returns the report (see openkis_ReportBuild()).
  *
- * Administrators can have each record judged by the AI service: the result
- * is saved in {datadir}/_cache/openkis_ai_record/<table>_<id>.json and shown
- * in the report, which is not rebuilt.
+ * When the AI service is on, administrators see the AI check of each record
+ * (extra/openkis/openkis_ai.inc.php, saved apart: running it does not
+ * rebuild the report). This section also answers the AI check buttons of
+ * the edit form (op=ai).
  */
 defined('_FNEXEC') or die('Restricted access');
 
@@ -286,121 +287,4 @@ function openkis_ReportToken()
 {
     global $_FN;
     return hash_hmac("sha256", "openkis-report|" . $_FN['user'], FN_GetSiteSecret());
-}
-
-/**
- * Path of the saved AI analysis of a record.
- *
- * @global array $_FN
- * @param string $mod
- * @param string $id
- * @return string
- */
-function openkis_ReportAiFile($mod, $id)
-{
-    global $_FN;
-    return "{$_FN['datadir']}/_cache/openkis_ai_record/ctl_" . preg_replace('/[^a-z0-9_]/', '', $mod) . "_" . preg_replace('/[^0-9]/', '', (string) $id) . ".json";
-}
-
-/**
- * Saved AI analysis of a record, or null.
- *
- * @param string $mod
- * @param string $id
- * @return array|null analyzed_at, model, recordupdate, analysis
- */
-function openkis_ReportAiLoad($mod, $id)
-{
-    $file = openkis_ReportAiFile($mod, $id);
-    $saved = is_file($file) ? json_decode(file_get_contents($file), true) : null;
-    return (is_array($saved) && isset($saved['analysis']) && is_array($saved['analysis'])) ? $saved : null;
-}
-
-/**
- * Has the AI service judge a record against the cadastre rules and saves
- * the result.
- *
- * @param string $mod
- * @param string $id
- * @return array ok, error, saved
- */
-function openkis_ReportAiAnalyze($mod, $id)
-{
-    $row = FN_XMDBTable("ctl_$mod")->GetRecordByPrimaryKey($id);
-    if (!is_array($row))
-    {
-        return array("ok" => false, "error" => FN_Translate("record not found"));
-    }
-    $fields = array(
-        "code" => "Numero di catasto", "name" => "Nome", "synonyms" => "Sinonimi", "comune" => "Comune",
-        "provincia" => "Provincia", "localita" => "Localita'", "latitude_txt" => "Coordinate ingresso, latitudine / Nord",
-        "longitude_txt" => "Coordinate ingresso, longitudine / Est", "coordinates_type" => "Sistema di coordinate",
-        "areas" => "Area carsica",
-        "geologicalformation" => "Formazione geologica", "lenght_total" => "Sviluppo reale (m)",
-        "lenght_planimetric" => "Sviluppo planimetrico (m)", "depth_positive" => "Dislivello positivo (m)",
-        "depth_negative" => "Dislivello negativo (m)", "depth_total" => "Dislivello totale (m)",
-        "elevation" => "Quota (m)", "elevation_map" => "Quota cartografica (m)", "trend" => "Andamento",
-        "hydrology" => "Idrologia", "practicability" => "Percorribilita'", "closed" => "Chiusa",
-        "destroyed" => "Distrutta", "marine" => "Cavita' marina", "caveslinks" => "Grotte collegate",
-        "description" => "Descrizione", "itinerary" => "Itinerario di accesso", "wells" => "Pozzi / armo",
-        "history" => "Storia esplorativa", "geology" => "Geologia", "meteorology" => "Meteorologia",
-        "fauna" => "Fauna", "notes" => "Note",
-    );
-    $data = "";
-    foreach ($fields as $field => $label)
-    {
-        if (!openkis_ValidatorFieldEmpty($row, $field))
-        {
-            $value = trim(strip_tags(html_entity_decode((string) $row[$field], ENT_QUOTES, "UTF-8")));
-            $data .= "- $label: " . (function_exists("mb_substr") ? mb_substr($value, 0, 6000, "UTF-8") : substr($value, 0, 6000)) . "\n";
-        }
-    }
-    $code = trim((string) $row['code']);
-    $surveys = $code === "" ? array() : (array) FN_XMDBTable("ctl_surveys")->GetRecords(array("codecave" => $code));
-    $drawings = count(array_filter($surveys, "openkis_SurveyHasDrawing"));
-    $photos = $code === "" ? array() : (array) FN_XMDBTable("ctl_photos")->GetRecords(array("codecave" => $code));
-    $data .= "- Rilievi: " . count($surveys) . " (con disegno: $drawings)\n";
-    $data .= "- Foto: " . count($photos) . (openkis_ValidatorFieldEmpty($row, "photo1") ? "" : " + foto dell'ingresso") . "\n";
-    $findings = "";
-    foreach (openkis_ValidateRecord($mod, $row) as $finding)
-    {
-        $findings .= "- " . ($finding['severity'] === "missing" ? "[mancante] " : "") . "{$finding['label']}: {$finding['message']}\n";
-    }
-
-    $prompt = "Sei un curatore di un catasto speleologico regionale italiano. Valuta la scheda di grotta qui sotto.
-
-Requisiti della scheda: nome (univoco, non offensivo), dati speleometrici misurati (sviluppo reale, dislivelli positivo, negativo e totale = somma dei valori assoluti), rilievo con disegno (pianta e sezione), descrizione, coordinate dell'ingresso, foto dell'ingresso, itinerario di accesso.
-La descrizione dovrebbe trattare: morfologia, pericoli, idrologia (corsi d'acqua, laghi, sifoni), roccia, pozzi e armo, collegamenti con altre grotte, possibili prosecuzioni, storia esplorativa, percorribilita' (attrezzatura, acqua, fango, strettoie).
-L'itinerario deve permettere di ritrovare l'ingresso.
-Controlla la coerenza fra descrizione, dati speleometrici e caratteristiche (andamento, idrologia, chiusa/distrutta).
-
-DATI DELLA SCHEDA:
-{$data}
-CONTROLLI AUTOMATICI GIA' ESEGUITI: sono gia' noti al curatore, non riportarli ne' fra i problemi ne' fra i suggerimenti. Concentrati su quello che solo la lettura dei testi puo' rivelare (contenuto e qualita' di descrizione e itinerario, incoerenze fra testi e dati).
-" . ($findings !== "" ? $findings : "- nessuna segnalazione\n") . "
-Rispondi SOLO con un JSON in questo formato:
-{
-  \"valutazione\": \"buona\" | \"sufficiente\" | \"insufficiente\",
-  \"sintesi\": \"una o due frasi sullo stato della scheda\",
-  \"problemi\": [\"incoerenze o lacune trovate nei testi e nei dati\"],
-  \"suggerimenti\": [\"cosa aggiungere o correggere, in ordine di importanza\"]
-}";
-    $reply = openkis_AiChat($prompt);
-    if (!$reply['ok'])
-    {
-        return array("ok" => false, "error" => $reply['error']);
-    }
-    $analysis = openkis_AiJson($reply['content']);
-    if (!is_array($analysis))
-    {
-        return array("ok" => false, "error" => FN_Translate("invalid AI reply"));
-    }
-    $saved = array(
-        "analyzed_at" => date("Y-m-d H:i"),
-        "model" => $reply['model'],
-        "recordupdate" => (string) $row['recordupdate'],
-        "analysis" => $analysis,
-    );
-    openkis_ReportWriteJson(openkis_ReportAiFile($mod, $id), $saved);
-    return array("ok" => true, "error" => "", "saved" => $saved);
 }

@@ -20,9 +20,9 @@ if (!isset($id) || $id === "" || empty($_FN['mod']))
 {
     return;
 }
-if (openkis_AiSettings()["apikey"] === "")
+if (!openkis_AiSettings()['enabled'])
 {
-    // Feature disabled: no AI key in the configuration section
+    // AI service off or without a key in the configuration section
     return;
 }
 
