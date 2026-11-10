@@ -23,7 +23,7 @@ $config['ai_apikey']=""; // {password}
 $config['ai_url']="https://api.openai.com/v1";
 //[i18n]AI service: model
 $config['ai_model']="gpt-4o-mini";
-//[i18n]AI service: reasoning effort (reasoning models only) {default,none,low,medium,high}
+//[i18n]AI service: reasoning effort (reasoning models only) {default=not sent,none=none (quick reply),low=low effort,medium=medium effort,high=high effort}
 $config['ai_reasoning_effort']="default";
 
 
