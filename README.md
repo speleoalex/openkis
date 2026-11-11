@@ -143,7 +143,7 @@ the first time each section is opened. No SQL dump is needed.
   sheet. Set the source name and the license of the export there before giving it to
   Grottocenter. See [docs/GROTTOCENTER.md](docs/GROTTOCENTER.md).
 
-- **Temperatures and waters**: the section *Temperatures and waters* stores the underground
+- **Temperatures and measurements**: the section *Temperatures and measurements* stores the underground
   temperature measurements after the data sheets of the UCC project (Underground Climate Change,
   [progettoucc.it](https://www.progettoucc.it)): spot readings and data logger monitorings
   of the air, water and rock of a cave, and the water analyses of caves and springs. `openkis_temperatures.php` draws the points on the

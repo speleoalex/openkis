@@ -4,7 +4,7 @@
 	<type>dbview</type>
 	<parent>menu_natural</parent>
 	<position>56</position>
-	<title>Temperatures and waters</title>
+	<title>Temperatures and measurements</title>
 	<description>Underground temperature measurements and monitorings (UCC project), water analyses</description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -18,9 +18,9 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Temperature e acque</title_it>
+	<title_it>Temperature e misurazioni</title_it>
 	<description_it>Misure e monitoraggi della temperatura sotterranea (progetto UCC), analisi delle acque</description_it>
-	<title_en>Temperatures and waters</title_en>
+	<title_en>Temperatures and measurements</title_en>
 	<description_en>Underground temperature measurements and monitorings (UCC project), water analyses</description_en>
 </fn_sections>
 
@@ -35,17 +35,17 @@
 	<generate_googlesitemap>0</generate_googlesitemap>
 	<tables>ctl_temperatures</tables>
 	<search_orders>sort_date,name,cave,temperature,t_mean,recordupdate</search_orders>
-	<defaultorder>sort_date</defaultorder>
+	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>name</titlefield>
 	<descriptionfield>notes</descriptionfield>
-	<search_options>type,medium,ventilation,water,ucc</search_options>
+	<search_options>type,medium</search_options>
 	<navigate_groups>type</navigate_groups>
-	<search_partfields>name,cave,spring,position,instrument,bibliography,data_holder,parameters,notes</search_partfields>
+	<search_partfields>name,cave,spring,position,parameters,bibliography</search_partfields>
 	<search_fields></search_fields>
 	<appendquery></appendquery>
-	<image_titlefield></image_titlefield>
+	<image_titlefield>photo1</image_titlefield>
 	<image_size>100</image_size>
 	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>

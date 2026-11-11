@@ -1,6 +1,6 @@
 # Underground temperatures (UCC project) and water analyses
 
-The section **Temperatures and waters** (`index.php?mod=temperatures`, table `ctl_temperatures`)
+The section **Temperatures and measurements** (`index.php?mod=temperatures`, table `ctl_temperatures`)
 stores the temperature measurements made in caves, after the data sheets of the **UCC project**,
 *Underground Climate Change* ([progettoucc.it](https://www.progettoucc.it)): a national
 citizen-science project of the Italian caving community, started at the end of 2023 and
@@ -81,6 +81,8 @@ the register or for a point far from the entrance.
 | | `bibliography` | bibliografia | |
 | | `bibliography_ids` | (bibliografia) | Sheets of the section Bibliography the data come from (ids, comma separated); their citation is exported when `bibliography` is empty |
 | | `file` | | Readings, report or report of the water analysis (zip for several files) |
+| | `photo1`, `photo1_caption` | | Image (a chart of the measurements or a photo of the point) and its caption |
+| | `attachment1`, `attachment2` | | Other documents: charts, tables, pages of the publication |
 | | `ucc` | | Ticked when the record is in the national sheet |
 | | `notes` | note | |
 | | `sort_date` | | Computed: date of the spot reading or start of the monitoring, for the list order |

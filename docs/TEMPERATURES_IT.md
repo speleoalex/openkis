@@ -1,6 +1,6 @@
 # Temperature sotterranee (progetto UCC) e analisi delle acque
 
-La sezione **Temperature e acque** (`index.php?mod=temperatures`, tabella `ctl_temperatures`)
+La sezione **Temperature e misurazioni** (`index.php?mod=temperatures`, tabella `ctl_temperatures`)
 archivia le misure di temperatura fatte in grotta secondo le schede del **progetto UCC**,
 *Underground Climate Change* ([progettoucc.it](https://www.progettoucc.it)): progetto
 nazionale di citizen science della speleologia italiana, avviato a fine 2023 e oggi
@@ -80,6 +80,8 @@ un sito non a catasto o per un punto lontano dall'ingresso.
 | | `bibliography` | bibliografia | |
 | | `bibliography_ids` | (bibliografia) | Schede della sezione Bibliografia da cui vengono i dati (id separati da virgola); la loro citazione è esportata quando `bibliography` è vuoto |
 | | `file` | | Letture, relazione o referto dell'analisi dell'acqua (zip per più file) |
+| | `photo1`, `photo1_caption` | | Immagine (un grafico delle misure o una foto del punto) e didascalia |
+| | `attachment1`, `attachment2` | | Altri documenti: grafici, tabelle, pagine della pubblicazione |
 | | `ucc` | | Spuntato quando il record è nel foglio nazionale |
 | | `notes` | note | |
 | | `sort_date` | | Calcolata: data della lettura spot o inizio del monitoraggio, per l'ordine dell'elenco |
