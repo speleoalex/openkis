@@ -26,10 +26,10 @@
         <name>type</name>
         <frm_functionview>openkis_TemperatureViewValue</frm_functionview>
         <frm_i18n>type</frm_i18n>
-        <frm_help_i18n>Spot: one reading with a thermometer. Monitoring: a series of readings of a data logger, summarised by its statistics.</frm_help_i18n>
+        <frm_help_i18n>Spot: one reading with a thermometer. Monitoring: a series of readings of a data logger, summarised by its statistics. Water analysis: chemical and physical parameters of a water sample, with the report attached; give its date in the group of the spot measurement.</frm_help_i18n>
         <type>radio</type>
-        <frm_options>spot,monitoring</frm_options>
-        <frm_options_i18n>spot measurement,monitoring</frm_options_i18n>
+        <frm_options>spot,monitoring,analysis</frm_options>
+        <frm_options_i18n>spot measurement,monitoring,water analysis</frm_options_i18n>
         <frm_default>spot</frm_default>
         <frm_required>1</frm_required>
         <frm_showinlist>1</frm_showinlist>
@@ -58,6 +58,17 @@
         <fk_show_field>code,name</fk_show_field>
         <frm_group_i18n>measurement point</frm_group_i18n>
         <frm_showinlist>1</frm_showinlist>
+    </field>
+    <field>
+        <name>spring</name>
+        <frm_functionview>openkis_TemperatureViewValue</frm_functionview>
+        <frm_i18n>spring</frm_i18n>
+        <frm_help_i18n>For a measurement or an analysis at a spring of the register: leave the cave empty, the coordinates of the spring are used.</frm_help_i18n>
+        <type>string</type>
+        <frm_type>selectfilter</frm_type>
+        <foreignkey>ctl_springs</foreignkey>
+        <fk_link_field>code</fk_link_field>
+        <fk_show_field>code,name</fk_show_field>
     </field>
     <field>
         <name>position</name>
@@ -163,7 +174,7 @@
     <field>
         <name>temperature</name>
         <frm_i18n>temperature</frm_i18n>
-        <frm_help_i18n>Spot measurements only: the reading, with its significant decimals.</frm_help_i18n>
+        <frm_help_i18n>Spot measurements and water analyses: the reading, with its significant decimals.</frm_help_i18n>
         <type>string</type>
         <frm_type>os_lenght</frm_type>
         <frm_suffix> °C</frm_suffix>
@@ -296,6 +307,37 @@
         <frm_endgroup></frm_endgroup>
     </field>
     <field>
+        <name>ph</name>
+        <frm_i18n>acidity (pH)</frm_i18n>
+        <frm_help_i18n>Water analyses only.</frm_help_i18n>
+        <type>string</type>
+        <frm_size>6</frm_size>
+        <frm_group_i18n>water analysis</frm_group_i18n>
+    </field>
+    <field>
+        <name>conductivity</name>
+        <frm_i18n>electrical conductivity (µS/cm)</frm_i18n>
+        <frm_help_i18n>At 20 °C.</frm_help_i18n>
+        <type>string</type>
+        <frm_size>8</frm_size>
+    </field>
+    <field>
+        <name>hardness</name>
+        <frm_i18n>total hardness (°F)</frm_i18n>
+        <frm_help_i18n>In French degrees; give other units in the other parameters.</frm_help_i18n>
+        <type>string</type>
+        <frm_size>8</frm_size>
+    </field>
+    <field>
+        <name>parameters</name>
+        <frm_i18n>other parameters</frm_i18n>
+        <frm_help_i18n>One per line with its unit, e.g. Ca 82 mg/l, Mg 6 mg/l, HCO3 250 mg/l, SO4 12 mg/l, NO3 3 mg/l, flow 2 l/s; and the laboratory.</frm_help_i18n>
+        <type>text</type>
+        <frm_rows>auto</frm_rows>
+        <frm_cols>80</frm_cols>
+        <frm_endgroup></frm_endgroup>
+    </field>
+    <field>
         <name>bibliography</name>
         <frm_i18n>bibliography</frm_i18n>
         <frm_help_i18n>Source of the data, at least author(s) and year; or the unpublished notes it comes from.</frm_help_i18n>
@@ -316,7 +358,7 @@
     <field>
         <name>file</name>
         <frm_i18n>data file</frm_i18n>
-        <frm_help_i18n>The readings of the data logger or the report. To upload several files, put them in a compressed archive (zip).</frm_help_i18n>
+        <frm_help_i18n>The readings of the data logger, the report or the report of the water analysis (also the pages of a publication). To upload several files, put them in a compressed archive (zip).</frm_help_i18n>
         <type>file</type>
         <view_tag>center</view_tag>
     </field>

@@ -1,6 +1,6 @@
-# Temperature sotterranee (progetto UCC)
+# Temperature sotterranee (progetto UCC) e analisi delle acque
 
-La sezione **Temperature** (`index.php?mod=temperatures`, tabella `ctl_temperatures`)
+La sezione **Temperature e acque** (`index.php?mod=temperatures`, tabella `ctl_temperatures`)
 archivia le misure di temperatura fatte in grotta secondo le schede del **progetto UCC**,
 *Underground Climate Change* ([progettoucc.it](https://www.progettoucc.it)): progetto
 nazionale di citizen science della speleologia italiana, avviato a fine 2023 e oggi
@@ -41,7 +41,8 @@ lontano dagli ingressi e dalla superficie (50-100 m di roccia), con una stazione
 
 ## Il record in OpenKIS
 
-Un record è **un punto di misura**: una lettura spot o una serie di monitoraggio. La
+Un record è **un punto di misura**: una lettura spot, una serie di monitoraggio o
+un'analisi dell'acqua (vedi sotto). La
 grotta è un collegamento al catasto (`cave`, il codice della grotta), così nome,
 coordinate, comune, area carsica e quota dell'ingresso non si riscrivono e il record segue
 la visibilità della grotta (una misura in una grotta riservata è visibile agli stessi
@@ -51,9 +52,10 @@ un sito non a catasto o per un punto lontano dall'ingresso.
 | Gruppo | Campo | Colonna UCC | Note |
 | --- | --- | --- | --- |
 | | `name` | | Calcolato se vuoto: *grotta - posizione - data* |
-| | `type` | foglio | `spot` o `monitoring` |
+| | `type` | foglio | `spot`, `monitoring` o `analysis` (analisi dell'acqua, vedi sotto) |
 | | `medium` | (note) | `air`, `water` o `rock`; i fogli UCC sono per l'aria, gli altri mezzi sono esportati con il mezzo nelle note |
 | Punto di misura | `cave` | nome grotta, num. Catasto, Long., Lat., area carsica, comune, quota ingresso | Dal catasto |
+| | `spring` | | Sorgente a catasto (codice), quando la grotta è vuota: se ne usano le coordinate |
 | | `position` | posizione | |
 | | `measure_elevation` | quota misura | m s.l.m. |
 | | `entrance_distance` | distanza ingresso | m lungo la grotta |
@@ -71,9 +73,13 @@ un sito non a catasto o per un punto lontano dall'ingresso.
 | | `samples` | (note) | Numero di letture |
 | | `t_mean`, `t_min`, `t_max`, `t_median`, `t_mode`, `t_stddev` | T media, minima, massima, mediana, moda, deviazione standard | °C |
 | | `data_holder` | detentore dati | |
+| Analisi dell'acqua | `ph` | (nessuna) | |
+| | `conductivity` | (nessuna) | µS/cm a 20 °C |
+| | `hardness` | (nessuna) | Durezza totale in gradi francesi |
+| | `parameters` | (nessuna) | Altri parametri, uno per riga con l'unità, e il laboratorio |
 | | `bibliography` | bibliografia | |
 | | `bibliography_ids` | (bibliografia) | Schede della sezione Bibliografia da cui vengono i dati (id separati da virgola); la loro citazione è esportata quando `bibliography` è vuoto |
-| | `file` | | Letture o relazione (zip per più file) |
+| | `file` | | Letture, relazione o referto dell'analisi dell'acqua (zip per più file) |
 | | `ucc` | | Spuntato quando il record è nel foglio nazionale |
 | | `notes` | note | |
 | | `sort_date` | | Calcolata: data della lettura spot o inizio del monitoraggio, per l'ordine dell'elenco |
@@ -88,10 +94,24 @@ elenca le misure tratte da essa nel riquadro *Temperature* (con la grotta di cia
 misure di grotte nascoste all'utente sono escluse). Il testo di `bibliography` resta la
 citazione dell'esportazione UCC.
 
+## Analisi delle acque
+
+Un record di tipo `analysis` contiene i parametri chimici e fisici di un campione d'acqua
+prelevato in grotta o a una sorgente (campo `spring`, collegato alla sezione *Sorgenti*):
+pH, conducibilità, durezza totale, gli altri parametri come testo e il referto in `file`.
+La data va in `year`, `month`, `day`, la temperatura, se misurata, in `temperature`. Le
+schede della grotta, della sorgente e della pubblicazione di origine elencano le analisi
+insieme alle misure, con pH e conducibilità dopo la temperatura. Un'analisi senza
+temperatura resta fuori dalla mappa (il cui colore è la temperatura) e dall'esportazione
+UCC; con la temperatura è esportata come lettura spot dell'acqua. I campi `spring`, `ph`,
+`conductivity`, `hardness` e `parameters` esistono solo dove la definizione della tabella
+è stata aggiornata (`misc/fndatabase/ctl_temperatures.php` non viene mai sovrascritto
+dall'installatore): il codice li legge solo se ci sono.
+
 ## Mappa
 
 `openkis_temperatures.php` restituisce i punti di misura in GeoJSON: un punto per ingresso
-di grotta (o per coordinate libere) con l'elenco delle sue misure e la media delle letture
+di grotta o sorgente (o per coordinate libere) con l'elenco delle sue misure e la media delle letture
 dell'aria (temperature spot e medie dei monitoraggi), da cui la mappa colora il punto:
 sotto 4 °C, 4-8, 8-12, 12-16, sopra 16 °C, grigio senza letture. Il livello *Temperature*
 della mappa si accende con `bs_map.htm?temperatures=1` (tutti i punti),

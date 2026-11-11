@@ -21,4 +21,9 @@ else
     {
         echo openkis_TracingsSpringCard($row['code']);
     }
+    // temperature measurements and water analyses at this spring
+    if (function_exists("openkis_TemperaturesCaveCard"))
+    {
+        echo openkis_TemperaturesCaveCard($row['code'], 0, "spring");
+    }
 }

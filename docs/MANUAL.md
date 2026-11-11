@@ -275,8 +275,11 @@ on the left change view, colours, terrain and information.
   *View* opens the record of the publication.
 - **Tracer tests** where the cave is the injection or detection point, with a link to the
   map.
-- **Temperatures**: the spot measurements and monitorings of the temperature in the cave,
-  with the reading or the mean of the series and a link to the map.
+- **Paleontological and archaeological findings**: category, period and title of each one,
+  from the oldest; the restricted ones show only category and period.
+- **Temperatures and waters**: the spot measurements, the temperature monitorings and the
+  water analyses in the cave, with the reading (or the mean of the series, or pH and
+  conductivity) and a link to the map.
 
 ![Bibliography of the cave](manual/en/15_cave_bibliography.png)
 
@@ -430,7 +433,9 @@ edit form, history (where enabled) and exports.
 | Artificial cavities | Artificial caves | Mines, tunnels, bunkers, aqueducts, ... with surveys, photos and attachments; groups `r_artificials`/`w_artificials` |
 | Karst springs | Natural Cave | Springs with position, flow and water use; they can be the detection point of a tracer test |
 | Tracer tests | Natural Cave | Tests with tracers (water or air): injection point (a cave, an uncatalogued cavity, or free coordinates), detection point (a cave, a spring, an uncatalogued cavity, or free coordinates for a point that is not an entrance), tracer, date, result; above the list a map with the arrows of the positive tests |
-| Temperatures | Natural Cave | Underground temperature measurements after the sheets of the UCC project: spot readings and data logger monitorings of the air, water or rock, with position, conditions, instrument and source; map of the points coloured by temperature; CSV export in the layout of the UCC sheets (see [TEMPERATURES.md](TEMPERATURES.md)) |
+| Temperatures and waters | Natural Cave | Underground temperature measurements after the sheets of the UCC project: spot readings and data logger monitorings of the air, water or rock, with position, conditions, instrument and source; water analyses of caves and springs (pH, conductivity, hardness, other parameters, report attached); map of the points coloured by temperature; CSV export in the layout of the UCC sheets (see [TEMPERATURES.md](TEMPERATURES.md)) |
+| Findings | Natural Cave | Paleontological and archaeological findings of a cave or artificial cavity: category, type of finds, taxa, period and culture, dating, description, discovery, place of conservation, source publications, reliability; a finding restricted to some groups shows only its category and period on the sheet of the cavity |
+| Findings map | Natural Cave | Map of the caves and artificial cavities with findings, for everybody (also above the list of the findings): one point per cavity, coloured by category (paleontological, archaeological, anthropological; mixed also when the cavity has findings of different categories), sized by the number of findings; above the point a label with one icon per type of finds (faunal remains 🦴, human remains 💀, lithic industry 🪨, pottery 🏺, burial ⚱️, rock art 🎨...; at most four, then "+n"), on a separate layer ("Ritrovamenti: icons of the finds") that can be switched off; the legend hides the categories and lists the icons, the popup lists the findings from the oldest with category, period and link. The restricted findings count only with category and period: no icon, no title, no link |
 | Speleological areas | Natural Cave | The karst areas; the sheet of an area lists its caves |
 | Cave systems | Natural Cave | Systems of several caves; the length can be recalculated from the member caves |
 | Surveys | Natural Cave | All surveys, also those of cave systems |

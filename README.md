@@ -143,12 +143,21 @@ the first time each section is opened. No SQL dump is needed.
   sheet. Set the source name and the license of the export there before giving it to
   Grottocenter. See [docs/GROTTOCENTER.md](docs/GROTTOCENTER.md).
 
-- **Temperatures**: the section *Temperatures* stores the underground temperature
-  measurements after the data sheets of the UCC project (Underground Climate Change,
+- **Temperatures and waters**: the section *Temperatures and waters* stores the underground
+  temperature measurements after the data sheets of the UCC project (Underground Climate Change,
   [progettoucc.it](https://www.progettoucc.it)): spot readings and data logger monitorings
-  of the air, water and rock of a cave. `openkis_temperatures.php` draws the points on the
+  of the air, water and rock of a cave, and the water analyses of caves and springs. `openkis_temperatures.php` draws the points on the
   map and exports the records in the layout of the UCC sheets (`?format=ucc&type=spot` or
   `monitoring`). See [docs/TEMPERATURES.md](docs/TEMPERATURES.md).
+
+- **Findings**: the section *Findings* (table `ctl_findings`) stores the paleontological and
+  archaeological findings of the caves and artificial cavities: category, period, finds,
+  dating, conservation and source publications. The sheets of the cavities and of the
+  publications list them; a finding restricted to some groups (`groupview`) shows only its
+  category and period to the others. The section *Findings map* (`findings_map`, also above
+  the list of the findings) shows the cavities with findings coloured by category, with an
+  icon per type of finds (`openkis_findings.php`, GeoJSON; map parameter `findings=1`); the
+  restricted findings count there with category and period only.
 
 ### XAMPP notes (Linux, `/opt/lampp`)
 

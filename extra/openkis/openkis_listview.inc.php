@@ -137,7 +137,7 @@ HTML;
  *  - openkis_list_map: "1" for the sections whose records are drawn on the map
  *    of the results (artificial and glacial cavities, springs), "" otherwise;
  *  - openkis_list_class: classes of #pageresults, "openkis-view-list" for the
- *    sections shown as a list by default (tracings, temperatures) and
+ *    sections shown as a list by default (tracings, temperatures, findings) and
  *    "openkis-list-nophotos" for the sections without a photo field;
  *  - openkis_list_placeholder: text of the search box.
  * Called for the section of the request by openkis_list_settings.php.
@@ -155,7 +155,7 @@ function openkis_ListSettings($mod)
         return;
     $map = in_array($mod, array("artificials", "glacial", "springs"));
     $classes = array();
-    if (in_array($mod, array("tracings", "temperatures")))
+    if (in_array($mod, array("tracings", "temperatures", "findings")))
         $classes[] = "openkis-view-list";
     $config = FN_LoadConfig("modules/dbview/config.php", $mod);
     if (empty($config['image_titlefield']))

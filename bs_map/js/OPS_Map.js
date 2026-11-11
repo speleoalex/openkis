@@ -1518,6 +1518,369 @@ var OPS_Map = {
         return this.addTemperaturesLayer(title, path, shown, shown && temperature === "");
     },
     /**
+     * Most icons written over a counted point (fauna, findings), the others
+     * counted as "+n".
+     */
+    iconsMax: 4,
+    // letters and digits from the text font, the emoji from the colour fonts
+    emojiFonts: "sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\"",
+    /**
+     * Radius of a counted point: 6 px for one item, 14 px for seven or more.
+     * @param {Number} n number of items (species, findings)
+     * @returns {Number}
+     */
+    countRadius: function (n)
+    {
+        return 6 + Math.min(n - 1, 6) * 1.3;
+    },
+    /**
+     * Visible keys of a counted point: the items of a point are counted by
+     * key (category, class), the legend hides keys.
+     * @param {Object} counts key => number of items of the point
+     * @param {Array} keys all the keys in legend order
+     * @param {Object} hidden key => true for the hidden keys
+     * @returns {Object} {key, count, keys}: the first visible key in legend
+     *          order ("" when every key is hidden), the number of items and
+     *          of keys visible
+     */
+    countedVisible: function (counts, keys, hidden)
+    {
+        var first = "";
+        var count = 0;
+        var visibleKeys = 0;
+        for (var i = 0; i < keys.length; i++)
+        {
+            if (counts[keys[i]] && !hidden[keys[i]])
+            {
+                if (first === "")
+                {
+                    first = keys[i];
+                }
+                count += counts[keys[i]];
+                visibleKeys++;
+            }
+        }
+        return {key: first, count: count, keys: visibleKeys};
+    },
+    /**
+     * Style of a counted point: a circle of the colour, radius growing with
+     * the number of items (countRadius()), the number written beside it when
+     * there is more than one.
+     * @param {String} color
+     * @param {Number} n number of visible items
+     * @returns {ol.style.Style}
+     */
+    countedPointStyle: function (color, n)
+    {
+        var radius = OPS_Map.countRadius(n);
+        var style = {
+            image: new ol.style.Circle({
+                radius: radius,
+                fill: new ol.style.Fill({color: color}),
+                stroke: new ol.style.Stroke({color: "#ffffff", width: 2})
+            })
+        };
+        if (n > 1)
+        {
+            style.text = new ol.style.Text({
+                text: String(n),
+                font: "bold 11px sans-serif",
+                offsetX: radius + 4,
+                textAlign: "left",
+                fill: new ol.style.Fill({color: "#222222"}),
+                stroke: new ol.style.Stroke({color: "#ffffff", width: 3})
+            });
+        }
+        return new ol.style.Style(style);
+    },
+    /**
+     * Characters of a set of icons: the emoji, or the fallback character when
+     * the browser draws the emoji as an empty box (colour emoji fonts paint
+     * coloured pixels, the missing glyph box does not).
+     * @param {Object} items key => {icon, fallback} (legend order)
+     * @returns {Object} key => character, same order
+     */
+    emojiIcons: function (items)
+    {
+        var icons = {};
+        var canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 24;
+        var ctx = canvas.getContext("2d");
+        for (var key in items)
+        {
+            icons[key] = items[key].icon;
+            if (!items[key].fallback || !ctx)
+            {
+                continue;
+            }
+            ctx.clearRect(0, 0, 24, 24);
+            ctx.font = "20px " + OPS_Map.emojiFonts;
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "#000000";
+            ctx.fillText(items[key].icon, 0, 0);
+            var pixels = ctx.getImageData(0, 0, 24, 24).data;
+            var coloured = false;
+            for (var i = 0; i < pixels.length && !coloured; i += 4)
+            {
+                coloured = pixels[i + 3] > 0 && (pixels[i] !== pixels[i + 1] || pixels[i + 1] !== pixels[i + 2]);
+            }
+            if (!coloured)
+            {
+                icons[key] = items[key].fallback;
+            }
+        }
+        return icons;
+    },
+    /**
+     * Label of icons above a counted point: one icon per key present, in the
+     * order of the icons, at most iconsMax and then "+n".
+     * @param {Object} present key => true
+     * @param {Object} icons key => character (emojiIcons())
+     * @param {Number} radius radius of the point
+     * @returns {ol.style.Style|null}
+     */
+    iconsLabelStyle: function (present, icons, radius)
+    {
+        var text = "";
+        var shown = 0;
+        var more = 0;
+        for (var key in icons)
+        {
+            if (present[key])
+            {
+                if (shown < OPS_Map.iconsMax)
+                {
+                    text += icons[key];
+                    shown++;
+                } else
+                {
+                    more++;
+                }
+            }
+        }
+        if (text === "")
+        {
+            return null;
+        }
+        if (more > 0)
+        {
+            text += " +" + more;
+        }
+        return new ol.style.Style({
+            text: new ol.style.Text({
+                text: text,
+                font: "15px " + OPS_Map.emojiFonts,
+                offsetY: -(radius + 13),
+                fill: new ol.style.Fill({color: "#222222"}),
+                backgroundFill: new ol.style.Fill({color: "rgba(255,255,255,0.9)"}),
+                backgroundStroke: new ol.style.Stroke({color: "#bbbbbb", width: 1}),
+                padding: [2, 3, 0, 3]
+            })
+        });
+    },
+    /**
+     * Number of points per key of a property of the points (key => count).
+     * @param {Array} features
+     * @param {String} property
+     * @returns {Object} key => number of points having it
+     */
+    countPointsByKey: function (features, property)
+    {
+        var counts = {};
+        for (var i = 0; i < features.length; i++)
+        {
+            var keys = features[i].get(property) || {};
+            for (var k in keys)
+            {
+                counts[k] = (counts[k] || 0) + 1;
+            }
+        }
+        return counts;
+    },
+    /**
+     * Legend lines of a counted points layer: one per key with points, a
+     * checkbox that hides them (data-legend-key), the colour and the number
+     * of points.
+     * @param {Object} labels key => label (legend order)
+     * @param {Object} colors key => colour
+     * @param {Object} hidden key => true for the hidden keys
+     * @param {Object} counts key => number of points (countPointsByKey())
+     * @returns {String} html
+     */
+    legendKeysHtml: function (labels, colors, hidden, counts)
+    {
+        var html = "";
+        for (var key in labels)
+        {
+            if (!counts[key])
+            {
+                continue;
+            }
+            html += "<label style=\"display:block;margin:0;font-weight:normal;cursor:pointer\"><input type=\"checkbox\" data-legend-key=\"" + OPS_Map.escapeHtml(key) + "\"" + (hidden[key] ? "" : " checked=\"checked\"") + " style=\"vertical-align:middle;margin:0 4px 0 0\" />";
+            html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:6px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:" + (colors[key] || "#9e9e9e") + ";vertical-align:middle;margin-right:4px\"></span>" + OPS_Map.escapeHtml(labels[key]) + " <span style=\"color:#777\">(" + counts[key] + ")</span></label>";
+        }
+        return html;
+    },
+    /**
+     * Legend of the icons of a counted points layer: the icons present in a
+     * line that opens the list with their labels and number of points.
+     * @param {String} title
+     * @param {Object} items key => {label} (legend order)
+     * @param {Object} icons key => character (emojiIcons())
+     * @param {Object} counts key => number of points (countPointsByKey())
+     * @returns {String} html, empty without icons
+     */
+    legendIconsHtml: function (title, items, icons, counts)
+    {
+        var summary = "";
+        var list = "";
+        for (var key in items || {})
+        {
+            if (counts[key])
+            {
+                summary += icons[key];
+                list += "<span style=\"display:inline-block;margin-right:8px;white-space:nowrap\">" + icons[key] + " " + OPS_Map.escapeHtml(items[key].label) + " <span style=\"color:#777\">(" + counts[key] + ")</span></span>";
+            }
+        }
+        if (summary === "")
+        {
+            return "";
+        }
+        return "<details style=\"margin:2px 0\"><summary style=\"cursor:pointer\">" + OPS_Map.escapeHtml(title) + " " + summary + "</summary>" + list + "</details>";
+    },
+    /**
+     * CSS of the coloured dots of the popups, one rule per key.
+     * @param {String} selector class of the dot, e.g. ".openkis-fauna-dot"
+     * @param {String} attribute attribute holding the key, e.g. "data-category"
+     * @param {Object} colors key => colour
+     * @param {String} scope selector of an ancestor the rules apply under ("" = none)
+     * @returns {String}
+     */
+    dotsCss: function (selector, attribute, colors, scope)
+    {
+        var css = scope ? "" : selector + "{display:inline-block;width:10px;height:10px;border-radius:5px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:#9e9e9e;vertical-align:middle}";
+        for (var key in colors)
+        {
+            css += (scope ? scope + " " : "") + selector + "[" + attribute + "=\"" + key + "\"]{background:" + colors[key] + "}";
+        }
+        return css;
+    },
+    /**
+     * Layer of counted points (fauna, findings): the GeoJSON points of an
+     * endpoint, with their icons on a second decluttered layer listed in the
+     * layer switcher so that they can be switched off (switched on and off
+     * with the points, drawn only while the points are visible) and a legend
+     * (shown while the layer is visible and has points) whose checkboxes
+     * hide keys.
+     * @param {Object} options
+     *   title       layer name in the layer switcher
+     *   iconsNames  name of the icon layer by map language (the language
+     *               files of the map are loaded after the layers are created)
+     *   path        url of the endpoint
+     *   visible     {Boolean}
+     *   fit         {Boolean} frame the view on the points once loaded
+     *   style       style function of the points
+     *   iconStyle   style function of the icons
+     *   sizeProperty property counting the items of a point: the labels of
+     *               the bigger points are drawn first and keep their place
+     *   css         rules added to the page (colours of the popup dots)
+     *   hidden      function returning the object of the hidden keys
+     *   onLegend    function (legend) called with the "legend" member of the data
+     *   legendHtml  function (features) returning the html of the legend
+     * @returns {Object} {layer, iconLayer, source, legend, redraw(), updateLegend()}
+     */
+    addCountedPointsLayer: function (options)
+    {
+        var source = new ol.source.Vector();
+        var layer = new ol.layer.Vector({
+            name: options.title,
+            visible: options.visible,
+            source: source,
+            style: options.style
+        });
+        // above the cave icons: the point carries the records of the cave
+        layer.setZIndex(12);
+        this.addLayer(layer, false);
+        var iconLayer = new ol.layer.Vector({
+            name: options.title + ": " + (options.iconsNames[OPS_Map.lang] || options.iconsNames.en),
+            visible: options.visible,
+            source: source,
+            declutter: true,
+            style: function (feature) {
+                return layer.getVisible() ? options.iconStyle(feature) : null;
+            },
+            renderOrder: function (a, b) {
+                return b.get(options.sizeProperty) - a.get(options.sizeProperty);
+            }
+        });
+        iconLayer.setZIndex(13);
+        this.addLayer(iconLayer, false);
+        var style = document.createElement("style");
+        style.appendChild(document.createTextNode(options.css));
+        document.head.appendChild(style);
+        var legend = document.createElement("div");
+        legend.className = "ol-unselectable ol-control";
+        legend.style.cssText = "position:fixed;left:8px;bottom:40px;z-index:6;padding:4px 8px;background:rgba(255,255,255,0.92);color:#222;font-size:12px;line-height:18px;display:none;max-width:260px";
+        document.body.appendChild(legend);
+        var points = {
+            layer: layer,
+            iconLayer: iconLayer,
+            source: source,
+            legend: legend,
+            redraw: function () {
+                layer.changed();
+                iconLayer.changed();
+            },
+            updateLegend: function () {
+                var features = source.getFeatures();
+                legend.innerHTML = features.length > 0 ? options.legendHtml(features) : "";
+                legend.style.display = (layer.getVisible() && features.length > 0) ? "block" : "none";
+            }
+        };
+        layer.on("change:visible", function () {
+            iconLayer.setVisible(layer.getVisible());
+            OPS_Map.UpdateOverlays();
+            points.updateLegend();
+        });
+        $(legend).on("change", "input[data-legend-key]", function () {
+            var hidden = options.hidden();
+            var key = $(this).attr("data-legend-key");
+            if (this.checked)
+            {
+                delete hidden[key];
+            } else
+            {
+                hidden[key] = true;
+            }
+            points.redraw();
+        });
+        $.getJSON(options.path, function (data) {
+            var features = new ol.format.GeoJSON().readFeatures(data, {
+                dataProjection: OPS_Map.inputProjectonEPSG,
+                featureProjection: OPS_Map.view.getProjection()
+            });
+            if (data.legend)
+            {
+                options.onLegend(data.legend);
+            }
+            source.addFeatures(features);
+            points.updateLegend();
+            if (options.fit && features.length > 0)
+            {
+                // the legend covers the bottom left corner: keep the points out of it
+                // when the map is large enough, else leave the usual margin
+                var padding = [60, 60, 60, 60];
+                var size = OPS_Map.map.getSize();
+                if (legend.style.display !== "none" && size && size[0] > 3 * legend.offsetWidth && size[1] > 2 * legend.offsetHeight)
+                {
+                    padding = [40, 40, legend.offsetHeight + 50, legend.offsetWidth + 20];
+                }
+                OPS_Map.view.fit(source.getExtent(), {padding: padding, maxZoom: 15});
+            }
+        });
+        return points;
+    },
+    /**
      * Colours of the fauna points (openkis_fauna.php) by ecological category:
      * the category of the species most bound to the underground among those
      * observed in the cave, from the troglobites to the trogloxenes.
@@ -1559,23 +1922,11 @@ var OPS_Map = {
      * order), once loaded.
      */
     faunaLegend: null,
-    faunaLayer: null,
     /**
-     * Most icons written over a fauna point, the others counted as "+n".
-     */
-    faunaIconsMax: 4,
-    /**
-     * Icon of each group (legend.groups of openkis_FaunaGroups()) checked once:
-     * the fallback character replaces an emoji the browser cannot draw.
+     * Icon of each group (legend.groups of openkis_FaunaGroups()), checked
+     * once (emojiIcons()).
      */
     faunaIcons: null,
-    /**
-     * Name of the icon layer in the layer switcher by map language (the language
-     * files of the map are loaded after the layers are created).
-     */
-    faunaIconsNames: {it: "icone degli organismi", en: "organism icons"},
-    // letters and digits from the text font, the emoji from the colour fonts
-    faunaEmojiFonts: "sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Noto Color Emoji\"",
     /**
      * Colours of the current mode.
      * @returns {Object}
@@ -1594,35 +1945,18 @@ var OPS_Map = {
         return labels ? Object.keys(labels) : Object.keys(OPS_Map.faunaColors());
     },
     /**
-     * Visible key of a fauna point in the current mode (the first in legend
-     * order) and the number of its species with a visible key.
+     * Visible key of a fauna point in the current mode (countedVisible()).
      * @param {ol.Feature} feature
-     * @returns {Object} {key, count}, key "" when every key is hidden
+     * @returns {Object} {key, count, keys}
      */
     faunaVisible: function (feature)
     {
         var counts = feature.get(OPS_Map.faunaMode === "class" ? "classes" : "categories") || {};
-        var hidden = OPS_Map.faunaHidden[OPS_Map.faunaMode] || {};
-        var keys = OPS_Map.faunaKeys();
-        var first = "";
-        var count = 0;
-        for (var i = 0; i < keys.length; i++)
-        {
-            if (counts[keys[i]] && !hidden[keys[i]])
-            {
-                if (first === "")
-                {
-                    first = keys[i];
-                }
-                count += counts[keys[i]];
-            }
-        }
-        return {key: first, count: count};
+        return OPS_Map.countedVisible(counts, OPS_Map.faunaKeys(), OPS_Map.faunaHidden[OPS_Map.faunaMode] || {});
     },
     /**
-     * Style of a fauna point: colour of its visible key, radius growing with
-     * the number of species (6 px for one, 14 px for seven or more), the
-     * number written beside it when there is more than one species.
+     * Style of a fauna point: colour of its visible key, size and number of
+     * its species (countedPointStyle()).
      * @param {ol.Feature} feature
      * @returns {ol.style.Style|null}
      */
@@ -1633,93 +1967,32 @@ var OPS_Map = {
         {
             return null;
         }
-        var color = OPS_Map.faunaColors()[visible.key] || "#9e9e9e";
-        var n = visible.count;
-        var radius = OPS_Map.faunaRadius(n);
-        var style = {
-            image: new ol.style.Circle({
-                radius: radius,
-                fill: new ol.style.Fill({color: color}),
-                stroke: new ol.style.Stroke({color: "#ffffff", width: 2})
-            })
-        };
-        if (n > 1)
-        {
-            style.text = new ol.style.Text({
-                text: String(n),
-                font: "bold 11px sans-serif",
-                offsetX: radius + 4,
-                textAlign: "left",
-                fill: new ol.style.Fill({color: "#222222"}),
-                stroke: new ol.style.Stroke({color: "#ffffff", width: 3})
-            });
-        }
-        return new ol.style.Style(style);
+        return OPS_Map.countedPointStyle(OPS_Map.faunaColors()[visible.key] || "#9e9e9e", visible.count);
     },
     /**
-     * Radius of a fauna point: 6 px for one species, 14 px for seven or more.
-     * @param {Number} n number of species
-     * @returns {Number}
-     */
-    faunaRadius: function (n)
-    {
-        return 6 + Math.min(n - 1, 6) * 1.3;
-    },
-    /**
-     * Icons of the groups (emoji, or the fallback character when the browser
-     * draws the emoji as an empty box: colour emoji fonts paint coloured
-     * pixels, the missing glyph box does not).
+     * Icons of the groups of organisms (emojiIcons()).
      * @returns {Object} group key => character
      */
     faunaGroupIcons: function ()
     {
-        if (OPS_Map.faunaIcons)
+        if (!OPS_Map.faunaIcons)
         {
-            return OPS_Map.faunaIcons;
+            OPS_Map.faunaIcons = OPS_Map.emojiIcons((OPS_Map.faunaLegend && OPS_Map.faunaLegend.groups) || {});
         }
-        var groups = (OPS_Map.faunaLegend && OPS_Map.faunaLegend.groups) || {};
-        var icons = {};
-        var canvas = document.createElement("canvas");
-        canvas.width = canvas.height = 24;
-        var ctx = canvas.getContext("2d");
-        for (var key in groups)
-        {
-            icons[key] = groups[key].icon;
-            if (!groups[key].fallback || !ctx)
-            {
-                continue;
-            }
-            ctx.clearRect(0, 0, 24, 24);
-            ctx.font = "20px " + OPS_Map.faunaEmojiFonts;
-            ctx.textBaseline = "top";
-            ctx.fillStyle = "#000000";
-            ctx.fillText(groups[key].icon, 0, 0);
-            var pixels = ctx.getImageData(0, 0, 24, 24).data;
-            var coloured = false;
-            for (var i = 0; i < pixels.length && !coloured; i += 4)
-            {
-                coloured = pixels[i + 3] > 0 && (pixels[i] !== pixels[i + 1] || pixels[i + 1] !== pixels[i + 2]);
-            }
-            if (!coloured)
-            {
-                icons[key] = groups[key].fallback;
-            }
-        }
-        OPS_Map.faunaIcons = icons;
-        return icons;
+        return OPS_Map.faunaIcons;
     },
     /**
      * Style of the icons of a fauna point: one icon per group of its visible
-     * species (legend order, at most faunaIconsMax, then "+n") on a label
-     * above the point. The icon layer declutters: a label that would cover
-     * another one is left out until the map is zoomed in, the point stays.
+     * species (iconsLabelStyle()). The icon layer declutters: a label that
+     * would cover another one is left out until the map is zoomed in, the
+     * point stays.
      * @param {ol.Feature} feature
      * @returns {ol.style.Style|null}
      */
     faunaIconStyle: function (feature)
     {
         var visible = OPS_Map.faunaVisible(feature);
-        if (visible.key === "" || !OPS_Map.faunaLayer.getVisible())
+        if (visible.key === "")
         {
             return null;
         }
@@ -1734,70 +2007,20 @@ var OPS_Map = {
                 present[species[i].group] = true;
             }
         }
-        var icons = OPS_Map.faunaGroupIcons();
-        var text = "";
-        var shown = 0;
-        var more = 0;
-        for (var key in icons)
-        {
-            if (present[key])
-            {
-                if (shown < OPS_Map.faunaIconsMax)
-                {
-                    text += icons[key];
-                    shown++;
-                } else
-                {
-                    more++;
-                }
-            }
-        }
-        if (text === "")
-        {
-            return null;
-        }
-        if (more > 0)
-        {
-            text += " +" + more;
-        }
-        return new ol.style.Style({
-            text: new ol.style.Text({
-                text: text,
-                font: "15px " + OPS_Map.faunaEmojiFonts,
-                offsetY: -(OPS_Map.faunaRadius(visible.count) + 13),
-                fill: new ol.style.Fill({color: "#222222"}),
-                backgroundFill: new ol.style.Fill({color: "rgba(255,255,255,0.9)"}),
-                backgroundStroke: new ol.style.Stroke({color: "#bbbbbb", width: 1}),
-                padding: [2, 3, 0, 3]
-            })
-        });
+        return OPS_Map.iconsLabelStyle(present, OPS_Map.faunaGroupIcons(), OPS_Map.countRadius(visible.count));
     },
     /**
      * Legend of the fauna points: the mode switch, one line per key with a
-     * checkbox that hides its points and the number of places, the note on
-     * the size.
+     * checkbox that hides its points and the number of places, the icons of
+     * the groups, the note on the size.
      * @param {Object} legend "legend" member of openkis_fauna.php
      * @param {Array} features the loaded points
      * @returns {String} html
      */
     faunaLegendHtml: function (legend, features)
     {
-        var esc = function (text) {
-            return $("<div>").text(text === undefined || text === null ? "" : text).html();
-        };
+        var esc = OPS_Map.escapeHtml;
         var mode = OPS_Map.faunaMode;
-        var labels = legend[mode === "class" ? "classes" : "categories"] || {};
-        var colors = OPS_Map.faunaColors();
-        var hidden = OPS_Map.faunaHidden[mode] || {};
-        var counts = {};
-        for (var i = 0; i < features.length; i++)
-        {
-            var keys = features[i].get(mode === "class" ? "classes" : "categories") || {};
-            for (var k in keys)
-            {
-                counts[k] = (counts[k] || 0) + 1;
-            }
-        }
         var html = "<b>" + esc(legend.title) + "</b><br />";
         var modes = [["category", legend.mode_category], ["class", legend.mode_class]];
         for (var m = 0; m < modes.length; m++)
@@ -1806,48 +2029,18 @@ var OPS_Map = {
             html += (m > 0 ? " | " : "") + (current ? "<b>" : "<a href=\"#\" data-fauna-mode=\"" + modes[m][0] + "\" style=\"color:#2b6cb0\">") + esc(modes[m][1]) + (current ? "</b>" : "</a>");
         }
         html += "<br />";
-        for (var key in labels)
-        {
-            if (!counts[key])
-            {
-                continue;
-            }
-            html += "<label style=\"display:block;margin:0;font-weight:normal;cursor:pointer\"><input type=\"checkbox\" data-fauna-key=\"" + esc(key) + "\"" + (hidden[key] ? "" : " checked=\"checked\"") + " style=\"vertical-align:middle;margin:0 4px 0 0\" />";
-            html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:6px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:" + colors[key] + ";vertical-align:middle;margin-right:4px\"></span>" + esc(labels[key]) + " <span style=\"color:#777\">(" + counts[key] + ")</span></label>";
-        }
-        var icons = OPS_Map.faunaGroupIcons();
-        var groupCounts = {};
-        for (var f = 0; f < features.length; f++)
-        {
-            var groups = features[f].get("groups") || {};
-            for (var g in groups)
-            {
-                groupCounts[g] = (groupCounts[g] || 0) + 1;
-            }
-        }
-        var summary = "";
-        var items = "";
-        for (var group in legend.groups || {})
-        {
-            if (groupCounts[group])
-            {
-                summary += icons[group];
-                items += "<span style=\"display:inline-block;margin-right:8px;white-space:nowrap\">" + icons[group] + " " + esc(legend.groups[group].label) + " <span style=\"color:#777\">(" + groupCounts[group] + ")</span></span>";
-            }
-        }
-        if (summary !== "")
-        {
-            html += "<details style=\"margin:2px 0\"><summary style=\"cursor:pointer\">" + esc(legend.groups_title) + " " + summary + "</summary>" + items + "</details>";
-        }
+        var property = mode === "class" ? "classes" : "categories";
+        html += OPS_Map.legendKeysHtml(legend[property] || {}, OPS_Map.faunaColors(), OPS_Map.faunaHidden[mode] || {}, OPS_Map.countPointsByKey(features, property));
+        html += OPS_Map.legendIconsHtml(legend.groups_title, legend.groups, OPS_Map.faunaGroupIcons(), OPS_Map.countPointsByKey(features, "groups"));
         html += "<small style=\"color:#777\">" + esc(legend.size) + "</small>";
         return html;
     },
     /**
      * Fauna layer: the caves and artificial cavities with fauna sightings
      * of openkis_fauna.php (GeoJSON), coloured by ecological category or by
-     * class of their species, with a popup listing the species. The legend
-     * (shown while the layer is visible and has points) switches the mode
-     * and hides the keys.
+     * class of their species, with a popup listing the species and the icons
+     * of the groups of organisms (addCountedPointsLayer()). The legend
+     * switches the mode and hides the keys.
      * @param {String} title layer name in the layer switcher
      * @param {String} path url of openkis_fauna.php with its filters
      * @param {Boolean} visible
@@ -1856,116 +2049,42 @@ var OPS_Map = {
      */
     addFaunaLayer: function (title, path, visible, fit)
     {
-        var source = new ol.source.Vector();
-        var layer = new ol.layer.Vector({
-            name: title,
+        var points = this.addCountedPointsLayer({
+            title: title,
+            iconsNames: {it: "icone degli organismi", en: "organism icons"},
+            path: path,
             visible: visible,
-            source: source,
-            style: OPS_Map.faunaStyle
-        });
-        // above the cave icons: the point carries the species of the cave
-        layer.setZIndex(12);
-        this.addLayer(layer, false);
-        OPS_Map.faunaLayer = layer;
-        // icons of the groups on their own decluttered layer, listed in the layer
-        // switcher so that they can be switched off; switched on and off with the
-        // points, drawn only while the points are visible
-        var iconsName = title + ": " + (OPS_Map.faunaIconsNames[OPS_Map.lang] || OPS_Map.faunaIconsNames.en);
-        var iconLayer = new ol.layer.Vector({
-            name: iconsName,
-            visible: visible,
-            source: source,
-            declutter: true,
-            style: OPS_Map.faunaIconStyle,
-            // the places with more species first: the first label drawn keeps its place
-            renderOrder: function (a, b) {
-                return b.get("nspecies") - a.get("nspecies");
+            fit: fit,
+            style: OPS_Map.faunaStyle,
+            iconStyle: OPS_Map.faunaIconStyle,
+            sizeProperty: "nspecies",
+            // colours of the dots in the popups, by category and, in the class mode, by class
+            css: OPS_Map.dotsCss(".openkis-fauna-dot", "data-category", OPS_Map.faunaCategoryColors, "")
+                    + OPS_Map.dotsCss(".openkis-fauna-dot", "data-class", OPS_Map.faunaClassColors, ".openkis-fauna-mode-class"),
+            hidden: function () {
+                return OPS_Map.faunaHidden[OPS_Map.faunaMode];
+            },
+            onLegend: function (legend) {
+                OPS_Map.faunaLegend = legend;
+                OPS_Map.faunaIcons = null;
+            },
+            legendHtml: function (features) {
+                return OPS_Map.faunaLegendHtml(OPS_Map.faunaLegend, features);
             }
         });
-        iconLayer.setZIndex(13);
-        this.addLayer(iconLayer, false);
-        var redraw = function () {
-            layer.changed();
-            iconLayer.changed();
-        };
-        // colours of the dots in the popups (one rule per key and mode)
-        var css = ".openkis-fauna-dot{display:inline-block;width:10px;height:10px;border-radius:5px;border:1px solid #fff;box-shadow:0 0 0 1px #bbb;background:#9e9e9e;vertical-align:middle}";
-        for (var c in OPS_Map.faunaCategoryColors)
-        {
-            css += ".openkis-fauna-dot[data-category=\"" + c + "\"]{background:" + OPS_Map.faunaCategoryColors[c] + "}";
-        }
-        for (var k in OPS_Map.faunaClassColors)
-        {
-            css += ".openkis-fauna-mode-class .openkis-fauna-dot[data-class=\"" + k + "\"]{background:" + OPS_Map.faunaClassColors[k] + "}";
-        }
-        var style = document.createElement("style");
-        style.appendChild(document.createTextNode(css));
-        document.head.appendChild(style);
-        var legend = document.createElement("div");
-        legend.className = "ol-unselectable ol-control";
-        legend.style.cssText = "position:fixed;left:8px;bottom:40px;z-index:6;padding:4px 8px;background:rgba(255,255,255,0.92);color:#222;font-size:12px;line-height:18px;display:none;max-width:260px";
-        document.body.appendChild(legend);
         var setMode = function (mode)
         {
             OPS_Map.faunaMode = (mode === "class") ? "class" : "category";
             $(document.body).toggleClass("openkis-fauna-mode-class", OPS_Map.faunaMode === "class");
         };
         setMode(OPS_Map.faunaMode);
-        var updateLegend = function () {
-            if (OPS_Map.faunaLegend)
-            {
-                legend.innerHTML = OPS_Map.faunaLegendHtml(OPS_Map.faunaLegend, source.getFeatures());
-            }
-            legend.style.display = (layer.getVisible() && source.getFeatures().length > 0) ? "block" : "none";
-        };
-        layer.on("change:visible", function () {
-            iconLayer.setVisible(layer.getVisible());
-            OPS_Map.UpdateOverlays();
-            updateLegend();
-        });
-        $(legend).on("click", "a[data-fauna-mode]", function (e) {
+        $(points.legend).on("click", "a[data-fauna-mode]", function (e) {
             e.preventDefault();
             setMode($(this).attr("data-fauna-mode"));
-            redraw();
-            updateLegend();
+            points.redraw();
+            points.updateLegend();
         });
-        $(legend).on("change", "input[data-fauna-key]", function () {
-            var key = $(this).attr("data-fauna-key");
-            if (this.checked)
-            {
-                delete OPS_Map.faunaHidden[OPS_Map.faunaMode][key];
-            } else
-            {
-                OPS_Map.faunaHidden[OPS_Map.faunaMode][key] = true;
-            }
-            redraw();
-        });
-        $.getJSON(path, function (data) {
-            var features = new ol.format.GeoJSON().readFeatures(data, {
-                dataProjection: OPS_Map.inputProjectonEPSG,
-                featureProjection: OPS_Map.view.getProjection()
-            });
-            if (data.legend)
-            {
-                OPS_Map.faunaLegend = data.legend;
-                OPS_Map.faunaIcons = null;
-            }
-            source.addFeatures(features);
-            updateLegend();
-            if (fit && features.length > 0)
-            {
-                // the legend covers the bottom left corner: keep the points out of it
-                // when the map is large enough, else leave the usual margin
-                var padding = [60, 60, 60, 60];
-                var size = OPS_Map.map.getSize();
-                if (legend.style.display !== "none" && size && size[0] > 3 * legend.offsetWidth && size[1] > 2 * legend.offsetHeight)
-                {
-                    padding = [40, 40, legend.offsetHeight + 50, legend.offsetWidth + 20];
-                }
-                OPS_Map.view.fit(source.getExtent(), {padding: padding, maxZoom: 15});
-            }
-        });
-        return layer;
+        return points.layer;
     },
     /**
      * Fauna layer configured from the page url: hidden (all the places, can
@@ -2005,6 +2124,168 @@ var OPS_Map = {
             OPS_Map.defaultBaseLayer = "light";
         }
         return this.addFaunaLayer(title, path, shown, shown && getUrlVar("fauna_cave", "") === "");
+    },
+    /**
+     * Colours of the findings points (openkis_findings.php) by category
+     * (Okabe-Ito colours, told apart also by colour blind people, on the light
+     * and on the dark base layers). A point with findings of more visible
+     * categories takes the colour of "mixed".
+     */
+    findingsCategoryColors: {
+        paleontological: "#009e73",
+        archaeological: "#d55e00",
+        anthropological: "#0072b2",
+        mixed: "#cc79a7"
+    },
+    /**
+     * Categories hidden from the legend: a point is drawn when at least one
+     * of its findings has a visible category.
+     */
+    findingsHidden: {},
+    /**
+     * Legend of openkis_findings.php (labels of the categories, icons of the
+     * types of finds), once loaded.
+     */
+    findingsLegend: null,
+    /**
+     * Icon of each type of finds, checked once (emojiIcons()).
+     */
+    findingsIcons: null,
+    /**
+     * Visible categories of a findings point (countedVisible()).
+     * @param {ol.Feature} feature
+     * @returns {Object} {key, count, keys}
+     */
+    findingsVisible: function (feature)
+    {
+        var keys = OPS_Map.findingsLegend ? Object.keys(OPS_Map.findingsLegend.categories) : Object.keys(OPS_Map.findingsCategoryColors);
+        return OPS_Map.countedVisible(feature.get("categories") || {}, keys, OPS_Map.findingsHidden);
+    },
+    /**
+     * Style of a findings point: colour of its visible category ("mixed"
+     * when there are more), size and number of its findings.
+     * @param {ol.Feature} feature
+     * @returns {ol.style.Style|null}
+     */
+    findingsStyle: function (feature)
+    {
+        var visible = OPS_Map.findingsVisible(feature);
+        if (visible.key === "")
+        {
+            return null;
+        }
+        var color = OPS_Map.findingsCategoryColors[visible.keys > 1 ? "mixed" : visible.key] || "#9e9e9e";
+        return OPS_Map.countedPointStyle(color, visible.count);
+    },
+    /**
+     * Icons of the types of finds (emojiIcons()).
+     * @returns {Object} type => character
+     */
+    findingsTypeIcons: function ()
+    {
+        if (!OPS_Map.findingsIcons)
+        {
+            OPS_Map.findingsIcons = OPS_Map.emojiIcons((OPS_Map.findingsLegend && OPS_Map.findingsLegend.types) || {});
+        }
+        return OPS_Map.findingsIcons;
+    },
+    /**
+     * Style of the icons of a findings point: one icon per type of finds of
+     * its findings of a visible category (iconsLabelStyle()). The restricted
+     * findings have no types: a point with restricted findings only has no
+     * label.
+     * @param {ol.Feature} feature
+     * @returns {ol.style.Style|null}
+     */
+    findingsIconStyle: function (feature)
+    {
+        var visible = OPS_Map.findingsVisible(feature);
+        if (visible.key === "")
+        {
+            return null;
+        }
+        var findings = feature.get("findings") || [];
+        var present = {};
+        for (var i = 0; i < findings.length; i++)
+        {
+            if (!OPS_Map.findingsHidden[findings[i].category])
+            {
+                for (var t = 0; t < findings[i].types.length; t++)
+                {
+                    present[findings[i].types[t]] = true;
+                }
+            }
+        }
+        return OPS_Map.iconsLabelStyle(present, OPS_Map.findingsTypeIcons(), OPS_Map.countRadius(visible.count));
+    },
+    /**
+     * Legend of the findings points: one line per category with a checkbox
+     * that hides its points and the number of places, the icons of the types
+     * of finds, the note on the size and on the colour "mixed".
+     * @param {Object} legend "legend" member of openkis_findings.php
+     * @param {Array} features the loaded points
+     * @returns {String} html
+     */
+    findingsLegendHtml: function (legend, features)
+    {
+        var html = "<b>" + OPS_Map.escapeHtml(legend.title) + "</b><br />";
+        html += OPS_Map.legendKeysHtml(legend.categories, OPS_Map.findingsCategoryColors, OPS_Map.findingsHidden, OPS_Map.countPointsByKey(features, "categories"));
+        html += OPS_Map.legendIconsHtml(legend.types_title, legend.types, OPS_Map.findingsTypeIcons(), OPS_Map.countPointsByKey(features, "types"));
+        html += "<small style=\"color:#777\">" + OPS_Map.escapeHtml(legend.size) + "</small>";
+        return html;
+    },
+    /**
+     * Findings layer: the caves and artificial cavities with paleontological
+     * and archaeological findings of openkis_findings.php (GeoJSON), coloured
+     * by category, with the icons of the types of finds (only of the findings
+     * the user may see in full) and a popup listing the findings from the
+     * oldest (addCountedPointsLayer()).
+     * @param {String} title layer name in the layer switcher
+     * @param {String} path url of openkis_findings.php
+     * @param {Boolean} visible
+     * @param {Boolean} fit frame the view on the points once loaded
+     * @returns {ol.layer.Vector}
+     */
+    addFindingsLayer: function (title, path, visible, fit)
+    {
+        return this.addCountedPointsLayer({
+            title: title,
+            iconsNames: {it: "icone dei reperti", en: "icons of the finds"},
+            path: path,
+            visible: visible,
+            fit: fit,
+            style: OPS_Map.findingsStyle,
+            iconStyle: OPS_Map.findingsIconStyle,
+            sizeProperty: "nfindings",
+            css: OPS_Map.dotsCss(".openkis-findings-dot", "data-category", OPS_Map.findingsCategoryColors, ""),
+            hidden: function () {
+                return OPS_Map.findingsHidden;
+            },
+            onLegend: function (legend) {
+                OPS_Map.findingsLegend = legend;
+                OPS_Map.findingsIcons = null;
+            },
+            legendHtml: function (features) {
+                return OPS_Map.findingsLegendHtml(OPS_Map.findingsLegend, features);
+            }
+        }).layer;
+    },
+    /**
+     * Findings layer configured from the page url: hidden (can be switched
+     * on) unless the url has findings=1, in which case it is shown on a light
+     * base layer and the view is framed on the points.
+     * @param {String} title layer name in the layer switcher
+     * @returns {ol.layer.Vector}
+     */
+    addFindingsLayerFromUrl: function (title)
+    {
+        var shown = (getUrlVar("findings", "") !== "");
+        if (shown)
+        {
+            // the coloured points read better on a light background
+            OPS_Map.defaultBaseLayer = "light";
+        }
+        return this.addFindingsLayer(title, "openkis_findings.php", shown, shown);
     },
     addJsonLayer: function (title, path, isBaselayer, visible)
     {

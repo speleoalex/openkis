@@ -37,7 +37,7 @@ $_FN['openkis_custom']=""; //region identifier, loads extra/openkis/custom/<regi
 // time, and dropped when its record is saved or deleted; Control center -> Utilities ->
 // Refresh map data (or refresh-cache.php) empties the whole cache.
 $_FN['dbview_view_cache'] = array("caves" => 86400, "artificials" => 86400, "springs" => 86400, "glacial" => 86400);
-$openkis_cache_common = array("ctl_bibliography", "ctl_bibliography_links", "ctl_tracings", "ctl_temperatures",
+$openkis_cache_common = array("ctl_bibliography", "ctl_bibliography_links", "ctl_tracings", "ctl_temperatures", "ctl_findings",
     "ctl_faunacave", "ctl_fauna_surveys", "ctl_fauna", "ctl_attachments", "ctl_photos", "ctl_grottocenter",
     "ctl_coordinatestypes", "ctl_areas", "ctl_cavesystems", "ctl_licenses", "ctl_geologicalformations");
 $_FN['dbview_view_cache_tables'] = array(

@@ -52,6 +52,7 @@ function openkis_FileTables()
         "ctl_surveys_artificials" => array("survey_artificials", array("codeartificial" => "ctl_artificials"), ""),
         "ctl_surveys_glacial" => array("glacial_surveys", array("codeglacial" => "ctl_glacial"), ""),
         "ctl_faunacave" => array("fauna_surveys", array("codecave" => "ctl_caves", "codeartificial" => "ctl_artificials"), ""),
+        "ctl_findings" => array("findings", array("codecave" => "ctl_caves", "codeartificial" => "ctl_artificials"), ""),
         "ctl_photos" => array("", array("codecave" => "ctl_caves"), ""),
         "ctl_attachments" => array("", array("codecave" => "ctl_caves"), ""),
         "ctl_photos_artificials" => array("", array("codeartificial" => "ctl_artificials"), ""),

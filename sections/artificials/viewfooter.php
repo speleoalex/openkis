@@ -38,6 +38,8 @@ if (!empty($row['latitude']))
         echo "</div>";
     }
 
+// paleontological and archaeological findings in this cavity
+echo openkis_FindingsCavityCard($row['code'], "codeartificial");
 // regional additions to the sheet (extra/openkis/custom/<region>/viewfooter_artificials.php)
 if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['openkis_custom']}/viewfooter_{$_FN['mod']}.php"))
     include("extra/openkis/custom/{$_FN['openkis_custom']}/viewfooter_{$_FN['mod']}.php");

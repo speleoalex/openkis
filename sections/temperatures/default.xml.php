@@ -4,8 +4,8 @@
 	<type>dbview</type>
 	<parent>menu_natural</parent>
 	<position>56</position>
-	<title>Temperatures</title>
-	<description>Underground temperature measurements and monitorings (UCC project)</description>
+	<title>Temperatures and waters</title>
+	<description>Underground temperature measurements and monitorings (UCC project), water analyses</description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
@@ -18,10 +18,10 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Temperature</title_it>
-	<description_it>Misure e monitoraggi della temperatura sotterranea (progetto UCC)</description_it>
-	<title_en>Temperatures</title_en>
-	<description_en>Underground temperature measurements and monitorings (UCC project)</description_en>
+	<title_it>Temperature e acque</title_it>
+	<description_it>Misure e monitoraggi della temperatura sotterranea (progetto UCC), analisi delle acque</description_it>
+	<title_en>Temperatures and waters</title_en>
+	<description_en>Underground temperature measurements and monitorings (UCC project), water analyses</description_en>
 </fn_sections>
 
 <fncf_dbview>
@@ -42,7 +42,7 @@
 	<descriptionfield>notes</descriptionfield>
 	<search_options>type,medium,ventilation,water,ucc</search_options>
 	<navigate_groups>type</navigate_groups>
-	<search_partfields>name,cave,position,instrument,bibliography,data_holder,notes</search_partfields>
+	<search_partfields>name,cave,spring,position,instrument,bibliography,data_holder,parameters,notes</search_partfields>
 	<search_fields></search_fields>
 	<appendquery></appendquery>
 	<image_titlefield></image_titlefield>

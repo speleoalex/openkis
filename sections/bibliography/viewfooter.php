@@ -10,7 +10,9 @@
  * - the species (fauna), linked to their sheet when it exists;
  * - where the section speleopaleo exists, the caves with fossils;
  * - the temperature measurements taken from the publication (field
- *   bibliography_ids of the section temperatures).
+ *   bibliography_ids of the section temperatures);
+ * - the paleontological and archaeological findings taken from the
+ *   publication (field bibliography_ids of the section findings).
  * Caves, cavities, species and measurements hidden to the user are left out.
  */
 global $_FN;
@@ -153,3 +155,9 @@ if (function_exists("openkis_TemperaturesBibliographyCard") && !empty($row['id']
     echo openkis_TemperaturesBibliographyCard($row['id']);
 }
 //---- temperature measurements ------------------------------------------------<
+//---- paleontological and archaeological findings taken from the publication ->
+if (!empty($row['id']))
+{
+    echo openkis_FindingsBibliographyCard($row['id']);
+}
+//---- findings ----------------------------------------------------------------<

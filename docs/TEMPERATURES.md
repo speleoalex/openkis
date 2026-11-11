@@ -1,7 +1,7 @@
-# Underground temperatures (UCC project)
+# Underground temperatures (UCC project) and water analyses
 
-The section **Temperatures** (`index.php?mod=temperatures`, table `ctl_temperatures`) stores
-the temperature measurements made in caves, after the data sheets of the **UCC project**,
+The section **Temperatures and waters** (`index.php?mod=temperatures`, table `ctl_temperatures`)
+stores the temperature measurements made in caves, after the data sheets of the **UCC project**,
 *Underground Climate Change* ([progettoucc.it](https://www.progettoucc.it)): a national
 citizen-science project of the Italian caving community, started at the end of 2023 and
 now a commission of the Società Speleologica Italiana, that collects the historic and
@@ -42,7 +42,8 @@ from the entrances and from the surface (50-100 m of rock), with a station outsi
 
 ## The record in OpenKIS
 
-One record is **one measurement point**: a spot reading or a monitoring series. The cave
+One record is **one measurement point**: a spot reading, a monitoring series or a water
+analysis (see below). The cave
 is a link to the register (`cave`, the cave code), so name, coordinates, municipality,
 karst area and entrance elevation are not typed again and the record follows the
 visibility of the cave (a measurement in a restricted cave is visible to the same groups,
@@ -52,9 +53,10 @@ the register or for a point far from the entrance.
 | Group | Field | UCC column | Notes |
 | --- | --- | --- | --- |
 | | `name` | | Computed when empty: *cave - position - date* |
-| | `type` | sheet | `spot` or `monitoring` |
+| | `type` | sheet | `spot`, `monitoring` or `analysis` (water analysis, see below) |
 | | `medium` | (notes) | `air`, `water` or `rock`; the UCC sheets are for the air, the others are exported with the medium in the notes |
 | Measurement point | `cave` | nome grotta, num. Catasto, Long., Lat., area carsica, comune, quota ingresso | From the register |
+| | `spring` | | Spring of the register (code), when the cave is empty: its coordinates are used |
 | | `position` | posizione | |
 | | `measure_elevation` | quota misura | m a.s.l. |
 | | `entrance_distance` | distanza ingresso | m along the cave |
@@ -72,9 +74,13 @@ the register or for a point far from the entrance.
 | | `samples` | (notes) | Number of readings |
 | | `t_mean`, `t_min`, `t_max`, `t_median`, `t_mode`, `t_stddev` | T media, minima, massima, mediana, moda, deviazione standard | °C |
 | | `data_holder` | detentore dati | |
+| Water analysis | `ph` | (none) | |
+| | `conductivity` | (none) | µS/cm at 20 °C |
+| | `hardness` | (none) | Total hardness in French degrees |
+| | `parameters` | (none) | Other parameters, one per line with their unit, and the laboratory |
 | | `bibliography` | bibliografia | |
 | | `bibliography_ids` | (bibliografia) | Sheets of the section Bibliography the data come from (ids, comma separated); their citation is exported when `bibliography` is empty |
-| | `file` | | Readings or report (zip for several files) |
+| | `file` | | Readings, report or report of the water analysis (zip for several files) |
 | | `ucc` | | Ticked when the record is in the national sheet |
 | | `notes` | note | |
 | | `sort_date` | | Computed: date of the spot reading or start of the monitoring, for the list order |
@@ -89,10 +95,24 @@ publication lists the measurements taken from it in the card *Temperatures* (wit
 of each one; measurements of caves hidden to the user are left out). The text of
 `bibliography` stays the citation of the UCC export.
 
+## Water analyses
+
+A record of type `analysis` holds the chemical and physical parameters of a water sample
+taken in a cave or at a spring (field `spring`, linked to the section *Springs*): pH,
+conductivity, total hardness, the other parameters as text, and the report in `file`. Its
+date goes in `year`, `month`, `day`, its temperature, when measured, in `temperature`.
+The sheets of the cave, of the spring and of the source publication list the analyses
+with the measurements, with pH and conductivity after the temperature. An analysis without
+a temperature stays out of the map (whose colour is the temperature) and of the UCC export;
+with a temperature it is exported as a spot reading of the water. The fields `spring`,
+`ph`, `conductivity`, `hardness` and `parameters` exist only where the definition of the
+table was updated (`misc/fndatabase/ctl_temperatures.php` is never overwritten by the
+installer): the code reads them only when they are there.
+
 ## Map
 
 `openkis_temperatures.php` returns the measurement points as GeoJSON: one point per cave
-entrance (or per free coordinates) carrying the list of its measurements and the mean of
+entrance or spring (or per free coordinates) carrying the list of its measurements and the mean of
 its air readings (spot temperatures and means of the monitorings), from which the map
 colours the point: below 4 °C, 4-8, 8-12, 12-16, above 16 °C, grey without readings. The
 layer *Temperature* of the map is switched on with `bs_map.htm?temperatures=1` (all the

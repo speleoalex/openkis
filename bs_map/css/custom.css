@@ -204,12 +204,12 @@ button[title=Attributions]{
 .ops-popup-list .glyphicon{
     color: #888;
 }
-/* fauna: icon, name and, below, category and date of the last sighting */
-.ops-fauna-table td:first-child{
+/* fauna and findings: coloured dot, icons, name and, below, category and date or period */
+.ops-popup-table td:first-child{
     width: 18px;
     padding-top: 7px;
 }
-.ops-fauna-meta{
+.ops-popup-meta{
     font-size: 11px;
     color: #777;
 }

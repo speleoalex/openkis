@@ -55,6 +55,7 @@ OPS_Map.MyAddLayers = function ()
     OPS_Map.addTracingsLayerFromUrl("Tracciamenti");
     OPS_Map.addTemperaturesLayerFromUrl("Temperature");
     OPS_Map.addFaunaLayerFromUrl("Fauna");
+    OPS_Map.addFindingsLayerFromUrl("Ritrovamenti");
     OPS_Map.addKmlLayer("Catasto grotte Liguria", "openkis_proxy.php/https://catastogrotte.net/liguria/openkis_kml.php?mod=caves&time=1&minimal=1", false, false);
 
     splx.include("bs_surveys.js.php?mod=" + mod);

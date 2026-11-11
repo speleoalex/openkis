@@ -838,3 +838,50 @@ function openkis_SheetRender($frm, $values, $sheet)
     $GLOBALS['openkis_view_side'] = array();
     //---- side blocks prepared by viewfooter.php ------------------------------<
 }
+
+/**
+ * Page with a map of the layers of bs_map.htm (sections fauna_map,
+ * findings_map): the static text of the section, the map, the full screen
+ * button and a note. With no static text the map has the class
+ * openkis-fullmap: the gc-* themes show it on the whole page below what is
+ * above it (--openkis-map-top, used by their custom.css).
+ *
+ * @param string $query parameters of bs_map.htm that switch the layer on, e.g. "fauna=1"
+ * @param string $title title of the map frame
+ * @param string $note text below the map
+ * @return string html
+ */
+function openkis_FullPageMap($query, $title, $note)
+{
+    global $_FN;
+    $staticcontent = FN_HtmlStaticContent("sections/" . $_FN['mod']);
+    $fullmap = (trim($staticcontent) === "");
+    $src = "{$_FN['siteurl']}bs_map.htm?$query&lat={$_FN['default_latitude']}&lon={$_FN['default_longitude']}&zoom={$_FN['default_zoom']}";
+    return $staticcontent . '<style>.openkis-map-frame{display:block;border:0;width:100%;height:calc(100vh - 190px);min-height:400px}</style>
+<div class="openkis-map' . ($fullmap ? " openkis-fullmap" : "") . '">
+<iframe id="iframemap" class="openkis-map-frame" title="' . htmlspecialchars($title) . '" src="' . htmlspecialchars($src) . '"></iframe>
+<button class="btn btn-primary btn-sm mt-2 openkis-map-fullscreen" onclick="var e=document.getElementById(\'iframemap\');(e.requestFullscreen||e.webkitRequestFullscreen).call(e)">' . FN_Translate("open map in full screen") . '</button>
+<p class="small text-muted mt-2">' . htmlspecialchars($note) . '</p>
+</div>
+<script>
+    (function () {
+        var frame = document.getElementById("iframemap");
+        var box = frame ? frame.parentNode : null;
+        if (!box || !/\bopenkis-fullmap\b/.test(box.className))
+        {
+            return;
+        }
+        function fit() {
+            var top = Math.round(frame.getBoundingClientRect().top + window.pageYOffset);
+            document.documentElement.style.setProperty("--openkis-map-top", top + "px");
+        }
+        fit();
+        window.addEventListener("load", fit);
+        window.addEventListener("resize", fit);
+        if (window.ResizeObserver)
+        {
+            new ResizeObserver(fit).observe(box);
+        }
+    })();
+</script>';
+}

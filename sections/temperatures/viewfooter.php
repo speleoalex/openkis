@@ -1,7 +1,7 @@
 <?php
 
 global $_FN;
-// map of the measurement point and the other measurements of the same cave
+// map of the measurement point and the other measurements of the same cave or spring
 if (!function_exists("openkis_TemperaturePoint") || empty($row['id']))
 {
     return;
@@ -28,8 +28,12 @@ if ($point !== false)
     }
     echo "</div></div>";
 }
-// the other measurements of the cave
+// the other measurements of the cave, or of the spring
 if (!empty($row['cave']) && function_exists("openkis_TemperaturesCaveCard"))
 {
     echo openkis_TemperaturesCaveCard($row['cave'], intval($row['id']));
+}
+elseif (!empty($row['spring']) && function_exists("openkis_TemperaturesCaveCard"))
+{
+    echo openkis_TemperaturesCaveCard($row['spring'], intval($row['id']), "spring");
 }

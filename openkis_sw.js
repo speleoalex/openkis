@@ -32,7 +32,7 @@ var NAV_TIMEOUT = 12000;
 // requests never handled (forms, APIs, exports, administration)
 var NEVER = /^(openkis_mcp\.php|openkis_API\.php|openkis_offline\.php|openkis_insert\.php|openkis_gpx\.php|openkis_shapefile\.php|openkis_karstlink\.php|openkis_las\.php|openkis_photos_server\.php|openkis_update_sections\.php|wms_download\.php|captcha\.php|notifications\.php|refresh-cache\.php|clear_cache\.php|splx_geocode\.php|bs_request\.php|controlcenter\/)/;
 // map data: network first, kept copy offline
-var DATA = /^(openkis_kml\.php|openkis_kml_history\.php|openkis_markers\.js\.php|openkis_json\.php|openkis_map_access\.js\.php|bs_surveys\.js\.php|openkis_map_coordinates\.php|openkis_tracings\.php|openkis_temperatures\.php)$/;
+var DATA = /^(openkis_kml\.php|openkis_kml_history\.php|openkis_markers\.js\.php|openkis_json\.php|openkis_map_access\.js\.php|bs_surveys\.js\.php|openkis_map_coordinates\.php|openkis_tracings\.php|openkis_temperatures\.php|openkis_fauna\.php|openkis_findings\.php)$/;
 var STATIC = /\.(css|js|mjs|json|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|eot|kml|kmz|xml|htm|html|map)$/i;
 // libraries and fonts of the themes from public CDNs (Font Awesome, Google Fonts...)
 var CDN_HOSTS = /(^|\.)(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|unpkg\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|code\.jquery\.com|stackpath\.bootstrapcdn\.com|maxcdn\.bootstrapcdn\.com|use\.fontawesome\.com)$/i;

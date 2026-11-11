@@ -349,6 +349,8 @@ require_once(__DIR__ . "/openkis/openkis_listview.inc.php");
 FN_IncludeScript("extra/openkis/openkis_list_settings.php");
 // underground temperatures (UCC project sheets): computed fields, save callbacks, map points, exports
 require_once(__DIR__ . "/openkis/openkis_temperatures.inc.php");
+// paleontological and archaeological findings: cards on the sheets of the cavities and of the publications
+require_once(__DIR__ . "/openkis/openkis_findings.inc.php");
 // Grottocenter: Karstlink export and links to the Grottocenter entrances
 require_once(__DIR__ . "/openkis/openkis_grottocenter.inc.php");
 

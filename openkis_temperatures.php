@@ -39,13 +39,8 @@ if (file_exists("sections/temperatures") && FN_UserCanViewSection("temperatures"
     $config = FN_LoadConfig("modules/dbview/config.php", "temperatures");
     $dbview = new FNDBVIEW($config);
     $params = array();
-    $params['fields'] = "id,name,type,medium,cave,position,measure_elevation,entrance_distance,latitude,longitude,ventilation,snow_ice,water,instrument,accuracy,resolution,temperature,temperature_external,year,month,day,hour,start_date,end_date,acq_interval,samples,t_mean,t_min,t_max,t_median,t_mode,t_stddev,data_holder,bibliography,notes,sort_date,username";
-    // the sheets of the sources, for the citation when the field bibliography is empty
-    $table = FN_XMDBTable("ctl_temperatures");
-    if (is_object($table) && isset($table->fields['bibliography_ids']))
-    {
-        $params['fields'] .= ",bibliography_ids";
-    }
+    // bibliography_ids: the sheets of the sources, for the citation when the field bibliography is empty
+    $params['fields'] = openkis_TemperaturesFields("id,name,type,medium,cave,spring,position,measure_elevation,entrance_distance,latitude,longitude,ventilation,snow_ice,water,instrument,accuracy,resolution,temperature,temperature_external,year,month,day,hour,start_date,end_date,acq_interval,samples,t_mean,t_min,t_max,t_median,t_mode,t_stddev,data_holder,ph,conductivity,bibliography,bibliography_ids,notes,sort_date,username");
     $where = array();
     if ($id !== "")
     {
@@ -107,6 +102,9 @@ if ($format == "ucc")
 $groups = array();
 foreach ($items as $item)
 {
+    // the colour of a point is the temperature: no water analyses without one
+    if (openkis_TemperatureIsAnalysisOnly($item['record']))
+        continue;
     $key = $item['point']['key'];
     if (!isset($groups[$key]))
     {

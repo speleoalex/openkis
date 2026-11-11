@@ -6,14 +6,49 @@
  * One record is a measurement point in a cave with either one reading (type
  * "spot") or the summary of a data logger series (type "monitoring"), after
  * the two data sheets of the UCC project (Underground Climate Change,
- * https://www.progettoucc.it): "misure spot" and "monitoraggi". The record
- * takes the cave from the register (coordinates, municipality, karst area,
- * entrance elevation) or free coordinates for a site that is not in it.
+ * https://www.progettoucc.it): "misure spot" and "monitoraggi"; or the
+ * chemical and physical parameters of a water sample (type "analysis"), which
+ * goes to the UCC export and to the map only when it has a temperature. The
+ * record takes the cave or the spring from the register (coordinates,
+ * municipality, karst area, entrance elevation) or free coordinates for a site
+ * that is not in it.
  * See docs/TEMPERATURES.md.
  */
 defined('_FNEXEC') or die('Restricted access');
 // list cards of the sheets
 require_once __DIR__ . "/openkis_sheet.inc.php";
+
+/**
+ * The fields of a list that the installed definition of ctl_temperatures has:
+ * misc/fndatabase/ctl_temperatures.php is never overwritten by the installer,
+ * so an older install lacks the fields added later (spring, water analysis).
+ *
+ * @param string $fields comma separated
+ * @return string comma separated, in the same order
+ */
+function openkis_TemperaturesFields($fields)
+{
+    $table = FN_XMDBTable("ctl_temperatures");
+    $installed = array();
+    foreach (explode(",", $fields) as $field)
+    {
+        if (is_object($table) && isset($table->fields[$field]))
+            $installed[] = $field;
+    }
+    return implode(",", $installed);
+}
+
+/**
+ * Whether a record is a water analysis without a temperature: it stays out of
+ * the UCC export and of the map, whose colour is the temperature.
+ *
+ * @param array $record
+ * @return bool
+ */
+function openkis_TemperatureIsAnalysisOnly($record)
+{
+    return isset($record['type']) && $record['type'] == "analysis" && openkis_TemperatureValue($record) === "";
+}
 
 /**
  * Fills the computed fields of ctl_temperatures:
@@ -52,7 +87,7 @@ function openkis_UpdateTemperatures($forceall = false)
     {
         return;
     }
-    $records = FN_XMETADBQuery("SELECT id,name,type,cave,position,year,month,day,hour,start_date,end_date,latitude_txt,longitude_txt,coordinates_type,latitude,longitude,sort_date,groupview FROM ctl_temperatures");
+    $records = FN_XMETADBQuery("SELECT " . openkis_TemperaturesFields("id,name,type,cave,spring,position,year,month,day,hour,start_date,end_date,latitude_txt,longitude_txt,coordinates_type,latitude,longitude,sort_date,groupview") . " FROM ctl_temperatures");
     if (!is_array($records) || count($records) == 0)
     {
         @touch($file_lastUpdate);
@@ -111,6 +146,8 @@ function openkis_UpdateTemperatures($forceall = false)
             $parts = array();
             if (trim(strval($record['cave'])) !== "")
                 $parts[] = trim($record['cave']);
+            elseif (!empty($record['spring']))
+                $parts[] = trim($record['spring']);
             if (trim(strval($record['position'])) !== "")
                 $parts[] = trim($record['position']);
             $date = openkis_TemperatureDateLabel($record);
@@ -300,8 +337,9 @@ function openkis_TemperatureAreaNames()
 /**
  * Measurement points of a list of records, using only the caves the current
  * user can see: a record of a cave hidden to the user is left out, even when
- * it has free coordinates. The free coordinates, when present, replace the
- * cave entrance (a point deep in the cave, or a site not in the register).
+ * it has free coordinates. A record without a cave takes the point of its
+ * spring. The free coordinates, when present, replace the cave entrance or
+ * the spring (a point deep in the cave, or a site not in the register).
  *
  * @param array $records records of ctl_temperatures
  * @return array one item per drawable record: record, point; point is
@@ -356,6 +394,29 @@ function openkis_TemperaturesPoints($records)
             }
         }
     }
+    $springs = array();
+    $spring_codes = array();
+    foreach ($records as $record)
+    {
+        if (trim(strval($record['cave'])) === "" && !empty($record['spring']))
+            $spring_codes[] = trim($record['spring']);
+    }
+    if (count($spring_codes) > 0 && file_exists("sections/springs"))
+    {
+        foreach (openkis_SheetRecordsByCode("springs", $spring_codes, "id,code,name,latitude,longitude,elevation,comune") as $row)
+        {
+            $springs[trim($row['code'])] = array(
+                "lat" => floatval($row['latitude']),
+                "lon" => floatval($row['longitude']),
+                "elevation" => isset($row['elevation']) ? $row['elevation'] : "",
+                "code" => $row['code'],
+                "name" => $row['name'],
+                "mod" => "springs",
+                "id" => $row['id'],
+                "comune" => isset($row['comune']) ? $row['comune'] : "",
+                "areas" => "");
+        }
+    }
     $items = array();
     foreach ($records as $record)
     {
@@ -363,7 +424,12 @@ function openkis_TemperaturesPoints($records)
         // a cave the user cannot see hides the measurement
         if ($code !== "" && !isset($caves[$code]))
             continue;
-        $point = ($code !== "") ? $caves[$code] : array("lat" => 0, "lon" => 0, "elevation" => "", "code" => "", "name" => "", "mod" => "", "id" => "", "comune" => "", "areas" => "");
+        $spring = ($code === "" && !empty($record['spring'])) ? trim($record['spring']) : "";
+        $point = array("lat" => 0, "lon" => 0, "elevation" => "", "code" => "", "name" => "", "mod" => "", "id" => "", "comune" => "", "areas" => "");
+        if ($code !== "")
+            $point = $caves[$code];
+        elseif ($spring !== "" && isset($springs[$spring]))
+            $point = $springs[$spring];
         if (floatval($record['latitude']) != 0 && floatval($record['longitude']) != 0)
         {
             $point['lat'] = floatval($record['latitude']);
@@ -372,7 +438,7 @@ function openkis_TemperaturesPoints($records)
         if ($point['lat'] == 0 || $point['lon'] == 0)
             continue;
         // the points of one cave entrance share a marker on the map
-        $point['key'] = ($code !== "" && floatval($record['latitude']) == 0) ? "cave:$code" : "pos:" . round($point['lat'], 5) . "," . round($point['lon'], 5);
+        $point['key'] = (floatval($record['latitude']) == 0 && $point['code'] !== "") ? "{$point['mod']}:{$point['code']}" : "pos:" . round($point['lat'], 5) . "," . round($point['lon'], 5);
         $items[] = array("record" => $record, "point" => $point);
     }
     return $items;
@@ -432,6 +498,11 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
     $label = array("date" => openkis_SheetUcfirst(FN_Translate("date")), "cave" => openkis_SheetUcfirst(FN_Translate("cave")),
         "type" => openkis_SheetUcfirst(FN_Translate("type")), "medium" => openkis_SheetUcfirst(FN_Translate("measured medium")),
         "position" => openkis_SheetUcfirst(FN_Translate("measurement point")), "reading" => openkis_SheetUcfirst(FN_Translate("temperature")));
+    // the column also holds pH and conductivity of the water analyses
+    if (in_array("analysis", array_column($records, "type")))
+    {
+        $label['reading'] = openkis_SheetUcfirst(FN_Translate("values"));
+    }
     $td = function ($column, $class = "") use ($head, $label)
     {
         if (!$head)
@@ -454,13 +525,26 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
     {
         $url = FN_RewriteLink("index.php?mod=temperatures&op=view&id={$record['id']}");
         $date = htmlspecialchars(openkis_TemperatureDateLabel($record));
-        $type = FN_Translate($record['type'] == "monitoring" ? "monitoring" : "spot measurement");
+        $types = array("monitoring" => "monitoring", "analysis" => "water analysis");
+        $type = FN_Translate(isset($types[$record['type']]) ? $types[$record['type']] : "spot measurement");
         $medium = FN_Translate(in_array($record['medium'], array("water", "rock")) ? $record['medium'] : "air");
         $value = openkis_TemperatureValue($record);
         $reading = ($value !== "") ? str_replace(".", ",", $value) . " °C" : "";
         if ($record['type'] == "monitoring" && $value !== "")
         {
             $reading = FN_Translate("mean") . " " . $reading;
+        }
+        if ($record['type'] == "analysis")
+        {
+            // the main parameters of the analysis after the temperature
+            $parameters = array();
+            if ($reading !== "")
+                $parameters[] = $reading;
+            if (isset($record['ph']) && trim(strval($record['ph'])) !== "")
+                $parameters[] = "pH " . htmlspecialchars(trim($record['ph']));
+            if (isset($record['conductivity']) && trim(strval($record['conductivity'])) !== "")
+                $parameters[] = htmlspecialchars(trim($record['conductivity'])) . " µS/cm";
+            $reading = implode(", ", $parameters);
         }
         $html .= "<tr><td" . $td("date", "text-nowrap") . ">$date</td>";
         if (is_array($caves))
@@ -471,6 +555,10 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
             {
                 $cave_url = FN_RewriteLink("index.php?mod=caves&op=view&id={$caves[$code]['id']}");
                 $cave = "<span class=\"text-nowrap\">" . htmlspecialchars($caves[$code]['code']) . "</span> <a href=\"$cave_url\">" . htmlspecialchars($caves[$code]['name']) . "</a>";
+            }
+            elseif ($code === "" && !empty($record['spring']))
+            {
+                $cave = FN_Translate("spring") . " " . htmlspecialchars(trim($record['spring']));
             }
             $html .= "<td" . $td("cave") . ">$cave</td>";
         }
@@ -488,25 +576,28 @@ function openkis_TemperaturesTable($records, $links = true, $head = false, $cave
 }
 
 /**
- * Card listing the temperature measurements of a cave, for the cave sheet
- * and the sheet of a measurement (where the record itself is left out).
+ * Card listing the temperature measurements and water analyses of a cave or
+ * of a spring, for their sheets and the sheet of a measurement (where the
+ * record itself is left out).
  *
- * @param string $code cave code
+ * @param string $code cave or spring code
  * @param int $exclude_id record not to list
- * @return string html, empty when the cave has no measurement visible to the user
+ * @param string $field "cave" or "spring"
+ * @return string html, empty when there is no measurement visible to the user
  */
-function openkis_TemperaturesCaveCard($code, $exclude_id = 0)
+function openkis_TemperaturesCaveCard($code, $exclude_id = 0, $field = "cave")
 {
     global $_FN;
-    if ($code === "" || !file_exists("sections/temperatures") || !FN_XMDBTable("ctl_temperatures") || !FN_UserCanViewSection("temperatures"))
+    if ($code === "" || !file_exists("sections/temperatures") || !FN_XMDBTable("ctl_temperatures") || !FN_UserCanViewSection("temperatures")
+        || openkis_TemperaturesFields($field) === "")
         return "";
     require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
     openkis_UpdateTemperatures();
     $config = FN_LoadConfig("modules/dbview/config.php", "temperatures");
     $dbview = new FNDBVIEW($config);
     $params = array();
-    $params['fields'] = "id,name,type,medium,position,temperature,t_mean,year,month,day,hour,start_date,end_date,sort_date";
-    $params['appendquery'] = "cave LIKE '" . addslashes($code) . "'";
+    $params['fields'] = openkis_TemperaturesFields("id,name,type,medium,position,temperature,t_mean,ph,conductivity,year,month,day,hour,start_date,end_date,sort_date");
+    $params['appendquery'] = "$field LIKE '" . addslashes($code) . "'";
     $records = $dbview->GetResults($config, $params);
     if (!is_array($records))
         return "";
@@ -519,9 +610,14 @@ function openkis_TemperaturesCaveCard($code, $exclude_id = 0)
     if (count($records) == 0)
         return "";
     $records = FN_ArraySortByKey($records, "sort_date");
-    $title = ($exclude_id > 0) ? FN_Translate("other measurements of the cave") : FN_Translate("temperatures");
-    $map = "{$_FN['siteurl']}bs_map.htm?temperature_cave=" . urlencode($code);
-    $footer = "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a>";
+    $title = ($exclude_id > 0) ? FN_Translate($field == "spring" ? "other measurements of the spring" : "other measurements of the cave") : FN_Translate("temperatures and waters");
+    // the map selects the measurements by cave
+    $footer = "";
+    if ($field == "cave")
+    {
+        $map = "{$_FN['siteurl']}bs_map.htm?temperature_cave=" . urlencode($code);
+        $footer = "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$map\">" . FN_Translate("show on the map") . "</a>";
+    }
     return openkis_SheetCard($title, "<div class=\"card-body p-0\">" . openkis_TemperaturesTable($records, true, true) . "</div>",
         array("count" => count($records), "footer" => $footer, "id" => "card_temperatures"));
 }
@@ -551,7 +647,7 @@ function openkis_TemperaturesBibliographyCard($id)
     $dbview = new FNDBVIEW($config);
     $q = addslashes($id);
     $params = array();
-    $params['fields'] = "id,name,type,medium,cave,position,temperature,t_mean,year,month,day,hour,start_date,end_date,sort_date";
+    $params['fields'] = openkis_TemperaturesFields("id,name,type,medium,cave,spring,position,temperature,t_mean,ph,conductivity,year,month,day,hour,start_date,end_date,sort_date");
     $params['appendquery'] = "(bibliography_ids LIKE '$q' OR bibliography_ids LIKE '$q,%' OR bibliography_ids LIKE '%,$q,%' OR bibliography_ids LIKE '%,$q')";
     $records = $dbview->GetResults($config, $params);
     if (!is_array($records) || count($records) == 0)
@@ -576,7 +672,7 @@ function openkis_TemperaturesBibliographyCard($id)
         $by_cave = strnatcmp(trim(strval($a['cave'])), trim(strval($b['cave'])));
         return $by_cave != 0 ? $by_cave : strcmp(strval($a['sort_date']), strval($b['sort_date']));
     });
-    return openkis_SheetCard(FN_Translate("temperatures"), "<div class=\"card-body p-0\">" . openkis_TemperaturesTable($records, true, true, $caves) . "</div>",
+    return openkis_SheetCard(FN_Translate("temperatures and waters"), "<div class=\"card-body p-0\">" . openkis_TemperaturesTable($records, true, true, $caves) . "</div>",
         array("count" => count($records), "id" => "card_temperatures"));
 }
 
@@ -705,7 +801,7 @@ function openkis_TemperaturesUccRows($type, $items)
     {
         $r = $item['record'];
         $p = $item['point'];
-        if (($type == "monitoring") != ($r['type'] == "monitoring"))
+        if (($type == "monitoring") != ($r['type'] == "monitoring") || openkis_TemperatureIsAnalysisOnly($r))
             continue;
         // the medium goes in the notes: the UCC sheets are for the air
         $notes = trim(strval($r['notes']));

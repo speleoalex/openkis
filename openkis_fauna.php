@@ -71,7 +71,7 @@ foreach ($places as $key => $place)
         $description .= "<small>" . htmlspecialchars($placename) . "</small><br />";
     }
     $description .= "<b>" . count($place['species']) . " " . FN_Translate("species", "aa") . "</b>, " . $place['nsightings'] . " " . FN_Translate("sightings", "aa") . "<br />";
-    $description .= "<table class=\"ops-fauna-table\">";
+    $description .= "<table class=\"ops-popup-table\">";
     foreach ($place['species'] as $sp)
     {
         $name = "<i>" . htmlspecialchars($sp['name']) . "</i>";
@@ -102,7 +102,7 @@ foreach ($places as $key => $place)
             $meta .= " &middot; " . date("d/m/Y", strtotime($sp['last']));
         }
         // category and date under the name: four columns did not fit the popup
-        $description .= "<tr><td>$dot</td><td>$name<div class=\"ops-fauna-meta\">$meta</div></td></tr>";
+        $description .= "<tr><td>$dot</td><td>$name<div class=\"ops-popup-meta\">$meta</div></td></tr>";
     }
     $description .= "</table>";
     $description .= "<div class=\"text-right\"><a $open href=\"$list\"><span class=\"glyphicon glyphicon-list\"></span> " . FN_Translate("fauna surveys") . "</a> ";
