@@ -58,8 +58,9 @@ if (count($caves))
     $extra = array();
     if (count($notes))
         $extra[] = array("title" => FN_Translate("in the publication"), "class" => "", "values" => $values);
-    // the map selects the caves by their codes: no map when the url would be too long
-    echo openkis_SheetCavesCard(FN_Translate("caves dealt with"), $caves, array("extra" => $extra, "map" => (count($caves) > 300) ? false : ""));
+    // the map selects the caves by their codes: no map when the url would be too long.
+    // Light base layer: the caves of a publication are spread over a wide area
+    echo openkis_SheetCavesCard(FN_Translate("caves dealt with"), $caves, array("extra" => $extra, "map" => (count($caves) > 300) ? false : "", "baselayer" => "Bianco"));
 }
 //---- caves dealt with in the publication -------------------------------------<
 //---- artificial cavities ----------------------------------------------------->

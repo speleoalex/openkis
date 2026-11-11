@@ -35,7 +35,7 @@
 	<generate_googlesitemap>0</generate_googlesitemap>
 	<tables>ctl_tracings</tables>
 	<search_orders>release_date,name,recordupdate</search_orders>
-	<defaultorder>release_date</defaultorder>
+	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>name</titlefield>
