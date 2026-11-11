@@ -3,7 +3,7 @@
 	<type>navigator</type>
 	<parent>fauna</parent>
 	<position>160</position>
-	<title>Specie</title>
+	<title>Fauna cavernicola</title>
 	<description>contiene l'elenco degli animali cavernicoli</description>
 	<startdate></startdate>
 	<enddate></enddate>
@@ -17,7 +17,7 @@
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
 	<blocks></blocks>
-	<title_it>Specie</title_it>
+	<title_it>Fauna cavernicola</title_it>
 	<title_en></title_en>
 	<description_it>contiene l'elenco degli animali cavernicoli</description_it>
 	<description_en></description_en>

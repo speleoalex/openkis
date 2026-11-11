@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>55</position>
+	<position>60</position>
 	<title>Tracciamenti</title>
 	<description>Prove con tracciante in acqua e in aria</description>
 	<startdate></startdate>
@@ -22,6 +22,7 @@
 	<description_it>Prove con tracciante in acqua e in aria</description_it>
 	<title_en>Tracer tests</title_en>
 	<description_en>Water and air tracer tests</description_en>
+	<link>https://www.catastogrotte.net/liguria/it/tracings/</link>
 </fn_sections>
 
 <fncf_dbview>
@@ -36,7 +37,6 @@
 	<tables>ctl_tracings</tables>
 	<search_orders>release_date,name,recordupdate</search_orders>
 	<defaultorder>recordupdate</defaultorder>
-	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>name</titlefield>
 	<descriptionfield>result_notes</descriptionfield>
@@ -60,9 +60,16 @@
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>1</enable_offlineform>
+	<offlineform_hidden_fields></offlineform_hidden_fields>
+	<offlineform_text_fields></offlineform_text_fields>
+	<documents_folder></documents_folder>
+	<enable_cache>0</enable_cache>
+	<enable_comments_notify>0</enable_comments_notify>
 	<enablecomments>0</enablecomments>
 	<enableranks>0</enableranks>
 	<default_view_mode>list</default_view_mode>
 	<enable_rss>0</enable_rss>
-	<enable_offlineform>0</enable_offlineform>
+	<enable_proposals>0</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>

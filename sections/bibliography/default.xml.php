@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>60</position>
+	<position>80</position>
 	<title>Bibliografia</title>
 	<description></description>
 	<startdate></startdate>
@@ -25,16 +25,23 @@
 </fn_sections>
 
 <fncf_dbview>
+	<mailalert>speleoalex@gmail.com</mailalert>
+	<search_orders>year,authors,title,magazine,recordupdate</search_orders>
+	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
+	<enable_export>0</enable_export>
+	<enable_delete>0</enable_delete>
+	<hide_on_delete>1</hide_on_delete>
+	<default_show_groups>1</default_show_groups>
+	<search_query_native_mysql>0</search_query_native_mysql>
+	<enable_offlineform>0</enable_offlineform>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
 	<groupinsert>w_caves</groupinsert>
 	<groupadmin>w_caves</groupadmin>
 	<groupview></groupview>
-	<mailalert>speleoalex@gmail.com</mailalert>
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>0</generate_googlesitemap>
 	<tables>ctl_bibliography</tables>
-	<search_orders>year,authors,title,magazine,recordupdate</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min>year</search_min>
@@ -50,15 +57,14 @@
 	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>
 	<enable_permissions_each_records>0</enable_permissions_each_records>
-	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
 	<permissions_records_groups>r_caves,w_caves</permissions_records_groups>
 	<permissions_records_edit_groups>w_caves</permissions_records_edit_groups>
 	<enable_history>0</enable_history>
-	<enable_export>0</enable_export>
-	<enable_delete>0</enable_delete>
-	<hide_on_delete>1</hide_on_delete>
-	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
-	<search_query_native_mysql>0</search_query_native_mysql>
-	<enable_offlineform>0</enable_offlineform>
+	<documents_folder></documents_folder>
+	<enable_cache>0</enable_cache>
+	<offlineform_hidden_fields></offlineform_hidden_fields>
+	<offlineform_text_fields></offlineform_text_fields>
+	<enable_proposals>0</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>

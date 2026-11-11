@@ -4,7 +4,7 @@
 	<type></type>
 	<parent>menu_fauna</parent>
 	<position>195</position>
-	<title>Biospeleological map</title>
+	<title>Mappa biospeleologica</title>
 	<description></description>
 	<startdate></startdate>
 	<enddate></enddate>

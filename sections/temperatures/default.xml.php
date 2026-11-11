@@ -4,8 +4,8 @@
 	<type>dbview</type>
 	<parent>menu_natural</parent>
 	<position>56</position>
-	<title>Temperatures and measurements</title>
-	<description>Underground temperature measurements and monitorings (UCC project), water analyses</description>
+	<title>Temperature e misurazioni</title>
+	<description>Misure e monitoraggi della temperatura sotterranea (progetto UCC), analisi delle acque</description>
 	<startdate></startdate>
 	<enddate></enddate>
 	<status>1</status>
@@ -65,4 +65,7 @@
 	<default_view_mode>list</default_view_mode>
 	<enable_rss>0</enable_rss>
 	<enable_offlineform>0</enable_offlineform>
+	<enable_cache>0</enable_cache>
+	<enable_proposals>0</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>

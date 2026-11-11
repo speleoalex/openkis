@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>30</position>
+	<position>40</position>
 	<title>Grotte</title>
 	<description></description>
 	<startdate></startdate>
@@ -22,7 +22,6 @@
 	<description_it></description_it>
 	<title_en></title_en>
 	<description_en></description_en>
-	<link>index.php?mod=caves</link>
 </fn_sections>
 
 <fncf_dbview>
@@ -35,7 +34,7 @@
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>1</generate_googlesitemap>
 	<tables>ctl_caves</tables>
-	<search_orders>name,recordupdate,lenght_total,depth_total</search_orders>
+	<search_orders>name,recordupdate,lenght_total,depth_total,code</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
@@ -43,17 +42,18 @@
 	<offlineform_hidden_fields>status,groupview,check,check_date,changelog,original_coordinates_type,photo1</offlineform_hidden_fields>
 	<offlineform_text_fields>caveslinks</offlineform_text_fields>
 	<descriptionfield>description</descriptionfield>
-	<search_options>archeological,closed,marine</search_options>
+	<search_options>archeological,closed,marine,status</search_options>
 	<navigate_groups>regione,provincia,comune,areas</navigate_groups>
-	<search_partfields>name</search_partfields>
-	<search_fields>code</search_fields>
+	<search_partfields>name,areas</search_partfields>
+	<search_fields>code,username,geologicalformation</search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
+	<image_size>100</image_size>
 	<table_rules>ctl_caves_rules</table_rules>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
 	<permissions_records_groups>r_caves,w_caves,hidden_caves,archaeologists</permissions_records_groups>
-	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
+	<permissions_records_edit_groups>r_caves,w_caves</permissions_records_edit_groups>
 	<enable_history>1</enable_history>
 	<enable_export>1</enable_export>
 	<enable_delete>1</enable_delete>
@@ -61,26 +61,10 @@
 	<default_show_groups>1</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<image_size_h>600</image_size_h>
+	<image_size_h>300</image_size_h>
 	<enable_offlineform>1</enable_offlineform>
 	<documents_folder></documents_folder>
-	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
-	<groupinsert></groupinsert>
-	<groupadmin></groupadmin>
-	<groupview></groupview>
-	<mailalert></mailalert>
-	<viewonlycreator>0</viewonlycreator>
-	<generate_googlesitemap>1</generate_googlesitemap>
-	<enable_comments_notify>0</enable_comments_notify>
-	<image_size>450</image_size>
-	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
-	<permissions_records_groups>dbview_rw,dbview_ro</permissions_records_groups>
-	<enable_export>1</enable_export>
-	<enable_delete>0</enable_delete>
-	<hide_on_delete>1</hide_on_delete>
-	<default_show_groups>1</default_show_groups>
-	<enable_statistics>0</enable_statistics>
-	<search_query_native_mysql>0</search_query_native_mysql>
-	<enable_offlineform>1</enable_offlineform>
-	<documents_folder></documents_folder>
+	<enable_cache>0</enable_cache>
+	<enable_proposals>1</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>

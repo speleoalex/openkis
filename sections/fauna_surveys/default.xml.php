@@ -23,26 +23,27 @@
 	<title_en>Biospeleological surveys</title_en>
 	<description_en></description_en>
 </fn_sections>
+
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
-	<recordsperpage>24</recordsperpage>
+	<recordsperpage>12</recordsperpage>
 	<groupinsert>w_fauna</groupinsert>
 	<groupadmin>w_fauna</groupadmin>
-	<groupview></groupview>
+	<groupview>r_fauna</groupview>
 	<mailalert></mailalert>
 	<viewonlycreator>0</viewonlycreator>
 	<generate_googlesitemap>0</generate_googlesitemap>
 	<tables>ctl_faunacave</tables>
-	<search_orders>name,date,codecave,recordinsert,recordupdate</search_orders>
+	<search_orders>name,recordinsert,recordupdate</search_orders>
 	<defaultorder>recordupdate</defaultorder>
 	<enable_comments_notify>0</enable_comments_notify>
 	<search_min></search_min>
 	<titlefield>name</titlefield>
 	<descriptionfield>description</descriptionfield>
 	<search_options></search_options>
-	<navigate_groups>name</navigate_groups>
-	<search_partfields>name,caver,description</search_partfields>
-	<search_fields></search_fields>
+	<navigate_groups>username</navigate_groups>
+	<search_partfields></search_partfields>
+	<search_fields>username</search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
 	<image_size>100</image_size>
@@ -51,17 +52,19 @@
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
 	<permissions_records_groups>w_fauna,r_fauna</permissions_records_groups>
-	<permissions_records_edit_groups>w_fauna</permissions_records_edit_groups>
-	<enable_history>1</enable_history>
-	<enable_export>1</enable_export>
-	<enable_delete>1</enable_delete>
-	<hide_on_delete>0</hide_on_delete>
+	<permissions_records_edit_groups>dbview_rw,dbview_ro</permissions_records_edit_groups>
+	<enable_history>0</enable_history>
+	<enable_export>0</enable_export>
+	<enable_delete>0</enable_delete>
+	<hide_on_delete>1</hide_on_delete>
 	<default_show_groups>0</default_show_groups>
 	<enable_statistics>0</enable_statistics>
 	<search_query_native_mysql>0</search_query_native_mysql>
-	<enablecomments>0</enablecomments>
-	<enableranks>0</enableranks>
-	<default_view_mode>list</default_view_mode>
-	<enable_rss>0</enable_rss>
 	<enable_offlineform>1</enable_offlineform>
+	<documents_folder></documents_folder>
+	<enable_cache>0</enable_cache>
+	<offlineform_hidden_fields></offlineform_hidden_fields>
+	<offlineform_text_fields></offlineform_text_fields>
+	<enable_proposals>0</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>

@@ -46,8 +46,8 @@
 	<search_fields></search_fields>
 	<appendquery></appendquery>
 	<image_titlefield>photo1</image_titlefield>
-	<image_size>450</image_size>
-	<image_size_h>600</image_size_h>
+	<image_size>100</image_size>
+	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>1</enable_permissions_edit_each_records>
@@ -62,4 +62,9 @@
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>1</enable_offlineform>
 	<documents_folder></documents_folder>
+	<offlineform_hidden_fields></offlineform_hidden_fields>
+	<enable_cache>0</enable_cache>
+	<offlineform_text_fields></offlineform_text_fields>
+	<enable_proposals>0</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>

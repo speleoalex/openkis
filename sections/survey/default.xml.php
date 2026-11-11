@@ -3,7 +3,7 @@
 <fn_sections>
 	<type>dbview</type>
 	<parent>menu_natural</parent>
-	<position>90</position>
+	<position>100</position>
 	<title>Rilievi</title>
 	<description>Rilievi delle grotte</description>
 	<startdate></startdate>
@@ -13,7 +13,7 @@
 	<accesskey></accesskey>
 	<keywords></keywords>
 	<sectionpath>sections</sectionpath>
-	<level>0</level>
+	<level></level>
 	<group_view></group_view>
 	<group_edit></group_edit>
 	<blocksmode></blocksmode>
@@ -27,7 +27,7 @@
 <fncf_dbview>
 	<databasename>fndatabase</databasename>
 	<recordsperpage>12</recordsperpage>
-	<groupinsert>w_caves</groupinsert>
+	<groupinsert></groupinsert>
 	<groupadmin></groupadmin>
 	<groupview></groupview>
 	<mailalert></mailalert>
@@ -52,8 +52,8 @@
 	<table_rules></table_rules>
 	<enable_permissions_each_records>1</enable_permissions_each_records>
 	<enable_permissions_edit_each_records>0</enable_permissions_edit_each_records>
-	<permissions_records_groups>r_caves,w_caves</permissions_records_groups>
-	<permissions_records_edit_groups>w_caves</permissions_records_edit_groups>
+	<permissions_records_groups></permissions_records_groups>
+	<permissions_records_edit_groups></permissions_records_edit_groups>
 	<enable_history>0</enable_history>
 	<enable_export>0</enable_export>
 	<enable_delete>1</enable_delete>
@@ -63,4 +63,9 @@
 	<search_query_native_mysql>0</search_query_native_mysql>
 	<enable_offlineform>0</enable_offlineform>
 	<documents_folder></documents_folder>
+	<enable_cache>0</enable_cache>
+	<offlineform_hidden_fields></offlineform_hidden_fields>
+	<offlineform_text_fields></offlineform_text_fields>
+	<enable_proposals>0</enable_proposals>
+	<proposals_mail>1</proposals_mail>
 </fncf_dbview>
