@@ -56,7 +56,7 @@ if (!empty($row['code']))
 foreach (array("type", "result") as $f)
 {
     if (!empty($values[$f]))
-        $badges .= "<span class=\"badge badge-info\">" . strip_tags($values[$f]) . "</span> ";
+        $badges .= "<span class=\"badge badge-info\">" . openkis_TracingViewValue($values, $f) . "</span> ";
 }
 
 openkis_SheetRender($frm, $values, array(

@@ -61,7 +61,7 @@ $badges = "";
 foreach (array("type", "medium") as $f)
 {
     if (!empty($values[$f]))
-        $badges .= "<span class=\"badge badge-info\">" . strip_tags($values[$f]) . "</span> ";
+        $badges .= "<span class=\"badge badge-info\">" . openkis_TemperatureViewValue($values, $f) . "</span> ";
 }
 if (!empty($row['ucc']) && $row['ucc'] == "1")
 {
