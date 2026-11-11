@@ -1323,12 +1323,22 @@ var OPS_Map = {
                 legend.innerHTML = OPS_Map.tracingLegendHtml(data.legend);
             }
             updateLegend();
-            if (fit && features.length > 0)
+            if (fit && !OPS_Map.urlSetsView() && features.length > 0)
             {
                 OPS_Map.view.fit(source.getExtent(), {padding: [60, 60, 60, 60], maxZoom: 17});
             }
         });
         return layer;
+    },
+    /**
+     * True when the page url sets the view (lat and lon): the data layers then
+     * keep that view instead of framing their own points, so that a link (or a
+     * screenshot) can show the tracings of one area at a chosen zoom.
+     * @returns {Boolean}
+     */
+    urlSetsView: function ()
+    {
+        return getUrlVar("lat", "") !== "" && getUrlVar("lon", "") !== "";
     },
     /**
      * Tracer tests layer configured from the page url: hidden (all the
@@ -1475,7 +1485,7 @@ var OPS_Map = {
                 legend.innerHTML = OPS_Map.temperatureLegendHtml(data.legend);
             }
             updateLegend();
-            if (fit && features.length > 0)
+            if (fit && !OPS_Map.urlSetsView() && features.length > 0)
             {
                 OPS_Map.view.fit(source.getExtent(), {padding: [60, 60, 60, 60], maxZoom: 15});
             }
@@ -1865,7 +1875,7 @@ var OPS_Map = {
             }
             source.addFeatures(features);
             points.updateLegend();
-            if (options.fit && features.length > 0)
+            if (options.fit && !OPS_Map.urlSetsView() && features.length > 0)
             {
                 // the legend covers the bottom left corner: keep the points out of it
                 // when the map is large enough, else leave the usual margin
