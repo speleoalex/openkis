@@ -1,7 +1,14 @@
 <?php
 
 global $_FN;
-// map of the measurement point and the other measurements of the same cave or spring
+/**
+ * Temperature sheet footer. Runs before viewheader.php: blocks pushed into
+ * $GLOBALS['openkis_view_side'] are printed by viewheader.php in the side
+ * column, while echoed html goes below the sheet at full width.
+ */
+require_once "extra/openkis/openkis_sheet.inc.php";
+$GLOBALS['openkis_view_side'] = array();
+// map of the measurement point, in the side column
 if (!function_exists("openkis_TemperaturePoint") || empty($row['id']))
 {
     return;
@@ -9,9 +16,10 @@ if (!function_exists("openkis_TemperaturePoint") || empty($row['id']))
 $point = openkis_TemperaturePoint($row);
 if ($point !== false)
 {
-    echo "<div class=\"card openkis-card mb-3\"><div class=\"card-body p-0\">";
-    echo "<iframe style=\"border:0px;width:100%;height:350px;display:block\" src=\"{$_FN['siteurl']}bs_map.htm?temperature=" . intval($row['id']) . "&point=circle&lat={$point['lat']}&lon={$point['lon']}&zoom=15\"></iframe>";
-    echo "</div><div class=\"card-footer small text-muted\">";
+    $body = "<div class=\"card-body p-0\">";
+    $body .= "<iframe style=\"border:0px;width:100%;height:250px;display:block\" src=\"{$_FN['siteurl']}bs_map.htm?temperature=" . intval($row['id']) . "&point=circle&lat={$point['lat']}&lon={$point['lon']}&zoom=15\"></iframe>";
+    $body .= "</div>";
+    $footer = "";
     $label = htmlspecialchars(trim($point['code'] . " " . $point['name']));
     if ($point['mod'] != "" && $point['id'] != "")
     {
@@ -21,14 +29,14 @@ if ($point !== false)
     {
         $label = FN_Translate("free coordinates");
     }
-    echo $label . " - " . FN_Translate("coordinates WGS84") . ": " . round($point['lat'], 6) . ", " . round($point['lon'], 6);
+    $footer .= $label . "<br />" . FN_Translate("coordinates WGS84") . ": " . round($point['lat'], 6) . ", " . round($point['lon'], 6);
     if ($point['elevation'] !== "" && $point['elevation'] !== null)
     {
-        echo " - " . FN_Translate("entrance elevation") . ": " . htmlspecialchars($point['elevation']) . " m";
+        $footer .= " - " . FN_Translate("entrance elevation") . ": " . htmlspecialchars($point['elevation']) . " m";
     }
-    echo "</div></div>";
+    $GLOBALS['openkis_view_side'][] = openkis_SheetCard(FN_Translate("map"), $body, array("side" => true, "footer" => $footer));
 }
-// the other measurements of the cave, or of the spring
+// the other measurements of the cave, or of the spring, below the sheet
 if (!empty($row['cave']) && function_exists("openkis_TemperaturesCaveCard"))
 {
     echo openkis_TemperaturesCaveCard($row['cave'], intval($row['id']));

@@ -79,6 +79,12 @@ function openkis_ViewCardFields($frm, $values, $fields, $longtext = array(), $au
         {
             $rowtpl = "<details class=\"openkis-field small\"><summary class=\"text-muted\">{title}</summary><div class=\"openkis-field-value\">{input}</div></details>";
         }
+        elseif (isset($frm->formvals[$f]['frm_type']) && $frm->formvals[$f]['frm_type'] == "file")
+        {
+            // download links as buttons, as the generic detail template does
+            $rowtpl = "<div class=\"row openkis-field\"><div class=\"col-sm-4 col-lg-3 openkis-field-title\">{title}</div>"
+                . "<div class=\"col-sm-8 col-lg-9 openkis-field-value\"><!-- inputattributes:class=\"btn btn-outline-primary btn-sm\" -->{input}</div></div>";
+        }
         else
         {
             $rowtpl = "<div class=\"row openkis-field\"><div class=\"col-sm-4 col-lg-3 openkis-field-title\">{title}</div><div class=\"col-sm-8 col-lg-9 openkis-field-value\">{input}</div></div>";
@@ -334,7 +340,7 @@ function openkis_SheetViewButton($url)
  * @param string $mod section of the records
  * @return string url of the map, empty when no record has coordinates
  */
-function openkis_SheetCavesMapUrl($caves, $filter = "", $mod = "caves")
+function openkis_SheetCavesMapUrl($caves, $filter = "", $mod = "caves", $baselayer = "")
 {
     global $_FN;
     $codes = array();
@@ -360,6 +366,10 @@ function openkis_SheetCavesMapUrl($caves, $filter = "", $mod = "caves")
     if ($filter == "")
     {
         $filter = "filter_code=" . implode(",", array_unique($codes));
+    }
+    if ($baselayer != "")
+    {
+        $filter .= "&baselayer=" . rawurlencode($baselayer);
     }
     return "{$_FN['siteurl']}bs_map.htm?mod=$mod&zoom=$zoom&lat=" . sprintf("%.6F", $lat) . "&lon=" . sprintf("%.6F", $lon) . "&$filter";
 }
@@ -392,7 +402,8 @@ function openkis_SheetMapOptions($url)
  *   "columns" fields shown after the name, among comune, elevation,
  *             lenght_total, depth_total (default all);
  *   "extra" more columns: list of array("title" => ..., "class" => ..., "values" => array(code => html));
- *   "map" query string selecting the records on the map ("" their codes), false for no map
+ *   "map" query string selecting the records on the map ("" their codes), false for no map;
+ *   "baselayer" title of the base layer of the map (default the first of the region)
  * @return string html, empty when there is no record
  */
 function openkis_SheetCavesCard($title, $caves, $options = array())
@@ -455,7 +466,7 @@ function openkis_SheetCavesCard($title, $caves, $options = array())
     $listoptions = array();
     if (!isset($options['map']) || $options['map'] !== false)
     {
-        $listoptions = openkis_SheetMapOptions(openkis_SheetCavesMapUrl($caves, isset($options['map']) ? $options['map'] : "", $mod));
+        $listoptions = openkis_SheetMapOptions(openkis_SheetCavesMapUrl($caves, isset($options['map']) ? $options['map'] : "", $mod, isset($options['baselayer']) ? $options['baselayer'] : ""));
     }
     return openkis_SheetListCard($title, $head, $rows, $listoptions);
 }
@@ -609,6 +620,21 @@ function openkis_SheetShowLastUpdate($frm)
 }
 
 /**
+ * Date of a stored date or datetime field as dd/mm/yyyy (the database keeps
+ * yyyy-mm-dd[ hh:mm:ss]). Values in another format are returned unchanged.
+ *
+ * @param string $value
+ * @return string
+ */
+function openkis_SheetDateText($value)
+{
+    $value = trim((string) $value);
+    if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $value, $m))
+        return "{$m[3]}/{$m[2]}/{$m[1]}";
+    return $value;
+}
+
+/**
  * Date of the last update of a record (dd/mm/yyyy): recordupdate, or recordinsert
  * for the records never changed after their insertion (imports leave recordupdate
  * empty).
@@ -623,9 +649,7 @@ function openkis_SheetLastUpdate($values)
         $date = isset($values[$f]) ? trim(strip_tags((string) $values[$f])) : "";
         if ($date === "" || strpos($date, "0000-00-00") === 0)
             continue;
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $date, $m))
-            return "{$m[3]}/{$m[2]}/{$m[1]}";
-        return $date;
+        return openkis_SheetDateText($date);
     }
     return "";
 }
