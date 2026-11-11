@@ -45,7 +45,7 @@
 	<search_partfields>name,code,tracer,cave_injection,cave_detection,spring_detection</search_partfields>
 	<search_fields></search_fields>
 	<appendquery></appendquery>
-	<image_titlefield></image_titlefield>
+	<image_titlefield>photo1</image_titlefield>
 	<image_size>100</image_size>
 	<image_size_h>300</image_size_h>
 	<table_rules></table_rules>

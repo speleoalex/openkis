@@ -219,6 +219,31 @@
         <view_tag>center</view_tag>
     </field>
     <field>
+        <name>photo1</name>
+        <frm_i18n>image</frm_i18n>
+        <frm_help_i18n>A chart of the tracing (readings of the logger at the detection point, breakthrough curve of the tracer) or a photo.</frm_help_i18n>
+        <thumb_listheight>64</thumb_listheight>
+        <type>image</type>
+        <thumbsize>250</thumbsize>
+    </field>
+    <field>
+        <name>photo1_caption</name>
+        <frm_i18n>image caption</frm_i18n>
+        <frm_help_i18n>What the image shows and where it comes from, e.g. the figure and the page of the publication.</frm_help_i18n>
+        <type>string</type>
+    </field>
+    <field>
+        <name>attachment1</name>
+        <frm_i18n>attachment</frm_i18n>
+        <frm_help_i18n>Other documents of the tracing: charts of the other loggers, the report, the pages of the publication.</frm_help_i18n>
+        <type>file</type>
+    </field>
+    <field>
+        <name>attachment2</name>
+        <frm_i18n>second attachment</frm_i18n>
+        <type>file</type>
+    </field>
+    <field>
         <name>notes</name>
         <frm_i18n>notes</frm_i18n>
         <type>text</type>
