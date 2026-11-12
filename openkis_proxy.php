@@ -169,7 +169,9 @@ function getWebPage($url)
         CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
         CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
         CURLOPT_USERAGENT => "Mozilla/5.0 (X11; Linux x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1",
-        CURLOPT_CONNECTTIMEOUT => 120,
+        // a map server that is down must not hold a PHP worker for minutes per tile:
+        // on shared hosting the busy workers turn every other request into a 503
+        CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_TIMEOUT => 120,
     );
     for ($redirects = 0; ; $redirects++)

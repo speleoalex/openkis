@@ -12,7 +12,8 @@ OPS_Map.MyAddLayers = function () {
     OPS_Map.addWMSLayer("Geologica 1:50000", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/geo_50k_italia/ImageServer/WMSServer", '0', false, false, "png", 'EPSG:4326');
     OPS_Map.addWMSLayer("Geologica 1:100000", "openkis_proxy.php/http://sgi2.isprambiente.it/arcgis/services/raster/geo_100k_italia/ImageServer/WMSServer", '0', false, false, "png", 'EPSG:4326');
     OPS_Map.addWMSLayer("Ortofoto 2019", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2248/wms?", 'L8256', false, false, "image/png");
-    OPS_Map.addWMSLayer("CTR 1:10000", "openkis_proxy.php/http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/CARTE_TECNICHE/1238.asp?", 'M1238', true, true);
+    // the old www.cartografiarl.regione.liguria.it map server is offline (2026-11): the same maps are on the regional GeoServer
+    OPS_Map.addWMSLayer("CTR 1:10000", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M4/wms?", 'L69', true, true, "image/jpeg");
     OPS_Map.addWMSLayer("Cartografia catastale fogli", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6589', false, false, "image/png");
     OPS_Map.addWMSLayer("Cartografia catastale particelle", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6592', false, false, "image/png");
     OPS_Map.addWMSLayer("Cartografia catastale fabbricati", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6593', false, false, "image/png");
@@ -20,7 +21,7 @@ OPS_Map.MyAddLayers = function () {
     OPS_Map.addWMSLayer("Cartografia catastale comuni", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6588', false, false, "image/png");
     OPS_Map.addWMSLayer("Cartografia catastale acque", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M2002/wms?version=1.3.0&", 'L6591', false, false, "image/png");
 
-    OPS_Map.addWMSLayer("Idrografia", "openkis_proxy.php/http://www.cartografiarl.regione.liguria.it/mapfiles/repertoriocartografico/ACQUE_INTERNE/1172.asp?", 'M1172', false, false);
+    OPS_Map.addWMSLayer("Idrografia", "openkis_proxy.php/https://geoservizi.regione.liguria.it/geoserver/M626/wms?", 'L1080', false, false, "image/png");
 
 
 
