@@ -313,21 +313,37 @@ function openkis_OnSaveUpdateCaveSystems($record)
 }
 
 /**
- * Insert callback of the caves section when the regional customisation sets
- * its own one (the cadastre number, e.g. GeneraNumero): dbview calls a single
- * function, so extra/openkis/openkis_hooks.php puts this one in its place.
- * It runs the regional callback, then the cave systems recalculation.
+ * Insert/update callbacks of the caves section when the regional customisation
+ * sets its own one (the cadastre number, e.g. GeneraNumero, or the Lombardia
+ * FSLo code): dbview calls a single function, so extra/openkis/openkis_hooks.php
+ * puts these in its place. They run the regional callback, then the cave
+ * systems recalculation.
  *
- * @param array $record the inserted record
+ * @param array $record the saved record
  * @return mixed what the regional callback returns
  */
 function openkis_OnInsertCave($record)
 {
+    return openkis_RunRegionalCaveCallback("openkis_caves_on_insert", $record);
+}
+
+function openkis_OnUpdateCave($record)
+{
+    return openkis_RunRegionalCaveCallback("openkis_caves_on_update", $record);
+}
+
+/**
+ * @param string $key $_FN key holding the regional callback name
+ * @param array $record the saved record
+ * @return mixed what the regional callback returns
+ */
+function openkis_RunRegionalCaveCallback($key, $record)
+{
     global $_FN;
     $ret = null;
-    if (!empty($_FN['openkis_caves_on_insert']) && function_exists($_FN['openkis_caves_on_insert']))
+    if (!empty($_FN[$key]) && function_exists($_FN[$key]))
     {
-        $ret = call_user_func($_FN['openkis_caves_on_insert'], $record);
+        $ret = call_user_func($_FN[$key], $record);
     }
     openkis_OnSaveUpdateCaveSystems($record);
     return $ret;
@@ -335,8 +351,8 @@ function openkis_OnInsertCave($record)
 
 // Register the save callbacks. The dbview section initialises
 // $_FN['modparams'][mod]['editorparams'] only when unset. The regional
-// customisations replace the insert callback of the caves with their own:
-// extra/openkis/openkis_hooks.php chains the two.
+// customisations replace the callbacks of the caves with their own:
+// extra/openkis/openkis_hooks.php chains them.
 $_FN['modparams']['caves']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['caves']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";

@@ -12,6 +12,8 @@ global $_FN; //variabile globale condivisa da tutto il programma Finis
 //l'inserimento di una grotta, la funzione riceve come parametro un array con i 
 //dati appena inseriti:
 $_FN['modparams']["caves"]['editorparams']['table']['function_on_insert']="GeneraNumero";
+// FSLo code recomputed at every save (the provincia may change)
+$_FN['modparams']["caves"]['editorparams']['table']['function_on_update']="lombardia_UpdateCodeFslo";
 $_FN['modparams']["artificials"]['editorparams']['table']['function_on_insert']="GeneraNumeroArtificials";
 // map centred on the region (unless changed in the admin section "configopenkis")
 openkis_SetRegionMapCenter(45.62, 9.75, 8);
@@ -82,6 +84,7 @@ function GeneraNumero($values)
 //se il numero non è già impostato non faccio nulla
     if ($values['code']!= "")
     {
+        lombardia_UpdateCodeFslo($values);
         return $values;
     }
 //inizializza la variabile oggetto che punta alla tabella
@@ -123,7 +126,52 @@ function GeneraNumero($values)
         }
     }
     $values['code']=$regione.$max;
-    return $table->UpdateRecord($values);
+    $values = $table->UpdateRecord($values);
+    lombardia_UpdateCodeFslo($values);
+    return $values;
+}
+
+/**
+ * FSLo code of a cave: LO + provincia + cadastre number (LO1759.2 in LC -> LOLC1759.2),
+ * "" without provincia.
+ *
+ * @param array $cave record of ctl_caves with code and provincia
+ * @return string
+ */
+function lombardia_CodeFslo($cave)
+{
+    $provincia = isset($cave['provincia']) ? trim($cave['provincia']) : "";
+    if ($provincia == "" || empty($cave['code']))
+    {
+        return "";
+    }
+    return "LO" . $provincia . str_replace("LO", "", $cave['code']);
+}
+
+/**
+ * Save callback of the caves section (insert, through GeneraNumero, and update): writes
+ * code_fslo from the stored code and provincia. Reads the stored record because the form
+ * values may lack fields; writes through the table, so no history version is added.
+ *
+ * @param array $record the saved record (only its id is used)
+ */
+function lombardia_UpdateCodeFslo($record)
+{
+    if (empty($record['id']))
+    {
+        return;
+    }
+    $table = FN_XMDBTable("ctl_caves");
+    $cave = $table->GetRecordByPrimaryKey($record['id']);
+    if (!is_array($cave))
+    {
+        return;
+    }
+    $codefslo = lombardia_CodeFslo($cave);
+    if ($codefslo != "" && $cave['code_fslo'] !== $codefslo)
+    {
+        $table->UpdateRecord(array("id" => $cave['id'], "code_fslo" => $codefslo));
+    }
 }
 
 /**
@@ -215,43 +263,46 @@ function cglombardia_checkprovincia($prov, $update = false, $newvalues = array()
 
 
 /**
- * funzione che genera i codici FSLO, legge tutte le grotte e aggiorna il campo "code_fslo"
- * 
- * @global array $_FN
+ * Fills ctl_caves.code_fslo with LO<provincia><number> (LO1759.2 in LC -> LOLC1759.2) and
+ * prints the codes it changed, for the caves saved before lombardia_UpdateCodeFslo() existed.
+ * Only the caves whose code differs are written: comparing with "code" instead of "code_fslo"
+ * rewrote all the caves at every run. Caves without provincia are listed and left untouched.
+ * Only administrators.
  */
-function GeneraCodiciFSLO($silent=false)
+function GeneraCodiciFSLO()
 {
-    global $_FN;
-    $table =FN_XMDBTable("ctl_caves");
-    $all=$table->GetRecords();
-    if (FN_IsAdmin())
+    if (!FN_IsAdmin())
     {
-        echo "Aggiornamento codici FSLO:<br />";
-        foreach($all as $item)
+        echo "Funzione riservata agli amministratori.";
+        return;
+    }
+    $table = FN_XMDBTable("ctl_caves");
+    $all = $table->GetRecords(false, false, false, false, false, array("id", "code", "provincia", "code_fslo"));
+    $updated = array();
+    $noprovincia = array();
+    foreach ($all as $item)
+    {
+        $code = htmlspecialchars($item['code']);
+        $codefslo = lombardia_CodeFslo($item);
+        if ($codefslo == "")
         {
-            $newitem=array();
-            $newitem['id']=$item['id'];
-            $codenum = str_replace("LO","",($item['code']));
-            $codice="LO{$item['provincia']}{$codenum}";
-            if ($item['code']!= $codice)
-            {
-                $newitem['code_fslo']=$codice;
-                $table->UpdateRecord($newitem);
-                if (!$silent)
-                    echo "<span style=\"color:red\">Aggiorno $codice</span><br />";
-                //die();
-            }
-            else
-            {
-                if (!$silent)
-                    echo "OK $codice<br />";
-            }
+            $noprovincia[] = $code;
+            continue;
+        }
+        if ($item['code_fslo'] !== $codefslo)
+        {
+            $table->UpdateRecord(array("id" => $item['id'], "code_fslo" => $codefslo));
+            $updated[] = "$code: " . htmlspecialchars($item['code_fslo']) . " &rarr; " . htmlspecialchars($codefslo);
         }
     }
-    else
+    echo "<p>Grotte: " . count($all) . ", codici FSLo aggiornati: " . count($updated) . "</p>";
+    if ($updated)
     {
-        if (!$silent)
-            echo "funzione riservata agli amministratori";
+        echo "<p>" . implode("<br />", $updated) . "</p>";
+    }
+    if ($noprovincia)
+    {
+        echo "<p>Senza provincia, codice non generato: " . implode(", ", $noprovincia) . "</p>";
     }
 }
 
