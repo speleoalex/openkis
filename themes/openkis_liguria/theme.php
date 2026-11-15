@@ -245,6 +245,21 @@ function FN_HtmlCloseNews()
 
 
 
+/**
+ * Menu hook of the "login" section: hide it from the menus. The login form is
+ * always available in the navbar; keeping the section in the menu showed a
+ * duplicate "Accesso" entry leading to the same page. Administrators still
+ * see it: FN_MenuSectionIsVisible() grants them every section before this
+ * hook is called.
+ *
+ * @param array $section values of the section (FN_GetSections())
+ * @return bool
+ */
+function login_MenuSectionIsVisible($section)
+{
+    return false;
+}
+
 function FN_TPL_tp_create_menu_footer($str)
 {
     return FN_TPL_html_menu($str,"footer","menu_footer");
