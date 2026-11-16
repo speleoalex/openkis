@@ -565,6 +565,13 @@ var OPS_Map = {
         {
             return;
         }
+        // no pull to refresh on the page that shows the map (the map page itself when
+        // it is not in an iframe): a finger moving down at the top of the page reloaded
+        // it. A page of another site cannot be reached and keeps its refresh
+        try {
+            window.parent.document.documentElement.style.overscrollBehaviorY = 'contain';
+        } catch (e) {
+        }
         this.touchGated = this.mapIsEmbedded();
         if (!this.touchGated)
         {
