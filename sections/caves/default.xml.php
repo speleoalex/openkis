@@ -67,4 +67,6 @@
 	<enable_cache>0</enable_cache>
 	<enable_proposals>1</enable_proposals>
 	<proposals_mail>1</proposals_mail>
+	<proposals_exclude_fields>code,check,check_date,chronology</proposals_exclude_fields>
+	<proposals_innertables>ctl_surveys,ctl_photos</proposals_innertables>
 </fncf_dbview>
