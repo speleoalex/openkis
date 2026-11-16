@@ -121,6 +121,12 @@ button[title=Attributions]{
     overflow-x: hidden;
     overflow-wrap: anywhere;
 }
+/* map inside a page with the focus of the finger (OPS_Map.setTouchArmed): a box scrolled
+   to its end does not pass the scroll to the page */
+.ops-touch-armed .popover-content,
+.ops-touch-armed .dropdown-menu{
+    overscroll-behavior: contain;
+}
 .popover-content em{
     color: #607080;
 }
@@ -339,8 +345,8 @@ button[title=Attributions]{
 .openkis-popup-loading{
     padding: 20px;
 }
-/* over a map inside a page, when the wheel scrolls the page instead of zooming (OPS_Map.showWheelHint) */
-.ops-wheel-hint{
+/* over a map inside a page, when the wheel or the finger scrolls the page instead of moving the map (OPS_Map.showHint) */
+.ops-map-hint{
     position: absolute;
     top: 0;
     left: 0;
@@ -361,7 +367,7 @@ button[title=Attributions]{
     opacity: 0;
     transition: opacity 0.4s;
 }
-.ops-wheel-hint.visible{
+.ops-map-hint.visible{
     opacity: 1;
     transition-duration: 0.15s;
 }

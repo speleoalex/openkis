@@ -6,7 +6,10 @@ if (touchDevice)
     interactions =  ol.interaction.defaults({dragPan: false, mouseWheelZoom: false}).extend([
         new ol.interaction.DragPan({
           condition: function (event) {
-            return this.getPointerCount() === 2 || ol.events.condition.platformModifierKeyOnly(event);
+            // two fingers always; one only while the map has the focus
+            // (see initTouchGate), so that otherwise it scrolls the page
+            return this.getPointerCount() === 2 || ol.events.condition.platformModifierKeyOnly(event)
+                    || !OPS_Map.touchGated || OPS_Map.touchArmed;
           },
         }),
         new ol.interaction.MouseWheelZoom({
@@ -114,6 +117,8 @@ var OPS_Map = {
         //---------------- display popup on click------------------------------>
         this.map.on('click', function (evt) {
             OPS_Map.lastClickTime = Date.now();
+            // a tap on the map gives it the finger: see initTouchGate
+            OPS_Map.setTouchArmed(true);
             OPS_Map.onMapClick(evt);
         });
         this.addTapFallback();
@@ -165,6 +170,8 @@ var OPS_Map = {
         // no preventDefault of the wheel here: MouseWheelZoom does it when it zooms, and a
         // wheel it leaves alone must reach the page around the map, to scroll it
         this.initWheelGate();
+        // the same for the finger of a phone, see initTouchGate
+        this.initTouchGate();
 
 //--------------------------- export PNG -------------------------------------->
         document.getElementById('export-png').addEventListener('click', function () {
@@ -485,8 +492,29 @@ var OPS_Map = {
     },
     wheelGated: false,
     wheelArmed: false,
-    wheelHint: null,
-    wheelHintTimer: null,
+    touchGated: false,
+    touchArmed: false,
+    hint: null,
+    hintTimer: null,
+    /**
+     * @returns {Boolean} true when the map page is an iframe inside a page that
+     * scrolls, false when the map is the page (bs_map.htm opened on its own,
+     * full page maps, iframe.openkis-map-frame)
+     */
+    mapIsEmbedded: function ()
+    {
+        try {
+            if (window.self === window.top)
+            {
+                return false;
+            }
+            // null when the page around is of another site
+            var frame = window.frameElement;
+            return !(frame && frame.classList && frame.classList.contains('openkis-map-frame'));
+        } catch (e) {
+            return true;
+        }
+    },
     /**
      * A map inside a page (the iframe of a cave sheet, of a tracing, of a list)
      * must not take the wheel of who is scrolling that page: met under the
@@ -502,26 +530,14 @@ var OPS_Map = {
      */
     initWheelGate: function ()
     {
-        var embedded = true;
-        try {
-            embedded = window.self !== window.top;
-        } catch (e) {
-        }
-        var fullPage = false;
-        try {
-            // null when the page around is of another site
-            var frame = window.frameElement;
-            fullPage = !!(frame && frame.classList && frame.classList.contains('openkis-map-frame'));
-        } catch (e) {
-        }
-        this.wheelGated = embedded && !fullPage;
+        this.wheelGated = this.mapIsEmbedded();
         if (!this.wheelGated)
         {
             return;
         }
         document.addEventListener('pointerdown', function () {
             OPS_Map.wheelArmed = true;
-            OPS_Map.hideWheelHint();
+            OPS_Map.hideHint();
         }, true);
         var disarm = function () {
             OPS_Map.wheelArmed = false;
@@ -534,6 +550,109 @@ var OPS_Map = {
             }
         });
         window.addEventListener('blur', disarm);
+    },
+    /**
+     * A map inside a page moves with one finger only while it has the focus,
+     * given by a tap on it: until then a finger over the map scrolls the page,
+     * as over the rest of it, and a touch on the page around the map takes the
+     * focus back (the same idea as the wheel gate of the desktop map). Two
+     * fingers move and zoom the map at any time.
+     * @returns {undefined}
+     */
+    initTouchGate: function ()
+    {
+        if (!detectMob())
+        {
+            return;
+        }
+        this.touchGated = this.mapIsEmbedded();
+        if (!this.touchGated)
+        {
+            // the map is the page: the finger has no page to scroll
+            this.map.getViewport().style.touchAction = 'none';
+            return;
+        }
+        var release = function () {
+            OPS_Map.setTouchArmed(false);
+        };
+        // the document of a page of another site cannot be reached: there the
+        // focus goes back on the window blur only
+        try {
+            if (window.parent && window.parent !== window)
+            {
+                window.parent.document.addEventListener('pointerdown', release, true);
+            }
+        } catch (e) {
+        }
+        window.addEventListener('blur', release);
+        // a gesture that starts on a popup over the map does not reach DragPan (the
+        // overlay stops its events) and the browser scrolls the page with it: while
+        // the map has the focus only a box that can scroll takes the finger
+        document.addEventListener('touchmove', function (e) {
+            if (!OPS_Map.touchArmed)
+            {
+                return;
+            }
+            for (var el = e.target; el && el.nodeType === 1 && el !== document.documentElement; el = el.parentElement)
+            {
+                if (el.scrollHeight > el.clientHeight && /auto|scroll/.test(window.getComputedStyle(el).overflowY))
+                {
+                    return;
+                }
+            }
+            e.preventDefault();
+        }, {passive: false});
+        // a finger that scrolls the page from the map says how to move the map
+        var viewport = this.map.getViewport();
+        var start = null;
+        var pointers = 0;
+        viewport.addEventListener('pointerdown', function (e) {
+            pointers++;
+            start = (e.pointerType === 'mouse' || pointers > 1 || OPS_Map.touchArmed)
+                    ? null : [e.clientX, e.clientY];
+        });
+        var up = function () {
+            pointers = Math.max(0, pointers - 1);
+            start = null;
+        };
+        viewport.addEventListener('pointerup', up);
+        viewport.addEventListener('pointercancel', up);
+        viewport.addEventListener('pointermove', function (e) {
+            if (!start)
+            {
+                return;
+            }
+            if (Math.abs(e.clientX - start[0]) + Math.abs(e.clientY - start[1]) > 12)
+            {
+                start = null;
+                OPS_Map.showTouchHint();
+            }
+        });
+    },
+    /**
+     * @param {Boolean} armed the finger moves the map instead of the page
+     * @returns {undefined}
+     */
+    setTouchArmed: function (armed)
+    {
+        if (!this.touchGated || this.touchArmed === armed)
+        {
+            return;
+        }
+        this.touchArmed = armed;
+        // the browser decides at the start of a gesture whether it may scroll:
+        // none keeps it from scrolling the page, so the finger reaches DragPan
+        this.map.getViewport().style.touchAction = armed ? 'none' : '';
+        // a finger on a popup over the map scrolls the popup, never the page (custom.css)
+        document.documentElement.classList.toggle('ops-touch-armed', armed);
+        if (armed)
+        {
+            this.showTouchHint();
+        }
+        else
+        {
+            this.hideHint();
+        }
     },
     /**
      * condition of the MouseWheelZoom of the desktop map
@@ -554,36 +673,55 @@ var OPS_Map = {
         }
         return false;
     },
+    /**
+     * @param {String} text
+     * @returns {String} the text in the language of the map, when loaded
+     */
+    translated: function (text)
+    {
+        return (typeof (_i18n) === "function") ? _i18n(text) : text;
+    },
     showWheelHint: function ()
     {
-        if (!this.wheelHint)
-        {
-            this.wheelHint = document.createElement('div');
-            this.wheelHint.className = 'ops-wheel-hint';
-            this.map.getViewport().appendChild(this.wheelHint);
-        }
-        var text = "Click on the map to zoom with the wheel, or use Ctrl + wheel";
-        if (typeof (_i18n) === "function")
-        {
-            text = _i18n(text);
-        }
+        var text = this.translated("Click on the map to zoom with the wheel, or use Ctrl + wheel");
         if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent))
         {
             text = text.replace("Ctrl", "⌘");
         }
-        this.wheelHint.textContent = text;
-        this.wheelHint.classList.add('visible');
-        clearTimeout(this.wheelHintTimer);
-        this.wheelHintTimer = setTimeout(function () {
-            OPS_Map.hideWheelHint();
+        this.showHint(text);
+    },
+    showTouchHint: function ()
+    {
+        this.showHint(this.translated(this.touchArmed
+                ? "One finger moves the map. Touch the page outside the map to scroll it"
+                : "Tap the map to move it with one finger"));
+    },
+    /**
+     * Text over the map, transparent to the pointer
+     * @param {String} text already in the language of the map
+     * @returns {undefined}
+     */
+    showHint: function (text)
+    {
+        if (!this.hint)
+        {
+            this.hint = document.createElement('div');
+            this.hint.className = 'ops-map-hint';
+            this.map.getViewport().appendChild(this.hint);
+        }
+        this.hint.textContent = text;
+        this.hint.classList.add('visible');
+        clearTimeout(this.hintTimer);
+        this.hintTimer = setTimeout(function () {
+            OPS_Map.hideHint();
         }, 1500);
     },
-    hideWheelHint: function ()
+    hideHint: function ()
     {
-        clearTimeout(this.wheelHintTimer);
-        if (this.wheelHint)
+        clearTimeout(this.hintTimer);
+        if (this.hint)
         {
-            this.wheelHint.classList.remove('visible');
+            this.hint.classList.remove('visible');
         }
     },
     /**
@@ -640,6 +778,7 @@ var OPS_Map = {
                     return; // OpenLayers handled it
                 }
                 OPS_Map.lastClickTime = Date.now();
+                OPS_Map.setTouchArmed(true);
                 OPS_Map.onMapClick({
                     type: 'click',
                     pixel: pixel,

@@ -121,7 +121,9 @@ map explains them. *Open map in full screen* enlarges it to the whole screen.
 | ⛶ (bottom) | Full screen |
 
 At the bottom left are the scale bar and the WGS84 coordinates of the pointer. On phones and
-tablets the map moves with two fingers (one finger scrolls the page).
+tablets a map inside a page (sheet, list) moves with two fingers; one finger scrolls the page
+until you tap the map, then it moves the map until you touch the page outside the map. Full
+page maps move with one finger.
 
 ### Maps and layers
 

@@ -119,7 +119,9 @@ sotto la mappa li spiega. *Apri la mappa a schermo intero* la allarga a tutto lo
 | ⛶ (in basso) | Schermo intero |
 
 In basso a sinistra ci sono la scala e le coordinate WGS84 del puntatore. Sui telefoni e
-sui tablet la mappa si sposta con due dita (con un dito si scorre la pagina).
+sui tablet una mappa dentro una pagina (scheda, elenco) si sposta con due dita; un dito
+scorre la pagina finché non si tocca la mappa, poi sposta la mappa fino a quando si tocca la
+pagina fuori dalla mappa. Sulle mappe a pagina intera basta un dito.
 
 ### Mappe e livelli
 
