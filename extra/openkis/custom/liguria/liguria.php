@@ -72,7 +72,8 @@ function GeneraNumeroArtificials($values)
 function GeneraNumero($values)
 {
 //se il numero non è già impostato non faccio nulla
-    if ($values['code'] != "")
+    // a record created from a proposal has no code field at all
+    if (!empty($values['code']))
     {
         return $values;
     }
@@ -98,11 +99,9 @@ function GeneraNumero($values)
         }
     }
     $max++;
-//se è in Piemonte aggiunge "PI", altrimenti "AO"
-    if ($values['regione'] != "Liguria")
-    {
-        $regione = "LI";
-    }
+    // every cave of this cadastre gets the LI prefix (the old test on the region left it
+    // undefined for "Liguria" and read a key that a proposed record may lack)
+    $regione = "LI";
 //cerca il primo numero libero
     ksort($grotte_by_code);
     for ($i = 1;
