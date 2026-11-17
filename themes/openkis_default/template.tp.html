@@ -127,6 +127,19 @@
             </div>
             <!-- end if {is_multilanguage} -->
 
+            <!-- if {notifications_count} -->
+            <div class="dropdown gc-notifications" style="flex:0 0 auto;margin-right:8px;position:static">
+                <button class="gc-btn-outline-white" type="button" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false" title="{i18n:Notifications}">
+                    <span aria-hidden="true">&#128276;</span>&nbsp;<span class="badge badge-pill badge-danger">{notifications_count}</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" style="width:22rem;max-width:90vw;max-height:70vh;overflow-y:auto">
+                    <h6 class="dropdown-header">{i18n:Notifications}</h6>
+                    <!-- foreach {notifications} -->
+                    <a class="dropdown-item" style="white-space:normal" href="{siteurl}index.php?fnapp=notifications&amp;display={id}&amp;go=1"><small class="text-muted d-block">{human_date}</small>{text}</a>
+                    <!-- end foreach {notifications} -->
+                </div>
+            </div>
+            <!-- end if {notifications_count} -->
             <!-- if {user} -->
             <!-- include FN_HtmlLogoutForm -->
             <div class="dropdown gc-user">
