@@ -81,7 +81,7 @@ $fieldshtml = "";
 foreach ($groups as $fields)
     $fieldshtml .= openkis_ViewCardFields($frm, $values, $fields, array(), array(), $titles);
 
-$code = isset($row['code']) ? trim((string) $row['code']) : "";
+$code = openkis_RecordCode($row, $mod);
 $name = isset($row['name']) ? trim((string) $row['name']) : "";
 $title = trim($code . ($code != "" && $name != "" ? " - " : "") . $name);
 if ($title == "")

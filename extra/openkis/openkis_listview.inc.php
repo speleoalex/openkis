@@ -225,3 +225,34 @@ function openkis_SurveyTitleEscape($text)
 {
     return htmlspecialchars(trim((string) $text), ENT_QUOTES, "UTF-8", false);
 }
+
+/**
+ * Code shown for a record in the list cards and in the map popup: the field
+ * named by $_FN['openkis_code_field'][<section>] (set by a region, e.g. a
+ * federation code next to the cadastre one), else "code". A record with that
+ * field empty shows its "code".
+ *
+ * @param array $row record
+ * @param string $mod section id
+ * @return string code, not escaped
+ */
+function openkis_RecordCode($row, $mod)
+{
+    global $_FN;
+    $field = !empty($_FN['openkis_code_field'][$mod]) ? $_FN['openkis_code_field'][$mod] : "code";
+    if (isset($row[$field]) && trim((string) $row[$field]) !== "")
+        return trim((string) $row[$field]);
+    return isset($row['code']) ? trim((string) $row['code']) : "";
+}
+
+/**
+ * Variables of a list item added by openkis for the list templates
+ * ($_FN['dbview_item_function'] of finis): {item_code}, the code of the card badge.
+ */
+function openkis_ListItemVars($tplvars, $data, $tablename)
+{
+    global $_FN;
+    $tplvars['item_code'] = is_array($data) ? htmlspecialchars(openkis_RecordCode($data, $_FN['mod']), ENT_QUOTES, "UTF-8") : "";
+    return $tplvars;
+}
+$_FN['dbview_item_function'] = "openkis_ListItemVars";
