@@ -202,7 +202,7 @@ Sotto la ricerca:
 - **Link a questa ricerca** è un indirizzo da salvare o inviare che ripete la stessa
   ricerca.
 
-In fondo all'elenco, **Scarica scheda per l'inserimento** scarica un modulo da compilare
+In fondo all'elenco, **Scheda per l'inserimento offline** scarica un modulo da compilare
 anche senza connessione per proporre una nuova grotta (vedi
 [Proporre dati senza account](#proporre-dati-senza-account)).
 
@@ -428,7 +428,7 @@ cancellata dal database.
 
 Chi non può modificare il catasto può comunque proporre dati:
 
-- **Scarica scheda per l'inserimento** (in fondo all'elenco) scarica un modulo vuoto per una
+- **Scheda per l'inserimento offline** (in fondo all'elenco) scarica un modulo vuoto per una
   nuova grotta;
 - **Se desideri modificare i dati scarica questa scheda** (in fondo a una scheda) scarica il
   modulo già compilato.
