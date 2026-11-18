@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Visualizzatore 3D LAS</title>
+<style>
+:root{
+  --bg:#14161a; --panel:rgba(24,27,33,.88); --fg:#e8eaf0; --muted:#9aa3b2;
+  --accent:#4da3ff; --border:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);
+  font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#gl.drag{cursor:grabbing}
+#gl.walk{cursor:crosshair}
+
+#bar{position:fixed;top:8px;left:8px;right:8px;display:flex;flex-wrap:wrap;gap:8px;
+  align-items:center;background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:6px 10px;backdrop-filter:blur(6px);z-index:10}
+#fname{flex:1 1 120px;min-width:80px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;font-weight:600}
+#bar select,#bar button{background:#22262e;color:var(--fg);border:1px solid var(--border);
+  border-radius:6px;padding:4px 8px;font:inherit;cursor:pointer}
+#bar button:hover,#bar select:hover{border-color:var(--accent)}
+#bar button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+#bar label{display:flex;align-items:center;gap:4px;color:var(--muted);cursor:pointer;
+  user-select:none;white-space:nowrap}
+#psize,#speed{width:70px;accent-color:var(--accent)}
+
+#info{position:fixed;top:56px;right:8px;background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:10px 14px;z-index:10;display:none;max-width:280px;
+  backdrop-filter:blur(6px)}
+#info table{border-collapse:collapse;font-size:12.5px}
+#info td{padding:2px 6px 2px 0;vertical-align:top}
+#info td:first-child{color:var(--muted);white-space:nowrap}
+
+#hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+  background:var(--panel);border:1px solid var(--border);border-radius:999px;
+  padding:6px 16px;color:var(--muted);font-size:12.5px;z-index:10;white-space:nowrap;
+  transition:opacity 1.2s;pointer-events:none;max-width:94vw;overflow:hidden;
+  text-overflow:ellipsis}
+
+#overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:20;background:transparent;pointer-events:none}
+#overlay .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:22px 28px;text-align:center;pointer-events:auto;max-width:90vw}
+#meter{width:240px;max-width:70vw;height:6px;background:#2a2f38;border-radius:3px;
+  margin:12px auto 0;overflow:hidden}
+#meterfill{height:100%;width:0;background:var(--accent);border-radius:3px;
+  transition:width .15s}
+#overlay .err{color:#ff7b72;max-width:420px;word-wrap:break-word}
+#filepick{margin-top:14px}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<canvas id="gl">Serve un browser con supporto WebGL.</canvas>
+
+<div id="bar" class="hidden">
+  <span id="fname" title=""></span>
+  <select id="colormode" title="Colorazione">
+    <option value="rgb">Colori reali (RGB)</option>
+    <option value="elev">Quota</option>
+    <option value="int">Intensit&agrave;</option>
+    <option value="cls">Classificazione</option>
+  </select>
+  <label title="Dimensione punti">&#9679;<input type="range" id="psize" min="1" max="6" step="1" value="2"></label>
+  <label id="spinwrap" title="Rotazione automatica"><input type="checkbox" id="spin" checked>Ruota</label>
+  <button id="btnwalk" aria-pressed="false" title="Entra nella grotta e muoviti all'interno">Esplora</button>
+  <label id="speedwrap" class="hidden" title="Velocit&agrave; di movimento">&#187;<input type="range" id="speed" min="-4" max="4" step="0.5" value="0"></label>
+  <button id="btninfo" title="Informazioni sul file">&#8505;</button>
+  <button id="btnfs" title="Schermo intero">&#x26F6;</button>
+</div>
+
+<div id="info"></div>
+<div id="hint" class="hidden"></div>
+
+<div id="overlay">
+  <div class="box" id="loadbox">
+    <div id="loadmsg">Caricamento&hellip; <span id="pct">0%</span></div>
+    <div id="meter"><div id="meterfill"></div></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* Single-file LAS point cloud viewer (LAS 1.2-1.4, point formats 0-10, uncompressed).
+ * Replaces the old three-canvas lidarview.com viewer with one fullscreen canvas.
+ * Kept compatible with the old entry point: viewer.html?url=<relative or absolute LAS url>
+ * where a relative url with leading "../" is resolved against the parent folder
+ * of this page (the historical behaviour of the previous viewer). */
+
+var MAX_POINTS = 4000000;      // decimation threshold
+var canvas = document.getElementById('gl');
+var $ = function(id){ return document.getElementById(id); };
+
+/* ---------------- UI helpers ---------------- */
+function showError(msg){
+  $('loadbox').innerHTML = '<div class="err">' + msg + '</div>' + filePickerHtml();
+  $('overlay').classList.remove('hidden');
+  bindFilePicker();
+}
+function filePickerHtml(){
+  return '<div id="filepick">Apri un file LAS dal tuo dispositivo:<br><br>' +
+         '<input type="file" id="fileinput" accept=".las"></div>';
+}
+function bindFilePicker(){
+  var inp = $('fileinput');
+  if (inp) inp.addEventListener('change', function(){
+    if (inp.files.length) loadLocalFile(inp.files[0]);
+  });
+}
+function setProgress(loaded, total){
+  if (total > 0){
+    var p = Math.min(100, Math.round(100 * loaded / total));
+    $('pct').textContent = p + '%';
+    $('meterfill').style.width = p + '%';
+  } else {
+    $('pct').textContent = (loaded / 1048576).toFixed(1) + ' MB';
+  }
+}
+
+/* ---------------- URL resolution (backward compatible) ---------------- */
+function resolveLasUrl(u){
+  if (/^(https?:)?\/\//i.test(u)) return u;        // absolute
+  if (u.charAt(0) === '/') return u;               // root-relative
+  u = u.replace(/^(\.\.\/|\.\/)+/, '');            // old links start with ../../../
+  return new URL('../' + u, location.href).href;   // resolve against liguria root
+}
+
+/* ---------------- LAS parsing ---------------- */
+function parseLas(buf){
+  var dv = new DataView(buf);
+  if (buf.byteLength < 227 || dv.getUint32(0, false) !== 0x4C415346) // "LASF"
+    throw 'Il file non &egrave; un file LAS valido.';
+  var verMajor = dv.getUint8(24), verMinor = dv.getUint8(25);
+  var software = readAscii(buf, 58, 32);
+  var offset = dv.getUint32(96, true);
+  var fmt = dv.getUint8(104);
+  if (fmt & 0xC0)
+    throw 'File LAZ (compresso) non supportato: convertirlo in LAS non compresso.';
+  var recLen = dv.getUint16(105, true);
+  var count = dv.getUint32(107, true);
+  if (!count && verMajor === 1 && verMinor >= 4 && buf.byteLength >= 255)
+    count = Number(dv.getBigUint64(247, true));
+  var sx = dv.getFloat64(131, true), sy = dv.getFloat64(139, true), sz = dv.getFloat64(147, true);
+  var ox = dv.getFloat64(155, true), oy = dv.getFloat64(163, true), oz = dv.getFloat64(171, true);
+  // Clamp count to what the file actually contains (truncated uploads happen)
+  var fits = Math.floor((buf.byteLength - offset) / recLen);
+  if (count < 1 || count > fits) count = fits;
+  if (count < 1) throw 'Il file non contiene punti.';
+
+  // Use header bbox center as float64 anchor to keep float32 precision
+  var hminx = dv.getFloat64(187, true), hmaxx = dv.getFloat64(179, true);
+  var hminy = dv.getFloat64(203, true), hmaxy = dv.getFloat64(195, true);
+  var hminz = dv.getFloat64(219, true), hmaxz = dv.getFloat64(211, true);
+  var cx = (hminx + hmaxx) / 2, cy = (hminy + hmaxy) / 2, cz = (hminz + hmaxz) / 2;
+  if (!isFinite(cx) || !isFinite(cy) || !isFinite(cz) || hmaxx < hminx){
+    cx = dv.getInt32(offset, true) * sx + ox;
+    cy = dv.getInt32(offset + 4, true) * sy + oy;
+    cz = dv.getInt32(offset + 8, true) * sz + oz;
+  }
+
+  var rgbOff = {2:20, 3:28, 5:28, 7:30, 8:30, 10:30}[fmt];
+  if (rgbOff !== undefined && rgbOff + 6 > recLen) rgbOff = undefined;
+  var clsOff = fmt >= 6 ? 16 : 15;
+  var stride = Math.max(1, Math.ceil(count / MAX_POINTS));
+  var n = Math.floor((count - 1) / stride) + 1;
+
+  var pos = new Float32Array(n * 3);
+  var rgb16 = rgbOff !== undefined ? new Uint16Array(n * 3) : null;
+  var inten = new Uint16Array(n);
+  var cls = new Uint8Array(n);
+  var minx = 1/0, miny = 1/0, minz = 1/0, maxx = -1/0, maxy = -1/0, maxz = -1/0;
+  var maxc = 0, maxi = 0;
+
+  for (var i = 0, j = 0; i < count; i += stride, j++){
+    var b = offset + i * recLen;
+    var x = dv.getInt32(b, true) * sx + ox - cx;
+    var y = dv.getInt32(b + 4, true) * sy + oy - cy;
+    var z = dv.getInt32(b + 8, true) * sz + oz - cz;
+    pos[j*3] = x; pos[j*3+1] = y; pos[j*3+2] = z;
+    if (x < minx) minx = x; if (x > maxx) maxx = x;
+    if (y < miny) miny = y; if (y > maxy) maxy = y;
+    if (z < minz) minz = z; if (z > maxz) maxz = z;
+    var it = dv.getUint16(b + 12, true);
+    inten[j] = it; if (it > maxi) maxi = it;
+    cls[j] = dv.getUint8(b + clsOff) & 31;
+    if (rgb16){
+      var r = dv.getUint16(b + rgbOff, true),
+          g = dv.getUint16(b + rgbOff + 2, true),
+          bl = dv.getUint16(b + rgbOff + 4, true);
+      rgb16[j*3] = r; rgb16[j*3+1] = g; rgb16[j*3+2] = bl;
+      if (r > maxc) maxc = r; if (g > maxc) maxc = g; if (bl > maxc) maxc = bl;
+    }
+  }
+  return {
+    n: n, total: count, pos: pos, rgb16: rgb16, inten: inten, cls: cls,
+    maxColor: maxc, maxInt: maxi,
+    min: [minx, miny, minz], max: [maxx, maxy, maxz],
+    version: verMajor + '.' + verMinor, fmt: fmt, software: software
+  };
+}
+function readAscii(buf, off, len){
+  var a = new Uint8Array(buf, off, len), s = '';
+  for (var i = 0; i < len && a[i]; i++) s += String.fromCharCode(a[i]);
+  return s.trim();
+}
+
+/* ---------------- color maps ---------------- */
+var ELEV_STOPS = [[48,18,59],[70,107,227],[40,187,187],[114,221,76],[230,206,49],[243,114,32],[180,4,38]];
+function elevColor(t){
+  t = Math.max(0, Math.min(1, t)) * (ELEV_STOPS.length - 1);
+  var i = Math.min(ELEV_STOPS.length - 2, Math.floor(t)), f = t - i;
+  var a = ELEV_STOPS[i], b = ELEV_STOPS[i+1];
+  return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f];
+}
+var CLS_PALETTE = [[160,160,160],[120,120,120],[170,120,60],[80,180,80],[40,140,40],[20,110,20],
+  [220,60,60],[200,200,60],[60,60,220],[60,200,220],[220,60,220],[240,150,40],
+  [140,80,200],[200,120,120],[120,200,160],[180,180,100]];
+
+function buildColors(data, mode){
+  var n = data.n, out = new Uint8Array(n * 3), j;
+  if (mode === 'rgb' && data.rgb16){
+    var shift = data.maxColor > 255 ? 8 : 0;
+    for (j = 0; j < n * 3; j++) out[j] = data.rgb16[j] >> shift;
+  } else if (mode === 'int'){
+    var mi = data.maxInt || 1;
+    for (j = 0; j < n; j++){
+      var v = Math.round(255 * data.inten[j] / mi);
+      out[j*3] = out[j*3+1] = out[j*3+2] = v;
+    }
+  } else if (mode === 'cls'){
+    for (j = 0; j < n; j++){
+      var c = CLS_PALETTE[data.cls[j] % CLS_PALETTE.length];
+      out[j*3] = c[0]; out[j*3+1] = c[1]; out[j*3+2] = c[2];
+    }
+  } else { // elevation
+    var z0 = data.min[2], dz = (data.max[2] - data.min[2]) || 1;
+    for (j = 0; j < n; j++){
+      var e = elevColor((data.pos[j*3+2] - z0) / dz);
+      out[j*3] = e[0]; out[j*3+1] = e[1]; out[j*3+2] = e[2];
+    }
+  }
+  return out;
+}
+
+/* ---------------- minimal mat4 (column-major) ---------------- */
+function matPerspective(fovy, aspect, near, far){
+  var f = 1 / Math.tan(fovy / 2), m = new Float32Array(16);
+  m[0] = f / aspect; m[5] = f;
+  m[10] = (far + near) / (near - far); m[11] = -1;
+  m[14] = 2 * far * near / (near - far);
+  return m;
+}
+/* Unit vectors of a camera at eye looking at t with z up: x right, y up, z backwards */
+function cameraBasis(eye, t){
+  var zx = eye[0]-t[0], zy = eye[1]-t[1], zz = eye[2]-t[2];
+  var zl = Math.hypot(zx, zy, zz) || 1; zx/=zl; zy/=zl; zz/=zl;
+  var xx = -zy, xy = zx, xl = Math.hypot(xx, xy) || 1; xx/=xl; xy/=xl;
+  return { x:[xx, xy, 0], y:[-zz*xy, zz*xx, zx*xy - zy*xx], z:[zx, zy, zz] };
+}
+function matLookAt(eye, t){
+  var b = cameraBasis(eye, t);
+  var xx = b.x[0], xy = b.x[1], xz = b.x[2], yx = b.y[0], yy = b.y[1], yz = b.y[2];
+  var zx = b.z[0], zy = b.z[1], zz = b.z[2];
+  var m = new Float32Array(16);
+  m[0]=xx; m[1]=yx; m[2]=zx; m[4]=xy; m[5]=yy; m[6]=zy; m[8]=xz; m[9]=yz; m[10]=zz;
+  m[12]=-(xx*eye[0]+xy*eye[1]+xz*eye[2]);
+  m[13]=-(yx*eye[0]+yy*eye[1]+yz*eye[2]);
+  m[14]=-(zx*eye[0]+zy*eye[1]+zz*eye[2]);
+  m[15]=1;
+  return m;
+}
+function matMul(a, b){
+  var o = new Float32Array(16);
+  for (var c = 0; c < 4; c++) for (var r = 0; r < 4; r++)
+    o[c*4+r] = a[r]*b[c*4] + a[4+r]*b[c*4+1] + a[8+r]*b[c*4+2] + a[12+r]*b[c*4+3];
+  return o;
+}
+
+/* ---------------- WebGL renderer ---------------- */
+var gl = canvas.getContext('webgl', {antialias:false, preserveDrawingBuffer:false}) ||
+         canvas.getContext('experimental-webgl');
+if (!gl){ showError('WebGL non disponibile in questo browser.'); }
+
+var prog = null, uMvp, uSize, uRound, uAtt, nPoints = 0, posBuf, colBuf;
+function initGL(){
+  // att: pixel size of a point at distance 1, so that close points grow and
+  // the walls seen from inside stay closed; ps is the minimum size
+  var vs = 'attribute vec3 p; attribute vec3 c; uniform mat4 mvp; uniform float ps; uniform float att;' +
+    'varying vec3 vc; void main(){ gl_Position = mvp * vec4(p,1.0);' +
+    ' gl_PointSize = max(ps, min(64.0, att / max(gl_Position.w, 1e-6))); vc = c; }';
+  var fs = 'precision mediump float; varying vec3 vc; uniform bool rnd;' +
+    'void main(){ if (rnd && length(gl_PointCoord - 0.5) > 0.5) discard;' +
+    ' gl_FragColor = vec4(vc, 1.0); }';
+  function sh(type, src){
+    var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
+    return s;
+  }
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  uMvp = gl.getUniformLocation(prog, 'mvp');
+  uSize = gl.getUniformLocation(prog, 'ps');
+  uRound = gl.getUniformLocation(prog, 'rnd');
+  uAtt = gl.getUniformLocation(prog, 'att');
+  posBuf = gl.createBuffer();
+  colBuf = gl.createBuffer();
+  gl.enable(gl.DEPTH_TEST);
+  gl.clearColor(0.078, 0.086, 0.102, 1);
+}
+
+function uploadPositions(pos){
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, pos, gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
+  nPoints = pos.length / 3;
+}
+function uploadColors(col){
+  gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, col, gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(prog, 'c');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+}
+
+/* ---------------- camera / interaction ---------------- */
+var FOV = Math.PI / 3;
+var cam = { target:[0,0,0], dist:10, theta:-Math.PI/3, phi:Math.PI/3, radius:10 };
+// Explore mode: first person camera at pos looking along yaw/pitch (radians, z up)
+var walk = { on:false, pos:[0,0,0], yaw:0, pitch:0, baseSpeed:1, speed:1, fly:null, keys:{} };
+var WALK_KEYS = { KeyW:1, KeyA:1, KeyS:1, KeyD:1, KeyQ:1, KeyE:1, ArrowUp:1, ArrowDown:1,
+  ArrowLeft:1, ArrowRight:1, PageUp:1, PageDown:1, ShiftLeft:1, ShiftRight:1 };
+var pointSpacing = 0;   // mean distance between neighbouring points (m)
+var needsRender = true;
+var autorotate = true;
+var pointSize = 2;
+var touchUi = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+var HINT_ORBIT = touchUi ? 'Un dito: ruota · Due dita: zoom e sposta · Doppio tocco: vista iniziale'
+  : 'Trascina: ruota · Rotellina: zoom · Tasto destro: sposta · Doppio clic: vista iniziale';
+var HINT_WALK = touchUi ? 'Un dito: guarda intorno · Due dita: avanti e indietro · Doppio tocco su un punto: vai lì'
+  : 'Trascina: guarda intorno · W A S D o frecce: muoviti · Q E: giù e su · Maiusc: veloce · Doppio clic su un punto: vai lì';
+
+function cameraEye(){
+  var sp = Math.sin(cam.phi), t = cam.target;
+  return [t[0] + cam.dist * sp * Math.cos(cam.theta),
+          t[1] + cam.dist * sp * Math.sin(cam.theta),
+          t[2] + cam.dist * Math.cos(cam.phi)];
+}
+function resize(){
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+  if (canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+    gl.viewport(0, 0, w, h);
+    needsRender = true;
+  }
+}
+var lastTime = 0;
+function frame(time){
+  requestAnimationFrame(frame);
+  var dt = lastTime ? Math.min(0.1, (time - lastTime) / 1000) : 0;
+  lastTime = time;
+  if (!nPoints) return;
+  resize();
+  if (walk.on) walkStep(dt);
+  else if (autorotate){ cam.theta += 0.004; needsRender = true; }
+  if (!needsRender) return;
+  needsRender = false;
+  var view = viewEyeTarget(), near, far;
+  if (walk.on){
+    near = Math.min(0.1, Math.max(0.01, cam.radius * 0.0005));
+    far = Math.hypot(view[0][0], view[0][1], view[0][2]) + cam.radius * 2;
+  } else {
+    near = Math.max(cam.dist * 0.002, cam.radius * 0.0002);
+    far = cam.dist + cam.radius * 10;
+  }
+  var proj = matPerspective(FOV, canvas.width / canvas.height, near, far);
+  gl.uniformMatrix4fv(uMvp, false, matMul(proj, matLookAt(view[0], view[1])));
+  var ps = pointSize * Math.min(window.devicePixelRatio || 1, 2);
+  gl.uniform1f(uSize, ps);
+  gl.uniform1i(uRound, pointSize >= 3 ? 1 : 0);
+  gl.uniform1f(uAtt, pointSpacing * 0.75 * pointSize * canvas.height / (2 * Math.tan(FOV / 2)));
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.drawArrays(gl.POINTS, 0, nPoints);
+}
+
+function panBy(dx, dy){
+  var eye = cameraEye(), t = cam.target;
+  var zx = eye[0]-t[0], zy = eye[1]-t[1], zz = eye[2]-t[2];
+  var zl = Math.hypot(zx, zy, zz) || 1; zx/=zl; zy/=zl; zz/=zl;
+  var xx = -zy, xy = zx, xl = Math.hypot(xx, xy) || 1; xx/=xl; xy/=xl; // right (horizontal)
+  var yx = zy*0 - zz*xy, yy = zz*xx - zx*0, yz = zx*xy - zy*xx;        // up = z cross x
+  var k = 2 * Math.tan(Math.PI / 6) * cam.dist / canvas.clientHeight;
+  t[0] += (-dx * xx + dy * yx) * k;
+  t[1] += (-dx * xy + dy * yy) * k;
+  t[2] += dy * yz * k;
+  needsRender = true;
+}
+
+/* ---------------- explore mode ---------------- */
+function walkDir(){
+  var cp = Math.cos(walk.pitch);
+  return [cp * Math.cos(walk.yaw), cp * Math.sin(walk.yaw), Math.sin(walk.pitch)];
+}
+function viewEyeTarget(){
+  if (!walk.on) return [cameraEye(), cam.target];
+  var p = walk.pos, d = walkDir();
+  return [p, [p[0] + d[0], p[1] + d[1], p[2] + d[2]]];
+}
+function walkMove(forward, right, up, len){
+  var d = walkDir(), s = Math.sin(walk.yaw), c = Math.cos(walk.yaw), p = walk.pos;
+  p[0] += (d[0] * forward + s * right) * len;
+  p[1] += (d[1] * forward - c * right) * len;
+  p[2] += (d[2] * forward + up) * len;
+  walk.fly = null;
+  needsRender = true;
+}
+function walkLook(dx, dy){
+  walk.yaw += dx * 0.004;
+  walk.pitch = Math.max(-1.5, Math.min(1.5, walk.pitch + dy * 0.004));
+  needsRender = true;
+}
+function walkPan(dx, dy){ walkMove(0, -dx, dy, walk.speed * 0.005); }
+function walkStep(dt){
+  var p = walk.pos, f = walk.fly;
+  if (f){
+    var k = 1 - Math.exp(-dt * 5), q = f.pos;
+    for (var i = 0; i < 3; i++) p[i] += (q[i] - p[i]) * k;
+    walk.pitch += (f.pitch - walk.pitch) * k;
+    if (Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]) < 0.01) walk.fly = null;
+    needsRender = true;
+    return;
+  }
+  var key = walk.keys;
+  var forward = (key.KeyW || key.ArrowUp ? 1 : 0) - (key.KeyS || key.ArrowDown ? 1 : 0);
+  var right = (key.KeyD || key.ArrowRight ? 1 : 0) - (key.KeyA || key.ArrowLeft ? 1 : 0);
+  var up = (key.KeyE || key.PageUp ? 1 : 0) - (key.KeyQ || key.PageDown ? 1 : 0);
+  if (forward || right || up)
+    walkMove(forward, right, up, walk.speed * (key.ShiftLeft || key.ShiftRight ? 4 : 1) * dt);
+}
+/* Distances from e along the unit direction d of the points inside the cone
+ * of half angle tol (radians), unsorted; with any = true only the first found */
+function rayDepths(e, d, tol, any){
+  var pos = lasData.pos, tol2 = tol * tol, out = [];
+  for (var j = 0, n = lasData.n * 3; j < n; j += 3){
+    var vx = pos[j] - e[0], vy = pos[j+1] - e[1], vz = pos[j+2] - e[2];
+    var t = vx * d[0] + vy * d[1] + vz * d[2];
+    if (t > 0 && vx * vx + vy * vy + vz * vz - t * t < t * t * tol2){
+      out.push(t);
+      if (any) break;
+    }
+  }
+  return out;
+}
+/* The camera is inside a cave when almost every direction meets a wall */
+var PROBE_DIRS = (function(){
+  var dirs = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]], k = 1 / Math.sqrt(3);
+  for (var i = 0; i < 8; i++) dirs.push([i & 1 ? k : -k, i & 2 ? k : -k, i & 4 ? k : -k]);
+  return dirs;
+})();
+function isEnclosed(p){
+  var hits = 0;
+  PROBE_DIRS.forEach(function(d){ if (rayDepths(p, d, 0.06, true).length) hits++; });
+  return hits >= PROBE_DIRS.length - 3;
+}
+/* Fly to the point under the pointer (CSS pixels). Inside: stop a little
+ * before the wall. Outside: the wall is the outer face of a passage, so go
+ * through it to the middle of the first empty stretch of the ray behind it
+ * (the passage); from outside the view is levelled to look along the passage. */
+function walkTo(x, y){
+  if (!lasData) return;
+  var e = walk.pos, b = cameraBasis(e, viewEyeTarget()[1]);
+  var w = canvas.clientWidth, h = canvas.clientHeight, tanH = Math.tan(FOV / 2);
+  var sx = (2 * x / w - 1) * tanH * w / h, sy = (1 - 2 * y / h) * tanH;
+  var d = [0, 1, 2].map(function(i){ return b.x[i] * sx + b.y[i] * sy - b.z[i]; });
+  var dl = Math.hypot(d[0], d[1], d[2]);
+  d = d.map(function(v){ return v / dl; });
+  var tol = Math.max(4, pointSize * 2) * 2 * tanH / h;
+  var ts = Float64Array.from(rayDepths(e, d, tol, false)).sort();
+  if (!ts.length) return;
+  var t1 = ts[0], t = Infinity, pitch = walk.pitch;
+  if (!isEnclosed(e)){
+    // the points of a wall follow each other closely along the ray, even
+    // when it is oblique; the first wide gap is the inside of the passage.
+    // No gap: a floor seen through an opening, stop above it.
+    var gap = Math.max(0.25, pointSpacing * 10);
+    for (var i = 1; i < ts.length; i++)
+      if (ts[i] - ts[i-1] > gap){ t = (ts[i] + ts[i-1]) / 2; break; }
+    pitch = 0;
+  }
+  if (t === Infinity) t = t1 - Math.min(t1 * 0.5, Math.max(0.5, cam.radius * 0.01));
+  walk.fly = { pos:[e[0] + d[0] * t, e[1] + d[1] * t, e[2] + d[2] * t], pitch:pitch };
+}
+function setWalk(on){
+  walk.on = on;
+  walk.fly = null;
+  walk.keys = {};
+  $('btnwalk').classList.toggle('on', on);
+  $('btnwalk').setAttribute('aria-pressed', on ? 'true' : 'false');
+  $('speedwrap').classList.toggle('hidden', !on);
+  $('spinwrap').classList.toggle('hidden', on);
+  canvas.classList.toggle('walk', on);
+  if (on){
+    // start from the eye of the orbit view, looking the same way
+    stopAutorotate();
+    var e = cameraEye(), t = cam.target, v = [t[0] - e[0], t[1] - e[1], t[2] - e[2]];
+    walk.pos = e;
+    walk.yaw = Math.atan2(v[1], v[0]);
+    walk.pitch = Math.max(-1.5, Math.min(1.5, Math.asin(v[2] / (Math.hypot(v[0], v[1], v[2]) || 1))));
+  }
+  showHint(on ? HINT_WALK : HINT_ORBIT);
+  needsRender = true;
+}
+function updateSpeed(){ walk.speed = walk.baseSpeed * Math.pow(2, +$('speed').value); }
+window.addEventListener('keydown', function(e){
+  if (!walk.on || !WALK_KEYS[e.code] || e.target.tagName === 'SELECT' || e.target.type === 'range') return;
+  walk.keys[e.code] = true;
+  e.preventDefault();
+});
+window.addEventListener('keyup', function(e){ delete walk.keys[e.code]; });
+window.addEventListener('blur', function(){ walk.keys = {}; });
+
+/* ---------------- pointer input (both modes) ---------------- */
+var pointers = new Map(), pinchDist = 0, lastTap = null;
+function stopAutorotate(){
+  if (autorotate){ autorotate = false; $('spin').checked = false; }
+}
+canvas.addEventListener('pointerdown', function(e){
+  canvas.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, x0:e.clientX, y0:e.clientY, time:e.timeStamp,
+    btn:e.button, shift:e.shiftKey || e.ctrlKey, multi:pointers.size > 0});
+  if (pointers.size === 2){
+    var p = Array.from(pointers.values());
+    p[0].multi = p[1].multi = true;
+    pinchDist = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+  }
+  canvas.classList.add('drag');
+  stopAutorotate();
+  e.preventDefault();
+});
+canvas.addEventListener('pointermove', function(e){
+  var p = pointers.get(e.pointerId);
+  if (!p) return;
+  var dx = e.clientX - p.x, dy = e.clientY - p.y;
+  p.x = e.clientX; p.y = e.clientY;
+  if (pointers.size === 2){
+    var pts = Array.from(pointers.values());
+    var d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    if (pinchDist > 0 && d > 0){
+      if (walk.on){
+        walkMove(Math.log(d / pinchDist) * 4, 0, 0, walk.speed);
+        walkPan(dx / 2, dy / 2);
+      } else {
+        cam.dist *= pinchDist / d;
+        clampDist();
+        panBy(dx / 2, dy / 2);
+      }
+    }
+    pinchDist = d;
+  } else if (p.btn === 2 || p.btn === 1 || p.shift){
+    if (walk.on) walkPan(dx, dy); else panBy(dx, dy);
+  } else if (walk.on){
+    walkLook(dx, dy);
+  } else {
+    cam.theta -= dx * 0.006;
+    cam.phi = Math.max(0.05, Math.min(Math.PI - 0.05, cam.phi - dy * 0.006));
+    needsRender = true;
+  }
+});
+/* Double tap and double click are detected here: dblclick does not fire for touch */
+function endPointer(e){
+  var p = pointers.get(e.pointerId);
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinchDist = 0;
+  if (!pointers.size) canvas.classList.remove('drag');
+  if (!p || e.type !== 'pointerup' || p.multi || p.btn !== 0 || e.timeStamp - p.time > 300 ||
+      Math.hypot(e.clientX - p.x0, e.clientY - p.y0) > 8) return;
+  if (lastTap && e.timeStamp - lastTap.time < 400 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 25){
+    lastTap = null;
+    if (walk.on) walkTo(e.clientX, e.clientY); else resetView();
+  } else {
+    lastTap = {x:e.clientX, y:e.clientY, time:e.timeStamp};
+  }
+}
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('wheel', function(e){
+  e.preventDefault();
+  stopAutorotate();
+  if (walk.on){
+    walkMove(1, 0, 0, -e.deltaY * 0.003 * walk.speed);
+    return;
+  }
+  cam.dist *= Math.exp(e.deltaY * 0.0012);
+  clampDist();
+  needsRender = true;
+}, {passive:false});
+canvas.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+function clampDist(){
+  cam.dist = Math.max(cam.radius * 0.02, Math.min(cam.radius * 20, cam.dist));
+}
+function resetView(){
+  cam.target = [0, 0, 0];
+  cam.dist = cam.radius * 2.2;
+  cam.theta = -Math.PI / 3;
+  cam.phi = Math.PI / 3;
+  needsRender = true;
+}
+
+/* ---------------- loading ---------------- */
+var lasData = null;
+
+function showCloud(data, name){
+  lasData = data;
+  // Center on the actual (decimated) bounding box
+  var c = [(data.min[0]+data.max[0])/2, (data.min[1]+data.max[1])/2, (data.min[2]+data.max[2])/2];
+  for (var j = 0; j < data.n; j++){
+    data.pos[j*3] -= c[0]; data.pos[j*3+1] -= c[1]; data.pos[j*3+2] -= c[2];
+  }
+  data.min[0]-=c[0]; data.min[1]-=c[1]; data.min[2]-=c[2];
+  data.max[0]-=c[0]; data.max[1]-=c[1]; data.max[2]-=c[2];
+  cam.radius = Math.max(0.5, Math.hypot(data.max[0]-data.min[0],
+    data.max[1]-data.min[1], data.max[2]-data.min[2]) / 2);
+  pointSpacing = estimateSpacing(data);
+  walk.baseSpeed = Math.min(10, Math.max(0.3, cam.radius * 0.03));
+  updateSpeed();
+  if (walk.on) setWalk(false);
+  resetView();
+
+  var hasRgb = !!(data.rgb16 && data.maxColor > 0);
+  var sel = $('colormode');
+  sel.querySelector('[value=rgb]').disabled = !hasRgb;
+  sel.value = hasRgb ? 'rgb' : 'elev';
+  uploadPositions(data.pos);
+  uploadColors(buildColors(data, sel.value));
+
+  $('fname').textContent = name;
+  $('fname').title = name;
+  $('info').innerHTML = infoHtml(data, name);
+  $('overlay').classList.add('hidden');
+  $('bar').classList.remove('hidden');
+  showHint(walk.on ? HINT_WALK : HINT_ORBIT);
+  needsRender = true;
+}
+/* Mean distance between neighbouring points: the points of the cloud lie on
+ * surfaces, so area = occupied cells of a grid * cell area, spacing = sqrt(area / n).
+ * A sample of the points is enough to find the occupied cells. */
+function estimateSpacing(data){
+  var cell = cam.radius / 200, pos = data.pos, cells = new Set();
+  var step = Math.max(1, Math.floor(data.n / 200000)) * 3;
+  for (var j = 0; j < data.n * 3; j += step)
+    cells.add((Math.floor(pos[j] / cell) + 1024) + (Math.floor(pos[j+1] / cell) + 1024) * 2048 +
+              (Math.floor(pos[j+2] / cell) + 1024) * 4194304);
+  return Math.sqrt(cells.size / data.n) * cell;
+}
+var hintTimer = 0;
+function showHint(text){
+  var hint = $('hint');
+  hint.textContent = text;
+  hint.classList.remove('hidden');
+  hint.style.opacity = '1';
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(function(){ hint.style.opacity = '0'; }, 8000);
+}
+function infoHtml(d, name){
+  var fmtNum = function(v){ return v.toLocaleString('it-IT'); };
+  var dim = function(i){ return (d.max[i] - d.min[i]).toFixed(1); };
+  var rows = [
+    ['File', name],
+    ['Punti', fmtNum(d.total) + (d.n < d.total ? '<br>(mostrati ' + fmtNum(d.n) + ')' : '')],
+    ['Formato', 'LAS ' + d.version + ' &middot; tipo punto ' + d.fmt],
+    ['Dimensioni', dim(0) + ' &times; ' + dim(1) + ' &times; ' + dim(2) + ' m'],
+    ['Software', d.software || '&mdash;']
+  ];
+  return '<table>' + rows.map(function(r){
+    return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+  }).join('') + '</table>';
+}
+
+function loadFromUrl(rawUrl){
+  var url = resolveLasUrl(rawUrl);
+  var name = decodeURIComponent(url.split('/').pop().split('?')[0] || 'nuvola di punti');
+  fetch(url).then(function(resp){
+    if (!resp.ok) throw 'HTTP ' + resp.status + ' scaricando il file.';
+    var total = +resp.headers.get('Content-Length') || 0;
+    var reader = resp.body.getReader();
+    var chunks = [], loaded = 0;
+    function pump(){
+      return reader.read().then(function(r){
+        if (r.done) return;
+        chunks.push(r.value);
+        loaded += r.value.length;
+        setProgress(loaded, total);
+        return pump();
+      });
+    }
+    return pump().then(function(){
+      var buf = new Uint8Array(loaded), o = 0;
+      chunks.forEach(function(ch){ buf.set(ch, o); o += ch.length; });
+      showCloud(parseLas(buf.buffer), name);
+    });
+  }).catch(function(err){
+    showError('Impossibile caricare <b>' + name + '</b><br>' + err);
+  });
+}
+function loadLocalFile(file){
+  $('loadbox').innerHTML = '<div id="loadmsg">Lettura&hellip;</div>';
+  var fr = new FileReader();
+  fr.onload = function(){
+    try { showCloud(parseLas(fr.result), file.name); }
+    catch (err){ showError(err); }
+  };
+  fr.onerror = function(){ showError('Errore di lettura del file.'); };
+  fr.readAsArrayBuffer(file);
+}
+
+/* drag & drop */
+window.addEventListener('dragover', function(e){ e.preventDefault(); });
+window.addEventListener('drop', function(e){
+  e.preventDefault();
+  if (e.dataTransfer.files.length) loadLocalFile(e.dataTransfer.files[0]);
+});
+
+/* ---------------- toolbar ---------------- */
+$('colormode').addEventListener('change', function(){
+  if (lasData){ uploadColors(buildColors(lasData, this.value)); needsRender = true; }
+});
+$('psize').addEventListener('input', function(){
+  pointSize = +this.value; needsRender = true;
+});
+$('spin').addEventListener('change', function(){
+  autorotate = this.checked; needsRender = true;
+});
+$('btnwalk').addEventListener('click', function(){
+  setWalk(!walk.on);
+  this.blur();   // the keys move the camera, not the button
+});
+$('speed').addEventListener('input', updateSpeed);
+$('btninfo').addEventListener('click', function(){
+  var el = $('info');
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+});
+$('btnfs').addEventListener('click', function(){
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (document.documentElement.requestFullscreen)
+    document.documentElement.requestFullscreen().catch(function(){});
+});
+
+/* ---------------- start ---------------- */
+if (gl){
+  initGL();
+  requestAnimationFrame(frame);
+  var param = new URLSearchParams(location.search).get('url');
+  if (param){
+    loadFromUrl(param);
+  } else {
+    $('loadbox').innerHTML = '<div>Visualizzatore 3D di nuvole di punti LAS</div>' + filePickerHtml();
+    bindFilePicker();
+  }
+}
+</script>
+</body>
+</html>

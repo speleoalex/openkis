@@ -263,6 +263,12 @@ system (see [Coordinates](#coordinates)).
 In the 3D viewer (CaveView) drag to rotate the model and use the wheel to zoom; the buttons
 on the left change view, colours, terrain and information.
 
+The viewer of the `.las` point clouds works the same way. The *Esplora* button takes you
+inside the cave: a double click (double tap on a phone) on a point of the survey moves you
+into that passage or, when you are already inside, to that point. Drag to look around, move
+with W A S D or the arrow keys, go down and up with Q and E, hold Shift to go faster; on a
+phone spread two fingers to move forward. The slider next to the button sets the speed.
+
 ![Generated register sheet](manual/en/17_cadastral_sheet.png)
 
 ### Surveys, photos, bibliography

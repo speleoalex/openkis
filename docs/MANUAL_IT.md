@@ -265,6 +265,13 @@ sistema di riferimento (vedi [Le coordinate](#le-coordinate)).
 Nel visualizzatore 3D (CaveView) si ruota il modello trascinandolo, si ingrandisce con la
 rotella; i pulsanti a sinistra cambiano vista, colori, terreno e informazioni.
 
+Il visualizzatore delle nuvole di punti `.las` si usa allo stesso modo. Il pulsante
+*Esplora* permette di entrare nella grotta: un doppio clic (doppio tocco sul telefono) su un
+punto del rilievo porta dentro il vano o, se si è già dentro, fino a quel punto. Si trascina
+per guardarsi intorno, ci si muove con W A S D o con le frecce, si scende e si sale con Q ed
+E, con il tasto Maiuscolo si va più veloci; sul telefono si avanza allargando due dita. Il
+cursore accanto al pulsante regola la velocità.
+
 ![Scheda catastale generata](manual/it/17_cadastral_sheet.png)
 
 ### Rilievi, foto, bibliografia
