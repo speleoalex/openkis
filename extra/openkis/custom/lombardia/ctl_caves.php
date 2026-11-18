@@ -24,6 +24,17 @@
 		<view_show>1</view_show>
 	</field>
     <field>
+        <name>status</name>
+        <frm_it>Stato dei dati</frm_it>
+        <frm_en>Data status</frm_en>
+        <type>select</type>
+        <frm_options>draft,verify,validated,rejected</frm_options>
+        <frm_options_it>Bozza,Da verificare,Validata,Respinta</frm_options_it>
+        <frm_options_en>Draft,Verify,Validated,Rejected</frm_options_en>
+        <frm_default>draft</frm_default>
+        <frm_help_it>Stato di validazione della scheda catastale</frm_help_it>
+    </field>
+    <field>
         <name>name</name>
         <frm_it>Nome</frm_it>
         <type>uppercase</type>
@@ -98,9 +109,12 @@
     <field>
         <name>firstreference</name>
         <frm_it>Rilevatori</frm_it>
-        <type>uppercase</type>
+        <type>text</type>
         <frm_show>1</frm_show>
         <view_show>1</view_show>
+        <frm_rows>auto</frm_rows>
+        <frm_cols>80</frm_cols>
+        <htmlattributes>style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase();"</htmlattributes>
         <frm_help_it>Inserire Cognome e nome di chi ha inserito a catasto la grotta,vale chi ha fornito i dati della scheda e NON chi la ha inserita sul gestionale.</frm_help_it>
     </field>
     <field>

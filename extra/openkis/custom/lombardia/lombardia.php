@@ -205,6 +205,12 @@ function InizializzaDB()
         //    dprint_r(filemtime(__DIR__."/ctl_surveys.php") );
     }
 
+    //LONTRA
+    if (!file_exists("misc/fndatabase/ctl_photos.php") || filemtime(__DIR__."/ctl_photos.php") > filemtime("misc/fndatabase/ctl_photos.php") )
+    {
+        file_put_contents("misc/fndatabase/ctl_photos.php", file_get_contents(__DIR__."/ctl_photos.php"));
+        die("misc/fndatabase/ctl_photos.php updated");
+    }
 
 }
 

@@ -12,6 +12,7 @@
         <name>codecave</name>
         <frm_it>Codice Grotta</frm_it>
         <type>string</type>
+        <frm_default>LO</frm_default>
     </field>
     <field>
         <name>codesystem</name>
@@ -88,7 +89,8 @@
         <frm_it>Licenza rilievo</frm_it>
         <foreignkey>ctl_licenses</foreignkey>
         <fk_link_field>name</fk_link_field>
-        <fk_show_field>name</fk_show_field>		
+        <fk_show_field>name</fk_show_field>
+        <frm_default>CC BY-NC-ND 3.0</frm_default>
         <frm_showinlist>1</frm_showinlist>
     </field>
     <field>
