@@ -45,15 +45,20 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
     require_once "extra/openkis/openkis_fauna.inc.php";
     if (($card_html = openkis_FaunaCaveCard($row['code'])) != "")
         $GLOBALS['openkis_view_main'][] = $card_html;
-    // paleontological and archaeological findings in this cave
-    echo openkis_FindingsCavityCard($row['code']);
+    // paleontological and archaeological findings in this cave, in the main
+    // column (a portal built before the findings section has no such function)
+    if (function_exists("openkis_FindingsCavityCard"))
+    {
+        if (($card_html = openkis_FindingsCavityCard($row['code'])) != "")
+            $GLOBALS['openkis_view_main'][] = $card_html;
+    }
     // temperature measurements and monitorings in this cave, in the main column
     if (function_exists("openkis_TemperaturesCaveCard"))
     {
         if (($card_html = openkis_TemperaturesCaveCard($row['code'])) != "")
             $GLOBALS['openkis_view_main'][] = $card_html;
     }
-    //survey: 3D viewer of the lox files, below the sheet ---------------------->
+    //survey: 3D viewer of the lox files, in the main column ------------------>
     foreach (openkis_SheetCaveSurveys($row['code']) as $survey_item)
     {
         if (!empty($survey_item['filelox']))
@@ -64,7 +69,7 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
                 continue;
             $file = urlencode(openkis_CaveViewerFile("ctl_surveys", $survey_item['id'], "filelox", $survey_item['filelox']));
             $iframe_href = "{$_FN['siteurl']}cave_viewer.php?f={$file}";
-            echo "<iframe style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
+            $GLOBALS['openkis_view_main'][] = "<iframe class=\"openkis-cave-viewer mb-3\" style=\"width:100%;height:800px;border:0px\" src=\"$iframe_href\"></iframe>";
         }
     }
     //survey-------------------------------------------------------------------<
