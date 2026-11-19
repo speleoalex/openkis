@@ -22,18 +22,7 @@ echo $staticcontent;
 <div class="openkis-map<?php echo $fullmap ? " openkis-fullmap" : "";?>">
 <iframe id="iframemap" class="openkis-map-frame" title="<?php echo FN_Translate("map");?>" src="<?php echo $_FN['siteurl'];?>bs_map.htm?mod=caves&lat=<?php echo $_FN['default_latitude'];?>&lon=<?php echo $_FN['default_longitude'];?>&zoom=<?php echo $_FN['default_zoom'];?>"></iframe>
 <button class="btn btn-primary btn-sm mt-2 openkis-map-fullscreen" onclick="openFullscreen()" ><?php echo FN_Translate("open map in full screen");?></button>
-<details class="openkis-legend small">
-    <summary class="text-muted"><?php echo FN_Translate("legend");?></summary>
-    <div class="row no-gutters mt-1">
-            <?php
-            $icons=glob("extra/openkis/icons/caves/*.png");
-            foreach($icons as $icon)
-            {
-                $name=FN_Translate(str_replace("_"," ",str_replace(".png","",basename("$icon"))));
-                echo "<div class=\"col-4 col-sm-3 col-md-2 mb-1\"><img style=\"height:24px;border:1px solid #ccc;border-radius:6px;margin-right:4px\" src=\"{$_FN['siteurl']}$icon\" alt=\"\" /> $name</div> ";
-            }
-            ?></div>
-</details>
+<?php echo openkis_ListLegend("caves"); ?>
 </div>
 <script>
     // the map fills the window below what is above it (app bar, header of the home page):

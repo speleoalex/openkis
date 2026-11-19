@@ -191,9 +191,12 @@ function openkis_ListMapCard($query, $note = "", $title = "", $extra = "")
  * right below the map.
  *
  * @param string $dir folder of the icons in extra/openkis/icons
+ * @param string $itemclass classes of the cell of every icon (the map sections of
+ *                        glacial and artificials use larger cells, without border)
+ * @param string $imgstyle style of the image of every icon
  * @return string html, empty without icons
  */
-function openkis_ListLegend($dir)
+function openkis_ListLegend($dir, $itemclass = "col-4 col-sm-3 col-md-2 mb-1", $imgstyle = "height:24px;border:1px solid #ccc;border-radius:6px;margin-right:4px")
 {
     global $_FN;
     $icons = glob("extra/openkis/icons/" . preg_replace('/[^A-Za-z0-9_]/', '', $dir) . "/*.png");
@@ -205,7 +208,7 @@ function openkis_ListLegend($dir)
     foreach ($icons as $icon)
     {
         $name = FN_Translate(str_replace("_", " ", str_replace(".png", "", basename($icon))));
-        $html .= "<div class=\"col-4 col-sm-3 col-md-2 mb-1\"><img style=\"height:24px;border:1px solid #ccc;border-radius:6px;margin-right:4px\" src=\"{$_FN['siteurl']}$icon\" alt=\"\" /> " . htmlspecialchars($name) . "</div>";
+        $html .= "<div class=\"$itemclass\"><img style=\"$imgstyle\" src=\"{$_FN['siteurl']}$icon\" alt=\"\" /> " . htmlspecialchars($name) . "</div>";
     }
     return $html . "</div></details>";
 }

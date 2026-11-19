@@ -15,26 +15,7 @@ echo $staticcontent;
 <div class="openkis-map<?php echo $fullmap ? " openkis-fullmap" : "";?>">
 <iframe id="iframemap" class="openkis-map-frame" title="<?php echo FN_Translate("map");?>" src="<?php echo $_FN['siteurl'];?>bs_map.htm?baselayer=Satellite&mod=glacial&lat=<?php echo $_FN['default_latitude'];?>&lon=<?php echo $_FN['default_longitude'];?>&zoom=<?php echo $_FN['default_zoom'];?>"></iframe>
 <button class="btn btn-primary btn-sm mt-2 openkis-map-fullscreen" onclick="openFullscreen()" ><?php echo FN_Translate("open map in full screen");?></button>
-<?php
-// no icons for the glacial caves yet: no empty legend on the map
-$icons=glob("extra/openkis/icons/glacial/*.png");
-if (!empty($icons))
-{
-?>
-<details class="openkis-legend small">
-    <summary class="text-muted"><?php echo FN_Translate("legend");?></summary>
-    <div class="row no-gutters mt-1">
-            <?php
-            foreach($icons as $icon)
-            {
-                $name=FN_Translate(str_replace(".png","",basename("$icon")));
-                echo "<div class=\"col-6 col-md-3 mb-1\"><img style=\"height:24px;margin-right:4px\" src=\"{$_FN['siteurl']}$icon\" alt=\"\" />$name</div> ";
-            }
-            ?></div>
-</details>
-<?php
-}
-?>
+<?php echo openkis_ListLegend("glacial", "col-6 col-md-3 mb-1", "height:24px;margin-right:4px"); ?>
 </div>
 <script>
     // the map fills the window below what is above it (app bar, header of the home page):
