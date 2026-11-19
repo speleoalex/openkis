@@ -15,13 +15,10 @@ if (count($arrows) == 0)
 $arrow = $arrows[0];
 if ($row['result'] == "positive")
 {
-    echo "<div class=\"card openkis-card mb-3\"><div class=\"card-body p-0\">";
-    echo "<iframe style=\"border:0px;width:100%;height:450px;display:block\" src=\"{$_FN['siteurl']}bs_map.htm?tracing=" . intval($row['id']) . "\"></iframe>";
-    echo "</div></div>";
+    echo openkis_MapCard("{$_FN['siteurl']}bs_map.htm?tracing=" . intval($row['id']));
 }
 $points = array(FN_Translate("injection") => $arrow['from'], FN_Translate("detection") => $arrow['to']);
-echo "<div class=\"card openkis-card mb-3\"><div class=\"card-body p-0\"><div class=\"table-responsive\"><table class=\"table table-sm mb-0\">";
-echo "<tr><th></th><th></th><th>" . FN_Translate("coordinates WGS84") . "</th><th>" . FN_Translate("elevation") . "</th></tr>";
+$rows = array();
 foreach ($points as $title => $point)
 {
     $label = htmlspecialchars(trim($point['code'] . " " . $point['name']));
@@ -33,10 +30,13 @@ foreach ($points as $title => $point)
     {
         $label .= ($label != "" ? " - " : "") . FN_Translate("free coordinates");
     }
-    $elevation = ($point['elevation'] !== "" && $point['elevation'] !== null) ? htmlspecialchars($point['elevation']) . " m" : "";
-    echo "<tr><th>$title</th><td>$label</td><td>" . round($point['lat'], 6) . ", " . round($point['lon'], 6) . "</td><td>$elevation</td></tr>";
+    $rows[] = array(
+        "label" => $title,
+        "point" => $label,
+        "coords" => round($point['lat'], 6) . ", " . round($point['lon'], 6),
+        "elevation_value" => ($point['elevation'] !== "" && $point['elevation'] !== null) ? htmlspecialchars($point['elevation']) . " m" : "",
+    );
 }
-echo "</table></div></div>";
 // horizontal distance (haversine) and elevation difference, as in the NASO register
 $from = $arrow['from'];
 $to = $arrow['to'];
@@ -54,4 +54,9 @@ if (isset($row['path_length']) && trim($row['path_length']) !== "")
 {
     $footer .= " - " . FN_Translate("polygonal distance") . ": " . htmlspecialchars($row['path_length']) . " m";
 }
-echo "<div class=\"card-footer small text-muted\">$footer</div></div>";
+echo openkis_TplApply("tracings_points_card", array(
+    "coordinates" => FN_Translate("coordinates WGS84"),
+    "elevation" => FN_Translate("elevation"),
+    "rows" => $rows,
+    "footer" => $footer,
+));

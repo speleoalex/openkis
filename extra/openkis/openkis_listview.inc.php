@@ -182,12 +182,7 @@ function openkis_ListMapCard($query, $note = "", $title = "", $extra = "")
 {
     global $_FN;
     $src = "{$_FN['siteurl']}bs_map.htm?$query&lat={$_FN['default_latitude']}&lon={$_FN['default_longitude']}&zoom={$_FN['default_zoom']}";
-    return openkis_TplApply("list_map_card", array(
-        "src" => htmlspecialchars($src),
-        "title" => htmlspecialchars($title),
-        "note" => $note,
-        "extra" => $extra,
-    ));
+    return openkis_MapCard($src, 450, $title, $note . ($extra != "" ? " - " . $extra : ""));
 }
 
 /**

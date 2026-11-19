@@ -27,11 +27,12 @@ if (abs(floatval($position['lat'])) < 0.01)
 }
 $lat = round($position['lat'], 6);
 $lon = round($position['lon'], 6);
-echo "<div class=\"card openkis-card mb-3\"><div class=\"card-body p-0\">";
-echo "<iframe style=\"border:0px;width:100%;height:350px;display:block\" src=\"{$_FN['siteurl']}bs_map.htm?point=circle&lat=$lat&lon=$lon&zoom=17\"></iframe>";
-echo "</div><div class=\"card-footer small text-muted\">";
-echo FN_Translate("coordinates WGS84") . ": <input class=\"form-control form-control-sm d-inline-block w-auto\" readonly value=\"$lat,$lon\" onclick=\"this.select();\">";
-echo " " . FN_Translate("calculate the route") . ": <a target=\"_blank\" rel=\"noopener\" href=\"https://www.google.com/maps/dir//$lat,$lon/@$lat,$lon,18z\">GMaps</a>";
-echo " | <a target=\"_blank\" rel=\"noopener\" href=\"https://www.openstreetmap.org/directions?engine=graphhopper_foot&amp;route=$lat%2C$lon%3B$lat%2C$lon\">OpenStreetMap</a>";
-echo "</div></div>";
+$footer = openkis_TplApply("map_coordinates_footer", array(
+    "coordinates" => FN_Translate("coordinates WGS84"),
+    "route" => FN_Translate("calculate the route"),
+    "latlon" => "$lat,$lon",
+    "gmap" => "https://www.google.com/maps/dir//$lat,$lon/@$lat,$lon,18z",
+    "osm" => "https://www.openstreetmap.org/directions?engine=graphhopper_foot&amp;route=$lat%2C$lon%3B$lat%2C$lon",
+));
+echo openkis_MapCard("{$_FN['siteurl']}bs_map.htm?point=circle&lat=$lat&lon=$lon&zoom=17", 350, "", $footer);
 echo $tracings_card;

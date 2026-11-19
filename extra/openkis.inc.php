@@ -50,6 +50,54 @@ function openkis_TplApply($tplname, $vars = array())
 }
 
 /**
+ * Card with a map of bs_map.htm and an optional footer under it, template
+ * map_card.tp.html. $src is the address of the map (the caller adds the
+ * parameters), $footer the html of the footer line.
+ *
+ * @param string $src address of the map
+ * @param int $height height of the map in pixels
+ * @param string $title translated title attribute of the iframe, "" for none
+ * @param string $footer html of the footer, "" for no footer
+ * @return string html
+ */
+function openkis_MapCard($src, $height = 450, $title = "", $footer = "")
+{
+    return openkis_TplApply("map_card", array(
+        "height" => intval($height),
+        "src" => htmlspecialchars($src),
+        "title" => htmlspecialchars($title),
+        "footer" => $footer,
+    ));
+}
+
+/**
+ * Alert box listing the bibliography linked to a record: year, title, authors
+ * and the button of every item (sections artificials, glacial). Template
+ * bibliography_alert.tp.html.
+ *
+ * @param array $items records of the bibliography (id, title, authors, year)
+ * @return string html
+ */
+function openkis_BibliographyAlertCard($items)
+{
+    $rows = array();
+    foreach ((array) $items as $item)
+    {
+        $rows[] = array(
+            "year" => $item['year'],
+            "title" => $item['title'],
+            "authors" => $item['authors'],
+            "url" => FN_RewriteLink("index.php?mod=bibliography&op=view&id={$item['id']}"),
+        );
+    }
+    return openkis_TplApply("bibliography_alert", array(
+        "heading" => FN_Translate("bibliography"),
+        "view" => FN_Translate("view"),
+        "rows" => $rows,
+    ));
+}
+
+/**
  * Map position for a regional customisation: the region's own centre, unless
  * the administrator changed the map defaults (admin section "configopenkis",
  * extra/openkis/config.php). Called from extra/openkis/custom/<region>/<region>.php.
