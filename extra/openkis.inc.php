@@ -98,6 +98,59 @@ function openkis_BibliographyAlertCard($items)
 }
 
 /**
+ * List of the caves of a group (cave system, glacier) with their position and
+ * elevation, and the map of bs_map.htm framed on them (template linked_caves.tp.html).
+ * The map is drawn only when at least one cave has coordinates.
+ *
+ * @param array $items records with id, code, name, latitude, longitude, elevation
+ * @param string $mod section of the records (caves, glacial)
+ * @param string $mapquery parameters of bs_map.htm that select the group, e.g. "nv_glaciers=42"
+ * @param string $heading text above the map, "" for none
+ * @return string html
+ */
+function openkis_CavesGroupList($items, $mod, $mapquery, $heading = "")
+{
+    global $_FN;
+    $rows = array();
+    $lats = array();
+    $lons = array();
+    foreach ((array) $items as $item)
+    {
+        $latlon = "";
+        if (!empty($item['latitude']))
+        {
+            $lat = floatval($item['latitude']);
+            $lon = floatval($item['longitude']);
+            $lats[] = $lat;
+            $lons[] = $lon;
+            $latlon = " <span style=\"color:grey\">wgs84: " . $lat . "N " . $lon . "E</span>";
+        }
+        $rows[] = array(
+            "code" => $item['code'],
+            "url" => FN_RewriteLink("index.php?mod=$mod&op=view&id={$item['id']}"),
+            "name" => $item['name'],
+            "latlon" => $latlon,
+            "elevation" => $item['elevation'],
+        );
+    }
+    $src = "";
+    if (count($lats))
+    {
+        // centre of the caves, written as the map links have always written it
+        $lat = (max($lats) - min($lats)) / 2 + min($lats);
+        $lon = (max($lons) - min($lons)) / 2 + min($lons);
+        $lat = str_replace(",", ".", $lat);
+        $lon = str_replace(",", ".", $lon);
+        $src = "{$_FN['siteurl']}bs_map.htm?$mapquery&zoom=13&mod=$mod&lat=$lat&lon=$lon";
+    }
+    return openkis_TplApply("linked_caves", array(
+        "heading" => $heading,
+        "src" => htmlspecialchars($src),
+        "items" => $rows,
+    ));
+}
+
+/**
  * Map position for a regional customisation: the region's own centre, unless
  * the administrator changed the map defaults (admin section "configopenkis",
  * extra/openkis/config.php). Called from extra/openkis/custom/<region>/<region>.php.

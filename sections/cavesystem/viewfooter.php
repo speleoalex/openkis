@@ -14,11 +14,6 @@ if (function_exists("openkis_UpdateCaveSystems") && isset($row['id']))
     }
 }
 
-$zoom=8;
-$baselayer="";
-$lat=45;
-$lon=9;
-
 $config=FN_LoadConfig("modules/dbview/config.php","caves");
 $params['fields']="code,latitude,longitude,elevation,name,synonyms,depth_total,depth_negative,depth_positive,lenght_total";
 $dbview=new FNDBVIEW($config);
@@ -36,60 +31,12 @@ foreach($items_tmp as $item)
         $items[]=$item;
     }
 }
-
-$num=count($items);
-$html="";
-if ($num > 0)
+if (count($items) > 0)
 {
-    $lat=0;
-    $lon=0;
-    $lat_min=100;
-    $lon_min=100;
-    $lat_max=0;
-    $lon_max=0;
-    $i=0;
-    $num=array();
-    foreach($items as $item)
-    {
-        $num[]=$item['code'];
-        if (!empty($item['latitude']))
-        {
-            $_lat=floatval($item['latitude']);
-            $_lon=floatval($item['longitude']);
-            $lat_max=max($lat_max,$_lat);
-            $lat_min=min($lat_min,$_lat);
-            $lon_max=max($lon_max,$_lon);
-            $lon_min=min($lon_min,$_lon);
-            $latlon=" <span style=\"color:grey\">wgs84: ".$_lat."N ".$_lon."E</span>";
-            $i++;
-        }
-        else
-        {
-            $latlon="";
-        }
-        // dprint_r($item);
-
-        $html.="<br /><b>{$item['code']}</b> <a target = \"_blank\" href=\"".FN_Rewritelink("index.php?mod=caves&op=view&id={$item['id']}")."\">{$item['name']}</a> $latlon Q.{$item['elevation']}";
-    }
-    if ($i > 0)
-    {
-        $lon=(($lon_max - $lon_min) / 2) + $lon_min;
-        $lat=(($lat_max - $lat_min) / 2) + $lat_min;
-
-        $lat=str_replace(",",".",$lat);
-        $lon=str_replace(",",".",$lon);
-        $zoom=13;
-        echo "<iframe id=\"mapframe\" name=\"mapframe\" 
-    frameborder=\"0\" src=\"{$_FN['siteurl']}bs_map.htm?zoom=$zoom&mod=caves&lat=$lat&lon=$lon&filter_code={$row['caves']}\" width=\"100%\" height=\"500\" ></iframe>";
-    }
+    echo openkis_CavesGroupList($items, "caves", "filter_code={$row['caves']}");
 }
-echo $html;
 
 
-$lat=0;
-$lon=0;
-$i=0;
-$html="";
 $sviluppo=0;
 $dislivello=0;
 
@@ -124,10 +71,6 @@ foreach($items as $item)
         $_lon=floatval($item['longitude']);
         $geo=new openkis_geoconverter($_lat,$_lon,"GEOWGS84");
         $latlonUTM=$geo->GetCoordinates("UTMWGS8432");
-        $latlon=" <span style=\"color:grey\">wgs84: ".$_lat."N ".$_lon."E</span>";
-        $lat+=$_lat;
-        $lon+=$_lon;
-        $i++;
         if (!$latmin || $latlonUTM['y'] < $latmin)
             $latmin=$latlonUTM['y'];
         if (!$latmax || $latlonUTM['y'] > $latmax)
@@ -142,10 +85,6 @@ foreach($items as $item)
 
         $deltalatkm=round($deltalat / 1000,2);
         $deltalonkm=round($deltalon / 1000,2);
-    }
-    else
-    {
-        $latlon="";
     }
 
     if (isset($item['elevation']) && $item['elevation']!== "")
@@ -179,10 +118,6 @@ foreach($items as $item)
         {
             $min_quota_gr=$punto_piu_basso;
         }
-    }
-    if (isset($item['code']))
-    {
-        $html.="<br /><b>{$item['code']}</b> <a target = \"_blank\" href=\"".FN_Rewritelink("index.php?mod=Navigator&op=view&id={$item['code']}")."\">{$item['name']}</a>  <em>SV.R.{$item['lenght_total']}  P.{$item['depth_total']}</em> $latlon".($quota!== "" ? " Q.$quota" : "");
     }
 }
 
@@ -245,23 +180,18 @@ $dislivelloTotDaIngressoPiuAlto=$cave_max_quota['elevation'] - $min_quota_gr;
 $sviluppo=round($sviluppo);
 $dislivelloTot=round($dislivelloTot);
 
-echo "<div>Sviluppo reale complesso: <b>{$row['lenght_total']} m.</b></div>";
-// the computed values only mean something when at least one linked cave was found
-if (count($items) > 0 && $sviluppo!= intval($row['lenght_total']))
-{
-    echo "<div style=\"color:grey\">Somma degli sviluppi delle schede: $sviluppo m.</div>";
-}
-echo "<div>Dislivello totale complesso: <b>{$row['depth_total']} m.</b></div>";
-if (count($items) > 0 && $dislivelloTot!= intval($row['depth_total']))
-{
-    echo "<div style=\"color:grey\">Dislivello calcolato dalle quote degli ingressi: $dislivelloTot m.</div>";
-}
-if (count($items) > 0)
-{
-echo "<div>Profondità calcolata dall'ingresso più alto al punto più profondo: <b>$dislivelloTotDaIngressoPiuAlto m.</b></div>";
-
-echo $htmlquote;
-}
+echo openkis_TplApply("cavesystem_stats", array(
+    "lenght_total" => $row['lenght_total'],
+    "depth_total" => $row['depth_total'],
+    // the computed values only mean something when at least one linked cave was found
+    "sviluppo_note" => count($items) > 0 && $sviluppo != intval($row['lenght_total']),
+    "sviluppo" => $sviluppo,
+    "dislivello_note" => count($items) > 0 && $dislivelloTot != intval($row['depth_total']),
+    "dislivello" => $dislivelloTot,
+    "has_items" => count($items) > 0,
+    "profondita" => $dislivelloTotDaIngressoPiuAlto,
+    "htmlquote" => $htmlquote,
+));
 
 /**
  * 
