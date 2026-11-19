@@ -31,6 +31,25 @@ require_once(__DIR__ . "/openkis/openkis_offline.inc.php");
 FN_IncludeScript("extra/openkis/openkis_offline_hooks.php");
 
 /**
+ * Render one of the shared OpenKIS templates, extra/openkis/templates/<name>.tp.html,
+ * with the FINIS template engine: {var}, {var.addHtmlEntities()} for escaping,
+ * <!-- if {var} -->, <!-- foreach {array} -->. Values already containing HTML
+ * (markup rendered by XMETADBForm, badges) pass through as-is; plain text must
+ * be escaped by the template or the caller. Relative href/src inside the
+ * template are rewritten against the templates directory.
+ */
+function openkis_TplApply($tplname, $vars = array())
+{
+    $path = "extra/openkis/templates/" . $tplname . ".tp.html";
+    if (!file_exists($path))
+    {
+        trigger_error("missing template $path", E_USER_WARNING);
+        return "";
+    }
+    return FN_TPL_ApplyTplFile($path, $vars);
+}
+
+/**
  * Map position for a regional customisation: the region's own centre, unless
  * the administrator changed the map defaults (admin section "configopenkis",
  * extra/openkis/config.php). Called from extra/openkis/custom/<region>/<region>.php.
