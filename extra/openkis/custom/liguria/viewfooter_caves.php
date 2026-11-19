@@ -105,190 +105,110 @@ if (is_array($items) && count($items))
 
 //----survey-------------------------------------------------------------------<
 //-----------SCANSIONI--------------------------------------------------------->
-function DrawFile($file)
+/**
+ * Files of the historical sheets of a cave: the scans of the old cadastral
+ * registers, one folder per cave ("0042_name"), files one level of subfolders
+ * deep. Folders are looked up by exact code, then zero padded, then zero padded
+ * with $wildcard ("_*" for the archives that separate the code from the title,
+ * "*" for the ones that do not). Windows thumbnails are skipped.
+ *
+ * @param string $basedir folder of the archive
+ * @param string $id cave code without the regional prefix
+ * @param string $wildcard suffix pattern of the folder names
+ * @return array file paths, empty when the cave has no sheet
+ */
+function openkis_LiguriaHistoricFiles($basedir, $id, $wildcard = "_*")
+{
+    $padded = sprintf("%04d", $id);
+    $folders = array();
+    foreach (array("{$basedir}/{$id}", "{$basedir}/{$padded}", "{$basedir}/{$padded}{$wildcard}") as $pattern)
+    {
+        $folders = glob($pattern);
+        if ($folders && count($folders))
+            break;
+    }
+    $files = array();
+    foreach ((array) $folders as $folder)
+    {
+        foreach ((array) glob("{$folder}/*") as $item)
+        {
+            if (is_dir($item))
+                $files = array_merge($files, (array) glob("{$item}/*.*"));
+            else
+                $files[] = $item;
+        }
+    }
+    return array_values(array_filter($files, function ($file)
+    {
+        return !is_dir($file) && basename($file) != "Thumbs.db";
+    }));
+}
+
+/**
+ * Card of one file of the historical sheets: icon of the type (a thumbnail for
+ * images), link to ops_getfile.php. Template historic_file_card.tp.html.
+ *
+ * @param string $file path of the file
+ * @return string html
+ */
+function openkis_LiguriaHistoricFileCard($file)
 {
     global $_FN;
-    $color[0] = "#ffffff";
-    $color[1] = "#eaeaea";
-    $color2[0] = "#f3e49c";
-    $color2[1] = "#f3e4c8";
-    $tit = htmlspecialchars(basename($file));
     // the path may contain spaces and special characters: encode it in the URL
     $fileurl = str_replace("%2F", "/", rawurlencode($file));
-    $l2 = $_FN['siteurl'] . "ops_getfile.php?f=$fileurl";
     $ext = strtolower(FN_GetFileExtension($file));
-    switch ($ext)
-    {
-        case "pdf":
-            $icon = $_FN['siteurl'] . "images/mime/pdf.png";
-            break;
-        case "doc":
-        case "docx":
-        case "odt":
-        case "rtf":
-            $icon = $_FN['siteurl'] . "images/mime/doc.png";
-            break;
-        case "txt":
-        case "csv":
-        case "tro":
-        case "th":
-        case "svx":
-            $icon = $_FN['siteurl'] . "images/mime/text.png";
-            break;
-        default:
-            $icon = $_FN['siteurl'] . "images/mime/unknown.png";
-    }
+    if (in_array($ext, array("doc", "docx", "odt", "rtf")))
+        $icon = "images/mime/doc.png";
+    elseif (in_array($ext, array("txt", "csv", "tro", "th", "svx")))
+        $icon = "images/mime/text.png";
+    elseif ($ext == "pdf")
+        $icon = "images/mime/pdf.png";
+    else
+        $icon = "images/mime/unknown.png";
     if ($ext == "jpg" || $ext == "jpeg" || $ext == "png")
-    {
-        $icon = "{$_FN['siteurl']}thumb.php?f=$fileurl&amp;h=300&amp;w=300";
-    }
-    echo "\n<div class=\"card col-12  col-xs-12 col-sm-3 col-lg-2\"  >";
-    echo "<a class=\"\" target=\"_blank\" href=\"$l2\"><img class=\"card-img-top\" src='$icon' alt=\"\" /></a>";
-    echo "<div class=\"card-body\">";
-    echo "<p class=\"card-text\"><a target=\"_blank\" class=\"\" href=\"$l2\">$tit</a></p>";
-    echo "</div>";
-    // echo "<div class=\"card-footer bg-transparent border-success\"><a class=\"btn btn-primary\" target=\"_blank\" href=\"$l2\">Apri</a></div>";
-    echo "</div>";
+        $icon = "thumb.php?f={$fileurl}&amp;h=300&amp;w=300";
+    return openkis_TplApply("historic_file_card", array(
+        "url" => $_FN['siteurl'] . "ops_getfile.php?f={$fileurl}",
+        "icon" => $_FN['siteurl'] . $icon,
+        "title" => htmlspecialchars(basename($file)),
+    ));
+}
+
+/**
+ * Card with a grid of files of the historical sheets, template
+ * historic_files_card.tp.html; $content is the files or a message.
+ *
+ * @param string $title
+ * @param string $content html inside the grid
+ * @param bool $scroll true when the body scrolls (many files)
+ * @return string html
+ */
+function openkis_LiguriaHistoricFilesCard($title, $content, $scroll)
+{
+    return openkis_TplApply("historic_files_card", array(
+        "title" => $title,
+        "content" => $content,
+        "scroll" => $scroll,
+    ));
 }
 
 $id = str_replace("LI", "", $row['code']);
-
-if (file_exists("../nextcloud/data/catasto/files/scansioni_Issel/"))
+$archives = array(
+    "scansioni_Issel" => array("title" => "Schede Storiche Catasto G.S.L. Issel", "wildcard" => "_*", "scroll" => true),
+    "scansioni_Zoja" => array("title" => "Schede Storiche Catasto G.S.L. Issel - Aggiornamento Zoja", "wildcard" => "*", "scroll" => true),
+    "schede_dsl" => array("title" => "Documentazione Delegazione Speleologica Ligure", "wildcard" => "_*", "scroll" => false, "restricted" => true),
+);
+foreach ($archives as $folder => $archive)
 {
-    $idfolder = $str = sprintf("%04d", $id);
-    $list = glob("../nextcloud/data/catasto/files/scansioni_Issel/{$id}");
-
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/scansioni_Issel/{$idfolder}");
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/scansioni_Issel/{$idfolder}_*");
-
-    if ($list && count($list) > 0)
-    {
-        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede Storiche Catasto G.S.L. Issel</h5></div>";
-        echo "<div class=\"card-body\" style=\"max-height:400px;overflow:auto;\">";
-        echo "<div class=\"card-columns row\">";
-        foreach ($list as $item)
-        {
-            $files = glob("{$item}/*");
-            foreach ($files as $file)
-            {
-                if (!is_dir($file))
-                {
-                    DrawFile($file);
-                } else
-                {
-                    $allfiles = glob("$file/*.*");
-                    foreach ($allfiles as $file_item)
-                    {
-                        if (!is_dir($file_item))
-                        {
-                            DrawFile($file_item);
-                        }
-                    }
-                }
-            }
-        }
-        echo "</div>";
-        echo "</div></div>";
-    }
+    $files = openkis_LiguriaHistoricFiles("../nextcloud/data/catasto/files/{$folder}", $id, $archive['wildcard']);
+    if (!count($files))
+        continue;
+    if (!empty($archive['restricted']) && !FN_IsAdmin() && !FN_UserInGroup($_FN['user'], "w_caves"))
+        $content = "la visualizzazione della documentazione DSL è riservata ai curatori, eseguire il login per visualizzare le schede";
+    else
+        $content = implode("", array_map("openkis_LiguriaHistoricFileCard", $files));
+    echo openkis_LiguriaHistoricFilesCard($archive['title'], $content, $archive['scroll']);
 }
-
-
-
-if (file_exists("../nextcloud/data/catasto/files/scansioni_Zoja/"))
-{
-    $idfolder = $str = sprintf("%04d", $id);
-    $list = glob("../nextcloud/data/catasto/files/scansioni_Zoja/{$id}");
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/scansioni_Zoja/{$idfolder}");
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/scansioni_Zoja/{$idfolder}_*");
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/scansioni_Zoja/{$idfolder}*");
-
-    if ($list && count($list) > 0)
-    {
-        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Schede Storiche Catasto G.S.L. Issel - Aggiornamento Zoja</h5></div>";
-        echo "<div class=\"card-body\" style=\"max-height:400px;overflow:auto;\">";
-        echo "<div class=\"card-columns row\">";
-        foreach ($list as $item)
-        {
-            $files = glob("{$item}/*");
-            foreach ($files as $file)
-            {
-                if (!is_dir($file))
-                {
-                    DrawFile($file);
-                } else
-                {
-                    $allfiles = glob("$file/*.*");
-                    foreach ($allfiles as $file_item)
-                    {
-                        if (!is_dir($file_item))
-                        {
-                            DrawFile($file_item);
-                        }
-                    }
-                }
-            }
-        }
-        echo "</div>";
-        echo "</div></div>";
-    }
-}
-
-
-
-if (file_exists("../nextcloud/data/catasto/files/schede_dsl/"))
-{
-    $idfolder = $str = sprintf("%04d", $id);
-    $list = glob("../nextcloud/data/catasto/files/schede_dsl/{$id}");
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/schede_dsl/{$idfolder}");
-    if ($list || count($list) < 1)
-        $list = glob("../nextcloud/data/catasto/files/schede_dsl/{$idfolder}_*");
-    if ($list && count($list) > 0)
-    {
-        echo "<div class=\"card openkis-card mb-3\"><div class=\"card-header\"><h5 class=\"mb-0\">Documentazione Delegazione Speleologica Ligure</h5></div>";
-        echo "<div class=\"card-body\">";
-        echo "<div class=\"card-columns row\">";
-        if (FN_IsAdmin() || FN_UserInGroup($_FN['user'], "w_caves"))
-        {
-            foreach ($list as $item)
-            {
-                $files = glob("{$item}/*");
-                foreach ($files as $file)
-                {
-                    if (!is_dir($file))
-                    {
-                        if (basename($file) != "Thumbs.db")
-                            DrawFile($file);
-                    } else
-                    {
-                        $allfiles = glob("$file/*.*");
-                        foreach ($allfiles as $file_item)
-                        {
-                            if (!is_dir($file_item))
-                            {
-                                if (basename($file_item) != "Thumbs.db")
-                                    DrawFile($file_item);
-                            }
-                        }
-                    }
-                }
-            }
-        } else
-        {
-            echo "la visualizzazione della documentazione DSL è riservata ai curatori, eseguire il login per visualizzare le schede";
-        }
-
-        echo "</div>";
-        echo "</div></div>";
-    }
-}
-
-
 //-----------SCANSIONI---------------------------------------------------------<
 
 
