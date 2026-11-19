@@ -6,7 +6,9 @@
  * bibliography, sightings, tracer tests...), so that every sheet has the same
  * layout:
  *   - title block: name, place, badges, icon;
- *   - main column (col-lg-8) with a card for each group of fields;
+ *   - main column (col-lg-8) with a card for each group of fields, followed by
+ *     the blocks pushed by the section's viewfooter.php into
+ *     $GLOBALS['openkis_view_main'] (e.g. the bibliography card);
  *   - side column (col-lg-4) with the photos and the blocks pushed by the
  *     section's viewfooter.php into $GLOBALS['openkis_view_side'];
  *   - below, at full width, the cards of the linked records echoed by viewfooter.php.
@@ -778,8 +780,9 @@ function openkis_SheetPhotoCard($frm, $values, $photos, $title)
 
 /**
  * Prints the sheet of a record: title block, the cards of the fields in the
- * main column, the photos and the blocks of $GLOBALS['openkis_view_side'] in
- * the side column. The side column and the row are left open: detail.tp.html
+ * main column followed by the blocks of $GLOBALS['openkis_view_main'], the
+ * photos and the blocks of $GLOBALS['openkis_view_side'] in the side column.
+ * The side column and the row are left open: detail.tp.html
  * prints {innertables} there and closes both.
  * Fields of the table that are in no card and not excluded go into a final
  * "other data" card.
@@ -845,6 +848,16 @@ function openkis_SheetRender($frm, $values, $sheet)
         $cardid = "card_" . preg_replace('/[^a-z0-9]+/', '_', strtolower($cardtitle));
         echo openkis_SheetCard(FN_Translate($cardtitle), "<div class=\"card-body\">$html</div>", array("id" => $cardid));
     }
+    //---- blocks prepared by viewfooter.php for the main column --------------->
+    if (!empty($GLOBALS['openkis_view_main']) && is_array($GLOBALS['openkis_view_main']))
+    {
+        foreach ($GLOBALS['openkis_view_main'] as $block)
+        {
+            echo $block;
+        }
+    }
+    $GLOBALS['openkis_view_main'] = array();
+    //---- blocks prepared by viewfooter.php for the main column ---------------<
     echo "</div>";
     echo "<div class=\"col-lg-4 openkis-sheet-side\">";
     if (count($sheet['photos']))

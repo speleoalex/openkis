@@ -4,10 +4,12 @@ global $_FN;
 /**
  * Cave sheet footer. Runs before viewheader.php: blocks pushed into
  * $GLOBALS['openkis_view_side'] are printed by viewheader.php in the side
- * column, while echoed html goes below the sheet at full width.
+ * column, blocks pushed into $GLOBALS['openkis_view_main'] in the main column
+ * under the field cards, while echoed html goes below the sheet at full width.
  */
 require_once "extra/openkis/openkis_sheet.inc.php";
 $GLOBALS['openkis_view_side'] = array();
+$GLOBALS['openkis_view_main'] = array();
 if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['openkis_custom']}/viewfooter_{$_FN['mod']}.php"))
 {
 
@@ -30,7 +32,9 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
         $biblio_items = $biblio->GetResults(false, $params);
         $biblio_items = FN_ArraySortByKey($biblio_items, "year");
     }
-    echo openkis_SheetBibliographyCard($biblio_items);
+    // bibliography card in the main column, under the field cards
+    if (($biblio_html = openkis_SheetBibliographyCard($biblio_items)) != "")
+        $GLOBALS['openkis_view_main'][] = $biblio_html;
     // tracer tests starting or ending in this cave
     if (function_exists("openkis_TracingsCaveCard"))
     {

@@ -4,10 +4,15 @@ $icon = "{$_FN['siteurl']}" . openkis_GetIcon($row, $_FN['mod']);
 
 
 // Blocks pushed into $GLOBALS['openkis_view_side'] are printed by
-// sections/caves/viewheader.php in the side column of the sheet.
+// sections/caves/viewheader.php in the side column of the sheet, those pushed
+// into $GLOBALS['openkis_view_main'] in the main column under the field cards.
 if (!isset($GLOBALS['openkis_view_side']) || !is_array($GLOBALS['openkis_view_side']))
 {
     $GLOBALS['openkis_view_side'] = array();
+}
+if (!isset($GLOBALS['openkis_view_main']) || !is_array($GLOBALS['openkis_view_main']))
+{
+    $GLOBALS['openkis_view_main'] = array();
 }
 //---- map, route links and coordinates (decimal, DMS, UTM) in the side column -->
 require_once "extra/openkis/openkis_sheet.inc.php";
@@ -24,7 +29,9 @@ if ($biblio_filter !== false)
     $biblio_items = $biblio->GetResults(false, $params);
     $biblio_items = FN_ArraySortByKey($biblio_items, "year");
 }
-echo openkis_SheetBibliographyCard($biblio_items);
+//----bibliography card in the main column, under the field cards-------------->
+if (($biblio_html = openkis_SheetBibliographyCard($biblio_items)) != "")
+    $GLOBALS['openkis_view_main'][] = $biblio_html;
 //----tracer tests: the ones starting or ending in this cave------------------->
 if (function_exists("openkis_TracingsCaveCard"))
 {
