@@ -144,6 +144,7 @@ function openkis_OfflinePagesVersion()
     $files = openkis_OfflineFilesHash(array(
         "extra/openkis/openkis_sheet.inc.php",
         "extra/openkis/openkis_listview.inc.php",
+        "extra/openkis/openkis_historic_sheets.inc.php",
         "extra/openkis/templates/*.tp.html",
         "sections/*/view*.php",
         "sections/*/*.tp.html",
