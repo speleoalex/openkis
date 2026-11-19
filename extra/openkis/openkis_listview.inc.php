@@ -167,6 +167,30 @@ function openkis_ListSettings($mod)
 }
 
 /**
+ * Map above a list of records (the top.php of sections temperatures, findings,
+ * fauna_surveys and tracings): an iframe of bs_map.htm framed on the data
+ * layer, a note under it and an optional extra link. Template
+ * list_map_card.tp.html.
+ *
+ * @param string $query parameters of bs_map.htm that switch the layer on, e.g. "fauna=1"
+ * @param string $note translated text under the map (html)
+ * @param string $title translated title attribute of the iframe, "" for none
+ * @param string $extra html printed after the note, separated by " - "
+ * @return string html
+ */
+function openkis_ListMapCard($query, $note = "", $title = "", $extra = "")
+{
+    global $_FN;
+    $src = "{$_FN['siteurl']}bs_map.htm?$query&lat={$_FN['default_latitude']}&lon={$_FN['default_longitude']}&zoom={$_FN['default_zoom']}";
+    return openkis_TplApply("list_map_card", array(
+        "src" => htmlspecialchars($src),
+        "title" => htmlspecialchars($title),
+        "note" => $note,
+        "extra" => $extra,
+    ));
+}
+
+/**
  * Collapsible legend of the map icons of a section (extra/openkis/icons/<dir>),
  * printed by the grid_header.php of the sections into {html_header} of the list,
  * right below the map.
