@@ -35,20 +35,23 @@ if (!empty($_FN['openkis_custom']) && file_exists("extra/openkis/custom/{$_FN['o
     // bibliography card in the main column, under the field cards
     if (($biblio_html = openkis_SheetBibliographyCard($biblio_items)) != "")
         $GLOBALS['openkis_view_main'][] = $biblio_html;
-    // tracer tests starting or ending in this cave
+    // tracer tests starting or ending in this cave, in the main column
     if (function_exists("openkis_TracingsCaveCard"))
     {
-        echo openkis_TracingsCaveCard($row['code']);
+        if (($card_html = openkis_TracingsCaveCard($row['code'])) != "")
+            $GLOBALS['openkis_view_main'][] = $card_html;
     }
-    // species observed in this cave (section fauna_surveys)
+    // species observed in this cave (section fauna_surveys), in the main column
     require_once "extra/openkis/openkis_fauna.inc.php";
-    echo openkis_FaunaCaveCard($row['code']);
+    if (($card_html = openkis_FaunaCaveCard($row['code'])) != "")
+        $GLOBALS['openkis_view_main'][] = $card_html;
     // paleontological and archaeological findings in this cave
     echo openkis_FindingsCavityCard($row['code']);
-    // temperature measurements and monitorings in this cave
+    // temperature measurements and monitorings in this cave, in the main column
     if (function_exists("openkis_TemperaturesCaveCard"))
     {
-        echo openkis_TemperaturesCaveCard($row['code']);
+        if (($card_html = openkis_TemperaturesCaveCard($row['code'])) != "")
+            $GLOBALS['openkis_view_main'][] = $card_html;
     }
     //survey: 3D viewer of the lox files, below the sheet ---------------------->
     foreach (openkis_SheetCaveSurveys($row['code']) as $survey_item)
