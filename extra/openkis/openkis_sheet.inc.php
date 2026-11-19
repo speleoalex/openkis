@@ -215,7 +215,7 @@ function openkis_SheetInnerCards($tablename, $records, $title)
 }
 
 /**
- * Card of a sheet.
+ * Card of a sheet, template extra/openkis/templates/sheet_card.tp.html.
  *
  * @param string $title
  * @param string $body html after the header (card-body, table, map...)
@@ -226,21 +226,18 @@ function openkis_SheetInnerCards($tablename, $records, $title)
  */
 function openkis_SheetCard($title, $body, $options = array())
 {
-    $class = !empty($options['side']) ? "openkis-side-card" : "openkis-card";
     $title = openkis_SheetUcfirst($title);
     if (isset($options['count']) && $options['count'] !== null)
     {
         $title .= " (" . intval($options['count']) . ")";
     }
-    $id = !empty($options['id']) ? " id=\"" . htmlspecialchars($options['id']) . "\"" : "";
-    $html = "<div class=\"card $class mb-3\"$id><div class=\"card-header\"><h5 class=\"mb-0\">$title</h5></div>";
-    $html .= $body;
-    if (!empty($options['footer']))
-    {
-        $html .= "<div class=\"card-footer bg-transparent\">{$options['footer']}</div>";
-    }
-    $html .= "</div>";
-    return $html;
+    return openkis_TplApply("sheet_card", array(
+        "class" => !empty($options['side']) ? "openkis-side-card" : "openkis-card",
+        "cardid" => !empty($options['id']) ? htmlspecialchars($options['id']) : "",
+        "title" => $title,
+        "body" => $body,
+        "footer" => !empty($options['footer']) ? $options['footer'] : "",
+    ));
 }
 
 /**
@@ -269,31 +266,31 @@ function openkis_SheetListCard($title, $head, $rows, $options = array())
     }
     $stack = isset($options['stack']) ? (bool) $options['stack'] : count(array_filter($labels, "strlen")) > 3;
     $stack_title = isset($options['stack_title']) ? $options['stack_title'] : array(0, 1);
-    $html = "<div class=\"card-body p-0\">";
-    if (!empty($options['map']))
-    {
-        $html .= $options['map'];
-    }
-    $html .= "<div class=\"table-responsive no-more-tables\"><table class=\"table table-sm table-striped mb-0" . ($stack ? " openkis-table-stack" : "") . "\"><thead><tr>";
+    $headhtml = "";
     foreach ($head as $i => $column)
     {
         $classes[$i] = is_array($column) ? $column[1] : "";
-        $html .= "<th" . ($classes[$i] != "" ? " class=\"{$classes[$i]}\"" : "") . ">{$labels[$i]}</th>";
+        $headhtml .= "<th" . ($classes[$i] != "" ? " class=\"{$classes[$i]}\"" : "") . ">{$labels[$i]}</th>";
     }
-    $html .= "</tr></thead><tbody>";
+    $rowshtml = "";
     foreach ($rows as $row)
     {
-        $html .= "<tr>";
+        $rowshtml .= "<tr>";
         foreach (array_values($row) as $i => $cell)
         {
             $class = is_array($cell) ? $cell[1] : (isset($classes[$i]) ? $classes[$i] : "");
             $text = is_array($cell) ? $cell[0] : $cell;
             $attrs = $stack ? openkis_SheetStackAttrs(isset($labels[$i]) ? $labels[$i] : "", in_array($i, $stack_title), $class) : ($class != "" ? " class=\"$class\"" : "");
-            $html .= "<td$attrs>$text</td>";
+            $rowshtml .= "<td$attrs>$text</td>";
         }
-        $html .= "</tr>";
+        $rowshtml .= "</tr>";
     }
-    $html .= "</tbody></table></div></div>";
+    $html = openkis_TplApply("sheet_list_card_body", array(
+        "map" => !empty($options['map']) ? $options['map'] : "",
+        "stack" => $stack,
+        "head" => $headhtml,
+        "rows" => $rowshtml,
+    ));
     if (!array_key_exists("count", $options))
     {
         $options['count'] = count($rows);
@@ -782,8 +779,9 @@ function openkis_SheetPhotoCard($frm, $values, $photos, $title)
  * Prints the sheet of a record: title block, the cards of the fields in the
  * main column followed by the blocks of $GLOBALS['openkis_view_main'], the
  * photos and the blocks of $GLOBALS['openkis_view_side'] in the side column.
- * The side column and the row are left open: detail.tp.html
- * prints {innertables} there and closes both.
+ * The layout is extra/openkis/templates/sheet.tp.html, which deliberately
+ * leaves the side column and the row open: detail.tp.html prints
+ * {innertables} there and closes both.
  * Fields of the table that are in no card and not excluded go into a final
  * "other data" card.
  *
@@ -823,57 +821,49 @@ function openkis_SheetRender($frm, $values, $sheet)
         $cards["other data"] = $other;
     }
     //---- leftover fields -----------------------------------------------------<
-    //---- title block: name and place on the left, badges and icon on the right ->
-    echo "<div class=\"openkis-sheet-title d-flex align-items-start mb-3\">";
-    echo "<div class=\"openkis-sheet-heading\">";
-    echo "<h2 class=\"openkis-sheet-name mb-1\">{$sheet['title']}</h2>";
-    if ($sheet['place'] != "")
-        echo "<div class=\"text-muted\">{$sheet['place']}</div>";
-    echo "</div>";
-    echo "<div class=\"openkis-sheet-tags d-flex align-items-start\">";
-    echo "<div class=\"openkis-sheet-badges\">{$sheet['badges']}</div>";
-    if ($sheet['icon'] != "")
-        echo "<img class=\"openkis-sheet-icon\" src=\"" . htmlspecialchars($sheet['icon']) . "\" alt=\"\" />";
-    echo "</div></div>";
-    if ($sheet['notice'] != "")
-        echo $sheet['notice'];
-    //---- title block ---------------------------------------------------------<
-    echo "<div class=\"row openkis-sheet\">";
-    echo "<div class=\"col-lg-8 openkis-sheet-main\">";
+    //---- title block: name and place on the left, badges and icon on the right,
+    //     then the row with the main and the side column ---------------------->
+    $vars = array(
+        "title" => $sheet['title'],
+        "place" => (string) $sheet['place'],
+        "badges" => (string) $sheet['badges'],
+        "icon" => $sheet['icon'] != "" ? htmlspecialchars($sheet['icon']) : "",
+        "notice" => (string) $sheet['notice'],
+    );
+    $main = array();
     foreach ($cards as $cardtitle => $cardfields)
     {
         $html = openkis_ViewCardFields($frm, $values, $cardfields, $sheet['longtext'], $sheet['author'], $sheet['titles']);
         if ($html === "")
             continue;
         $cardid = "card_" . preg_replace('/[^a-z0-9]+/', '_', strtolower($cardtitle));
-        echo openkis_SheetCard(FN_Translate($cardtitle), "<div class=\"card-body\">$html</div>", array("id" => $cardid));
+        $main[] = array("html" => openkis_SheetCard(FN_Translate($cardtitle), "<div class=\"card-body\">$html</div>", array("id" => $cardid)));
     }
     //---- blocks prepared by viewfooter.php for the main column --------------->
     if (!empty($GLOBALS['openkis_view_main']) && is_array($GLOBALS['openkis_view_main']))
     {
         foreach ($GLOBALS['openkis_view_main'] as $block)
         {
-            echo $block;
+            $main[] = array("html" => $block);
         }
     }
     $GLOBALS['openkis_view_main'] = array();
     //---- blocks prepared by viewfooter.php for the main column ---------------<
-    echo "</div>";
-    echo "<div class=\"col-lg-4 openkis-sheet-side\">";
-    if (count($sheet['photos']))
-    {
-        echo openkis_SheetPhotoCard($frm, $values, $sheet['photos'], FN_Translate($sheet['photos_title']));
-    }
+    $vars['main'] = $main;
+    $vars['photos'] = count($sheet['photos']) ? openkis_SheetPhotoCard($frm, $values, $sheet['photos'], FN_Translate($sheet['photos_title'])) : "";
     //---- side blocks prepared by viewfooter.php ------------------------------>
+    $side = array();
     if (!empty($GLOBALS['openkis_view_side']) && is_array($GLOBALS['openkis_view_side']))
     {
         foreach ($GLOBALS['openkis_view_side'] as $block)
         {
-            echo $block;
+            $side[] = array("html" => $block);
         }
     }
     $GLOBALS['openkis_view_side'] = array();
     //---- side blocks prepared by viewfooter.php ------------------------------<
+    $vars['side'] = $side;
+    echo openkis_TplApply("sheet", $vars);
 }
 
 /**

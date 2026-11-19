@@ -1,0 +1,17 @@
+<div class="openkis-sheet-title d-flex align-items-start mb-3">
+<div class="openkis-sheet-heading">
+<h2 class="openkis-sheet-name mb-1">{title}</h2>
+<!-- if {place} --><div class="text-muted">{place}</div><!-- end if {place} -->
+</div>
+<div class="openkis-sheet-tags d-flex align-items-start">
+<div class="openkis-sheet-badges">{badges}</div>
+<!-- if {icon} --><img class="openkis-sheet-icon" src="{icon}" alt="" /><!-- end if {icon} -->
+</div></div>
+<!-- if {notice} -->{notice}<!-- end if {notice} -->
+<div class="row openkis-sheet">
+<div class="col-lg-8 openkis-sheet-main">
+<!-- foreach {main} -->{html}<!-- end foreach {main} -->
+</div>
+<div class="col-lg-4 openkis-sheet-side">
+{photos}
+<!-- foreach {side} -->{html}<!-- end foreach {side} -->
