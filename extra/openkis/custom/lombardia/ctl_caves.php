@@ -114,7 +114,7 @@
         <view_show>1</view_show>
         <frm_rows>auto</frm_rows>
         <frm_cols>80</frm_cols>
-        <htmlattributes>style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase();"</htmlattributes>
+        <htmlattributes>style="text-transform:uppercase;"</htmlattributes>
         <frm_help_it>Inserire Cognome e nome di chi ha inserito a catasto la grotta,vale chi ha fornito i dati della scheda e NON chi la ha inserita sul gestionale.</frm_help_it>
     </field>
     <field>

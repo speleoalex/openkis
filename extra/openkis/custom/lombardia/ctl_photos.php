@@ -12,6 +12,7 @@
         <name>codecave</name>
         <frm_it>Numero grotta</frm_it>
         <type>string</type>
+        <frm_type>selectfilter</frm_type>
         <view_show>1</view_show>
         <foreignkey>ctl_caves</foreignkey>
         <fk_link_field>code</fk_link_field>
@@ -42,7 +43,7 @@
         <name>author</name>
         <frm_it>Autore foto</frm_it>		
     </field>
-<field>
+    <field>
         <name>license</name>
         <frm_it>Licenza Foto</frm_it>
         <foreignkey>ctl_licenses</foreignkey>
