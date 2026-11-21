@@ -20,6 +20,7 @@ openkis_SetRegionMapCenter(45.62, 9.75, 8);
 // "Uso offline" in the menu only for the registered users (the page stays public,
 // openkis_OfflineMenuOnlyForUsers() in extra/openkis/openkis_offline.inc.php)
 $_FN['openkis_offline_menu_users_only'] = 1;
+$_FN['openkis_code_field']['caves'] = "code_fslo";
 
 
 /**
