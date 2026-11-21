@@ -21,7 +21,8 @@
  *    The write tools (insert, update, upload, delete) are available only to the administrators
  *    and to the users an administrator allowed to write (group $_FN['mcp_write_group'], default
  *    "mcp_write", Control center > Users and groups > MCP server); for the other users every
- *    section is read only.
+ *    section is read only, but propose lets a user who can view a section without adding or
+ *    editing its records send a proposal, with linked rows and their files, to the curators.
  *    The server acts as the key owner with the same permissions of the web UI:
  *    administrators (level >= 10) have full access; the other users see only the dbview
  *    sections they can view, write only where the section allows them (groupinsert,
@@ -84,6 +85,31 @@ class OpenkisMcpDbview extends FNDBVIEW
         $values = $this->applyFieldTransformations($values, $Form);
         $_POST = $post_bk;
         return $values;
+    }
+
+    function ProposeChange($Table, $id, $values)
+    {
+        return $this->ProposeChangeValues($Table, $id, $values);
+    }
+
+    function ProposeNewRecord($Table, $values, $pending)
+    {
+        return $this->ProposeNewRecordValues($Table, $values, $pending);
+    }
+
+    function ProposeRow($proposal, $inner, $values, $files)
+    {
+        return $this->ProposeRowValues($proposal, $inner, $values, $files);
+    }
+
+    function PendingProposalsOf($tablename, $id, $username)
+    {
+        return $this->PendingProposals($tablename, $id, $username);
+    }
+
+    function NestedTables($Table)
+    {
+        return $this->ProposalNestedTables($Table);
     }
 }
 
@@ -383,6 +409,22 @@ function mcp_Tools()
         "empty" => array("type" => "boolean")
         ), "required" => array("id"))
     );
+    $tools[] = array(
+        "name" => "propose",
+        "description" => "Propose a new record or a change to an existing one, through the section proposals (same stored data, notifications and review of the web form). Available also without the write tools: it needs a section with proposals enabled and a user who can view the records but cannot add or edit them. id empty = new record (data required); id = change (data and/or rows). rows add linked-table rows with their files, e.g. the surveys of a new cave: [{table, data, files:{field:{content_base64|url|from_id, filename, from_table, from_field}}}]. Files are kept in the pending folder, only the author and the reviewers can download them; they enter the linked table when a reviewer accepts the proposal. Returns CSV proposal,table,record,status,rows.",
+        "inputSchema" => array("type" => "object", "properties" => $src + $values + array(
+        "id" => array("type" => "string", "description" => "primary key of the record to change; omit for a proposed new record"),
+        "rows" => array("type" => "array", "description" => "rows of the linked tables of the proposal", "items" => array(
+            "type" => "object",
+            "properties" => array(
+                "table" => array("type" => "string", "description" => "linked table, e.g. ctl_surveys"),
+                "data" => array("description" => "row object {field:value}"),
+                "files" => array("type" => "object", "description" => "file/image fields: {field:{content_base64|url|from_id, filename, from_table, from_field}}")
+            ),
+            "required" => array("table", "data")
+        ))
+        ), "required" => array("section"))
+    );
     if (mcp_FullAccess())
         $tools[] = array(
         "name" => "sql",
@@ -436,7 +478,7 @@ function mcp_Tools()
 function mcp_CallTool($name, $args)
 {
     global $_FN;
-    $writeTools = array("insert", "update", "upload", "delete");
+    $writeTools = array("insert", "update", "upload", "delete", "propose");
     try
     {
         $function = "mcp_Tool_" . $name;
@@ -444,7 +486,8 @@ function mcp_CallTool($name, $args)
             throw new McpToolError("unknown tool $name");
         if (in_array($name, $writeTools) && !empty($_FN['openkis_mcp_readonly']))
             throw new McpToolError("server is read-only");
-        if (in_array($name, $writeTools) && !mcp_CanWrite())
+        // propose has its own permission (the section proposals), it does not need the write tools
+        if (in_array($name, $writeTools) && $name != "propose" && !mcp_CanWrite())
             throw new McpToolError("permission denied: the write tools are not enabled for this user, ask an administrator");
         if ($name == "sql" && !mcp_FullAccess())
             throw new McpToolError("permission denied: sql requires an administrator key");
@@ -1089,7 +1132,45 @@ function mcp_Tool_upload($args)
         }
         return mcp_Csv(array(array("id", "result", "field", "file"), array($id, $changed ? "cleared" : "unchanged", $field, "")));
     }
-    $filename = isset($args['filename']) ? $args['filename'] : "";
+    $fetched = mcp_FetchFile($args, $src, $field);
+    $tmp = $fetched['path'];
+    $filename = $fetched['name'];
+    try
+    {
+        mcp_UpdateRecord($src, $id, array($field => $filename), array($field => $tmp));
+        $record = $Table->GetRecordByPrimaryKey($id);
+        $path = $Table->getFilePath($record, $field);
+        if (!$path || !file_exists($path))
+            throw new McpToolError("file not saved");
+        return mcp_Csv(array(array("id", "result", "field", "file"), array($id, "ok", $field, $record[$field] . " (" . filesize($path) . " bytes)")));
+    }
+    finally
+    {
+        if (file_exists($tmp))
+            unlink($tmp);
+    }
+}
+
+/**
+ * Fetches the file given with content_base64, url or from_id (with optional
+ * from_table, from_field) into a temporary file. Exactly one source must be given.
+ * The caller deletes the file.
+ * @param array $args
+ * @param array $src source of the record for from_id
+ * @param string $field default field for from_field
+ * @return array path, name
+ */
+function mcp_FetchFile($args, $src, $field = "")
+{
+    $sources = 0;
+    foreach (array("content_base64", "url", "from_id") as $k)
+    {
+        if (!empty($args[$k]))
+            $sources++;
+    }
+    if ($sources != 1)
+        throw new McpToolError("pass exactly one of content_base64, url, from_id");
+    $filename = isset($args['filename']) ? (string) $args['filename'] : "";
     $tmp = tempnam(sys_get_temp_dir(), "mcp");
     try
     {
@@ -1120,7 +1201,7 @@ function mcp_Tool_upload($args)
             if (!$ok || $status >= 400)
                 throw new McpToolError("download failed (HTTP $status)");
             if ($filename == "")
-                $filename = rawurldecode(basename(parse_url($args['url'], PHP_URL_PATH)));
+                $filename = rawurldecode(basename((string) parse_url($args['url'], PHP_URL_PATH)));
         }
         else
         {
@@ -1147,18 +1228,223 @@ function mcp_Tool_upload($args)
             throw new McpToolError("file type not allowed");
         if (filesize($tmp) == 0)
             throw new McpToolError("empty file");
-        mcp_UpdateRecord($src, $id, array($field => $filename), array($field => $tmp));
-        $record = $Table->GetRecordByPrimaryKey($id);
-        $path = $Table->getFilePath($record, $field);
-        if (!$path || !file_exists($path))
-            throw new McpToolError("file not saved");
-        return mcp_Csv(array(array("id", "result", "field", "file"), array($id, "ok", $field, $record[$field] . " (" . filesize($path) . " bytes)")));
+        return array("path" => $tmp, "name" => $filename);
     }
-    finally
+    catch (Throwable $e)
     {
         if (file_exists($tmp))
             unlink($tmp);
+        throw $e;
     }
+}
+
+/**
+ * Proposes a new record or a change to an existing one, through the section
+ * proposals (FNDBVIEWProposals): same stored data, notifications and review of
+ * the web form. Available also when the write tools are not enabled for the user.
+ * @param array $args
+ * @return string
+ */
+function mcp_Tool_propose($args)
+{
+    global $_FN;
+    if (empty($args['section']))
+        throw new McpToolError("section required: proposals belong to a dbview section");
+    $src = mcp_Source($args);
+    $Table = FN_XMDBForm($src['table']);
+    $dbview = mcp_Dbview($src);
+    $id = isset($args['id']) ? trim((string) $args['id']) : "";
+    $values = mcp_ProposalData($args);
+    $rows = isset($args['rows']) ? $args['rows'] : array();
+    if (!is_array($rows))
+        throw new McpToolError("rows must be an array");
+    $record = null;
+    if ($id !== "")
+    {
+        mcp_CheckPk($id);
+        $record = $src['Table']->GetRecordByPrimaryKey($id);
+        if (!is_array($record) || !$dbview->CanProposeRecord($record))
+            throw new McpToolError("permission denied: you cannot propose a change to this record (the record must be visible and not editable by this user)");
+    }
+    elseif (!$dbview->CanProposeNewRecord())
+    {
+        if ($dbview->CanAddRecord())
+            throw new McpToolError("this user can add records to section {$src['section']}: use insert, a proposal is for users who cannot");
+        throw new McpToolError("permission denied: proposed new records are not enabled for this section and user");
+    }
+    $allowed = $dbview->ProposalFields($Table);
+    foreach ($values as $field => $value)
+    {
+        if (!in_array($field, $allowed, true))
+            throw new McpToolError("field $field cannot be proposed; proposable fields: " . implode(",", $allowed));
+        if (is_array($value) || is_object($value))
+            throw new McpToolError("field $field: scalar value expected");
+    }
+    if ($id === "" && count($values) == 0)
+        throw new McpToolError("data required for a proposed new record");
+
+    $mod_bk = $_FN['mod'];
+    $sectionvalues_bk = isset($_FN['sectionvalues']) ? $_FN['sectionvalues'] : null;
+    $_FN['mod'] = $src['section'];
+    $sectionvalues = FN_GetSectionValues($src['section']);
+    // the notifications name the section: without it the id is better than a warning
+    $_FN['sectionvalues'] = is_array($sectionvalues) ? $sectionvalues : array("title" => $src['section']);
+    $temppaths = array();
+    try
+    {
+        $proposal = null;
+        if ($id === "")
+        {
+            $result = $dbview->ProposeNewRecord($Table, $values, null);
+            if ($result['status'] !== "sent")
+                throw new McpToolError(mcp_ProposalErrorText($result));
+            $proposal = $result['proposal'];
+        }
+        else
+        {
+            if (count($values) > 0)
+            {
+                $result = $dbview->ProposeChange($Table, $id, $values);
+                if (!in_array($result['status'], array("sent", "unchanged"), true))
+                    throw new McpToolError(mcp_ProposalErrorText($result));
+                if ($result['status'] === "sent")
+                    $proposal = $result['proposal'];
+            }
+            if ($proposal === null)
+            {
+                $pending = $dbview->PendingProposalsOf($src['table'], $id, $_FN['user']);
+                $proposal = count($pending) > 0 ? $pending[0] : array("id" => "", "table_unirecid" => $id, "username" => $_FN['user'], "changes" => "");
+            }
+        }
+
+        $added = 0;
+        $errors = array();
+        if (count($rows) > 0)
+        {
+            $nested = $dbview->NestedTables($Table);
+            foreach ($rows as $n => $item)
+            {
+                $label = "row " . ($n + 1);
+                if (!is_array($item) || empty($item['table']) || !isset($item['data']) || !is_array($item['data']))
+                {
+                    $errors[] = "$label: table and data are required";
+                    continue;
+                }
+                $table = trim((string) $item['table']);
+                if (!isset($nested[$table]))
+                {
+                    $errors[] = "$label: $table is not a linked table of section {$src['section']} (allowed: " . (count($nested) > 0 ? implode(",", array_keys($nested)) : "none") . ")";
+                    continue;
+                }
+                $files = array();
+                if (isset($item['files']) && is_array($item['files']))
+                {
+                    foreach ($item['files'] as $field => $fileargs)
+                    {
+                        if (!is_array($fileargs))
+                        {
+                            $errors[] = "$label: files must be objects {field:{content_base64|url|from_id}}";
+                            continue 2;
+                        }
+                        try
+                        {
+                            $fetched = mcp_FetchFile($fileargs, $src, $field);
+                        }
+                        catch (McpToolError $e)
+                        {
+                            $errors[] = "$label $field: " . $e->getMessage();
+                            continue 2;
+                        }
+                        $temppaths[] = $fetched['path'];
+                        $files[$field] = $fetched['path'];
+                        // the row stores the name of the file, not a value of the client
+                        $item['data'][$field] = $fetched['name'];
+                    }
+                }
+                $result = $dbview->ProposeRow($proposal, $nested[$table], $item['data'], $files);
+                if ($result['status'] !== "saved")
+                {
+                    $errors[] = "$label: " . mcp_ProposalErrorText($result);
+                    continue;
+                }
+                $proposal = $result['proposal'];
+                $added++;
+            }
+        }
+
+        if (!is_array($proposal) || empty($proposal['id']))
+            throw new McpToolError(count($errors) > 0 ? implode("; ", $errors) : "the proposal contains no data");
+        $recordid = isset($proposal['table_unirecid']) ? $proposal['table_unirecid'] : $id;
+        return mcp_Csv(array(
+            array("proposal", "table", "record", "status", "rows", "errors"),
+            array($proposal['id'], $src['table'], $recordid, "pending", $added, implode("; ", $errors))
+        ));
+    }
+    finally
+    {
+        foreach ($temppaths as $path)
+        {
+            if (file_exists($path))
+                unlink($path);
+        }
+        $_FN['mod'] = $mod_bk;
+        if ($sectionvalues_bk === null)
+            unset($_FN['sectionvalues']);
+        else
+            $_FN['sectionvalues'] = $sectionvalues_bk;
+    }
+}
+
+/**
+ * Values of a proposal: the data object, or a CSV with a header row and one record
+ * @param array $args
+ * @return array field => value
+ */
+function mcp_ProposalData($args)
+{
+    $values = array();
+    if (isset($args['csv']) && trim($args['csv']) != "")
+    {
+        $lines = mcp_ParseCsv($args['csv']);
+        if (count($lines) < 2)
+            throw new McpToolError("csv must hold a header row and one record");
+        $header = array_map("trim", array_shift($lines));
+        $line = $lines[0];
+        if (count($line) != count($header))
+            throw new McpToolError("csv row 2: " . count($line) . " values, " . count($header) . " expected");
+        $values = array_combine($header, $line);
+    }
+    elseif (isset($args['data']))
+    {
+        $data = is_string($args['data']) ? json_decode($args['data'], true) : $args['data'];
+        if (!is_array($data) || (isset($data[0]) && is_array($data[0])))
+            throw new McpToolError("data must be one object {field:value}");
+        $values = $data;
+    }
+    return $values;
+}
+
+/**
+ * @param array $result return value of the proposal methods
+ * @return string message for the client
+ */
+function mcp_ProposalErrorText($result)
+{
+    $status = isset($result['status']) ? $result['status'] : "";
+    $texts = array(
+        "denied" => "you may not do that",
+        "nodata" => "the proposal contains no data",
+        "withdrawn" => "the proposal has been withdrawn",
+        "toolong" => "the proposal is too long",
+        "invalid" => "invalid data",
+        "unchanged" => "no changes compared to the record",
+        "nosave" => "the file could not be saved",
+        "saved" => "saved"
+    );
+    $text = isset($texts[$status]) ? $texts[$status] : "proposal not saved ($status)";
+    if (!empty($result['errors']))
+        $text .= ": " . mcp_VerifyErrors($result['errors']);
+    return $text;
 }
 
 /**
@@ -1410,7 +1696,7 @@ function mcp_AccessDescription()
     global $_FN;
     if (mcp_FullAccess())
         return "Connected as {$_FN['user']} with administrator access.";
-    return "Connected as {$_FN['user']} with the permissions of this user: only the sections listed by `sections` are available (column access), lookup tables only through `tables`, no `sql`." . (mcp_CanWrite() ? "" : " Read only: the write tools are not enabled for this user.");
+    return "Connected as {$_FN['user']} with the permissions of this user: only the sections listed by `sections` are available (column access), lookup tables only through `tables`, no `sql`." . (mcp_CanWrite() ? "" : " Read only: insert, update, upload and delete are not enabled for this user; `propose` works where the section enables the proposals of this user.");
 }
 
 /**
