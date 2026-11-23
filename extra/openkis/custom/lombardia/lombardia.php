@@ -20,6 +20,8 @@ openkis_SetRegionMapCenter(45.62, 9.75, 8);
 // "Uso offline" in the menu only for the registered users (the page stays public,
 // openkis_OfflineMenuOnlyForUsers() in extra/openkis/openkis_offline.inc.php)
 $_FN['openkis_offline_menu_users_only'] = 1;
+// FSLo code in the list cards and map popups (openkis_RecordCode())
+$_FN['openkis_code_field']['caves'] = "code_fslo";
 // sections of openkis this site does not use: not in the menus, not openable
 // (include/autoexec.d/40_openkis_sections_off.php)
 $_FN['openkis_sections_off'] = array("findings", "findings_map", "karstsystems", "uncatalogued",
@@ -209,6 +211,12 @@ function InizializzaDB()
         //    dprint_r(filemtime(__DIR__."/ctl_surveys.php") );
     }
 
+    //LONTRA
+    if (!file_exists("misc/fndatabase/ctl_photos.php") || filemtime(__DIR__."/ctl_photos.php") > filemtime("misc/fndatabase/ctl_photos.php") )
+    {
+        file_put_contents("misc/fndatabase/ctl_photos.php", file_get_contents(__DIR__."/ctl_photos.php"));
+        die("misc/fndatabase/ctl_photos.php updated");
+    }
 
 }
 
