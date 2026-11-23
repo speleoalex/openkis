@@ -20,6 +20,10 @@ openkis_SetRegionMapCenter(45.62, 9.75, 8);
 // "Uso offline" in the menu only for the registered users (the page stays public,
 // openkis_OfflineMenuOnlyForUsers() in extra/openkis/openkis_offline.inc.php)
 $_FN['openkis_offline_menu_users_only'] = 1;
+// sections of openkis this site does not use: not in the menus, not openable
+// (include/autoexec.d/40_openkis_sections_off.php)
+$_FN['openkis_sections_off'] = array("findings", "findings_map", "karstsystems", "uncatalogued",
+    "glacial", "glacial_surveys", "glaciers", "map_glacial", "speleologia_glaciale", "regioni");
 
 
 /**

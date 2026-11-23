@@ -140,3 +140,13 @@ Le sezioni solo lombarde non sono nel repository ma nella cartella del sito (`se
 `Strumenti`, `reports`, `esportazioni`, `esportazione_excel`, `query`, `aggiorna_codice_fslo`,
 `gruppi_speleologici`, `situazione_catasto`, `numeri_bianchi_e_avvisi`, `infocookie`, la `home`
 e il testo della mappa (`map_caves/section.it.html`, Progetto Tu.Pa.Ca.).
+
+Le sezioni di openkis che il catasto lombardo non usa (reperti, sistemi carsici, cavita' non
+catastate, sezioni glaciali, regioni) restano nella cartella ma sono spente da
+`$_FN['openkis_sections_off']` in `lombardia.php`: niente voce di menu, e il loro indirizzo
+risponde come una sezione che non esiste. Una sezione nuova di openkis compare invece al primo
+aggiornamento: se il sito non la usa, va aggiunta a quell'elenco.
+
+Il sito non si aggiorna caricando via FTP tutto l'albero del repository: `bs_map.htm`, la `home`,
+i `reports` e i file di `misc/` sono del sito. Si costruisce con `tools/build_site.sh` e si
+caricano solo i file cambiati (`tools/deploy_test.sh`).
