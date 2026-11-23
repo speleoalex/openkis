@@ -92,8 +92,7 @@ Open `http://localhost/openkis/` (or your site URL). The wizard runs in 4 steps:
 1. **Language** of the admin interface.
 2. **Permission check** (fix the folder permissions if something is red).
 3. **Site settings**: site name, e-mail, languages. Choose theme **`openkis`**
-   and home section **`map_caves`** (map of caves) or `caves` (list). The
-   `home` section is the WISH portal home page and needs the `regioni` data.
+   and home section **`map_caves`** (map of caves) or `caves` (list).
 4. **Administrator account**: the first registered user becomes the
    administrator (level 10).
 

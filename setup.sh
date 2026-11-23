@@ -116,6 +116,6 @@ if [ "$NO_PERMS" = 0 ]; then
 fi
 
 say "done. Open the site in the browser and follow the wizard:"
-say "  - theme: openkis   - home section: map_caves (or home)"
+say "  - theme: openkis   - home section: map_caves (or caves)"
 say "  - the first registered user becomes the administrator"
 say "admin area: index.php?fnapp=controlcenter"
