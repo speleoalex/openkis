@@ -22,7 +22,8 @@
  *    and to the users an administrator allowed to write (group $_FN['mcp_write_group'], default
  *    "mcp_write", Control center > Users and groups > MCP server); for the other users every
  *    section is read only, but propose lets a user who can view a section without adding or
- *    editing its records send a proposal, with linked rows and their files, to the curators.
+ *    editing its records send a proposal, with linked rows and their files, to the curators
+ *    (a user who can add records may propose a new one too, to have it reviewed first).
  *    The server acts as the key owner with the same permissions of the web UI:
  *    administrators (level >= 10) have full access; the other users see only the dbview
  *    sections they can view, write only where the section allows them (groupinsert,
@@ -411,7 +412,7 @@ function mcp_Tools()
     );
     $tools[] = array(
         "name" => "propose",
-        "description" => "Propose a new record or a change to an existing one, through the section proposals (same stored data, notifications and review of the web form). Available also without the write tools: it needs a section with proposals enabled and a user who can view the records but cannot add or edit them. id empty = new record (data required); id = change (data and/or rows). rows add linked-table rows with their files, e.g. the surveys of a new cave: [{table, data, files:{field:{content_base64|url|from_id, filename, from_table, from_field}}}]. Files are kept in the pending folder, only the author and the reviewers can download them; they enter the linked table when a reviewer accepts the proposal. Returns CSV proposal,table,record,status,rows.",
+        "description" => "Propose a new record or a change to an existing one, through the section proposals (same stored data, notifications and review of the web form). Available also without the write tools: it needs a section with proposals enabled; a change needs a user who can view the record but cannot edit it, a new record a user who can view the records (who can add them too may queue it for the review of the other curators instead of inserting it). id empty = new record (data required); id = change (data and/or rows). rows add linked-table rows with their files, e.g. the surveys of a new cave: [{table, data, files:{field:{content_base64|url|from_id, filename, from_table, from_field}}}]. Files are kept in the pending folder, only the author and the reviewers can download them; they enter the linked table when a reviewer accepts the proposal. Returns CSV proposal,table,record,status,rows.",
         "inputSchema" => array("type" => "object", "properties" => $src + $values + array(
         "id" => array("type" => "string", "description" => "primary key of the record to change; omit for a proposed new record"),
         "rows" => array("type" => "array", "description" => "rows of the linked tables of the proposal", "items" => array(
@@ -1266,12 +1267,10 @@ function mcp_Tool_propose($args)
         if (!is_array($record) || !$dbview->CanProposeRecord($record))
             throw new McpToolError("permission denied: you cannot propose a change to this record (the record must be visible and not editable by this user)");
     }
-    elseif (!$dbview->CanProposeNewRecord())
-    {
-        if ($dbview->CanAddRecord())
-            throw new McpToolError("this user can add records to section {$src['section']}: use insert, a proposal is for users who cannot");
+    // a curator may also queue a new record for the review of the other curators
+    // (e.g. a cave not yet confirmed), instead of inserting it with a cadastral number
+    elseif (!$dbview->CanProposeNewRecord() && !(!empty($dbview->config['enable_proposals']) && $dbview->CanAddRecord()))
         throw new McpToolError("permission denied: proposed new records are not enabled for this section and user");
-    }
     $allowed = $dbview->ProposalFields($Table);
     foreach ($values as $field => $value)
     {
