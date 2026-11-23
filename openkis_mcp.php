@@ -88,14 +88,14 @@ class OpenkisMcpDbview extends FNDBVIEW
         return $values;
     }
 
-    function ProposeChange($Table, $id, $values)
+    function ProposeChange($Table, $id, $values, $files)
     {
-        return $this->ProposeChangeValues($Table, $id, $values);
+        return $this->ProposeChangeValues($Table, $id, $values, $files);
     }
 
-    function ProposeNewRecord($Table, $values, $pending)
+    function ProposeNewRecord($Table, $values, $pending, $files)
     {
-        return $this->ProposeNewRecordValues($Table, $values, $pending);
+        return $this->ProposeNewRecordValues($Table, $values, $pending, $files);
     }
 
     function ProposeRow($proposal, $inner, $values, $files)
@@ -412,9 +412,10 @@ function mcp_Tools()
     );
     $tools[] = array(
         "name" => "propose",
-        "description" => "Propose a new record or a change to an existing one, through the section proposals (same stored data, notifications and review of the web form). Available also without the write tools: it needs a section with proposals enabled; a change needs a user who can view the record but cannot edit it, a new record a user who can view the records (who can add them too may queue it for the review of the other curators instead of inserting it). id empty = new record (data required); id = change (data and/or rows). rows add linked-table rows with their files, e.g. the surveys of a new cave: [{table, data, files:{field:{content_base64|url|from_id, filename, from_table, from_field}}}]. Files are kept in the pending folder, only the author and the reviewers can download them; they enter the linked table when a reviewer accepts the proposal. Returns CSV proposal,table,record,status,rows.",
+        "description" => "Propose a new record or a change to an existing one, through the section proposals (same stored data, notifications and review of the web form). Available also without the write tools: it needs a section with proposals enabled; a change needs a user who can view the record but cannot edit it, a new record a user who can view the records (who can add them too may queue it for the review of the other curators instead of inserting it). id empty = new record (data and/or files required); id = change (data, files and/or rows). files set the file/image fields of the record itself (e.g. photo1, the entrance photo of a cave): {field:{content_base64|url|from_id, filename, from_table, from_field}}; a file field cannot be set in data. rows add linked-table rows with their files, e.g. the surveys of a new cave: [{table, data, files:{field:{...}}}]. Files are kept in the pending folder, only the author and the reviewers can download them; they enter the record or the linked table when a reviewer accepts the proposal. Returns CSV proposal,table,record,status,rows.",
         "inputSchema" => array("type" => "object", "properties" => $src + $values + array(
         "id" => array("type" => "string", "description" => "primary key of the record to change; omit for a proposed new record"),
+        "files" => array("type" => "object", "description" => "file/image fields of the record: {field:{content_base64|url|from_id, filename, from_table, from_field}}"),
         "rows" => array("type" => "array", "description" => "rows of the linked tables of the proposal", "items" => array(
             "type" => "object",
             "properties" => array(
@@ -1278,8 +1279,20 @@ function mcp_Tool_propose($args)
             throw new McpToolError("field $field cannot be proposed; proposable fields: " . implode(",", $allowed));
         if (is_array($value) || is_object($value))
             throw new McpToolError("field $field: scalar value expected");
+        if (xmetadb_is_file_field($Table->formvals[$field]))
+            throw new McpToolError("field $field is a file: send it in files");
     }
-    if ($id === "" && count($values) == 0)
+    $recordfiles = isset($args['files']) ? $args['files'] : array();
+    if (!is_array($recordfiles))
+        throw new McpToolError("files must be an object {field:{content_base64|url|from_id}}");
+    foreach ($recordfiles as $field => $fileargs)
+    {
+        if (!in_array($field, $allowed, true) || !xmetadb_is_file_field($Table->formvals[$field]))
+            throw new McpToolError("files: $field is not a file field that can be proposed");
+        if (!is_array($fileargs))
+            throw new McpToolError("files must be objects {field:{content_base64|url|from_id}}");
+    }
+    if ($id === "" && count($values) == 0 && count($recordfiles) == 0)
         throw new McpToolError("data required for a proposed new record");
 
     $mod_bk = $_FN['mod'];
@@ -1291,10 +1304,19 @@ function mcp_Tool_propose($args)
     $temppaths = array();
     try
     {
+        // the files of the record: the proposal stores the name of each, not a value of the client
+        $files = array();
+        foreach ($recordfiles as $field => $fileargs)
+        {
+            $fetched = mcp_FetchFile($fileargs, $src, $field);
+            $temppaths[] = $fetched['path'];
+            $files[$field] = $fetched['path'];
+            $values[$field] = $fetched['name'];
+        }
         $proposal = null;
         if ($id === "")
         {
-            $result = $dbview->ProposeNewRecord($Table, $values, null);
+            $result = $dbview->ProposeNewRecord($Table, $values, null, $files);
             if ($result['status'] !== "sent")
                 throw new McpToolError(mcp_ProposalErrorText($result));
             $proposal = $result['proposal'];
@@ -1303,7 +1325,7 @@ function mcp_Tool_propose($args)
         {
             if (count($values) > 0)
             {
-                $result = $dbview->ProposeChange($Table, $id, $values);
+                $result = $dbview->ProposeChange($Table, $id, $values, $files);
                 if (!in_array($result['status'], array("sent", "unchanged"), true))
                     throw new McpToolError(mcp_ProposalErrorText($result));
                 if ($result['status'] === "sent")
