@@ -9,6 +9,8 @@
  * The control center runs no autoexec, so the administrator still sees them in the sitemap.
  */
 defined('_FNEXEC') or die('Restricted access');
+// finis includes this file inside a function (executeAutoexecFiles)
+global $_FN;
 if (!empty($_FN['openkis_sections_off']))
 {
     // FN_InitSections() leaves the list empty, FN_GetSections() would read it again anyway
