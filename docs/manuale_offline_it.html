@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Usare il catasto ligure senza rete</title>
+<style>
+@page { size: A4; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: "Liberation Sans", "DejaVu Sans", Arial, sans-serif; font-size: 10pt; line-height: 1.45; color: #232323; }
+h1 { font-size: 26pt; line-height: 1.1; margin: 0 0 4mm 0; color: #1f1f1f; }
+h2 { font-size: 15pt; margin: 0 0 3mm 0; color: #b4551b; }
+h3 { font-size: 11pt; margin: 5mm 0 1.5mm 0; color: #1f1f1f; }
+p { margin: 0 0 2.5mm 0; }
+ul, ol { margin: 0 0 3mm 0; padding-left: 5mm; }
+li { margin-bottom: 1.2mm; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; background: #f2f0ec; padding: 0 1mm; border-radius: 1mm; }
+.sheet { page-break-after: always; }
+.sheet:last-child { page-break-after: auto; }
+.section { margin-bottom: 5mm; }
+.lead { font-size: 12pt; color: #444; }
+.cover { border-top: 6mm solid #c9621f; padding-top: 6mm; margin-bottom: 8mm; }
+.cover .kicker { text-transform: uppercase; letter-spacing: .12em; font-size: 9pt; color: #b4551b; font-weight: bold; }
+.cover .sub { font-size: 13pt; color: #4a4a4a; margin: 3mm 0 6mm 0; }
+.meta { font-size: 9pt; color: #666; border-top: 0.3mm solid #ddd; padding-top: 2.5mm; }
+.box { border: 0.35mm solid #e0d8cf; background: #fbf7f2; border-radius: 2mm; padding: 4mm 5mm; margin: 4mm 0; }
+.box h3 { margin-top: 0; }
+.warn { border-left: 1.6mm solid #c9621f; background: #fdf4ec; padding: 3mm 4mm; margin: 3mm 0; }
+.withfig { display: flex; gap: 8mm; align-items: flex-start; }
+.withfig .text { flex: 1; }
+figure { margin: 3mm 0 4mm 0; text-align: center; break-inside: avoid; }
+figure img { width: 64mm; border: 0.3mm solid #ddd; border-radius: 2mm; box-shadow: 0 1mm 3mm rgba(0,0,0,.12); }
+.withfig figure { flex: 0 0 64mm; margin: 0; }
+figcaption { font-size: 8.5pt; color: #666; margin-top: 1.5mm; text-align: left; }
+.figs2 { display: flex; gap: 8mm; justify-content: center; align-items: flex-start; margin: 3mm 0; }
+.figs2 figure { flex: 1; margin: 0; }
+.figs2 figure img { width: 100%; max-width: 64mm; }
+table { width: 100%; border-collapse: collapse; margin: 3mm 0 4mm 0; font-size: 9.5pt; }
+th, td { text-align: left; vertical-align: top; padding: 1.8mm 2mm; border-bottom: 0.25mm solid #e3ded8; }
+th { background: #f4efe9; color: #1f1f1f; }
+td.ok { color: #1c6b3a; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 7mm; position: relative; }
+.checklist li::before { content: "\2610"; position: absolute; left: 0; font-size: 12pt; line-height: 1; color: #b4551b; }
+.faq dt { font-weight: bold; margin-top: 3mm; }
+.faq dd { margin: 0.8mm 0 0 0; }
+.footer-note { border-top: 0.3mm solid #ddd; margin-top: 6mm; padding-top: 2.5mm; font-size: 8.5pt; color: #777; }
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<div class="sheet">
+  <div class="cover">
+    <div class="kicker">Catasto Speleologico Ligure</div>
+    <h1>Usare il catasto senza rete</h1>
+    <div class="sub">Manuale breve per consultare le schede delle grotte su telefono e computer dove la rete non arriva</div>
+    <div class="meta">Versione del 22 novembre 2026 · sito <strong>www.catastogrotte.net/liguria</strong></div>
+  </div>
+
+  <p class="lead">Il sito del catasto si installa come applicazione e conserva sul dispositivo le schede
+  che servono. In grotta, in rifugio o in una zona senza copertura l'app si apre lo stesso: home e menu,
+  schede già scaricate, ricerca per codice e per nome, mappa con le grotte.</p>
+
+  <div class="box">
+    <h3>Tre cose da sapere</h3>
+    <ul>
+      <li>La preparazione va fatta <strong>prima, con la rete</strong>: installare l'app e scaricare le
+      sezioni che servono.</li>
+      <li>Si conserva solo il contenuto <strong>pubblico</strong>. Schede riservate, coordinate protette
+      e dati degli utenti non vengono mai salvati sul dispositivo.</li>
+      <li><strong>Login, modifiche ed esportazioni richiedono la rete.</strong> Offline il catasto si
+      consulta, non si aggiorna.</li>
+    </ul>
+  </div>
+
+  <h3>Cosa serve</h3>
+  <ul>
+    <li>Un telefono o un computer con Chrome, Edge, Safari o Firefox aggiornati.</li>
+    <li>Una connessione per la prima preparazione e per gli aggiornamenti.</li>
+    <li>Spazio libero: una decina di MB per ricerca, mappa e pagine dell'app, circa 100 MB se si
+    scaricano tutte le grotte con le foto.</li>
+  </ul>
+
+  <h3>In questo manuale</h3>
+  <ul>
+    <li>Installare il catasto come app (pagina 2).</li>
+    <li>Preparare i dati con la rete e scaricare le sezioni (pagine 2 e 3).</li>
+    <li>Consultare schede, ricerca e mappa senza rete (pagine 4, 5 e 6).</li>
+    <li>Aggiornare, liberare spazio e risolvere i problemi più comuni (pagine 7 e 8).</li>
+  </ul>
+
+  <div class="warn"><strong>Prima di partire</strong>, la prova più utile è mettere il telefono in
+  modalità aereo e aprire l'app: se compaiono le schede e la ricerca, la copia offline è pronta.</div>
+</div>
+
+<!-- 2 -->
+<div class="sheet">
+  <div class="section">
+    <h2>1. Installare il catasto come app</h2>
+    <p>Apri <strong>www.catastogrotte.net/liguria</strong> nel browser del telefono o del computer e
+    installa il sito come applicazione:</p>
+    <ul>
+      <li><strong>Android (Chrome)</strong>: menu in alto a destra, <em>Installa app</em> oppure
+      <em>Aggiungi a schermata Home</em>.</li>
+      <li><strong>iPhone e iPad (Safari)</strong>: pulsante Condividi, <em>Aggiungi a Home</em>.</li>
+      <li><strong>Computer (Chrome, Edge)</strong>: icona di installazione nella barra degli indirizzi,
+      oppure menu, <em>Installa</em>.</li>
+    </ul>
+    <p>L'icona del catasto compare tra le applicazioni e si apre a tutto schermo. Conviene usare
+    l'icona e non la scheda del browser: su iPhone è l'unico modo perché Safari non cancelli i dati
+    offline dopo alcuni giorni di inattività.</p>
+    <p>Per consultare non serve un account. L'accesso serve solo a chi modifica le schede.</p>
+  </div>
+
+  <div class="section">
+    <h2>2. Preparare i dati, con la rete</h2>
+    <div class="withfig">
+      <div class="text">
+        <p>Apri l'app e scegli <strong>Uso offline</strong> nel menu. La pagina ha tre parti: la
+        <strong>ricerca</strong>, che funziona anche senza rete; lo <strong>stato</strong> della copia
+        (online o offline, data dei dati, spazio usato); l'<strong>elenco delle sezioni</strong> con il
+        numero di schede e il pulsante <em>Scarica</em>.</p>
+        <p>La prima volta il sito prepara <strong>mappa e ricerca</strong>, cioè l'indice di tutte le
+        sezioni e i dati della mappa. Richiede qualche decina di secondi; quando compare la scritta
+        <em>spazio usato</em> la preparazione è finita.</p>
+      </div>
+      <figure>
+        <img src="manual/it/offline_01_pagina.png" alt="Pagina Uso offline">
+        <figcaption>La pagina <em>Uso offline</em>: la ricerca, lo stato della copia e le sezioni da
+        scaricare.</figcaption>
+      </figure>
+    </div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="sheet">
+  <h2>Scaricare le sezioni</h2>
+  <div class="withfig">
+    <div class="text">
+      <p>Premi <em>Scarica</em> accanto alla sezione che ti serve: Grotte, Aree speleologiche, Cavità
+      artificiali, Bibliografia, Rilievi. Durante il download la riga mostra la barra di avanzamento e
+      quante schede sono già state prese.</p>
+      <p>Tieni l'app aperta e lo schermo acceso fino alla fine del download: se cambi pagina o chiudi
+      l'app il download si interrompe. Riapri l'app con la rete e premi di nuovo <em>Scarica</em>:
+      riprende da dove era rimasto.</p>
+      <p>La casella <strong>Immagini</strong> aggiunge le immagini che compaiono nelle schede, foto e
+      miniature dei rilievi. Occupano più spazio, ma rendono la scheda completa anche offline.</p>
+      <p>A download finito la riga mostra quante schede hai e la data; in alto trovi lo spazio
+      occupato.</p>
+    </div>
+    <figure>
+      <img src="manual/it/offline_04_scaricate.png" alt="Sezioni scaricate">
+      <figcaption>Sezioni scaricate: il tag verde riporta schede e data, lo stato in alto lo spazio
+      usato.</figcaption>
+    </figure>
+  </div>
+
+  <div class="box">
+    <h3>Controllo prima di partire</h3>
+    <ul class="checklist">
+      <li>App installata e aperta almeno una volta con la rete.</li>
+      <li>Pagina Uso offline con <em>spazio usato</em> e sezioni scaricate, con la data di oggi.</li>
+      <li>Una scheda di prova aperta in modalità aereo.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="sheet">
+  <h2>3. In grotta: consultare le schede</h2>
+  <div class="withfig">
+    <div class="text">
+      <p>Apri l'app: home e menu arrivano dalla copia conservata. Dalla lista delle grotte apri una
+      scheda scaricata (o già aperta in precedenza con la rete) e la vedi per intero, con rilievo e foto
+      se li hai scaricati.</p>
+      <p>In basso a sinistra l'etichetta <strong>Offline · copia del &lt;data&gt;</strong> dice che stai
+      guardando una copia e di quando è. Accanto c'è il collegamento <em>Cerca</em>, che porta alla
+      ricerca locale.</p>
+      <div class="warn">Le schede riservate non finiscono mai nella copia offline, nemmeno se sei
+      registrato: online le vedi, offline no.</div>
+    </div>
+    <figure>
+      <img src="manual/it/offline_06_scheda.png" alt="Scheda della grotta senza rete">
+      <figcaption>Una scheda aperta senza rete, con l'etichetta <em>Offline</em> in basso a
+      sinistra.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="sheet">
+  <h2>Ricerca e schede non scaricate</h2>
+  <p>La <strong>ricerca</strong> della pagina Uso offline lavora sull'indice conservato: scegli la
+  sezione, oppure <em>Tutte le sezioni</em>, e scrivi codice, nome, sinonimo o comune. Una scheda
+  scaricata o già aperta con la rete si apre per intero; per le altre il sito mostra i dati
+  principali.</p>
+  <div class="figs2">
+    <figure>
+      <img src="manual/it/offline_05_ricerca.png" alt="Ricerca senza rete">
+      <figcaption>Ricerca di <em>scovero</em> senza rete: la scheda si apre dalla copia
+      conservata.</figcaption>
+    </figure>
+    <figure>
+      <img src="manual/it/offline_02_scheda_assente.png" alt="Scheda non scaricata">
+      <figcaption>Una scheda non scaricata: i dati principali arrivano comunque dall'indice.</figcaption>
+    </figure>
+  </div>
+  <p>Il riepilogo basta per riconoscere la grotta e per decidere se vale la pena tornare online a
+  guardarla. Per portarti dietro tutti i dettagli, scarica la sezione prima di partire.</p>
+</div>
+
+<!-- 6 -->
+<div class="sheet">
+  <h2>La mappa</h2>
+  <div class="withfig">
+    <div class="text">
+      <p>La <strong>mappa</strong> mostra i marker delle grotte della sezione scaricata. Lo sfondo
+      cartografico (le tessere) è disponibile solo dove lo hai già visto con la rete; senza tessere
+      restano i marker, che bastano per orientarsi e per trovare la scheda di una grotta.</p>
+      <p>Per avere più tessere quando sarai offline, apri la mappa con la rete e spostati sulla zona
+      che ti interessa: le tessere viste restano nella copia.</p>
+      <p>Dalla mappa si apre la scheda della grotta; se la scheda è scaricata la vedi per intero,
+      altrimenti compare il riepilogo con i dati dell'indice.</p>
+    </div>
+    <figure>
+      <img src="manual/it/offline_07_mappa.png" alt="Mappa senza rete">
+      <figcaption>La mappa senza rete: le grotte ci sono, le tessere dello sfondo solo se già viste
+      online.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="sheet">
+  <h2>4. Aggiornare e liberare spazio</h2>
+  <p>Quando torni online apri <strong>Uso offline</strong>:</p>
+  <ul>
+    <li><strong>Aggiorna</strong> riscarica solo le schede nuove o modificate e toglie quelle
+    cancellate dal catasto. Se è cambiato il codice delle schede compare <em>aggiornamenti
+    disponibili</em> e <em>Aggiorna</em> riscarica tutto.</li>
+    <li><strong>Rimuovi tutto</strong> cancella da quel dispositivo le copie offline del sito. Non
+    tocca i dati del catasto: online non cambia nulla.</li>
+    <li><strong>Spazio usato</strong> è la misura di quanto occupa la copia. Se il telefono è pieno il
+    browser può cancellare i dati offline: meglio tenere libero un margine.</li>
+    <li>L'app installata, quando la apri con la rete, aggiorna da sola mappa, ricerca e sezioni
+    scaricate, al massimo una volta al giorno.</li>
+  </ul>
+
+  <h2>5. Cosa richiede la rete</h2>
+  <table>
+    <tr><th>Funziona offline</th><th>Richiede la rete</th></tr>
+    <tr><td class="ok">Home e menu</td><td>Login, logout, registrazione</td></tr>
+    <tr><td class="ok">Schede scaricate o già viste</td><td>Inserimento e modifica delle schede</td></tr>
+    <tr><td class="ok">Ricerca per codice, nome, sinonimo, comune</td><td>Controlcenter e amministrazione</td></tr>
+    <tr><td class="ok">Mappa con i marker e le tessere già viste</td><td>Esportazioni KML, GPX, CSV, shapefile</td></tr>
+    <tr><td class="ok">Foto e rilievi scaricati</td><td>CaveView 3D, salvo i modelli già aperti</td></tr>
+    <tr><td class="ok">Riepilogo delle schede non scaricate</td><td>Grottocenter, MCP, assistente AI, notifiche</td></tr>
+  </table>
+</div>
+
+<!-- 8 -->
+<div class="sheet">
+  <h2>6. Problemi comuni</h2>
+  <dl class="faq">
+    <dt>«Questa pagina non è disponibile offline»</dt>
+    <dd>La scheda non è stata scaricata e non era stata aperta con la rete. La pagina mostra comunque
+    i dati principali dall'indice; per averla completa scarica la sezione quando torni online.</dd>
+
+    <dt>Il download si è fermato</dt>
+    <dd>Riapri l'app con la rete e premi di nuovo <em>Scarica</em> (o <em>Aggiorna</em>): riprende da
+    dove era rimasto. Tieni l'app aperta durante il download.</dd>
+
+    <dt>Su iPhone i dati spariscono dopo qualche giorno</dt>
+    <dd>Succede ai siti aperti nel browser, non alle app aggiunte alla schermata Home. Aggiungi il
+    catasto a Home e usa quell'icona.</dd>
+
+    <dt>Non trovo una grotta riservata</dt>
+    <dd>Le schede riservate non vengono conservate offline, nemmeno per chi è registrato: si vedono
+    solo online.</dd>
+
+    <dt>Ho cambiato telefono</dt>
+    <dd>Le copie offline restano sul vecchio dispositivo. Sul nuovo ripeti installazione e
+    download.</dd>
+
+    <dt>La data dell'etichetta è vecchia</dt>
+    <dd>La copia è di quel giorno. Con la rete apri Uso offline e premi <em>Aggiorna</em>.</dd>
+  </dl>
+
+  <h2>7. Nota per i curatori</h2>
+  <p>L'uso offline è attivo di default. In <code>openkis_config.local.php</code>:</p>
+  <ul>
+    <li><code>$_FN['openkis_offline'] = 0</code> disattiva il servizio: alla visita successiva il
+    browser rimuove il service worker e le copie conservate.</li>
+    <li><code>$_FN['openkis_offline_concurrency']</code> limita le richieste parallele di un download
+    (default 2), per non saturare le connessioni al database dell'hosting.</li>
+    <li><code>$_FN['openkis_offline_version']</code> forza il ricaricamento di tema e file statici
+    dopo una modifica.</li>
+  </ul>
+  <p>Viene conservato solo ciò che un visitatore anonimo può leggere: le pagine con un utente
+  collegato, i form e le schede riservate non entrano mai nella cache. Una pagina nuova o modificata
+  non arriva da sola a chi ha già scaricato: la pagina Uso offline segnala gli aggiornamenti e
+  l'utente deve premere <em>Aggiorna</em>. Quando cambia il codice delle schede conviene avvisare gli
+  utenti nella mailing list.</p>
+
+  <div class="footer-note">
+    Manuale redatto il 22 novembre 2026. Schermate prese dalla copia del catasto con i dati della
+    Liguria. Per l'uso completo del gestionale (inserimento, modifiche, Grottocenter) vedi il
+    <em>Manuale di OpenKIS</em>.
+  </div>
+</div>
+
+</body>
+</html>

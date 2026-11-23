@@ -12,9 +12,12 @@ usage:
   python3 screenshots.py shots.json outdir it|en [name,name...]
 then compress with: pngquant --force --skip-if-larger --quality=70-92 --ext .png outdir/*.png
 
-shots.json: list of {"name", "url", "login": true (admin) | "editor", "full": bool, "w", "h",
+shots.json: list of {"name", "url", "login": true (admin) | "editor", "full": bool, "w", "h", "dsf",
                      "wait": ms, "clip": selector, "clip_union": [selectors], "hide": [selectors],
+                     "offline": bool (browser without network, served by the service worker),
                      "actions": [{"click"|"fill"|"type"|"press"|"hover"|"select"|"js"|"scroll"|"goto",
+                                  "goto_load" (offline navigation), "wait_js", "wait_selector",
+                                  "offline": bool (switch network on/off mid-shot), "shot": name",
                                   "frame", "pos", "value", "wait"}],
                      "crop": [x, y, w, h], "nolang": bool}
 The site URL is replaced by https://catasto.example.org/ and API keys are masked.
@@ -41,8 +44,35 @@ def target(page, a):
     return page.frame_locator(a["frame"]) if a.get("frame") else page
 
 
-def run_action(page, a):
+def capture(page, s, outdir):
+    out = os.path.join(outdir, s["name"] + ".png")
+    if s.get("clip_union"):
+        boxes = []
+        for sel in s["clip_union"]:
+            bb = page.locator(sel).first.bounding_box()
+            sy = page.evaluate("window.scrollY")
+            boxes.append((bb["x"], bb["y"] + sy, bb["x"] + bb["width"], bb["y"] + sy + bb["height"]))
+        pad = s.get("pad", 8)
+        x0 = max(0, min(b_[0] for b_ in boxes) - pad); y0 = max(0, min(b_[1] for b_ in boxes) - pad)
+        x1 = max(b_[2] for b_ in boxes) + pad; y1 = max(b_[3] for b_ in boxes) + pad
+        page.screenshot(path=out, full_page=True, clip={"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0})
+    elif s.get("clip"):
+        page.locator(s["clip"]).first.screenshot(path=out)
+    else:
+        page.screenshot(path=out, full_page=s.get("full", False))
+    if s.get("crop"):
+        from PIL import Image
+        x, y, w, h = s["crop"]
+        im = Image.open(out)
+        im.crop((x, y, min(im.size[0], x + w), min(im.size[1], y + h))).save(out)
+    print("ok", out)
+    return out
+
+
+def run_action(page, a, outdir, spec):
     t = target(page, a)
+    if "offline" in a:
+        page.context.set_offline(bool(a["offline"]))
     if "click" in a:
         kw = {"position": {"x": a["pos"][0], "y": a["pos"][1]}} if a.get("pos") else {}
         t.locator(a["click"]).first.click(timeout=a.get("timeout", 15000), **kw)
@@ -62,6 +92,18 @@ def run_action(page, a):
         page.locator(a["scroll"]).first.scroll_into_view_if_needed()
     if "goto" in a:
         page.goto(BASE + a["goto"], wait_until="networkidle")
+    if "goto_load" in a:
+        # offline: the service worker answers from its caches, there is no network to idle on
+        try:
+            page.goto(BASE + a["goto_load"], wait_until="load", timeout=a.get("timeout", 20000))
+        except Exception as e:
+            print("goto_load timeout", a["goto_load"], str(e)[:120])
+    if "wait_js" in a:
+        page.wait_for_function(a["wait_js"], timeout=a.get("timeout", 15000))
+    if "wait_selector" in a:
+        page.wait_for_selector(a["wait_selector"], timeout=a.get("timeout", 15000))
+    if "shot" in a:
+        capture(page, dict(spec, name=a["shot"]), outdir)
     page.wait_for_timeout(a.get("wait", 1200))
 
 
@@ -78,11 +120,11 @@ def main():
         for s in shots:
             if only and s["name"] not in only:
                 continue
-            key = (s.get("login") or False, s.get("w", 1366), s.get("h", 800))
+            key = (s.get("login") or False, s.get("w", 1366), s.get("h", 800), s.get("dsf", 1))
             if key not in ctx:
                 c = b.new_context(viewport={"width": key[1], "height": key[2]},
                                   locale="it-IT" if lang == "it" else "en-GB",
-                                  device_scale_factor=1)
+                                  device_scale_factor=key[3])
                 pg = c.new_page()
                 pg.goto(BASE + "index.php?lang=" + lang)
                 if key[0]:
@@ -95,8 +137,11 @@ def main():
                 url = BASE + url
             if not s.get("nolang"):
                 url += ("&" if "?" in url else "?") + "lang=" + lang
+            if s.get("offline"):
+                page.context.set_offline(True)
             try:
-                page.goto(url, wait_until="networkidle", timeout=60000)
+                page.goto(url, wait_until="load" if s.get("offline") else "networkidle",
+                          timeout=20000 if s.get("offline") else 60000)
             except Exception as e:
                 print("timeout", s["name"], e)
             page.wait_for_timeout(s.get("wait", 800))
@@ -108,31 +153,14 @@ def main():
                 print("scrub failed", s["name"], str(e)[:200])
             try:
                 for a in s.get("actions", []):
-                    run_action(page, a)
+                    run_action(page, a, outdir, s)
             except Exception as e:
                 print("action failed", s["name"], str(e)[:300])
-            out = os.path.join(outdir, s["name"] + ".png")
-            if s.get("clip_union"):
-                boxes = []
-                for sel in s["clip_union"]:
-                    bb = page.locator(sel).first.bounding_box()
-                    sy = page.evaluate("window.scrollY")
-                    boxes.append((bb["x"], bb["y"] + sy, bb["x"] + bb["width"], bb["y"] + sy + bb["height"]))
-                pad = s.get("pad", 8)
-                x0 = max(0, min(b_[0] for b_ in boxes) - pad); y0 = max(0, min(b_[1] for b_ in boxes) - pad)
-                x1 = max(b_[2] for b_ in boxes) + pad; y1 = max(b_[3] for b_ in boxes) + pad
-                page.screenshot(path=out, full_page=True, clip={"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0})
-            elif s.get("clip"):
-                page.locator(s["clip"]).first.screenshot(path=out)
-            else:
-                page.screenshot(path=out, full_page=s.get("full", False))
-            if s.get("crop"):
-                from PIL import Image
-                x, y, w, h = s["crop"]
-                im = Image.open(out)
-                im.crop((x, y, min(im.size[0], x + w), min(im.size[1], y + h))).save(out)
-            print("ok", out)
+            capture(page, s, outdir)
+            if s.get("offline"):
+                page.context.set_offline(False)
         b.close()
 
 
-main()
+if __name__ == "__main__":
+    main()

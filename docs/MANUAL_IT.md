@@ -96,6 +96,11 @@ Senza rete un'etichetta in basso a sinistra indica che si sta guardando una copi
 (schede riservate, coordinate protette) non viene mai salvato sul dispositivo. Login,
 modifiche ed esportazioni richiedono la rete.
 
+La guida passo per passo, con le schermate e le risposte ai problemi più comuni, è il
+*Manuale d'uso offline*, pubblicato in
+[export/manuale_offline/](https://www.catastogrotte.net/liguria/export/manuale_offline/)
+(PDF, A4).
+
 ---
 
 ## 2. La mappa
