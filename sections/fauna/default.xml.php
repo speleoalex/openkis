@@ -40,8 +40,8 @@
 	<search_min></search_min>
 	<titlefield>scientific_name</titlefield>
 	<descriptionfield>description</descriptionfield>
-	<search_options>type</search_options>
-	<navigate_groups>type,class,order,family</navigate_groups>
+	<search_options>type,kingdom</search_options>
+	<navigate_groups>type,kingdom,class,order,family</navigate_groups>
 	<search_partfields>name,scientific_name</search_partfields>
 	<search_fields></search_fields>
 	<appendquery></appendquery>

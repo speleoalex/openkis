@@ -107,8 +107,8 @@ function openkis_FaunaSpeciesFields($fields)
 {
     $list = explode(",", $fields);
     $extra = openkis_FaunaHasStatus() ? array("genus", "taxon_status", "accepted_name") : array();
-    // phylum and order choose the icon of the species (openkis_FaunaGroupKey())
-    foreach (array("phylum", "order") as $f)
+    // kingdom, phylum and order choose the icon of the species (openkis_FaunaGroupKey())
+    foreach (array("kingdom", "phylum", "order") as $f)
         if (openkis_FaunaHasField($f))
             $extra[] = $f;
     return implode(",", array_unique(array_merge($list, $extra)));
@@ -226,12 +226,13 @@ function openkis_FaunaGenusTaxonomy()
 }
 
 /**
- * Icon group of a species sheet (openkis_FaunaGroups()) from its order, class,
- * phylum and type, the first that is known: the order tells bats from the other
- * mammals and beetles, flies, moths... from the other insects; the phylum covers
- * the sheets without a class (worms, molluscs, fungi...).
+ * Icon group of a species sheet (openkis_FaunaGroups()): fungi from the kingdom
+ * (or from the phylum or the type, where the sheets were filled that way), the
+ * others from order, class and phylum, the first that is known: the order tells
+ * bats from the other mammals and beetles, flies, moths... from the other
+ * insects; the phylum covers the sheets without a class (worms, molluscs...).
  *
- * @param array $sheet species sheet (type, phylum, class, order)
+ * @param array $sheet species sheet (type, kingdom, phylum, class, order)
  * @return string
  */
 function openkis_FaunaGroupKey($sheet)
@@ -244,7 +245,7 @@ function openkis_FaunaGroupKey($sheet)
     $phylum = $value("phylum");
     $class = $value("class");
     $order = $value("order");
-    if (strpos($type, "FUNG") === 0 || strpos($phylum, "FUNG") === 0 || preg_match('/MYCETES$/', $class))
+    if (strpos($type, "FUNG") === 0 || strpos($value("kingdom"), "FUNG") === 0 || strpos($phylum, "FUNG") === 0 || preg_match('/MYCETES$/', $class))
         return "fungi";
     $orders = array("CHIROPT" => "bats", "COLEOPT" => "beetles", "DIPTER" => "flies", "LEPIDOPT" => "moths", "TRICHOPT" => "moths",
         "ORTHOPT" => "crickets", "SCORPION" => "scorpions", "PSEUDOSCORP" => "scorpions",
@@ -267,7 +268,7 @@ function openkis_FaunaGroupKey($sheet)
             if (strpos($test[0], $prefix) === 0)
                 return $key;
     }
-    return ($class !== "" || $phylum !== "") ? "other" : "unknown";
+    return ($class !== "" || $phylum !== "" || $value("kingdom") === "PROTOZOA") ? "other" : "unknown";
 }
 
 /**

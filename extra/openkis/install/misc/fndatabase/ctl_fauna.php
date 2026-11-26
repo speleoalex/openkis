@@ -48,7 +48,7 @@
         <frm_i18n>type</frm_i18n>
         <type>string</type>
         <frm_type>radio</frm_type>
-        <frm_options>TROGLOSSENO,TROGLOFILO,SUBTROGLOFILO,EUTROGLOFILO,TROGLOBIO,STIGOBIO,STIGOFILO,EUSTIGOFOLO,STIGOSSENO,FUNGO</frm_options>
+        <frm_options>TROGLOSSENO,TROGLOFILO,SUBTROGLOFILO,EUTROGLOFILO,TROGLOBIO,STIGOBIO,STIGOFILO,EUSTIGOFOLO,STIGOSSENO</frm_options>
         <frm_help_it>Troglosseni: specie che si trovano in ambiente ipogeo solo accidentalmente, come quelli che cadono all’interno dei pozzi verticali o fluitati dalle acque.
             Troglofili: specie che sono presenti con maggiore regolarità nell’ambiente ipogeo. Questa categoria comprende due distinti gruppi di animali.
             Subtroglofili: quelli che si trovano in grotta o in ambienti artificiali solo in alcuni periodi della loro vita e non presentano adattamenti all’ambiente sotterraneo.
@@ -60,9 +60,26 @@
         <frm_showinlist>1</frm_showinlist>
     </field>
     <field>
-        <name>phylum</name>
+        <name>domain</name>
         <frm_group>taxonomy</frm_group>
         <frm_group_it>Tassonomia</frm_group_it>
+        <frm_it>Dominio</frm_it>
+        <frm_en>Domain</frm_en>
+        <type>string</type>
+        <frm_type>select</frm_type>
+        <frm_options>EUKARYOTA,BACTERIA,ARCHAEA</frm_options>
+    </field>
+    <field>
+        <name>kingdom</name>
+        <frm_it>Regno</frm_it>
+        <frm_en>Kingdom</frm_en>
+        <type>string</type>
+        <frm_type>select</frm_type>
+        <frm_options>ANIMALIA,FUNGI,PLANTAE,PROTOZOA,CHROMISTA,BACTERIA,ARCHAEA</frm_options>
+        <frm_showinlist>1</frm_showinlist>
+    </field>
+    <field>
+        <name>phylum</name>
         <frm_it>Phylum</frm_it>
         <frm_i18n>Phylum</frm_i18n>
         <frm_showinlist>1</frm_showinlist>
