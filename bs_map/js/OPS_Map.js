@@ -1117,9 +1117,35 @@ var OPS_Map = {
             source: new ol.source.OSM({
                 maxZoom: maxZoom,
                 crossOrigin: crossOrigin,
-                url: url
+                url: url,
+                tileLoadFunction: OPS_Map.loadTileOrOSM
             })});
         this.addLayer(layer, isBaselayer);
+    },
+    /**
+     * Tile loader of the addOSMLayer() layers. A tile server may answer 200 with a
+     * page instead of an image (OpenTopoMap, 2026-11: tiles of its cache that are an
+     * html page sent as image/jpeg): the browser cannot draw it and the map stays
+     * white there. The tile is first decoded in a probe image (an image request, so
+     * the service worker keeps it for offline use as before) and, when it is not an
+     * image, the same tile is taken from OpenStreetMap.
+     * @param {ol.ImageTile} imageTile
+     * @param {String} src
+     */
+    loadTileOrOSM: function (imageTile, src) {
+        var img = imageTile.getImage();
+        var coord = imageTile.getTileCoord();
+        var probe = new Image();
+        if (img.crossOrigin !== null) {
+            probe.crossOrigin = img.crossOrigin;
+        }
+        probe.onload = function () {
+            img.src = src;
+        };
+        probe.onerror = function () {
+            img.src = "https://tile.openstreetmap.org/" + coord[0] + "/" + coord[1] + "/" + coord[2] + ".png";
+        };
+        probe.src = src;
     },
 
     addJsLayer: function (path)
@@ -3254,7 +3280,15 @@ var OPS_Map = {
         vectorSource.addFeature(circleFeature);
         var vectorLayer = new ol.layer.Vector({
             crossOrigin: "Anonymous",
-            source: vectorSource
+            source: vectorSource,
+            // thick ring with a white edge: the default thin line got lost on the base maps.
+            // A ring of 10 px on the centre keeps the point visible at the zooms where the
+            // circle in metres is only a few pixels.
+            style: [
+                new ol.style.Style({geometry: new ol.geom.Point(center), image: new ol.style.Circle({radius: 10, stroke: new ol.style.Stroke({color: "rgba(255,255,255,0.9)", width: 7})})}),
+                new ol.style.Style({geometry: new ol.geom.Point(center), image: new ol.style.Circle({radius: 10, stroke: new ol.style.Stroke({color: "#d62728", width: 4})})}),
+                new ol.style.Style({stroke: new ol.style.Stroke({color: "#d62728", width: 4}), fill: new ol.style.Fill({color: "rgba(214,39,40,0.15)"})})
+            ]
         });
 
         OPS_Map.map.addLayer(vectorLayer);
