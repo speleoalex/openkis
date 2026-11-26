@@ -477,6 +477,9 @@ $_FN['modparams']['caves']['editorparams']['table']['function_on_update'] = "ope
 $_FN['modparams']['caves']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_update'] = "openkis_OnSaveUpdateCaveSystems";
 $_FN['modparams']['cavesystem']['editorparams']['table']['function_on_insert'] = "openkis_OnSaveUpdateCaveSystems";
+// proposed new caves: map and caves around them on the page of the proposals
+require_once(__DIR__ . "/openkis/openkis_sheet.inc.php");
+$_FN['modparams']['caves']['function_proposal_preview'] = "openkis_SheetProposalPreview";
 // tracer tests: computed fields, save callbacks and map arrows
 require_once(__DIR__ . "/openkis/openkis_tracings.inc.php");
 // grid/list switch of the results of the sections without their own list template

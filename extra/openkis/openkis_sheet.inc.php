@@ -402,7 +402,8 @@ function openkis_SheetMapOptions($url)
  *             lenght_total, depth_total (default all);
  *   "extra" more columns: list of array("title" => ..., "class" => ..., "values" => array(code => html));
  *   "map" query string selecting the records on the map ("" their codes), false for no map;
- *   "baselayer" title of the base layer of the map (default the first of the region)
+ *   "baselayer" title of the base layer of the map (default the first of the region);
+ *   "sorted" true: the records keep their order instead of being sorted by code
  * @return string html, empty when there is no record
  */
 function openkis_SheetCavesCard($title, $caves, $options = array())
@@ -412,10 +413,13 @@ function openkis_SheetCavesCard($title, $caves, $options = array())
     $mod = isset($options['mod']) ? $options['mod'] : "caves";
     $columns = isset($options['columns']) ? $options['columns'] : array("comune", "elevation", "lenght_total", "depth_total");
     $extra = isset($options['extra']) ? $options['extra'] : array();
-    usort($caves, function ($a, $b)
+    if (empty($options['sorted']))
     {
-        return strnatcmp($a['code'], $b['code']);
-    });
+        usort($caves, function ($a, $b)
+        {
+            return strnatcmp($a['code'], $b['code']);
+        });
+    }
     $titles = array("comune" => FN_Translate("municipality"), "elevation" => FN_Translate("elevation"),
         "lenght_total" => FN_Translate("development"), "depth_total" => FN_Translate("difference in level"));
     $head = array(FN_Translate("number"), FN_Translate("name"));
@@ -689,6 +693,75 @@ function openkis_SheetBibliographyCard($items)
     }
     $head = array(array(FN_Translate("year"), "text-nowrap"), FN_Translate("title"), FN_Translate("authors"), array("", "text-right text-end"));
     return openkis_SheetListCard(FN_Translate("bibliography"), $head, $rows, array("id" => "card_bibliography"));
+}
+
+/**
+ * A proposed new cave on the page of the proposals (dbview function_proposal_preview,
+ * registered in openkis.inc.php): map centred on its coordinates over the caves
+ * of the cadastre and the list of the caves within 500 m, so that the reviewer
+ * sees whether it is already registered under another name.
+ *
+ * @param array $values field => proposed value
+ * @return string html, empty without coordinates
+ */
+function openkis_SheetProposalPreview($values)
+{
+    global $_FN;
+    $radius = 500;
+    $values = array_merge(array("latitude_txt" => "", "longitude_txt" => "", "latitude" => "", "longitude" => "", "coordinates_type" => "", "elevation" => ""), $values);
+    if (trim($values['latitude_txt']) === "" || trim($values['longitude_txt']) === "")
+        return "";
+    $position = openkis_GetItemPosition($values);
+    $lat = floatval($position['lat']);
+    $lon = floatval($position['lon']);
+    if (abs($lat) < 0.01 || $lon == 0)
+        return "";
+    $mapurl = htmlspecialchars("{$_FN['siteurl']}bs_map.htm?mod=caves&point=circle&zoom=16&lat=" . sprintf("%.6F", $lat) . "&lon=" . sprintf("%.6F", $lon));
+    $html = openkis_SheetCard(FN_Translate("map"), "<iframe style=\"border:0px;width:100%;height:400px;display:block\" src=\"$mapurl\" title=\"" . htmlspecialchars(FN_Translate("map")) . "\"></iframe>",
+        array("footer" => "<a class=\"btn btn-sm btn-outline-secondary\" target=\"_blank\" href=\"$mapurl\">" . FN_Translate("show on the map") . "</a>"));
+    // caves in the surrounding box, read with the permissions of the section; the exact distance here
+    require_once "{$_FN['src_finis']}/modules/dbview/FNDBVIEW.php";
+    $config = FN_LoadConfig("modules/dbview/config.php", "caves");
+    $dbview = new FNDBVIEW($config);
+    $dlat = $radius / 111320;
+    $dlon = $dlat / max(0.01, cos(deg2rad($lat)));
+    $params = array(
+        "appendquery" => sprintf("latitude BETWEEN %.6F AND %.6F AND longitude BETWEEN %.6F AND %.6F", $lat - $dlat, $lat + $dlat, $lon - $dlon, $lon + $dlon),
+        "fields" => "id,code,name,synonyms,comune,elevation,elevation_map,elevation_gps,lenght_total,latitude,longitude",
+    );
+    $near = array();
+    $distances = array();
+    $synonyms = array();
+    $results = $dbview->GetResults($config, $params);
+    foreach (is_array($results) ? $results : array() as $cave)
+    {
+        $distance = openkis_GrottocenterDistance($lat, $lon, floatval($cave['latitude']), floatval($cave['longitude']));
+        if ($distance > $radius)
+            continue;
+        $near[] = $cave;
+        $distances[$cave['code']] = intval(round($distance));
+        $synonyms[$cave['code']] = htmlspecialchars($cave['synonyms']);
+    }
+    $title = FN_Translate("caves within") . " $radius m";
+    if (!count($near))
+        return $html . openkis_SheetCard($title, "<div class=\"card-body p-2\">" . FN_Translate("no cave") . "</div>", array("count" => 0));
+    // the nearest first: the likely synonym
+    usort($near, function ($a, $b) use ($distances)
+    {
+        return $distances[$a['code']] - $distances[$b['code']];
+    });
+    return $html . openkis_SheetCavesCard($title, $near, array(
+            "columns" => array("comune", "elevation", "lenght_total"),
+            "extra" => array(
+                array("title" => FN_Translate("other names"), "values" => $synonyms),
+                array("title" => FN_Translate("distance"), "class" => "text-right text-end text-nowrap", "values" => array_map(function ($d)
+                    {
+                        return "$d m";
+                    }, $distances)),
+            ),
+            "map" => false,
+            "sorted" => true,
+    ));
 }
 
 /**
