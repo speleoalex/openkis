@@ -1908,6 +1908,18 @@ function mcp_RequireEditRow($src, $row)
  */
 function mcp_CheckProtectedFields($src, $values)
 {
+    global $_FN;
+    // fields that only the validators of the section may change (dbview enable_validation),
+    // checked before the section administrators, who are not validators by that alone
+    if (!empty($src['section']))
+    {
+        $mod_bk = $_FN['mod'];
+        $_FN['mod'] = $src['section'];
+        $locked = array_values(array_intersect(array_keys($values), mcp_Dbview($src)->ValidationLockedFields()));
+        $_FN['mod'] = $mod_bk;
+        if ($locked)
+            throw new McpToolError("permission denied: field " . implode(", ", $locked) . " is reserved to the validators");
+    }
     if (mcp_FullAccess() || (!empty($src['section']) && mcp_Dbview($src)->IsAdmin()))
         return;
     $system = array("username", "userupdate", "recordinsert", "recordupdate", "recorddeleted", "insert", "update");
