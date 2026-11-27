@@ -274,7 +274,9 @@ function openkis_ValidatorRulesOff($findings)
 
 /**
  * Renders the findings as a Bootstrap alert to show above the edit form.
- * Returns a green confirmation when there is nothing to report.
+ * The alert is green whenever the minimum data are present: notices
+ * (recommended data, inconsistencies) must not make a valid record look
+ * incomplete.
  *
  * @param array $findings
  * @return string HTML
@@ -309,8 +311,12 @@ function openkis_ValidatorHtml($findings)
             $notices[] = $finding;
         }
     }
-    $html .= "<div class=\"alert alert-warning\">";
+    $html .= "<div class=\"alert " . (count($missing) ? "alert-warning" : "alert-success") . "\">";
     $html .= "<h5>" . FN_Translate("Controllo scheda") . "</h5>";
+    if (count($missing) == 0)
+    {
+        $html .= "<p>" . FN_Translate("La scheda contiene tutti i dati minimi richiesti") . ".</p>";
+    }
     if (count($missing))
     {
         $html .= "<strong>" . FN_Translate("Dati minimi mancanti") . ":</strong>";

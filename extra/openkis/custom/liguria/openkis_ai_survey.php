@@ -5,8 +5,8 @@
  *
  * Called asynchronously from the record edit form: sends the survey image to
  * the AI service (vision model) and returns, as JSON, the compliance checks
- * required by the regional cadastre standard (CampiScheda-20250327). Same
- * prompt as the CLI batch script validate_ai_surveys.php.
+ * of the regional cadastre guidelines (CampiScheda-20250327): mandatory
+ * elements of the drawing and, apart, the recommended ones.
  *
  * GET parameters:
  *   mod    = caves | artificials
@@ -188,32 +188,39 @@ if ($record_code !== "" || $record_name !== "")
     $cave_info = "\n\nINFO GROTTA DAL CATASTO:\n- Numero: {$record_code}\n- Nome ufficiale: {$record_name}\n- Sinonimi: {$all_synonyms}";
 }
 
-// Same prompt as validate_ai_surveys.php (proven on the 2025 batch runs)
-$prompt = "Analizza questo rilievo speleologico (pianta e/o sezione di grotta) secondo i requisiti del Catasto Grotte della Liguria.
+// Checks of CampiScheda-20250327: the mandatory elements of the drawing, then
+// the recommended ones (not required). validate_ai_surveys.php still has the
+// older 13 question prompt.
+$prompt = "Analizza questo rilievo speleologico (pianta e/o sezione di grotta) secondo le linee guida del Catasto Speleologico della Liguria (CampiScheda-20250327).
 
-REQUISITI OBBLIGATORI per un rilievo valido (CampiScheda-20250327):
-- Il rilievo DEVE contenere sia la vista in PIANTA che la SEZIONE LONGITUDINALE
-- Deve esserci la scritta \"PIANTA\" o \"PLANIMETRIA\" sulla vista in pianta
-- Deve esserci la scritta \"SEZIONE\", \"SEZ. LONGITUDINALE\" o simile sulla sezione
-- Deve avere: scala grafica, punto zero, nord (sulla pianta), dati metrici
-- I bordi delle pareti devono essere distinti dai dettagli interni
-- Devono essere indicati i topografi/rilevatori
+ELEMENTI OBBLIGATORI del rilievo:
+- nella legenda: nome della grotta, autore del disegno, data o intervallo di tempo della topografia, scala grafica, dati speleometrici (sviluppo e dislivello);
+- indicazione del Nord sulla pianta (N, oppure Nm se magnetico) e del punto zero (caposaldo all'ingresso);
+- vista in pianta e sezione longitudinale (o proiettata), con le diciture \"PIANTA\" e \"SEZIONE\" (o \"SEZIONE LONGITUDINALE\", \"SEZ. LONGITUDINALE\");
+- bordo grotta disegnato con linea spessa, chiaramente distinto dai dettagli (linea sottile).
+Per grotte totalmente verticali la pianta puo' essere sostituita da sezioni trasversali orizzontali orientate al Nord.
 
-Rispondi alle seguenti domande con Y (sì/presente), N (no/assente) o ? (non sicuro/non determinabile):
+ELEMENTI CONSIGLIATI (non obbligatori: se mancano il rilievo resta conforme): elenco dei rilevatori, sezioni trasversali, dettagli esterni che aiutano a riconoscere l'ingresso.
 
-1. SCALA: È presente una scala grafica o numerica?
-2. NORD: È presente l'indicatore del nord sulla pianta?
-3. PUNTO_ZERO: È indicato il punto zero di riferimento?
-4. DATI_METRICI: Sono presenti quote altimetriche o dati metrici sul disegno?
-5. SCRITTA_PIANTA: C'è la scritta 'PIANTA' o 'PLANIMETRIA'?
-6. SCRITTA_SEZIONE: C'è la scritta 'SEZIONE', 'SEZ. LONGITUDINALE' o simile?
-7. ENTRAMBE_VISTE: Ci sono ENTRAMBE le viste (pianta E sezione longitudinale)?
-8. SPESSORE_BORDO: I bordi delle pareti sono disegnati con spessore adeguato?
-9. SPESSORE_DETTAGLI: I dettagli interni (sassi, detriti) sono distinti dai bordi?
-10. TOPOGRAFI: Sono indicati i nomi dei topografi/rilevatori?
-11. MORFOLOGIA_ESTERNA: È rappresentata la morfologia esterna (superficie)?
-12. SEZIONI_TRASV: Ci sono sezioni trasversali disegnate?
-13. NOME_CAVITA: È scritto sul disegno il nome o il numero di catasto della grotta?
+Rispondi alle seguenti domande con Y (si'/presente), N (no/assente) o ? (non sicuro/non determinabile):
+
+Obbligatori:
+1. NOME_CAVITA: E' scritto sul disegno il nome o il numero di catasto della grotta?
+2. AUTORE: E' indicato l'autore del disegno?
+3. DATA: E' indicata la data o l'intervallo di tempo della topografia?
+4. SCALA: E' presente una scala grafica?
+5. NORD: E' indicato il Nord sulla pianta?
+6. PUNTO_ZERO: E' indicato il punto zero?
+7. DATI_METRICI: Sono riportati i dati speleometrici (sviluppo e dislivello)?
+8. ENTRAMBE_VISTE: Ci sono entrambe le viste, pianta e sezione longitudinale?
+9. SCRITTA_PIANTA: C'e' la scritta 'PIANTA'?
+10. SCRITTA_SEZIONE: C'e' la scritta 'SEZIONE', 'SEZIONE LONGITUDINALE' o 'SEZ. LONGITUDINALE'?
+11. SPESSORE_BORDO: Il bordo grotta e' disegnato con una linea spessa?
+12. SPESSORE_DETTAGLI: I dettagli interni sono disegnati con linea sottile, distinti dal bordo?
+Consigliati:
+13. TOPOGRAFI: Sono indicati i nomi dei rilevatori?
+14. SEZIONI_TRASV: Ci sono sezioni trasversali?
+15. MORFOLOGIA_ESTERNA: Sono disegnati dettagli esterni utili a riconoscere l'ingresso (scarpata, parete, cengia...)?
 {$cave_info}
 
 
@@ -222,20 +229,22 @@ VERIFICA NOME: Se sul rilievo è scritto un nome o numero di grotta, confrontalo
 
 Rispondi SOLO con un JSON in questo formato esatto:
 {
+  \"nome_cavita\": \"Y/N/?\",
+  \"autore\": \"Y/N/?\",
+  \"data\": \"Y/N/?\",
   \"scala\": \"Y/N/?\",
   \"nord\": \"Y/N/?\",
   \"punto_zero\": \"Y/N/?\",
   \"dati_metrici\": \"Y/N/?\",
+  \"entrambe_viste\": \"Y/N/?\",
   \"scritta_pianta\": \"Y/N/?\",
   \"scritta_sezione\": \"Y/N/?\",
-  \"entrambe_viste\": \"Y/N/?\",
   \"spessore_bordo\": \"Y/N/?\",
   \"spessore_dettagli\": \"Y/N/?\",
   \"topografi\": \"Y/N/?\",
-  \"morfologia\": \"Y/N/?\",
   \"sezioni_trasv\": \"Y/N/?\",
-  \"nome_cavita\": \"Y/N/?\",
-  \"note_generali\": \"breve riassunto sulla qualità del rilievo, indicando se conforme allo standard regionale [se presente nome trovato]\"
+  \"morfologia\": \"Y/N/?\",
+  \"note_generali\": \"breve riassunto: quali elementi obbligatori mancano (gli elementi consigliati mancanti non rendono il rilievo non conforme) [se presente nome trovato]\"
 }
 
 Non aggiungere altro testo, solo il JSON.";

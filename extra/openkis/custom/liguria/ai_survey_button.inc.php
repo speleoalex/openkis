@@ -9,11 +9,14 @@
  *
  * If the record has at least one survey with an image, it prepends to the top
  * of the form (the validator banner, prepended afterwards, stays above) a button
- * that calls openkis_ai_survey.php asynchronously and renders the compliance
- * checks (CampiScheda-20250327) returned by the AI service (vision model).
+ * that calls openkis_ai_survey.php asynchronously and renders the checks of
+ * CampiScheda-20250327 returned by the AI service (vision model): mandatory
+ * elements first, then the recommended ones, whose absence is not an error.
  * On page load (and when another survey is selected) the last saved analysis
  * is shown automatically via the endpoint's cached=1 read-only mode, which
  * never triggers an API call; the button re-runs the full analysis.
+ * The thumbnail of the selected survey is shown next to the result, linked
+ * to the full image, so the curator sees which drawing the AI looked at.
  * Nothing is shown when there are no survey images or no API key configured.
  */
 if (!isset($id) || $id === "" || empty($_FN['mod']))
@@ -98,11 +101,21 @@ usort($ai_surveys_img, function ($a, $b)
 $ai_endpoint = "{$_FN['siteurl']}extra/openkis/custom/liguria/openkis_ai_survey.php";
 $ai_mod_escaped = htmlspecialchars($_FN['mod'], ENT_QUOTES);
 
+// Preview addresses of each survey image, through the table so that the
+// protected files hook (openkis_FileUrl) applies; read by the script below
+$ai_surveys_xmltable = FN_XMDBTable($ai_surveys_table);
+$ai_preview_attributes = function ($survey) use ($ai_surveys_xmltable)
+{
+    $thumb = $ai_surveys_xmltable->get_thumb($survey, "photo1");
+    $file = $ai_surveys_xmltable->get_file($survey, "photo1");
+    return " data-thumb=\"" . htmlspecialchars((string) $thumb, ENT_QUOTES) . "\" data-file=\"" . htmlspecialchars((string) $file, ENT_QUOTES) . "\"";
+};
+
 // Survey selector: hidden input when there is only one survey
 if (count($ai_surveys_img) === 1)
 {
     $ai_only = $ai_surveys_img[0];
-    $ai_selector = "<input type=\"hidden\" id=\"openkis_ai_survey_select\" value=\"" . htmlspecialchars($ai_only['id'], ENT_QUOTES) . "\" />";
+    $ai_selector = "<input type=\"hidden\" id=\"openkis_ai_survey_select\" value=\"" . htmlspecialchars($ai_only['id'], ENT_QUOTES) . "\"" . $ai_preview_attributes($ai_only) . " />";
 }
 else
 {
@@ -118,7 +131,7 @@ else
             }
         }
         $ai_label = count($ai_label_parts) ? implode(" - ", $ai_label_parts) : "rilievo {$ai_survey['id']}";
-        $ai_selector .= "<option value=\"" . htmlspecialchars($ai_survey['id'], ENT_QUOTES) . "\">" . htmlspecialchars($ai_label, ENT_QUOTES) . "</option>";
+        $ai_selector .= "<option value=\"" . htmlspecialchars($ai_survey['id'], ENT_QUOTES) . "\"" . $ai_preview_attributes($ai_survey) . ">" . htmlspecialchars($ai_label, ENT_QUOTES) . "</option>";
     }
     $ai_selector .= "</select>";
 }
@@ -130,7 +143,12 @@ $ai_box = <<<HTML
         Analizza rilievo con AI
     </button>
     <span id="openkis_ai_survey_status" style="margin-left:8px;"></span>
-    <div id="openkis_ai_survey_result" style="margin-top:8px;"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin-top:8px;">
+        <a id="openkis_ai_survey_preview" href="#" target="_blank" rel="noopener" title="Apri il rilievo" style="display:none;flex:0 1 auto;max-width:100%;">
+            <img alt="Anteprima del rilievo" loading="lazy" style="display:block;max-width:100%;max-height:320px;border:1px solid #ccc;border-radius:3px;background:#fff;" />
+        </a>
+        <div id="openkis_ai_survey_result" style="flex:1 1 280px;min-width:0;"></div>
+    </div>
 </div>
 <script>
 (function () {
@@ -138,28 +156,50 @@ $ai_box = <<<HTML
     var sel = document.getElementById("openkis_ai_survey_select");
     var status = document.getElementById("openkis_ai_survey_status");
     var box = document.getElementById("openkis_ai_survey_result");
-    var labels = {
-        scala: "Scala grafica/numerica",
-        nord: "Indicatore del nord",
-        punto_zero: "Punto zero",
-        dati_metrici: "Dati metrici/quote",
-        scritta_pianta: "Scritta PIANTA",
-        scritta_sezione: "Scritta SEZIONE",
-        entrambe_viste: "Pianta e sezione presenti",
-        spessore_bordo: "Spessore dei bordi",
-        spessore_dettagli: "Dettagli distinti dai bordi",
-        topografi: "Topografi indicati",
-        morfologia: "Morfologia esterna",
-        sezioni_trasv: "Sezioni trasversali",
-        nome_cavita: "Nome o numero della grotta sul disegno"
-    };
-    function badge(value) {
+    var preview = document.getElementById("openkis_ai_survey_preview");
+    // Thumbnail of the selected survey (falls back to the full image)
+    function showPreview() {
+        var item = sel.tagName === "SELECT" ? sel.options[sel.selectedIndex] : sel;
+        var thumb = item ? (item.getAttribute("data-thumb") || item.getAttribute("data-file")) : "";
+        if (!thumb) {
+            preview.style.display = "none";
+            return;
+        }
+        preview.href = item.getAttribute("data-file") || thumb;
+        preview.firstElementChild.src = thumb;
+        preview.style.display = "";
+    }
+    // Mandatory and recommended elements of the drawing (CampiScheda-20250327);
+    // "autore" and "data" are missing from analyses saved before 2026-11-27
+    var groups = [
+        {title: "Elementi obbligatori", recommended: false, labels: {
+            nome_cavita: "Nome o numero della grotta",
+            autore: "Autore del disegno",
+            data: "Data della topografia",
+            scala: "Scala grafica",
+            nord: "Nord sulla pianta",
+            punto_zero: "Punto zero",
+            dati_metrici: "Dati speleometrici (sviluppo, dislivello)",
+            entrambe_viste: "Pianta e sezione longitudinale",
+            scritta_pianta: "Scritta PIANTA",
+            scritta_sezione: "Scritta SEZIONE",
+            spessore_bordo: "Bordo grotta a linea spessa",
+            spessore_dettagli: "Dettagli distinti dal bordo"
+        }},
+        {title: "Elementi consigliati (non obbligatori)", recommended: true, labels: {
+            topografi: "Rilevatori indicati",
+            sezioni_trasv: "Sezioni trasversali",
+            morfologia: "Dettagli esterni dell'ingresso"
+        }}
+    ];
+    function badge(value, recommended) {
         var span = document.createElement("span");
         var v = (value || "?").toString().toUpperCase();
         span.textContent = v === "Y" ? "SI" : (v === "N" ? "NO" : "?");
+        // a missing recommended element is not an error: grey, not red
         span.style.cssText = "display:inline-block;min-width:2.2em;text-align:center;" +
             "color:#fff;border-radius:3px;padding:1px 4px;margin-right:6px;font-weight:bold;" +
-            "background:" + (v === "Y" ? "#28a745" : (v === "N" ? "#dc3545" : "#6c757d")) + ";";
+            "background:" + (v === "Y" ? "#28a745" : (v === "N" && !recommended ? "#dc3545" : "#6c757d")) + ";";
         return span;
     }
     function showError(message) {
@@ -187,17 +227,23 @@ $ai_box = <<<HTML
             when.textContent = (data.cached ? "Ultima analisi: " : "Analisi del: ") + data.analyzed_at;
             panel.appendChild(when);
         }
-        var list = document.createElement("div");
-        list.style.cssText = "margin-top:6px;column-width:280px;";
-        for (var key in labels) {
-            if (!Object.prototype.hasOwnProperty.call(labels, key)) { continue; }
-            var row = document.createElement("div");
-            row.style.cssText = "margin:2px 0;break-inside:avoid;";
-            row.appendChild(badge(data.analysis ? data.analysis[key] : "?"));
-            row.appendChild(document.createTextNode(labels[key]));
-            list.appendChild(row);
-        }
-        panel.appendChild(list);
+        groups.forEach(function (group) {
+            var heading = document.createElement("div");
+            heading.style.cssText = "margin-top:8px;font-weight:bold;";
+            heading.textContent = group.title;
+            panel.appendChild(heading);
+            var list = document.createElement("div");
+            list.style.cssText = "margin-top:4px;column-width:280px;";
+            for (var key in group.labels) {
+                if (!Object.prototype.hasOwnProperty.call(group.labels, key)) { continue; }
+                var row = document.createElement("div");
+                row.style.cssText = "margin:2px 0;break-inside:avoid;";
+                row.appendChild(badge(data.analysis ? data.analysis[key] : "?", group.recommended));
+                row.appendChild(document.createTextNode(group.labels[key]));
+                list.appendChild(row);
+            }
+            panel.appendChild(list);
+        });
         if (data.analysis && data.analysis.note_generali) {
             var note = document.createElement("div");
             note.style.marginTop = "6px";
@@ -247,10 +293,13 @@ $ai_box = <<<HTML
         sel.addEventListener("change", function () {
             box.innerHTML = "";
             btn.textContent = "Analizza rilievo con AI";
+            showPreview();
             runAnalysis(true);
         });
     }
-    // Show the last saved analysis (if the image is unchanged) on page load
+    // Show the preview and the last saved analysis (if the image is
+    // unchanged) on page load
+    showPreview();
     runAnalysis(true);
 })();
 </script>

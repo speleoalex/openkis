@@ -8,12 +8,14 @@
  *   GROTTA:   name, speleometric data (real development, positive,
  *             negative and total depth), survey, description
  *   INGRESSO: coordinates, photo, access itinerary
- * plus uniformity notices on the most recent survey with a drawing (author,
- * date, accuracy), on PDF surveys without the image shown on the site, on
- * the itinerary author, on the elevation, on
- * coordinates outside Liguria or equal to those of another cave and on
- * records sharing the same name. Surveys holding only survey data (kml,
- * lox, shots) do not count as the survey drawing.
+ * plus notices on data the guidelines require or strongly recommend outside
+ * the minimum (author, date and accuracy of the most recent survey with a
+ * drawing, image of the PDF surveys, elevation) and on inconsistencies
+ * (coordinates outside Liguria or equal to those of another cave, records
+ * sharing the same name). Fields the guidelines call optional (locality,
+ * geological formation) or do not mention (author of the itinerary) are not
+ * reported: they must not look like requirements. Surveys holding only
+ * survey data (kml, lox, shots) do not count as the survey drawing.
  *
  * Derogations:
  *   - destroyed (destroyed = Y/P) or closed (closed = Y) caves: photo,
@@ -186,16 +188,6 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
     $entranceseverity = $derogated ? "notice" : "missing";
     $entrancesuffix = $derogated ? " (" . $derogationreason . ")" : "";
 
-    if (openkis_ValidatorFieldEmpty($row, "localita"))
-    {
-        openkis_ValidatorAdd($findings, "notice", "Localita'", FN_Translate("localita' non indicata"));
-    }
-
-    if (openkis_ValidatorFieldEmpty($row, "geologicalformation"))
-    {
-        openkis_ValidatorAdd($findings, "notice", FN_Translate("Formazione geologica"), FN_Translate("formazione geologica non indicata"));
-    }
-
     // Coordinates outside the Liguria bounding box, with a small margin.
     // latitude/longitude are computed WGS84 values and may be stale when
     // the entered coordinates are blank, so the check is skipped then.
@@ -213,10 +205,6 @@ function openkis_ValidateRecord_custom_caves($row, $findings)
     if (openkis_ValidatorFieldEmpty($row, "itinerary"))
     {
         openkis_ValidatorAdd($findings, $entranceseverity, FN_Translate("Itinerario"), FN_Translate("manca l'itinerario di accesso") . $entrancesuffix);
-    }
-    elseif (openkis_ValidatorFieldEmpty($row, "authoritinerary"))
-    {
-        openkis_ValidatorAdd($findings, "notice", FN_Translate("Autore itinerario"), FN_Translate("itinerario presente ma senza autore"));
     }
 
     // Photo authors and licenses (record photo, photos, surveys) are not

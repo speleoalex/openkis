@@ -257,9 +257,9 @@ function openkis_AiRecordAnalyze($mod, $id)
 
     $prompt = "Sei un curatore di un catasto speleologico regionale italiano. Verifica la scheda di grotta qui sotto.
 
-Requisiti della scheda: nome (univoco, non offensivo), dati speleometrici misurati (sviluppo reale, dislivelli positivo, negativo e totale = somma dei valori assoluti), rilievo con disegno (pianta e sezione), descrizione, coordinate dell'ingresso, foto dell'ingresso, itinerario di accesso.
-La descrizione dovrebbe trattare: morfologia, pericoli, idrologia (corsi d'acqua, laghi, sifoni), roccia, pozzi e armo, collegamenti con altre grotte, possibili prosecuzioni, storia esplorativa, percorribilita' (attrezzatura, acqua, fango, strettoie).
-L'itinerario deve permettere di ritrovare l'ingresso.
+Requisiti minimi della scheda, gli unici obbligatori: nome (univoco, non offensivo), dati speleometrici misurati (sviluppo reale, dislivelli positivo, negativo e totale = somma dei valori assoluti), rilievo con disegno (pianta e sezione), descrizione, coordinate dell'ingresso, foto dell'ingresso, itinerario di accesso. Sono ammesse deroghe per cavita' distrutte, chiuse, inaccessibili o di interesse storico.
+Argomenti che la descrizione puo' trattare (consigliati, non obbligatori): morfologia, pericoli, idrologia (corsi d'acqua, laghi, sifoni), roccia, pozzi e armo, collegamenti con altre grotte, possibili prosecuzioni, storia esplorativa, percorribilita' (attrezzatura, acqua, fango, strettoie).
+L'itinerario deve spiegare come raggiungere l'ingresso partendo da un parcheggio o da un punto facilmente individuabile.
 Il numero di catasto si scrive in piu' modi equivalenti: LI12, 12 Li, 12 Li(GE), 12 Li/GE: non sono errori.
 
 Cerca in particolare:
@@ -269,7 +269,8 @@ Cerca in particolare:
 NON segnalare:
 - varianti di grafia o di nome fra nome, sinonimi e localita': i sinonimi servono proprio a registrare le varianti storiche e dialettali;
 - campi vuoti e i controlli automatici elencati sotto: sono gia' noti al curatore;
-- il riepilogo calcolato, che non e' testo della scheda.
+- il riepilogo calcolato, che non e' testo della scheda;
+- come errore o difformita' l'assenza di dati opzionali o consigliati (localita', formazione geologica, autori, licenze, argomenti della descrizione): al massimo un suggerimento.
 Non inventare problemi: se i testi sono assenti o brevi e non trovi errori evidenti, lascia vuote le liste \"errori\" e \"difformita\".
 
 CAMPI DELLA SCHEDA:
@@ -280,7 +281,7 @@ CONTROLLI AUTOMATICI GIA' ESEGUITI:
 " . ($findings !== "" ? $findings : "- nessuna segnalazione\n") . "
 Rispondi SOLO con un JSON in questo formato:
 {
-  \"valutazione\": \"buona\" | \"sufficiente\" | \"insufficiente\",
+  \"valutazione\": \"buona\" (requisiti minimi presenti, nessun errore evidente) | \"sufficiente\" (requisiti minimi presenti, con errori o difformita') | \"insufficiente\" (manca un requisito minimo: nei controlli automatici e' segnato [mancante]),
   \"sintesi\": \"una o due frasi sullo stato della scheda\",
   \"errori\": [\"errori nei testi, citando il campo e il passo\"],
   \"difformita\": [\"difformita' fra testi e dati, citando i valori\"],
